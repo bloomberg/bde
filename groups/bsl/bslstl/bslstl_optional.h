@@ -85,6 +85,21 @@ BSLS_IDENT("$Id: $")
 //   due to limitations of `MovableRef<const TYPE>`, C++03 support for const
 //   `value_type`s is limited and move semantics of such an `optional` in
 //   C++03 will not work.
+// * `constexpr` support is not backported to language modes before C++17.
+// * The monadic operations `transform`, `and_then`, and `or_else` have the
+//   following limitations prior to C++17:
+//   * Constraints are not implemented (i.e., SFINAE is not supported).
+//   * Perfect forwarding is not currently supported: the callable is taken by
+//     const reference and the `optional` object on which the method is called
+//     is always treated as an lvalue.  These limitations may be partially
+//     lifted in the future and should not be relied upon.
+//   * The callable argument must be directly callable with the function call
+//     syntax; pointers to members (which are handled by `std::invoke`) are not
+//     supported.
+//   * The callable must be of a type whose return type can be determined using
+//     `bsl::invoke_result`.
+//   * For `transform` and `and_then`, the return type must be copyable in
+//     C++03; in C++11 and C++14 it must be movable.
 
 #include <bslscm_version.h>
 
@@ -103,19 +118,23 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_allocatorargt.h>
+#include <bslmf_assert.h>
 #include <bslmf_conjunction.h>
 #include <bslmf_decay.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_invokeresult.h>
 #include <bslmf_isaccessiblebaseof.h>
 #include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_isnothrowswappable.h>
+#include <bslmf_isreference.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_removeconst.h>
+#include <bslmf_removecv.h>
 #include <bslmf_removecvref.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
@@ -504,7 +523,7 @@ class optional;
 }  // close namespace bsl
 
 // ============================================================================
-//                Section: bslstl::Optional_* Utility Classes
+//                   Section: bslstl::Optional_* Utilities
 // ============================================================================
 
 namespace BloombergLP {
@@ -806,6 +825,26 @@ struct Optional_Data<t_TYPE, true> : public Optional_DataImp<t_TYPE> {
     using Optional_DataImp<t_TYPE>::Optional_DataImp;
 #endif
 };
+
+                      // ================================
+                      // struct Optional_TransformImpUtil
+                      // ================================
+
+/// This component-private class is used to implement `transform` prior to
+/// C++17.
+struct Optional_TransformImpUtil {
+    // CLASS METHODS
+
+    /// Return an `optional` whose contained object is move-constructed from
+    /// the specified `val` and, if allocator-aware, uses the allocator used by
+    /// `val` prior to this call.  The second argument's type shall be
+    /// `bsl::true_type` if and only if `t_RESULT` is allocator-aware.
+    template <class t_RESULT>
+    static bsl::optional<t_RESULT> make(t_RESULT& val, bsl::true_type);
+    template <class t_RESULT>
+    static bsl::optional<t_RESULT> make(t_RESULT& val, bsl::false_type);
+};
+
 
                          // ==========================
                          // Component-private concepts
@@ -2472,60 +2511,99 @@ class optional : public BloombergLP::bslstl::Optional_Base<t_TYPE> {
 # endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-
-    // This macro indicates that `bsl::optional` provides `and_then`,
-    // `or_else`, and `transform` methods.
+    /// This macro is defined if the monadic operations of `bsl::optional`
+    /// conform to the Standard; limited functionality is provided in earlier
+    /// language versions.  This macro is deprecated and may be removed in a
+    /// future release.
     #define BSLSTL_OPTIONAL_PROVIDES_MONADICS
+#endif
 
     /// If this object contains a value, invoke the specified `func` with the
-    /// contained value as an argument and return `optional<U>` that contains
-    /// the result of that invocation, where `U` is the cv-unqualified `func`
-    /// return type, which can be different from `t_TYPE`; otherwise, return an
-    /// empty `optional<U>`.  Note that `func` must return an object type other
-    /// than array, `bsl::in_place_t` or `bsl::nullopt`.  Also note that there
-    /// is no requirement that `U` is movable.  Finally note that the returned
-    /// optional uses the allocator of the object returned by `func`, or the
-    /// default allocator if `func` is not invoked.
+    /// contained value as an argument and return an `optional<U>` that
+    /// contains the result of that invocation, where `U` is the cv-unqualified
+    /// `func` return type, which can be different from `t_TYPE`; otherwise,
+    /// return an empty `optional<U>` that uses the default allocator.  `U`
+    /// shall not be `bsl::in_place_t`, nor `bsl::nullopt_t`.  In C++17 and
+    /// later, `U` is not required to be move-constructible, and if `func` is
+    /// invoked, the `U` object returned by `func` is constructed directly into
+    /// the `optional<U>` returned by `transform`; prior to C++17, `U` must be
+    /// move-constructible.  In all cases where `func` is invoked and `U` is
+    /// allocator-aware, the `optional` returned by `transform` is constructed
+    /// using the allocator of the object returned by `func`.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     template <class t_FUNC> constexpr auto transform(t_FUNC&& func) &;
     template <class t_FUNC> constexpr auto transform(t_FUNC&& func) &&;
     template <class t_FUNC> constexpr auto transform(t_FUNC&& func) const &;
     template <class t_FUNC> constexpr auto transform(t_FUNC&& func) const &&;
+#else
+    template <class t_FUNC>
+    optional<typename remove_cv<
+        typename invoke_result<const t_FUNC&, t_TYPE&>::type>::type>
+    transform(const t_FUNC& func);
+    template <class t_FUNC>
+    optional<typename remove_cv<
+        typename invoke_result<const t_FUNC&, const t_TYPE&>::type>::type>
+    transform(const t_FUNC& func) const;
+#endif  // C++17
 
     /// If this object contains a value, invoke the specified `func` with the
     /// contained value as an argument and return the result of that
-    /// invocation; otherwise, return an empty optional.  Note that `func` must
-    /// return a specialization of `bsl::optional`.  Also note that the return
-    /// type of `func` does not have to be this object type.  Also note that
-    /// the optional object returned by `func` is returned as-is, without
-    /// copying or moving.  Finally note that the default allocator is used for
-    /// constructing the empty optional when `func` is not invoked.
+    /// invocation, whose type shall be of the form `bsl::optional<U>` after
+    /// removing references and cv-qualifiers; otherwise, return an empty
+    /// `bsl::optional<U>` that uses the default allocator.  `U` does not need
+    /// to be the same as `t_TYPE`.  Note that if `func` is invoked, the
+    /// allocator of the object returned by `and_then` depends on the return
+    /// type of `func`:
+    /// * If `func` returns a reference, the return value of `and_then` is
+    ///   created using the copy or move constructor of `optional`.
+    /// * If `func` returns an object, that object is used directly as the
+    ///   return value for `and_then`; therefore, the latter's allocator is
+    ///   determined by `func`.  In C++17 and later, `U` is not required to be
+    ///   move-constructible.  Prior to C++17, `U` must be move-constructible
+    ///   (but the copy or move is elided, even in debug builds).
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     template <class t_FUNC> constexpr auto and_then(t_FUNC&& func) &;
     template <class t_FUNC> constexpr auto and_then(t_FUNC&& func) &&;
     template <class t_FUNC> constexpr auto and_then(t_FUNC&& func) const &;
     template <class t_FUNC> constexpr auto and_then(t_FUNC&& func) const &&;
+#else
+    template <class t_FUNC>
+    typename
+    remove_cvref<typename invoke_result<const t_FUNC&, t_TYPE&>::type>::type
+    and_then(const t_FUNC& func);
+    template <class t_FUNC>
+    typename remove_cvref<
+        typename invoke_result<const t_FUNC&, const t_TYPE&>::type>::type
+    and_then(const t_FUNC& func) const;
+#endif
 
     /// If this object does not contain a value, invoke the specified `func`
-    /// and return the result of that invocation.  Otherwise return a
-    /// copy-constructed value from this object.  Note that `func` must return
-    /// `bsl::optional`.  Also note that the optional object returned by `func`
-    /// is returned as-is, without copying or moving.
+    /// and return the result of that invocation.  Otherwise, return `*this`;
+    /// the move constructor is used in C++17 and later when `or_else` is
+    /// called for a non-const rvalue, and in all other cases the copy
+    /// constructor is used.  The return type of `func`, after removing
+    /// references and cv-qualifiers, shall be `bsl::optional<t_TYPE>`.  Note
+    /// that if `func` is invoked, the allocator of the object returned by
+    /// `or_else` depends on the return type of `func`:
+    /// * If `func` returns a reference, the return value of `or_else` is
+    ///   created using the copy or move constructor of `optional`.
+    /// * If `func` returns an object, that object is used directly as the
+    ///   return value for `or_else` without copying or moving; therefore, the
+    ///   latter's allocator is determined by `func`.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     template <class t_FUNC>
     constexpr
     enable_if_t<conjunction_v<std::is_invocable<t_FUNC>,
                               std::is_copy_constructible<t_TYPE>>,
                 optional> or_else(t_FUNC&& func) const &;
-
-    /// If this object does not contain a value, invoke the specified `func`
-    /// and return the result of that invocation; otherwise, return a
-    /// move-constructed value from this object, leaving this object in an
-    /// unspecified but valid state.  Note that `func` must return
-    /// `bsl::optional`.  Also note that the optional object returned by `func`
-    /// is returned as-is, without copying or moving.
     template <class t_FUNC>
     constexpr
     enable_if_t<conjunction_v<std::is_invocable<t_FUNC>,
                               std::is_move_constructible<t_TYPE>>,
                 optional> or_else(t_FUNC&& func) &&;
+#else
+    template <class t_FUNC>
+    optional or_else(const t_FUNC& func) const;
 #endif
 };
 
@@ -3424,6 +3502,32 @@ Optional_Data<t_TYPE, t_IS_TRIVIALLY_DESTRUCTIBLE>::~Optional_Data()
 {
     this->reset();
 }
+
+                      // --------------------------------
+                      // struct Optional_TransformImpUtil
+                      // --------------------------------
+
+template <class t_RESULT>
+bsl::optional<t_RESULT> Optional_TransformImpUtil::make(t_RESULT& val,
+                                                        bsl::true_type)
+{
+    typedef typename bsl::optional<t_RESULT>::allocator_type AllocType;
+
+    AllocType alloc =
+                  bslma::AATypeUtil::getAllocatorFromSubobject<AllocType>(val);
+
+    return bsl::optional<t_RESULT>(bsl::allocator_arg,
+                                   alloc,
+                                   bslmf::MovableRefUtil::move(val));
+}
+
+template <class t_RESULT>
+bsl::optional<t_RESULT> Optional_TransformImpUtil::make(t_RESULT& val,
+                                                        bsl::false_type)
+{
+    return bsl::optional<t_RESULT>(bslmf::MovableRefUtil::move(val));
+}
+
 
 // ============================================================================
 //        Section: Allocator-Aware 'Optional_Base' Method Definitions
@@ -5537,8 +5641,6 @@ template <class t_FUNC>
 constexpr auto optional<t_TYPE>::transform(t_FUNC&& func) &
 {
     using ResultType = std::remove_cv_t<std::invoke_result_t<t_FUNC, t_TYPE&>>;
-    static_assert(!std::is_array_v<ResultType>,
-                  "The callable must return an array");
     static_assert(!std::is_same_v<ResultType, nullopt_t>,
                   "The callable must not return nullopt_t");
     static_assert(!std::is_same_v<ResultType, in_place_t>,
@@ -5561,8 +5663,6 @@ constexpr auto optional<t_TYPE>::transform(t_FUNC&& func) const &
 {
     using ResultType =
                  std::remove_cv_t<std::invoke_result_t<t_FUNC, const t_TYPE&>>;
-    static_assert(!std::is_array_v<ResultType>,
-                  "The callable must return an array");
     static_assert(!std::is_same_v<ResultType, nullopt_t>,
                   "The callable must not return nullopt_t");
     static_assert(!std::is_same_v<ResultType, in_place_t>,
@@ -5585,8 +5685,6 @@ constexpr auto optional<t_TYPE>::transform(t_FUNC&& func) &&
 {
     using ResultType =
                       std::remove_cv_t<std::invoke_result_t<t_FUNC, t_TYPE&&>>;
-    static_assert(!std::is_array_v<ResultType>,
-                  "The callable must return an array");
     static_assert(!std::is_same_v<ResultType, nullopt_t>,
                   "The callable must not return nullopt_t");
     static_assert(!std::is_same_v<ResultType, in_place_t>,
@@ -5609,8 +5707,6 @@ constexpr auto optional<t_TYPE>::transform(t_FUNC&& func) const &&
 {
     using ResultType =
                 std::remove_cv_t<std::invoke_result_t<t_FUNC, const t_TYPE&&>>;
-    static_assert(!std::is_array_v<ResultType>,
-                  "The callable must return an array");
     static_assert(!std::is_same_v<ResultType, nullopt_t>,
                   "The callable must not return nullopt_t");
     static_assert(!std::is_same_v<ResultType, in_place_t>,
@@ -5626,7 +5722,62 @@ constexpr auto optional<t_TYPE>::transform(t_FUNC&& func) const &&
     }
     return optional<ResultType>{};
 }
+#else  // pre-C++17 implementation
+template <class t_TYPE>
+template <class t_FUNC>
+optional<typename remove_cv<
+    typename invoke_result<const t_FUNC&, t_TYPE&>::type>::type>
+optional<t_TYPE>::transform(const t_FUNC& func)
+{
+    typedef typename remove_cv<
+        typename invoke_result<const t_FUNC&, t_TYPE&>::type>::type ResultType;
 
+    // optional references are not supported yet
+    BSLMF_ASSERT(!is_reference<ResultType>::value);
+    BSLMF_ASSERT(!(is_same<ResultType, nullopt_t>::value));
+    BSLMF_ASSERT(!(is_same<ResultType, in_place_t>::value));
+
+    if (this->has_value()) {
+        ResultType val = func(**this);
+
+        BloombergLP::bslma::UsesBslmaAllocator<ResultType> usesAlloc;
+
+        return BloombergLP::bslstl::Optional_TransformImpUtil::make(val,
+                                                                    usesAlloc);
+                                                                      // RETURN
+    }
+    return optional<ResultType>();
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+optional<typename remove_cv<
+    typename invoke_result<const t_FUNC&, const t_TYPE&>::type>::type>
+optional<t_TYPE>::transform(const t_FUNC& func) const
+{
+    typedef typename remove_cv<
+        typename invoke_result<const t_FUNC&, const t_TYPE&>::type>::type
+        ResultType;
+
+    // optional references are not supported yet
+    BSLMF_ASSERT(!is_reference<ResultType>::value);
+    BSLMF_ASSERT(!(is_same<ResultType, nullopt_t>::value));
+    BSLMF_ASSERT(!(is_same<ResultType, in_place_t>::value));
+
+    if (this->has_value()) {
+        ResultType val = func(**this);
+
+        BloombergLP::bslma::UsesBslmaAllocator<ResultType> usesAlloc;
+
+        return BloombergLP::bslstl::Optional_TransformImpUtil::make(val,
+                                                                    usesAlloc);
+                                                                      // RETURN
+    }
+    return optional<ResultType>();
+}
+#endif  // C++17
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 template <class t_TYPE>
 template <class t_FUNC>
 constexpr auto optional<t_TYPE>::and_then(t_FUNC&& func) &
@@ -5690,7 +5841,46 @@ constexpr auto optional<t_TYPE>::and_then(t_FUNC&& func) const &&
     }
     return ResultType{};
 }
+#else  // pre-C++17 implementation
+template <class t_TYPE>
+template <class t_FUNC>
+typename
+remove_cvref<typename invoke_result<const t_FUNC&, t_TYPE&>::type>::type
+optional<t_TYPE>::and_then(const t_FUNC& func)
+{
+    typedef typename remove_cvref<
+        typename invoke_result<const t_FUNC&, t_TYPE&>::type>::type ResultType;
 
+    BSLMF_ASSERT(
+               BloombergLP::bslstl::Optional_IsBslOptional<ResultType>::value);
+
+    if (this->has_value()) {
+        return func(**this);                                          // RETURN
+    }
+    return ResultType();
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+typename
+remove_cvref<typename invoke_result<const t_FUNC&, const t_TYPE&>::type>::type
+optional<t_TYPE>::and_then(const t_FUNC& func) const
+{
+    typedef typename remove_cvref<
+        typename invoke_result<const t_FUNC&, const t_TYPE&>::type>::type
+        ResultType;
+
+    BSLMF_ASSERT(
+               BloombergLP::bslstl::Optional_IsBslOptional<ResultType>::value);
+
+    if (this->has_value()) {
+        return func(**this);                                          // RETURN
+    }
+    return ResultType();
+}
+#endif  // C++17
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 template <class t_TYPE>
 template <class t_FUNC>
 constexpr
@@ -5724,7 +5914,27 @@ enable_if_t<conjunction_v<std::is_invocable<t_FUNC>,
     }
     return std::forward<t_FUNC>(func)();
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#else  // pre-C++17 implementation
+template <class t_TYPE>
+template <class t_FUNC>
+optional<t_TYPE> optional<t_TYPE>::or_else(const t_FUNC& func) const
+{
+    // The compile-time check of the return type of `func` could theoretically
+    // be done in a way that doesn't depend on `bsl::invoke_result`.  However,
+    // we don't encourage the use of callables in C++03 code whose return types
+    // are impossible to determine, and they can't be made to work with
+    // `and_then` or `transform` anyway (since for those methods, there would
+    // be no way to write the return type in the declaration).
+    typedef typename remove_cvref<
+        typename invoke_result<const t_FUNC&>::type>::type ResultType;
+    BSLMF_ASSERT((is_same<optional, ResultType>::value));
+
+    if (this->has_value()) {
+        return *this;                                                 // RETURN
+    }
+    return func();
+}
+#endif  // C++17
 
 // ============================================================================
 //                      Section: Free Function Definitions

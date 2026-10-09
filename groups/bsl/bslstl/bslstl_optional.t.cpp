@@ -16,9 +16,6 @@
 
 #include <bslalg_constructorproxy.h>
 
-#include <bsltf_templatetestfacility.h>
-#include <bsltf_testvaluesarray.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_managedptr.h>
@@ -37,6 +34,10 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_types.h> // `bsls::Types::Int64`
 #include <bsls_util.h>  // 'forward<T>(V)' for C++11
+
+#include <bsltf_simpletesttype.h>
+#include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
 
 // A list of disabled tests :
 //
@@ -229,7 +230,7 @@ using namespace bsl;
 // [27] CONCEPTS
 // [29] INCOMPLETE TYPES
 // [30] `constexpr` FUNCTIONS
-// [31] C++23 MONADIC OPERATIONS
+// [31] MONADIC OPERATIONS
 
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -395,6 +396,523 @@ void myMemcpy(void *dst, const void *src, size_t size)
         *dstChar++ = *srcChar++;
     }
 }
+
+                                // ============
+                                // Test case 31
+                                // ============
+
+namespace test_case_31 {
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+/// This empty struct is default-constructible and not movable.
+struct Immovable {
+    Immovable() = default;
+
+    Immovable(const Immovable&) = delete;
+};
+
+/// This allocator-aware class is default-constructible and not movable.
+class ImmovableAA {
+  private:
+    // DATA
+    bsl::allocator<> d_alloc;
+
+  private:
+    // NOT IMPLEMENTED
+    ImmovableAA(const ImmovableAA&) = delete;
+
+  public:
+    // TYPES
+    using allocator_type = bsl::allocator<>;
+
+    // CREATORS
+    ImmovableAA() = default;
+    explicit ImmovableAA(const allocator_type&) {}
+
+    // ACCESSORS
+    allocator_type get_allocator() const { return {}; }
+};
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+/// Return `true`.  This function participates in overload resolution only if
+/// `opt.or_else(func)` is well formed, where the specified `opt` and `func`
+/// are forwarded.  The aforementioned expression is not evaluated.
+template <class t_OPTIONAL, class t_INVOCABLE>
+auto isOrElseAvailable(t_OPTIONAL&& opt, t_INVOCABLE&& func)
+    -> decltype(std::forward<t_OPTIONAL>(opt)
+                             .or_else(std::forward<t_INVOCABLE>(func)), bool{})
+{
+    return true;
+}
+
+/// Return `false`.  This function is selected by overload resolution only if
+/// the preceding overload is not viable.
+template <class... t_ARGS>
+bool isOrElseAvailable(t_ARGS&&... )
+{
+    return false;
+}
+#endif
+
+/// Return `true` if the specified `t_EXPECTED` type is the same as the type
+/// of the specified (unnamed) argument, and `false` otherwise.  Note that
+/// this function template is used instead of `decltype` so that the tests
+/// that use it can be compiled in C++03.
+template <class t_EXPECTED, class t_ACTUAL>
+bool isSameTypeAs(const t_ACTUAL&)
+{
+    return bsl::is_same<t_EXPECTED, t_ACTUAL>::value;
+}
+
+/// The length of the strings produced by the functors defined below; this is
+/// long enough to ensure that a `bsl::string` holding such a string allocates
+/// memory.
+const bsl::string::size_type k_STRING_LEN = sizeof(bsl::string);
+
+/// Functor that returns twice the value of its `int` argument.
+struct DoubleIt {
+    // TYPES
+    typedef int ResultType;  // for `bsl::invoke_result` in C++03
+
+    // ACCESSORS
+    int operator()(int value) const { return 2 * value; }
+};
+
+/// Functor that increments the counter supplied at construction each time it
+/// is invoked, and returns the value of its argument.
+template <class t_RESULT>
+struct CountedIdentity {
+    // TYPES
+    typedef t_RESULT ResultType;  // for `bsl::invoke_result` in C++03
+
+    // DATA
+    int *d_count_p;
+
+    // CREATORS
+    explicit CountedIdentity(int *count)
+    : d_count_p(count)
+    {
+    }
+
+    // ACCESSORS
+    t_RESULT operator()(const t_RESULT& value) const
+    {
+        ++*d_count_p;
+        return value;
+    }
+};
+
+/// Functor that returns a `char` when passed a modifiable `int` and a
+/// `double` when passed a non-modifiable `int`.  This is used to verify that
+/// the correct argument type is passed to `bsl::invoke_result`.  Note that
+/// the result types are fundamental types so that `bsl::invoke_result` can
+/// distinguish the two overloads even in C++03.
+struct ArgConstSensitive {
+    // ACCESSORS
+    char   operator()(int&)       const { return 'n'; }
+    double operator()(const int&) const { return 1.5; }
+};
+
+/// An enum whose values represent the four possible combinations of constness
+/// and value category.
+enum ArgKind {
+    e_LVALUE,
+    e_CONST_LVALUE,
+    e_RVALUE,
+    e_CONST_RVALUE,
+};
+
+/// Return `true` if the argument is a `bsl::optional` whose contained type is
+/// a `bsl::integral_constant` encoding the compile-time value equal to the
+/// specified template parameter `k_EXPECTED_KIND`, and `false` otherwise.
+template <ArgKind k_EXPECTED_KIND, ArgKind k_RETURNED_KIND>
+bool isKind(const bsl::optional<bsl::integral_constant<ArgKind,
+                                                       k_RETURNED_KIND> >&)
+{
+    return k_EXPECTED_KIND == k_RETURNED_KIND;
+}
+
+/// Functor whose return type depends on the constness and value category of
+/// the object expression used to invoke it.  This is used to verify that the
+/// correct callable type is passed to `bsl::invoke_result`.
+struct SelfConstSensitive {
+    // MANIPULATORS
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    bsl::integral_constant<ArgKind, e_LVALUE>
+    operator()(int) &  { return {}; }
+    bsl::integral_constant<ArgKind, e_RVALUE>
+    operator()(int) && { return {}; }
+#else
+    bsl::integral_constant<ArgKind, e_LVALUE>
+    operator()(int) { return bsl::integral_constant<ArgKind, e_LVALUE>(); }
+#endif
+
+    // ACCESSORS
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    bsl::integral_constant<ArgKind, e_CONST_LVALUE>
+    operator()(int) const &  { return {}; }
+    bsl::integral_constant<ArgKind, e_CONST_RVALUE>
+    operator()(int) const && { return {}; }
+#else
+    bsl::integral_constant<ArgKind, e_CONST_LVALUE>
+    operator()(int) const
+    {
+        return bsl::integral_constant<ArgKind, e_CONST_LVALUE>();
+    }
+#endif
+};
+}  // close namespace test_case_31
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+namespace bsl {
+template <>
+class invoke_result<test_case_31::SelfConstSensitive&, int&> {
+  public:
+    typedef integral_constant<test_case_31::ArgKind,
+                              test_case_31::e_LVALUE> type;
+};
+template <>
+class invoke_result<const test_case_31::SelfConstSensitive&, int&> {
+  public:
+    typedef integral_constant<test_case_31::ArgKind,
+                              test_case_31::e_CONST_LVALUE> type;
+};
+}  // close namespace bsl
+#endif
+
+namespace test_case_31 {
+
+/// A simple, non-allocator-aware value type that counts the number of times
+/// objects of the type are copy-constructed and move-constructed.
+struct CountedValue {
+    // CLASS DATA
+    static int s_copyCount;
+    static int s_moveCount;
+
+    // DATA
+    int d_value;
+
+    // CREATORS
+    explicit CountedValue(int value)
+    : d_value(value)
+    {
+    }
+
+    CountedValue(const CountedValue& original)
+    : d_value(original.d_value)
+    {
+        ++s_copyCount;
+    }
+
+    CountedValue(bslmf::MovableRef<CountedValue> original)
+    : d_value(MoveUtil::access(original).d_value)
+    {
+        ++s_moveCount;
+    }
+};
+
+int CountedValue::s_copyCount = 0;
+int CountedValue::s_moveCount = 0;
+
+/// Functor that returns a `CountedValue` object having the value of its `int`
+/// argument.
+struct MakeCountedValue {
+    // TYPES
+    typedef CountedValue ResultType;  // for `bsl::invoke_result` in C++03
+
+    // ACCESSORS
+    CountedValue operator()(int value) const { return CountedValue(value); }
+};
+
+/// Functor that returns a `const`-qualified `SimpleTestType` object; this is
+/// used to verify that `transform` removes cv-qualification from its result
+/// type.
+struct MakeConstValue {
+    // TYPES
+
+    /// Provide the result type (for `bsl::invoke_result` in C++03).
+    typedef const bsltf::SimpleTestType ResultType;
+
+    // ACCESSORS
+
+    ResultType operator()(int value) const { return ResultType(value); }
+};
+
+/// Functor that returns a `bsl::string` of length `k_STRING_LEN` that uses
+/// the allocator supplied at construction.
+struct MakeString {
+    // TYPES
+    typedef bsl::string ResultType;  // for `bsl::invoke_result` in C++03
+
+    // DATA
+    bslma::Allocator *d_allocator_p;
+
+    // CREATORS
+    explicit MakeString(bslma::Allocator *basicAllocator)
+    : d_allocator_p(basicAllocator)
+    {
+    }
+
+    // ACCESSORS
+    bsl::string operator()(int) const
+    {
+        return bsl::string(k_STRING_LEN, 'x', d_allocator_p);
+    }
+};
+
+/// Functor that returns a copy of its `bsl::string` argument that uses the
+/// allocator supplied at construction.
+struct CopyString {
+    // TYPES
+    typedef bsl::string ResultType;  // for `bsl::invoke_result` in C++03
+
+    // DATA
+    bslma::Allocator *d_allocator_p;
+
+    // CREATORS
+    explicit CopyString(bslma::Allocator *basicAllocator)
+    : d_allocator_p(basicAllocator)
+    {
+    }
+
+    // ACCESSORS
+    bsl::string operator()(const bsl::string& value) const
+    {
+        return bsl::string(value, d_allocator_p);
+    }
+};
+
+/// Functor that returns an engaged `bsl::optional<bsl::string>` holding a
+/// string of length `k_STRING_LEN` and using the allocator supplied at
+/// construction.
+struct MakeOptionalString {
+    // TYPES
+    typedef bsl::optional<bsl::string> ResultType;
+                                             // for `invoke_result` in C++03
+
+    // DATA
+    bslma::Allocator *d_allocator_p;
+
+    // CREATORS
+    explicit MakeOptionalString(bslma::Allocator *basicAllocator)
+    : d_allocator_p(basicAllocator)
+    {
+    }
+
+    // ACCESSORS
+    bsl::optional<bsl::string> operator()(int) const
+    {
+        return bsl::optional<bsl::string>(bsl::allocator_arg,
+                                          d_allocator_p,
+                                          bsl::in_place,
+                                          k_STRING_LEN,
+                                          'x');
+    }
+};
+
+/// Functor that returns an engaged `bsl::optional<bsl::string>` holding a
+/// copy of its `bsl::string` argument and using the allocator supplied at
+/// construction.
+struct CopyOptionalString {
+    // TYPES
+    typedef bsl::optional<bsl::string> ResultType;
+                                             // for `invoke_result` in C++03
+
+    // DATA
+    bslma::Allocator *d_allocator_p;
+
+    // CREATORS
+    explicit CopyOptionalString(bslma::Allocator *basicAllocator)
+    : d_allocator_p(basicAllocator)
+    {
+    }
+
+    // ACCESSORS
+    bsl::optional<bsl::string> operator()(const bsl::string& value) const
+    {
+        return bsl::optional<bsl::string>(bsl::allocator_arg,
+                                          d_allocator_p,
+                                          bsl::in_place,
+                                          value);
+    }
+};
+
+/// Functor taking no arguments that returns an engaged
+/// `bsl::optional<bsl::string>` holding a string of length `k_STRING_LEN` and
+/// using the allocator supplied at construction.
+struct MakeOptionalStringNoArg {
+    // TYPES
+    typedef bsl::optional<bsl::string> ResultType;
+                                             // for `invoke_result` in C++03
+
+    // DATA
+    bslma::Allocator *d_allocator_p;
+
+    // CREATORS
+    explicit MakeOptionalStringNoArg(bslma::Allocator *basicAllocator)
+    : d_allocator_p(basicAllocator)
+    {
+    }
+
+    // ACCESSORS
+    bsl::optional<bsl::string> operator()() const
+    {
+        return bsl::optional<bsl::string>(bsl::allocator_arg,
+                                          d_allocator_p,
+                                          bsl::in_place,
+                                          k_STRING_LEN,
+                                          'x');
+    }
+};
+
+/// Functor that increments the counter supplied at construction each time it
+/// is invoked, and returns an engaged `bsl::optional<t_TYPE>` holding the
+/// value of its argument.
+template <class t_TYPE>
+struct CountedMakeOptional {
+    // TYPES
+    typedef bsl::optional<t_TYPE> ResultType;  // for `invoke_result` in C++03
+
+    // DATA
+    int *d_count_p;
+
+    // CREATORS
+    explicit CountedMakeOptional(int *count)
+    : d_count_p(count)
+    {
+    }
+
+    // ACCESSORS
+    bsl::optional<t_TYPE> operator()(const t_TYPE& value) const
+    {
+        ++*d_count_p;
+        return value;
+    }
+};
+
+/// Functor taking no arguments that increments the counter supplied at
+/// construction each time it is invoked, and returns an engaged
+/// `bsl::optional<t_TYPE>` holding the value supplied at construction.
+template <class t_TYPE>
+struct CountedMakeOptionalNoArg {
+    // TYPES
+    typedef bsl::optional<t_TYPE> ResultType;  // for `invoke_result` in C++03
+
+    // DATA
+    int    *d_count_p;
+    t_TYPE  d_value;
+
+    // CREATORS
+    CountedMakeOptionalNoArg(int *count, const t_TYPE& value)
+    : d_count_p(count), d_value(value)
+    {
+    }
+
+    // ACCESSORS
+    bsl::optional<t_TYPE> operator()() const
+    {
+        ++*d_count_p;
+        return d_value;
+    }
+};
+
+/// Functor that returns a reference to a non-modifiable `bsl::optional<int>`;
+/// this is used to verify that `and_then` and `or_else` remove references and
+/// cv-qualification from their result type.
+struct ReturnOptionalRef {
+    // TYPES
+    typedef const bsl::optional<int>& ResultType;
+                                             // for `invoke_result` in C++03
+
+    // ACCESSORS
+    const bsl::optional<int>& operator()() const
+    {
+        static const bsl::optional<int> s_result(42);
+        return s_result;
+    }
+
+    const bsl::optional<int>& operator()(int) const
+    {
+        return (*this)();
+    }
+};
+
+/// Functor that returns a `bsl::optional<char>` when passed a modifiable `int`
+/// and a `bsl::optional<double>` when passed a non-modifiable `int`.  This is
+/// used to verify that the correct argument type is passed to
+/// `bsl::invoke_result`.
+struct OptArgConstSensitive {
+    // ACCESSORS
+    bsl::optional<char> operator()(int&) const
+    {
+        return bsl::make_optional('n');
+    }
+    bsl::optional<double> operator()(const int&) const
+    {
+        return bsl::make_optional(1.5);
+    }
+};
+
+/// Functor whose return type is a `bsl::optional` whose contained type depends
+/// on the constness and value category of the object expression used to invoke
+/// it.  This is used to verify that the correct callable type is passed to
+/// `bsl::invoke_result`.  In all cases, an empty optional is returned.
+struct OptSelfConstSensitive {
+    // MANIPULATORS
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    bsl::optional<bsl::integral_constant<ArgKind, e_LVALUE>>
+    operator()(int) &  { return bsl::nullopt; }
+    bsl::optional<bsl::integral_constant<ArgKind, e_RVALUE>>
+    operator()(int) && { return bsl::nullopt; }
+#else
+    bsl::optional<bsl::integral_constant<ArgKind, e_LVALUE> >
+    operator()(int) { return bsl::nullopt; }
+#endif
+
+    // ACCESSORS
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    bsl::optional<bsl::integral_constant<ArgKind, e_CONST_LVALUE>>
+    operator()(int) const &  { return bsl::nullopt; }
+    bsl::optional<bsl::integral_constant<ArgKind, e_CONST_RVALUE>>
+    operator()(int) const && { return bsl::nullopt; }
+#else
+    bsl::optional<bsl::integral_constant<ArgKind, e_CONST_LVALUE> >
+    operator()(int) const { return bsl::nullopt; }
+#endif
+};
+}  // close namespace test_case_31
+
+namespace bsl {
+template <>
+class invoke_result<const test_case_31::OptArgConstSensitive&, int&> {
+  public:
+    typedef optional<char> type;
+};
+template <>
+class invoke_result<const test_case_31::OptArgConstSensitive&, const int&> {
+  public:
+    typedef optional<double> type;
+};
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <>
+class invoke_result<test_case_31::OptSelfConstSensitive&, int&> {
+  public:
+    typedef optional<integral_constant<test_case_31::ArgKind,
+                                       test_case_31::e_LVALUE> > type;
+};
+template <>
+class invoke_result<const test_case_31::OptSelfConstSensitive&, int&> {
+  public:
+    typedef optional<integral_constant<test_case_31::ArgKind,
+                                       test_case_31::e_CONST_LVALUE> > type;
+};
+#endif
+}  // close namespace bsl
 
                                 // ============
                                 // Test case 30
@@ -13535,22 +14053,6 @@ struct TestDeductionGuides {
 };
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-template <class t_OPTIONAL, class t_INVOCABLE>
-auto isOrElseAvailable(t_OPTIONAL&& opt, t_INVOCABLE&& func)
-    -> decltype(std::forward<t_OPTIONAL>(opt)
-                             .or_else(std::forward<t_INVOCABLE>(func)), bool{})
-{
-    return true;
-}
-
-template <class... t_ARGS>
-bool isOrElseAvailable(t_ARGS&&... )
-{
-    return false;
-}
-#endif
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -13570,142 +14072,194 @@ int main(int argc, char **argv)
     switch (test) {  case 0:
       case 31: {
         //---------------------------------------------------------------------
-        // TESTING C++23 MONADIC OPERATIONS
+        // TESTING MONADIC OPERATIONS
         //
-        // Concern:
-        // 1. In C++23 mode `bsl::optional` provides monadic operations:
-        //    `transform`, `and_then` and `or_else`.
+        // Concerns:
+        // 1. `transform`, `and_then`, and `or_else` are available in every
+        //    language mode (with the documented limitations, described in more
+        //    detail below).
         //
-        // 2. With a non-empty optional `transform` invokes the callable,
-        //    passes the `value` there and returns an optional that wraps the
-        //    result of the invocation.
+        // 2. If `*this` is engaged, `transform` invokes the callable with the
+        //    contained value and returns an engaged optional holding the
+        //    result of that invocation; otherwise, the callable is not
+        //    invoked and a disengaged optional is returned.
         //
-        // 3. With a non-empty optional `and_then` invokes the callable,
-        //    passes the `value` there and returns the result of the
-        //    invocation.
+        // 3. If `*this` is engaged, `and_then` invokes the callable with the
+        //    contained value and returns the result of that invocation;
+        //    otherwise, the callable is not invoked and a disengaged optional
+        //    is returned.
         //
-        // 4. With a non-empty optional `or_else` does not invoke the callable
-        //    and returns a copy of the optional.
+        // 4. If `*this` is disengaged, `or_else` invokes the callable and
+        //    returns the result of that invocation; otherwise, the callable
+        //    is not invoked and a copy of `*this` is returned.
         //
-        // 5. With an empty optional `transform` does not invoke the callable
-        //    and returns an empty optional.
+        // 5. In C++17 and later, the kind of reference passed by `transform`
+        //    and `and_then` to the callable matches the constness and value
+        //    category of the optional on which the method is called:
+        //      - `TYPE&` for a modifiable lvalue,
+        //      - `const TYPE&` for a non-modifiable lvalue,
+        //      - `TYPE&&` for a modifiable rvalue,
+        //      - `const TYPE&&` for a non-modifiable rvalue.
         //
-        // 6. With an empty optional `and_then` does not invoke the callable
-        //    and returns an empty optional.
+        // 6. The result type of `transform` is the cv-unqualified return type
+        //    of the callable wrapped in a `bsl::optional`; the result type of
+        //    `and_then` is the return type of the callable with references
+        //    and cv-qualifiers removed; the result type of `or_else` is
+        //    `bsl::optional<TYPE>`.
         //
-        // 7. With an empty optional `or_else` invokes the callable and returns
-        //    the result of the invocation.
+        // 7. The types used to determine the result type of `transform` and
+        //    `and_then` are the types of the expressions that are actually
+        //    evaluated: the contained value is passed as `TYPE&` by the
+        //    non-`const` overloads and as `const TYPE&` by the `const`
+        //    overloads.  We never compute the result type based on the
+        //    callable being called as non-`const` if we actually call it as
+        //    `const` or vice versa.
         //
-        // 8. The kind of reference passed by `transform` and `and_then` to the
-        //    callable matches the kind of "this" object:
-        //      - `const &` for `const` lvalue,
-        //      - `&` for non-const lvalue,
-        //      - `const &&` for `const` rvalue,
-        //      - `&&` for non-const rvalue.
+        // 8. `transform` and `and_then` can return optionals whose contained
+        //    type differs from the contained type of `*this`, including, in
+        //    C++17 and later, immovable types.
         //
-        // 9. With a non-empty optional `or_else` returns a copy of the object
-        //    or a move-constructed value if the optional is a non-const
-        //    rvalue.
+        // 9. In C++17 and later, when `or_else` returns a copy of the
+        //    optional on which it is called, the contained value is
+        //    move-constructed if the object expression is a modifiable rvalue,
+        //    and copy-constructed otherwise.
         //
-        //10. `or_else` is available only for copyable types and non-const
-        //    rvalues of move-only types.  Also only an invocable object can be
-        ///   passed as an argument.
+        //10. In C++17 and later, `or_else` is available only for copyable
+        //    types and modifiable rvalues of move-only types, and only if the
+        //    supplied argument is invocable.
         //
-        //11. `transform` and `and_then` can return optional specializations
-        //    with an underlying type that differs from the underlying type of
-        //    "this" object.
+        //11. If the object returned by `transform` is allocator-aware, it
+        //    uses the allocator of the object returned by the callable, or
+        //    the default allocator if the callable is not invoked; the
+        //    allocator of `*this` is never propagated.
         //
-        //12. `transform` and `and_then` can return immovable objects.
+        //12. `and_then` and `or_else` return the optional returned by the
+        //    callable without changing its allocator, and return an optional
+        //    that uses the default allocator when the callable is not
+        //    invoked.  When `or_else` returns a copy of `*this`, that copy
+        //    uses the default allocator, except that, in C++17 and later, when
+        //    `or_else` is called on an optional that is a modifiable rvalue
+        //    and non-empty, the allocator is propagated to the returned
+        //    optional.
         //
-        //13. `transform` propagates the allocator used by the object returned
-        //    from the invocable, or uses the default allocator if the
-        //    invocable is not invoked.
-        //
-        //14. `and_then` returns the optional object returned by the invocable
-        //    as-is, without copying or moving, so the allocator is preserved.
-        //    The default allocator is used for constructing the empty optional
-        //    when the invocable is not invoked.
-        //
-        //15. `or_else` returns the optional object returned by the invocable
-        //    as-is, without copying or moving, so the allocator is preserved.
-        //    The default allocator is used for copy construction when the
-        //    invocable is not invoked.  The `or_else() &&` version uses move
-        //    constructor when the invocable is not invoked, so the allocator
-        //    is also propagated.
+        //13. No unnecessary copies or moves of the transformed value are
+        //    made.  Note that concerns 11 through 13 rely on copy elision,
+        //    which (in the case of temporaries) is not guaranteed prior to
+        //    C++17, but which is implemented by every compiler that BDE
+        //    supports.
         //
         // Plan:
-        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY` is
-        //    defined, perform the following tests.
+        // 1. Call `transform` on engaged and disengaged `bsl::optional<int>`
+        //    and `bsl::optional<bsl::string>` objects, and on `const`
+        //    references thereto, passing callables that count the number of
+        //    times they are invoked.  Verify that a callable is invoked only
+        //    when the object argument is engaged, and that the returned
+        //    optional is engaged and holds the result of the invocation in
+        //    exactly that case.  (C-1..2)
         //
-        // 2. Create a non-empty optional and apply the operations to it.
-        //    Verify that the callables were invoked by `transform` and
-        //    `and_then` but not by `or_else`.  Verify that the results are
-        //    non-empty optionals.  Repeat the tests for an optional containing
-        //    an allocator-aware type.  (C-1..4)
+        // 2. In C++17 and later, call `transform` on a modifiable lvalue, a
+        //    modifiable rvalue, a non-modifiable lvalue, and a
+        //    non-modifiable rvalue referring to an engaged
+        //    `bsl::optional<int>`, passing a generic lambda that verifies the
+        //    constness and value category of the reference it receives.  In
+        //    earlier language modes, call `transform` on a modifiable and on
+        //    a non-modifiable engaged `bsl::optional<int>` with a callable
+        //    having overloads that return distinct types for `int&` and
+        //    `const int&`, and verify the exact type and the value of the
+        //    result.  (C-5, C-7)
         //
-        // 3. Create an empty optional and apply the operations to it.
-        //    Verify that the callable was invoked by `or_else` but not by
-        //    `transform` and `and_then`.  Verify that the result of `or_else`
-        //    is the value returned by the invoked callable.  Verify that the
-        //    other results are empty optionals.  Repeat the tests for an
-        //    optional containing an allocator-aware type.  (C-5..7)
+        // 3. Call `transform` on an engaged `bsl::optional<int>` with a
+        //    callable having overloads that return distinct types depending
+        //    on whether the callable is `const`.  In C++17 and later, pass
+        //    the callable as a modifiable rvalue and as a non-modifiable
+        //    lvalue, and verify that the result holds the value returned by
+        //    the expected overload in each case.  In earlier language modes,
+        //    verify only that both calls compile, since whether a non-`const`
+        //    callable is invoked as `const` prior to C++17 is documented as
+        //    being subject to change.  (C-7)
         //
-        // 4. Create a const and a non-const optionals.  Call `transform` with
-        //    the const object, non-const object and `std::move(o)` expressions
-        //    with both optionals (4 calls).  Verify that the kind of the
-        //    reference passed to the callable corresponds to the kind of
-        //    "this" object.  Repeat the same for `and_then`.  (C-8)
+        // 4. Call `transform` on a non-modifiable engaged
+        //    `bsl::optional<int>` with a callable that returns a `const`-
+        //    qualified class type, and verify the exact type and the value of
+        //    the result.  In C++17 and later, also call `transform` with
+        //    lambdas that return an immovable type and an immovable
+        //    allocator-aware type, and verify the exact type of the result.
+        //    (C-6, C-8)
         //
-        // 5. Create a const and a non-const optionals containing a value of
-        //    `bsltf::MovableTestType`.  Call `or_else` with the const object,
-        //    non-const object and `std::move(o)` expressions with both
-        //    optionals (4 calls).  Verify that the value was moved after the
-        //    call with `std::move(non-const)` and copied in the other cases.
-        //    (C-9)
+        // 5. Call `transform` on an engaged `bsl::optional<int>` with a
+        //    callable that returns a `bsl::string` using a specific
+        //    allocator, and verify that the returned optional and its
+        //    contained value use that allocator and that a
+        //    `bslma::TestAllocatorMonitor` shows no allocation from the
+        //    default allocator.  Call `transform` on a disengaged
+        //    `bsl::optional<bsl::string>` that uses a non-default allocator,
+        //    and on a `const` reference thereto, and verify that the
+        //    disengaged result uses the default allocator.  (C-11, C-13)
         //
-        // 6. Using expression SFINAE verify that `or_else` is always available
-        //    for copyable types and non-const rvalues of move-only types and
-        //    unvailable in the other cases.  Also verify that `or_else` is
-        //    never available when non-invocable argument is passed.  (C-10)
+        // 6. Call `transform` on an engaged `bsl::optional<int>` with a
+        //    callable that returns a `CountedValue` object, which counts the
+        //    number of times objects of that type are copied and moved, and
+        //    verify that the result is never copied and is moved at most one
+        //    time.  (C-13)
         //
-        // 7. Create a non-empty `optional<int>`.  Call `transform` with a
-        //    callable that returns `bsl::string`.  Call `and_then` with a
-        //    callable that returns `optional<bsl::string>`.  Verify that both
-        //    calls returned `optional<bsl::string>` with the expected value.
-        //    (C-11)
+        // 7. Repeat P-1 for `and_then`, passing callables that return an
+        //    engaged optional holding their argument.  (C-1, C-3)
         //
-        // 8. Declare a non-AA type with deleted copy- and move-constructors.
-        //    Create a non-empty optional and call `transform` with a callable
-        //    returning an object of the declared type.  Call `and_then` with a
-        //    callable returning the same type but wrapped in `optional`.
-        //    Declare an AA type and repeat the same tests with it.  (C-12)
+        // 8. Repeat P-2 and P-3 for `and_then`, using callables whose
+        //    overloads return distinct optional specializations.  (C-5, C-7)
         //
-        // 9. Create a non-empty optional and an allocator object.  Call
-        //    `transform` with an invocable that returns an AA object that uses
-        //    the allocator.  Verify that returned optional uses the same
-        //    allocator.  Create an empty optional that uses a non-default
-        //    allocator.  Call `transform` with an invocable that returns an AA
-        //    object that uses a non-default allocator.  Verify that returned
-        //    optional uses the default allocator.  (C-13)
+        // 9. Call `and_then` on an engaged `bsl::optional<char>`, and on a
+        //    `const` reference thereto, with a callable that returns a
+        //    reference to a non-modifiable `bsl::optional<int>`, and verify
+        //    the exact type and the value of the result.  In C++17 and later,
+        //    also call `and_then` with lambdas that return optionals holding
+        //    an immovable type and an immovable allocator-aware type, and
+        //    verify the exact type of the result.  (C-6, C-8)
         //
-        //10. Create a non-empty optional and an allocator object.  Call
-        //    `and_then` with an invocable that returns an AA optional that
-        //    uses the allocator.  Verify that returned optional uses the
-        //    specified allocator.  Create an empty optional and call
-        //    `and_then` with an invocable that returns an AA optional that
-        //    uses a non-default allocator.  Verify that returned optional uses
-        //    the default allocator.  (C-14)
+        //10. Call `and_then` on an engaged `bsl::optional<int>` with a
+        //    callable that returns an optional that uses a specific
+        //    allocator, and verify that the returned optional and its
+        //    contained value use that allocator and that a
+        //    `bslma::TestAllocatorMonitor` shows no allocation from the
+        //    default allocator.  Call `and_then` on a disengaged
+        //    `bsl::optional<bsl::string>` that uses a non-default allocator,
+        //    and verify that the disengaged result uses the default
+        //    allocator.  (C-12, C-13)
         //
-        //11. Create an empty optional and call `or_else` with an invocable
-        //    that returns an AA optional that uses a non-default allocator.
-        //    Verify that returned optional uses the same allocator.  Create a
-        //    non-empty optional that uses a non-default allocator.  Call
-        //    `or_then` with an invocable that returns an AA optional that uses
-        //    a non-default allocator.  Verify that returned optional uses the
-        //    default allocator.  Call `or_then` with the rvalue and an
-        //    invocable that returns an AA optional that uses the default
-        //    allocator.  Verify that returned optional uses the same
-        //    non-default allocator.  (C-15)
+        //11. Call `or_else` on engaged and disengaged `bsl::optional<int>`
+        //    and `bsl::optional<bsl::string>` objects, and on `const`
+        //    references thereto, passing callables that count the number of
+        //    times they are invoked.  Verify that a callable is invoked only
+        //    when the object argument is disengaged, that the result holds
+        //    the value returned by the callable in that case, and that it
+        //    holds a copy of the contained value otherwise.  Also call
+        //    `or_else` with a callable that returns a reference to a
+        //    non-modifiable optional, and verify that references and
+        //    cv-qualifiers are removed from the result type.
+        //    (C-1, C-4, C-6)
+        //
+        //12. In C++17 and later, call `or_else` on a modifiable lvalue, a
+        //    modifiable rvalue, a non-modifiable lvalue, and a
+        //    non-modifiable rvalue referring to an engaged
+        //    `bsl::optional<bsltf::MovableTestType>`, and verify that the
+        //    contained value is moved into the result only when the object
+        //    argument is a modifiable rvalue, and copied otherwise.  (C-9)
+        //
+        //13. In C++17 and later, use expression SFINAE to verify that
+        //    `or_else` is available for copyable types and for modifiable
+        //    rvalues of move-only types, and is unavailable in the other
+        //    cases.  Also verify that `or_else` is never available when a
+        //    non-invocable argument is passed.  (C-10)
+        //
+        //14. Call `or_else` on a disengaged `bsl::optional<bsl::string>` with
+        //    a callable that returns an optional that uses a non-default
+        //    allocator, and verify that the returned optional and its
+        //    contained value use that allocator.  Call `or_else` on an
+        //    engaged `bsl::optional<bsl::string>` that uses a non-default
+        //    allocator and verify that the returned copy uses the default
+        //    allocator; in C++17 and later, verify that the copy returned
+        //    when the object argument is a modifiable rvalue uses the
+        //    allocator of the object argument.  (C-12)
         //
         // Testing:
         //   C++23 MONADIC OPERATIONS
@@ -13714,151 +14268,542 @@ int main(int argc, char **argv)
         if (verbose) printf("\nTESTING C++23 MONADIC OPERATIONS"
                             "\n================================\n");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        // The sections guarded by
+        // `BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY` test behavior
+        // that is available only in C++17 and later.
+
+        using namespace test_case_31;
+
+        bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
+        bslma::TestAllocator         ta("supplied", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
         ASSERT(!bslma::UsesBslmaAllocator<int>::value);
         ASSERT( bslma::UsesBslmaAllocator<bsl::string>::value);
+        ASSERT(!bslma::UsesBslmaAllocator<CountedValue>::value);
 
-        // Basic tests with an engaged optional
+        if (veryVerbose) printf("\t`transform` basic behavior\n");
         {
-            bsl::optional<int> opt(3);  // not allocator-aware
-            {
-                auto res = opt.transform([](int n){ return n * 2; });
-                ASSERT(res.has_value());
-                ASSERT(*res == 3 * 2);
-            }
-            {
-                auto res = opt.and_then([](int n) {
-                    return bsl::optional<int>{n * 2};
-                });
-                ASSERT(res.has_value());
-                ASSERT(*res == 3 * 2);
-            }
-            {
-                auto res = opt.or_else([]{
-                    ASSERT(false);
-                    return bsl::optional<int>{};
-                });
-                ASSERT(res == opt);
-            }
-        }
-        {
-            bsl::optional<bsl::string> opt("1");  // allocator-aware type
-            {
-                auto res = opt.transform([](const bsl::string& s) {
-                    return s + "2";
-                });
-                ASSERT(res.has_value());
-                ASSERT(*res == "12");
-            }
-            {
-                auto res = opt.and_then([](const bsl::string& s) {
-                    return bsl::optional<bsl::string>{s + "2"};
-                });
-                ASSERT(res.has_value());
-                ASSERT(*res == "12");
-            }
-            {
-                auto res = opt.or_else([]{
-                    ASSERT(false);
-                    return bsl::optional<bsl::string>{};
-                });
-                ASSERT(res == opt);
-            }
-        }
+            bsl::optional<int>        mX(3);
+            const bsl::optional<int>& X = mX;
 
-        // Basic tests with a disengaged optional
-        {
-            bsl::optional<int> opt;  // not allocator-aware
-            {
-                auto res = opt.transform([](auto){
-                    ASSERT(false);
-                    return 0;
-                });
-                ASSERT(!res.has_value());
-            }
-            {
-                auto res = opt.and_then([](auto) {
-                    ASSERT(false);
-                    return bsl::optional<int>{};
-                });
-                ASSERT(!res.has_value());
-            }
-            {
-                auto res = opt.or_else([]{ return bsl::optional<int>{1}; });
-                ASSERT(res.has_value());
-                ASSERT(*res == 1);
-            }
+            int count = 0;
+
+            // callable invoked exactly once (non-empty optional)
+
+            const bsl::optional<int> r1 =
+                                    mX.transform(CountedIdentity<int>(&count));
+            ASSERTV(count, 1 == count);
+            ASSERT(r1.has_value());
+            ASSERTV(*r1, 3 == *r1);
+
+            const bsl::optional<int> r2 =
+                                     X.transform(CountedIdentity<int>(&count));
+            ASSERTV(count, 2 == count);
+            ASSERT(r2.has_value());
+            ASSERTV(*r2, 3 == *r2);
+
+            ASSERT(6 == *mX.transform(DoubleIt()));
+            ASSERT(6 ==  *X.transform(DoubleIt()));
+
+            // allocator-aware contained type
+            bsl::optional<bsl::string>        mY("abc");
+            const bsl::optional<bsl::string>& Y = mY;
+
+            const bsl::optional<bsl::string> r3 =
+                            mY.transform(CountedIdentity<bsl::string>(&count));
+            ASSERTV(count, 3 == count);
+            ASSERT(r3.has_value());
+            ASSERT("abc" == *r3);
+
+            const bsl::optional<bsl::string> r4 =
+                             Y.transform(CountedIdentity<bsl::string>(&count));
+            ASSERTV(count, 4 == count);
+            ASSERT(r4.has_value());
+            ASSERT("abc" == *r4);
         }
         {
-            bsl::optional<bsl::string> opt;  // allocator-aware
-            {
-                auto res = opt.transform([](auto&& s){
-                    ASSERT(false);
-                    return s;
-                });
-                ASSERT(!res.has_value());
-            }
-            {
-                auto res = opt.and_then([](auto&&){
-                    ASSERT(false);
-                    return bsl::optional<bsl::string>{};
-                });
-                ASSERT(!res.has_value());
-            }
-            {
-                auto res = opt.or_else([]{
-                    return bsl::optional<bsl::string>{"A"};
-                });
-                ASSERT(res.has_value());
-                ASSERT(*res == "A");
-            }
+            bsl::optional<int>        mX;
+            const bsl::optional<int>& X = mX;
+
+            int count = 0;
+
+            // callable not invoked (empty optional)
+
+            const bsl::optional<int> r1 =
+                                    mX.transform(CountedIdentity<int>(&count));
+            ASSERTV(count, 0 == count);
+            ASSERT(!r1.has_value());
+
+            const bsl::optional<int> r2 =
+                                     X.transform(CountedIdentity<int>(&count));
+            ASSERTV(count, 0 == count);
+            ASSERT(!r2.has_value());
+
+            // allocator-aware contained type
+            bsl::optional<bsl::string>        mY;
+            const bsl::optional<bsl::string>& Y = mY;
+
+            const bsl::optional<bsl::string> r3 =
+                            mY.transform(CountedIdentity<bsl::string>(&count));
+            ASSERTV(count, 0 == count);
+            ASSERT(!r3.has_value());
+
+            const bsl::optional<bsl::string> r4 =
+                             Y.transform(CountedIdentity<bsl::string>(&count));
+            ASSERTV(count, 0 == count);
+            ASSERT(!r4.has_value());
         }
 
-        // Invocable argument reference type tests
+        if (veryVerbose) printf("\t`transform` object argument type\n");
         {
+            bsl::optional<int>        mX(-1);
+            const bsl::optional<int>& X = mX;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
             using Type = int;
-            bsl::optional<Type> opt;
-            const bsl::optional<Type> copt;
-            opt.transform([](auto&& arg){
+            mX.transform([](auto&& arg){
                 ASSERT((bsl::is_same_v<decltype(arg), Type&>));
                 return Type{};
             });
-            std::move(opt).transform([](auto&& arg){
+            std::move(mX).transform([](auto&& arg){
                 ASSERT((bsl::is_same_v<decltype(arg), Type&&>));
                 return Type{};
             });
-            copt.transform([](auto&& arg){
+            X.transform([](auto&& arg){
                 ASSERT((bsl::is_same_v<decltype(arg), const Type&>));
                 return Type{};
             });
-            std::move(copt).transform([](auto&& arg){
+            std::move(X).transform([](auto&& arg){
                 ASSERT((bsl::is_same_v<decltype(arg), const Type&&>));
                 return Type{};
             });
+#else
+            // The contained value is passed as `TYPE&` by the non-`const`
+            // overload and as `const TYPE&` by the `const` overload.
+            ASSERT((isSameTypeAs<bsl::optional<char> >(
+                                          mX.transform(ArgConstSensitive()))));
+            ASSERT('n' == *mX.transform(ArgConstSensitive()));
+            ASSERT((isSameTypeAs<bsl::optional<double> >(
+                                           X.transform(ArgConstSensitive()))));
+            ASSERT(1.5 ==  *X.transform(ArgConstSensitive()));
+#endif
+        }
+
+        if (veryVerbose) printf("\t`transform` callable argument type\n");
+        {
+            bsl::optional<int> mX(3);
+
+            SelfConstSensitive        mF;
+            const SelfConstSensitive& F = mF;
+
+            ASSERT(isKind<e_CONST_LVALUE>(mX.transform(F)));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+            ASSERT(isKind<e_LVALUE>(mX.transform(mF)));
+            ASSERT(isKind<e_RVALUE>(mX.transform(bsl::move(mF))));
+            ASSERT(isKind<e_CONST_RVALUE>(mX.transform(bsl::move(F))));
+#else
+            // Currently, when a non-const callable is passed to `transform`,
+            // its const-qualified `operator()` is called.  This property
+            // should not be relied on, but is tested here to ensure that the
+            // result is not a compilation error.  This test should simply be
+            // changed to expect `e_LVALUE` if `bsl::optional` is changed to
+            // call the non-const-qualified `operator()`.
+            ASSERT(isKind<e_CONST_LVALUE>(mX.transform(mF)));
+#endif
+        }
+
+        if (veryVerbose) printf("\t`transform` result type\n");
+        {
+            // cv-qualification is removed from the result type.  The contained
+            // type of the result type may differ from the contained type of
+            // the object argument.
+
+            const bsl::optional<int> X(4);
+
+            ASSERT((isSameTypeAs<bsl::optional<bsltf::SimpleTestType> >(
+                                              X.transform(MakeConstValue()))));
+            ASSERT(4 == X.transform(MakeConstValue())->data());
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        {
+            // The callable may return an immovable object.
+
+            bsl::optional<int> opt(1);
+            ASSERT(!bslma::UsesBslmaAllocator<Immovable>::value);
+
+            auto res = opt.transform([](const auto&) {
+                return Immovable{};
+            });
+            ASSERT((bsl::is_same_v<decltype(res), bsl::optional<Immovable>>));
         }
         {
+            // The callable may return an immovable allocator-aware object.
+
+            bsl::optional<int> opt(1);
+            ASSERT(bslma::UsesBslmaAllocator<ImmovableAA>::value);
+
+            auto res = opt.transform([](const auto&) {
+                return ImmovableAA{};
+            });
+            ASSERT((bsl::is_same_v<decltype(res),
+                                   bsl::optional<ImmovableAA>>));
+        }
+#endif
+
+        if (veryVerbose) printf("\t`transform` allocator propagation\n");
+        {
+            // The returned object uses the allocator of the object returned
+            // by the callable, and nothing is allocated from the default
+            // allocator.  Note that, prior to C++17, this property depends on
+            // the compiler eliding the temporary operand of the `return`
+            // statement inside `transform`.
+
+            const bsl::optional<int> X(1);
+
+            bslma::TestAllocatorMonitor dam(&da);
+
+            const bsl::optional<bsl::string> r = X.transform(MakeString(&ta));
+
+            ASSERT(r.has_value());
+            ASSERT(k_STRING_LEN == r->size());
+            ASSERT(&ta == r.get_allocator().mechanism());
+            ASSERT(&ta == r->get_allocator().mechanism());
+            ASSERT(dam.isTotalSame());
+        }
+        {
+            // Prior to C++17, the result of the invocation may be moved up to
+            // one time.  (Immovable types in C++17 and later are covered
+            // above.)
+
+            bsl::optional<int> mX(5);
+
+            const int copies = CountedValue::s_copyCount;
+            const int moves  = CountedValue::s_moveCount;
+
+            const bsl::optional<CountedValue> r =
+                                              mX.transform(MakeCountedValue());
+
+            ASSERT(r.has_value());
+            ASSERTV(r->d_value, 5 == r->d_value);
+            ASSERTV(CountedValue::s_copyCount - copies,
+                    0 == CountedValue::s_copyCount - copies);
+            ASSERTV(CountedValue::s_moveCount - moves,
+                    1 >= CountedValue::s_moveCount - moves);
+        }
+        {
+            // The returned object uses the default allocator when the
+            // callable is not invoked, even though `*this` uses a different
+            // allocator.
+
+            bsl::optional<bsl::string>        mX(bsl::allocator_arg, &ta);
+            const bsl::optional<bsl::string>& X = mX;
+
+            ASSERT(!mX.has_value());
+            ASSERT(&ta == mX.get_allocator().mechanism());
+
+            const bsl::optional<bsl::string> r1 =
+                                                 mX.transform(CopyString(&ta));
+            ASSERT(!r1.has_value());
+            ASSERT(&da == r1.get_allocator().mechanism());
+
+            const bsl::optional<bsl::string> r2 = X.transform(CopyString(&ta));
+            ASSERT(!r2.has_value());
+            ASSERT(&da == r2.get_allocator().mechanism());
+        }
+
+        if (veryVerbose) printf("\t`and_then` basic behavior\n");
+        {
+            bsl::optional<int>        mX(6);
+            const bsl::optional<int>& X = mX;
+
+            int count = 0;
+
+            // callable invoked exactly once (non-empty optional)
+
+            const bsl::optional<int> r1 =
+                                 mX.and_then(CountedMakeOptional<int>(&count));
+            ASSERTV(count, 1 == count);
+            ASSERT(r1.has_value());
+            ASSERTV(*r1, 6 == *r1);
+
+            const bsl::optional<int> r2 =
+                                  X.and_then(CountedMakeOptional<int>(&count));
+            ASSERTV(count, 2 == count);
+            ASSERT(r2.has_value());
+            ASSERTV(*r2, 6 == *r2);
+
+            // allocator-aware contained type
+            bsl::optional<bsl::string>        mY("def");
+            const bsl::optional<bsl::string>& Y = mY;
+
+            const bsl::optional<bsl::string> r3 =
+                         mY.and_then(CountedMakeOptional<bsl::string>(&count));
+            ASSERTV(count, 3 == count);
+            ASSERT(r3.has_value());
+            ASSERT("def" == *r3);
+
+            const bsl::optional<bsl::string> r4 =
+                          Y.and_then(CountedMakeOptional<bsl::string>(&count));
+            ASSERTV(count, 4 == count);
+            ASSERT(r4.has_value());
+            ASSERT("def" == *r4);
+        }
+        {
+            bsl::optional<int>        mX;
+            const bsl::optional<int>& X = mX;
+
+            int count = 0;
+
+            // callable not invoked (empty optional)
+
+            const bsl::optional<int> r1 =
+                                 mX.and_then(CountedMakeOptional<int>(&count));
+            ASSERTV(count, 0 == count);
+            ASSERT(!r1.has_value());
+
+            const bsl::optional<int> r2 =
+                                  X.and_then(CountedMakeOptional<int>(&count));
+            ASSERTV(count, 0 == count);
+            ASSERT(!r2.has_value());
+
+            // allocator-aware contained type
+            bsl::optional<bsl::string>        mY;
+            const bsl::optional<bsl::string>& Y = mY;
+
+            const bsl::optional<bsl::string> r3 =
+                         mY.and_then(CountedMakeOptional<bsl::string>(&count));
+            ASSERTV(count, 0 == count);
+            ASSERT(!r3.has_value());
+
+            const bsl::optional<bsl::string> r4 =
+                          Y.and_then(CountedMakeOptional<bsl::string>(&count));
+            ASSERTV(count, 0 == count);
+            ASSERT(!r4.has_value());
+        }
+
+        if (veryVerbose) printf("\t`and_then` object argument type\n");
+        {
+            bsl::optional<int>        mX(0);
+            const bsl::optional<int>& X = mX;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
             using Type = int;
-            bsl::optional<Type> opt;
-            const bsl::optional<Type> copt;
-            opt.and_then([](auto&& arg){
+            mX.and_then([](auto&& arg){
                 ASSERT((bsl::is_same_v<decltype(arg), Type&>));
                 return bsl::optional<Type>{};
             });
-            std::move(opt).and_then([](auto&& arg){
+            std::move(mX).and_then([](auto&& arg){
                 ASSERT((bsl::is_same_v<decltype(arg), Type&&>));
                 return bsl::optional<Type>{};
             });
-            copt.and_then([](auto&& arg){
+            X.and_then([](auto&& arg){
                 ASSERT((bsl::is_same_v<decltype(arg), const Type&>));
                 return bsl::optional<Type>{};
             });
-            std::move(copt).and_then([](auto&& arg){
+            std::move(X).and_then([](auto&& arg){
                 ASSERT((bsl::is_same_v<decltype(arg), const Type&&>));
                 return bsl::optional<Type>{};
             });
+#else
+            // The contained value is passed as `TYPE&` by the non-`const`
+            // overload and as `const TYPE&` by the `const` overload.
+
+            ASSERT((isSameTypeAs<bsl::optional<char> >(
+                                        mX.and_then(OptArgConstSensitive()))));
+            ASSERT('n' == *mX.and_then(OptArgConstSensitive()));
+
+            ASSERT((isSameTypeAs<bsl::optional<double> >(
+                                         X.and_then(OptArgConstSensitive()))));
+            ASSERT(1.5 == *X.and_then(OptArgConstSensitive()));
+#endif
         }
 
-        // Move tests
+        if (veryVerbose) printf("\t`and_then` callable argument type\n");
+        {
+            bsl::optional<int> mX(7);
+
+            OptSelfConstSensitive        mF;
+            const OptSelfConstSensitive& F = mF;
+
+            ASSERT(isKind<e_CONST_LVALUE>(mX.and_then(F)));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+            ASSERT(isKind<e_LVALUE>(mX.and_then(mF)));
+            ASSERT(isKind<e_RVALUE>(mX.and_then(bsl::move(mF))));
+            ASSERT(isKind<e_CONST_RVALUE>(mX.and_then(bsl::move(F))));
+#else
+            // Currently, when a non-const callable is passed to `and_then`,
+            // its const-qualified `operator()` is called.  This property
+            // should not be relied on, but is tested here to ensure that the
+            // result is not a compilation error.  This test should simply be
+            // changed to expect `e_LVALUE` if `bsl::optional` is changed to
+            // call the non-const-qualified `operator()`.
+            ASSERT(isKind<e_CONST_LVALUE>(mX.and_then(mF)));
+#endif
+        }
+
+        if (veryVerbose) printf("\t`and_then` result type\n");
+        {
+            bsl::optional<char>        mX('a');
+            const bsl::optional<char>& X = mX;
+
+            // References and cv-qualification are removed from the result
+            // type.  The result type can be different from the type of the
+            // optional on which `and_then` is called.
+            ASSERT((isSameTypeAs<bsl::optional<int> >(
+                                          mX.and_then(ReturnOptionalRef()))));
+            ASSERT((isSameTypeAs<bsl::optional<int> >(
+                                           X.and_then(ReturnOptionalRef()))));
+            ASSERT(42 == *mX.and_then(ReturnOptionalRef()));
+            ASSERT(42 == * X.and_then(ReturnOptionalRef()));
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        {
+            // The callable may return an optional holding an immovable
+            // object.
+
+            bsl::optional<int> opt(1);
+            ASSERT(!bslma::UsesBslmaAllocator<Immovable>::value);
+
+            auto res = opt.and_then([](const auto&) {
+                return bsl::optional<Immovable>{};
+            });
+            ASSERT((bsl::is_same_v<decltype(res), bsl::optional<Immovable>>));
+        }
+        {
+            // The callable may return an optional holding an immovable
+            // allocator-aware object.
+
+            bsl::optional<int> opt(1);
+            ASSERT(bslma::UsesBslmaAllocator<ImmovableAA>::value);
+
+            auto res = opt.and_then([](const auto&) {
+                return bsl::optional<ImmovableAA>{};
+            });
+            ASSERT((bsl::is_same_v<decltype(res),
+                                   bsl::optional<ImmovableAA>>));
+        }
+#endif
+
+        if (veryVerbose) printf("\t`and_then` allocator propagation\n");
+        {
+            // The optional returned by the callable is returned unchanged.
+            // Note that, prior to C++17, this property depends on the compiler
+            // eliding the temporary operand of the `return` statement inside
+            // `and_then`.
+            const bsl::optional<int> X(1);
+
+            bslma::TestAllocatorMonitor dam(&da);
+
+            const bsl::optional<bsl::string> r =
+                                           X.and_then(MakeOptionalString(&ta));
+
+            ASSERT(r.has_value());
+            ASSERT(k_STRING_LEN == r->size());
+            ASSERT(&ta == r.get_allocator().mechanism());
+            ASSERT(&ta == r->get_allocator().mechanism());
+            ASSERT(dam.isTotalSame());
+        }
+        {
+            // A disengaged optional using the default allocator is returned
+            // when the callable is not invoked, even though `*this` uses a
+            // different allocator.
+
+            const bsl::optional<bsl::string> X(bsl::allocator_arg, &ta);
+
+            ASSERT(!X.has_value());
+
+            const bsl::optional<bsl::string> r =
+                                           X.and_then(CopyOptionalString(&ta));
+
+            ASSERT(!r.has_value());
+            ASSERT(&da == r.get_allocator().mechanism());
+        }
+
+        if (veryVerbose) printf("\t`or_else` basic behavior\n");
+        {
+            bsl::optional<int>        mX;
+            const bsl::optional<int>& X = mX;
+
+            int count = 0;
+
+            // callable invoked exactly once (empty optional)
+
+            const bsl::optional<int> r1 =
+                          mX.or_else(CountedMakeOptionalNoArg<int>(&count, 5));
+            ASSERTV(count, 1 == count);
+            ASSERT(r1.has_value());
+            ASSERTV(*r1, 5 == *r1);
+
+            const bsl::optional<int> r2 =
+                           X.or_else(CountedMakeOptionalNoArg<int>(&count, 6));
+            ASSERTV(count, 2 == count);
+            ASSERT(r2.has_value());
+            ASSERTV(*r2, 6 == *r2);
+
+            // cvref removed from return type
+            ASSERT((isSameTypeAs<bsl::optional<int> >(
+                                            mX.or_else(ReturnOptionalRef()))));
+
+            // allocator-aware contained type
+            bsl::optional<bsl::string>        mY;
+            const bsl::optional<bsl::string>& Y = mY;
+
+            const bsl::optional<bsl::string> r3 =
+              mY.or_else(CountedMakeOptionalNoArg<bsl::string>(&count, "ghi"));
+            ASSERTV(count, 3 == count);
+            ASSERT(r3.has_value());
+            ASSERT("ghi" == *r3);
+
+            const bsl::optional<bsl::string> r4 =
+               Y.or_else(CountedMakeOptionalNoArg<bsl::string>(&count, "ghi"));
+            ASSERTV(count, 4 == count);
+            ASSERT(r4.has_value());
+            ASSERT("ghi" == *r4);
+        }
+        {
+            bsl::optional<int>        mX(8);
+            const bsl::optional<int>& X = mX;
+
+            int count = 0;
+
+            // callable not invoked (non-empty optional)
+
+            const bsl::optional<int> r1 =
+                          mX.or_else(CountedMakeOptionalNoArg<int>(&count, 5));
+            ASSERTV(count, 0 == count);
+            ASSERT(r1.has_value());
+            ASSERTV(*r1, 8 == *r1);
+
+            const bsl::optional<int> r2 =
+                           X.or_else(CountedMakeOptionalNoArg<int>(&count, 5));
+            ASSERTV(count, 0 == count);
+            ASSERT(r2.has_value());
+            ASSERTV(*r2, 8 == *r2);
+
+            // allocator-aware contained type
+            bsl::optional<bsl::string>        mY("ghi");
+            const bsl::optional<bsl::string>& Y = mY;
+
+            const bsl::optional<bsl::string> r3 =
+              mY.or_else(CountedMakeOptionalNoArg<bsl::string>(&count, "jkl"));
+            ASSERTV(count, 0 == count);
+            ASSERT(r3.has_value());
+            ASSERT("ghi" == *r3);
+
+            const bsl::optional<bsl::string> r4 =
+               Y.or_else(CountedMakeOptionalNoArg<bsl::string>(&count, "jkl"));
+            ASSERTV(count, 0 == count);
+            ASSERT(r4.has_value());
+            ASSERT("ghi" == *r4);
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        if (veryVerbose) printf("\t`or_else` copy and move behavior\n");
         {
             using Type = bsltf::MovableTestType;
             const int VALUE = 1;
@@ -13904,7 +14849,7 @@ int main(int argc, char **argv)
             }
         }
 
-        // `or_else` constraints tests
+        if (veryVerbose) printf("\t`or_else` constraints\n");
         {
             const auto invocable = []{ return bsl::optional<int>{}; };
             class {}   nonInvocable;
@@ -13948,10 +14893,6 @@ int main(int argc, char **argv)
                 }
             }
             {
-                struct Immovable {
-                    Immovable() = default;
-                    Immovable(const Immovable&) = delete;
-                };
                 {
                     bsl::optional<Immovable> opt;
                     ASSERT(!isOrElseAvailable(opt, invocable));
@@ -13968,146 +14909,57 @@ int main(int argc, char **argv)
                 }
             }
         }
+#endif  // C++17
 
-        // Return another type tests
+        if (veryVerbose) printf("\t`or_else` allocator propagation\n");
         {
-            bsl::optional<int> opt(3);
-            {
-                bsl::optional<bsl::string> res = opt.transform([](int n){
-                    return bsl::to_string(n);
-                });
-                ASSERT(res.has_value());
-                ASSERT(*res == "3");
-            }
-            {
-                bsl::optional<bsl::string> res = opt.and_then([](int n){
-                    return bsl::optional{bsl::to_string(n)};
-                });
-                ASSERT(res.has_value());
-                ASSERT(*res == "3");
-            }
-        }
+            // The optional returned by the callable is returned unchanged.
+            // The allocator isn't propagated from the object argument.  Note
+            // that, prior to C++17, this property depends on the compiler
+            // eliding the temporary operand of the `return` statement inside
+            // `transform`.
 
-        // Return an immovable object test
-        {
-            bsl::optional<int> opt(1);
-            struct Immovable {
-                Immovable() = default;
-                Immovable(const Immovable&) = delete;
-            };
-            ASSERT(!bslma::UsesBslmaAllocator<Immovable>::value);
+            bsl::optional<bsl::string> mX;
+            ASSERT(&da == mX.get_allocator().mechanism());
 
-            auto res1 = opt.transform([](const auto&) {
-                return Immovable{};
-            });
-            ASSERT((bsl::is_same_v<decltype(res1), bsl::optional<Immovable>>));
+            const bsl::optional<bsl::string> r =
+                                      mX.or_else(MakeOptionalStringNoArg(&ta));
 
-            auto res2 = opt.and_then([](const auto&) {
-                return bsl::optional<Immovable>{};
-            });
-            ASSERT((bsl::is_same_v<decltype(res2), bsl::optional<Immovable>>));
+            ASSERT(r.has_value());
+            ASSERT(k_STRING_LEN == r->size());
+            ASSERT(&ta == r.get_allocator().mechanism());
+            ASSERT(&ta == r->get_allocator().mechanism());
         }
         {
-            bsl::optional<int> opt(1);
-            struct ImmovableAA {
-                using allocator_type = bsl::allocator<>;
-                ImmovableAA() = default;
-                explicit ImmovableAA(const allocator_type&) {}
-                ImmovableAA(const ImmovableAA&) = delete;
-                allocator_type get_allocator() const { return {}; }
-            };
-            ASSERT(bslma::UsesBslmaAllocator<ImmovableAA>::value);
+            // The copy of `*this` that is returned when `*this` is engaged
+            // uses the default allocator.
 
-            auto res1 = opt.transform([](const auto&) {
-                return ImmovableAA{};
-            });
-            ASSERT((bsl::is_same_v<decltype(res1),
-                                   bsl::optional<ImmovableAA>>));
+            bsl::optional<bsl::string> mX(bsl::allocator_arg,
+                                          &ta,
+                                          bsl::in_place,
+                                          k_STRING_LEN,
+                                          'x');
 
-            auto res2 = opt.and_then([](const auto&) {
-                return bsl::optional<ImmovableAA>{};
-            });
-            ASSERT((bsl::is_same_v<decltype(res2),
-                                   bsl::optional<ImmovableAA>>));
+            const bsl::optional<bsl::string> r =
+                                      mX.or_else(MakeOptionalStringNoArg(&ta));
+
+            ASSERT(r.has_value());
+            ASSERT(*r == *mX);
+            ASSERT(&da == r.get_allocator().mechanism());
+            ASSERT(&da == r->get_allocator().mechanism());
         }
-
-        // Allocator tests
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         {
-            bslma::TestAllocator alloc("test");
-            // `transform` uses the allocator of the object returned by the
-            // callable
-            {
-                bsl::optional<int> opt(1);
-                ASSERT(opt.has_value());
-                auto res = opt.transform([&alloc](const auto&) {
-                    return bsl::string{&alloc};
-                });
-                ASSERT(res.get_allocator() == &alloc);
-                ASSERT(res->get_allocator() == &alloc);
-            }
-            // `transform` uses the default allocator if it creates an empty
-            // optional
-            {
-                bsl::optional<bsl::string> opt(bsl::allocator_arg, &alloc);
-                ASSERT(opt.get_allocator() == &alloc);
-                ASSERT(!opt.has_value());
-                auto res = opt.transform([&alloc](const auto&) {
-                    return bsl::string{&alloc};
-                });
-                ASSERT(res == opt);
-                ASSERT(res.get_allocator() == bsl::allocator<>{});
-            }
-            // `and_then` returns the optional as-is that is returned by the
-            // callable
-            {
-                bsl::optional<int> opt(1);
-                auto res = opt.and_then([&alloc](const auto&) {
-                    return bsl::optional<bsl::string>{bsl::allocator_arg,
-                                                      &alloc};
-                });
-                ASSERT(res.get_allocator() == &alloc);
-            }
-            // `and_then` uses the default allocator if `*this` is empty
-            {
-                bsl::optional<int> opt;
-                ASSERT(!opt.has_value());
-                auto res = opt.and_then([&alloc](const auto&) {
-                    return bsl::optional<bsl::string>{bsl::allocator_arg,
-                                                      &alloc};
-                });
-                ASSERT(res.get_allocator() == bsl::allocator<>{});
-            }
-            // `or_else` returns the optional as-is that is returned by the
-            // callable
-            {
-                bsl::optional<bsl::string> opt;
-                ASSERT(!opt.has_value());
-                auto res = opt.or_else([&alloc]{
-                    return bsl::optional<bsl::string>{bsl::allocator_arg,
-                                                      &alloc};
-                });
-                ASSERT(res.get_allocator() == &alloc);
-            }
-            // `or_else` behaves as copy/move construction when it takes its
-            // value from `*this`
-            {
-                bsl::optional<bsl::string> opt(bsl::allocator_arg, &alloc);
-                opt.emplace("abc");
-                ASSERT(opt.get_allocator() == &alloc);
-                ASSERT(opt.has_value());
-                auto res = opt.or_else([&alloc]{
-                    return bsl::optional<bsl::string>{bsl::allocator_arg,
-                                                      &alloc};
-                });
-                ASSERT(res == opt);
-                ASSERT(res.get_allocator() == bsl::allocator<>{});
-
-                ASSERT(opt.has_value());
-                auto moved_res = std::move(opt).or_else([]{
-                    return bsl::optional<bsl::string>{};
-                });
-                ASSERT(moved_res.get_allocator() == &alloc);
-            }
+            // When `or_else` returns a move-constructed copy of the object
+            // argument, the allocator is propagated from the object argument.
+            bsl::optional<bsl::string> opt(bsl::allocator_arg, &ta);
+            opt.emplace("abc");
+            ASSERT(opt.get_allocator().mechanism() == &ta);
+            ASSERT(opt.has_value());
+            const auto moved_res = std::move(opt).or_else([] {
+                return bsl::optional<bsl::string>{};
+            });
+            ASSERT(moved_res.get_allocator().mechanism() == &ta);
         }
 #endif
       } break;
