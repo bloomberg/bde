@@ -310,7 +310,7 @@ struct Functor {
                 break;
             }
         }
-        for (int i = numToScanI - 1; 0 < i; --i) {
+        for (int i = numToScanI - 1; 0 <= i; --i) {
             if (TOP_NUMBER < scannedTo[primeNumbers[i]]) {
                 for (int j = i + 1; numPrimeNumbers > j; ++j) {
                     if (TOP_NUMBER == scannedTo[primeNumbers[j]]) {
@@ -729,7 +729,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << "===============\n"
-                    "Usage example 2\n"
+                    "Usage example 1\n"
                     "===============\n";
         }
 

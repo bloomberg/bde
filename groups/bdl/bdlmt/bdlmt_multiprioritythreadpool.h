@@ -116,7 +116,6 @@ BSLS_IDENT("$Id: $")
 //  bsls::AtomicInt     urgentJobsDone;
 //  bsls::AtomicInt lessUrgentJobsDone;
 //
-//  inline
 //  extern "C" void *urgentJob(void *)
 //  {
 //      bslmt::ThreadUtil::microSleep(10000);          // 10 mSec
@@ -137,14 +136,14 @@ BSLS_IDENT("$Id: $")
 // ```
 // The main program (below) enqueues 100 times as many low-priority jobs as
 // high priority ones.  10,100 jobs are submitted, each taking at least 0.01
-// seconds, for a total cpu time of 101 seconds.  We use 20 threads, so that
-// is about 5 seconds.  But we shut down the run after only 0.5 seconds, so
-// that means at least 90% of the jobs will not complete.  When run, typical
+// seconds, for a total cpu time of 101 seconds.  We use 10 threads, so that
+// is about 10 seconds.  But we shut down the run after only 0.5 seconds, so
+// that means about 95% of the jobs will not complete.  When run, typical
 // output of this program is:
 // ```
-// Jobs done: urgent: 100, less urgent: 507
+// Jobs done: urgent: 100, less urgent: 334
 // ```
-// meaning *all* of the urgent jobs completed, while approximately 95% of the
+// meaning *all* of the urgent jobs completed, while approximately 97% of the
 // less urgent jobs did not:
 // ```
 //      bdlmt::MultipriorityThreadPool pool(10,  // # of threads
@@ -253,7 +252,7 @@ BSLS_IDENT("$Id: $")
 //                  break;
 //              }
 //          }
-//          for (int i = numToScanI - 1; i < 0; --i) {
+//          for (int i = numToScanI - 1; 0 <= i; --i) {
 //              if (TOP_NUMBER < scannedTo[primeNumbers[i]]) {
 //                  for (int j = i + 1; j < numPrimeNumbers; ++j) {
 //                      if (TOP_NUMBER == scannedTo[primeNumbers[j]]) {
