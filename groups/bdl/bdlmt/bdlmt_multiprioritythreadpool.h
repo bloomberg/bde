@@ -193,7 +193,8 @@ BSLS_IDENT("$Id: $")
 //      NUM_PRIORITIES = 32
 //  };
 //
-//  bool isStillPrime[TOP_NUMBER];
+//  bsls::AtomicBool isStillPrime[TOP_NUMBER];
+//
 //  bsls::AtomicInt scannedTo[TOP_NUMBER];  // if `P` is a prime, what is the
 //                                          // highest multiple of `P` that
 //                                          // we have marked
