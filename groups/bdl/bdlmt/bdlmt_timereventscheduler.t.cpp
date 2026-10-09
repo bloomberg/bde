@@ -1583,7 +1583,8 @@ void *workerThread10(void *arg)
                   cout << "\t\tAdded event: "; P_(id); P_(i); P_(h); P(handle);
                   printMutex.unlock();
               }
-              if (0 != pX->cancelEvent(h) && !testTimingFailure.loadRelaxed()) {
+              if (   0 != pX->cancelEvent(h)
+                  && !testTimingFailure.loadRelaxed()) {
                   // We tried and the `cancelEvent` failed, but we do not want
                   // to generate an error unless we can *guarantee* that the
                   // `cancelEvent` should have succeeded.
@@ -1620,7 +1621,8 @@ void *workerThread10(void *arg)
                   cout << "\t\tAdded clock: "; P_(id); P_(i); P_(h); P(handle);
                   printMutex.unlock();
               }
-              if (0 != pX->cancelClock(h) && !testTimingFailure.loadRelaxed()) {
+              if (   0 != pX->cancelClock(h)
+                  && !testTimingFailure.loadRelaxed()) {
                   // We tried and the `cancelClock` failed, but we do not want
                   // to generate an error unless we can *guarantee* that the
                   // `cancelClock` should have succeeded.
@@ -1986,7 +1988,7 @@ void test7_f()
     TestClass1 testObj;
 
     bslma::TestAllocator ta(veryVeryVerbose);
-    Obj x(&ta); x.start();
+    Obj x(&ta);
 
     Handle h1, h2;
     {
@@ -2006,6 +2008,8 @@ void test7_f()
                                                  &h2,
                                                  ptr2));
     }
+
+    x.start();
 
     x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T3,
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
@@ -2423,8 +2427,10 @@ void test3_f()
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
     bslma::TestAllocator ta(veryVeryVerbose);
-    Obj x(&ta); x.start();
+    Obj x(&ta);
+
     bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
+
     Handle handleToBeCancelled =
         x.scheduleEvent(now + T,
                         bdlf::BindUtil::bind(&cancelEventCallback,
@@ -2432,6 +2438,8 @@ void test3_f()
                                              &handleToBeCancelled,
                                              0,
                                              -1));
+
+    x.start();
 
     myMicroSleep(T3, 0);
     // The assert is performed by `cancelEventCallback`.
@@ -3555,7 +3563,8 @@ int main(int argc, char *argv[])
                           << "TESTING `nextPendingEventTime`" << endl
                           << "==============================" << endl;
 
-        const bsls::TimeInterval NOW_RAW = bsls::SystemTime::nowRealtimeClock();
+        const bsls::TimeInterval NOW_RAW =
+                                          bsls::SystemTime::nowRealtimeClock();
 
         bsls::TimeInterval NOW = NOW_RAW;
         NOW.addNanoseconds(-NOW.nanoseconds());

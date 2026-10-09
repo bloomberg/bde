@@ -694,10 +694,10 @@ EventScheduler::EventScheduler(
 }
 
 EventScheduler::EventScheduler(
-                           const bsl::chrono::system_clock&,
-                           const bsl::string_view&           eventSchedulerName,
-                           bdlm::MetricsRegistry            *metricsRegistry,
-                           bslma::Allocator                 *basicAllocator)
+                          const bsl::chrono::system_clock&,
+                          const bsl::string_view&           eventSchedulerName,
+                          bdlm::MetricsRegistry            *metricsRegistry,
+                          bslma::Allocator                 *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg, basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
@@ -795,10 +795,10 @@ EventScheduler::EventScheduler(
 }
 
 EventScheduler::EventScheduler(
-                          const EventScheduler::Dispatcher&  dispatcherFunctor,
-                          const bsl::string_view&            eventSchedulerName,
-                          bdlm::MetricsRegistry             *metricsRegistry,
-                          bslma::Allocator                  *basicAllocator)
+                         const EventScheduler::Dispatcher&  dispatcherFunctor,
+                         const bsl::string_view&            eventSchedulerName,
+                         bdlm::MetricsRegistry             *metricsRegistry,
+                         bslma::Allocator                  *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg, basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
@@ -846,11 +846,11 @@ EventScheduler::EventScheduler(
 }
 
 EventScheduler::EventScheduler(
-                          const EventScheduler::Dispatcher&  dispatcherFunctor,
-                          bsls::SystemClockType::Enum        clockType,
-                          const bsl::string_view&            eventSchedulerName,
-                          bdlm::MetricsRegistry             *metricsRegistry,
-                          bslma::Allocator                  *basicAllocator)
+                         const EventScheduler::Dispatcher&  dispatcherFunctor,
+                         bsls::SystemClockType::Enum        clockType,
+                         const bsl::string_view&            eventSchedulerName,
+                         bdlm::MetricsRegistry             *metricsRegistry,
+                         bslma::Allocator                  *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg, basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
 , d_eventQueue(basicAllocator)
@@ -899,11 +899,11 @@ EventScheduler::EventScheduler(
 }
 
 EventScheduler::EventScheduler(
-                          const EventScheduler::Dispatcher&  dispatcherFunctor,
-                          const bsl::chrono::system_clock&,
-                          const bsl::string_view&            eventSchedulerName,
-                          bdlm::MetricsRegistry             *metricsRegistry,
-                          bslma::Allocator                  *basicAllocator)
+                         const EventScheduler::Dispatcher&  dispatcherFunctor,
+                         const bsl::chrono::system_clock&,
+                         const bsl::string_view&            eventSchedulerName,
+                         bdlm::MetricsRegistry             *metricsRegistry,
+                         bslma::Allocator                  *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg, basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
@@ -951,11 +951,11 @@ EventScheduler::EventScheduler(
 }
 
 EventScheduler::EventScheduler(
-                          const EventScheduler::Dispatcher&  dispatcherFunctor,
-                          const bsl::chrono::steady_clock&,
-                          const bsl::string_view&            eventSchedulerName,
-                          bdlm::MetricsRegistry             *metricsRegistry,
-                          bslma::Allocator                  *basicAllocator)
+                         const EventScheduler::Dispatcher&  dispatcherFunctor,
+                         const bsl::chrono::steady_clock&,
+                         const bsl::string_view&            eventSchedulerName,
+                         bdlm::MetricsRegistry             *metricsRegistry,
+                         bslma::Allocator                  *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg, basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                            bsls::SystemClockType::e_MONOTONIC))
@@ -1013,8 +1013,7 @@ void EventScheduler::cancelAllEvents()
 
 void EventScheduler::cancelAllEventsAndWait()
 {
-    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                            d_dispatcherThread));
+    BSLS_ASSERT(!isInDispatcherThread());
 
     d_eventQueue.removeAll();
     d_recurringQueue.removeAll();
@@ -1033,8 +1032,7 @@ void EventScheduler::cancelAllEventsAndWait()
 
 int EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
 {
-    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                            d_dispatcherThread));
+    BSLS_ASSERT(!isInDispatcherThread());
 
     const RecurringEventQueue::Pair *itemPtr = castToQueuePair(handle);
     int ret = d_recurringQueue.remove(itemPtr);
@@ -1075,8 +1073,7 @@ int EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
 
 int EventScheduler::cancelEventAndWait(const Event *handle)
 {
-    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                            d_dispatcherThread));
+    BSLS_ASSERT(!isInDispatcherThread());
 
     const EventQueue::Pair *itemPtr = castToQueuePair(handle);
 
@@ -1163,8 +1160,7 @@ int EventScheduler::rescheduleEventAndWait(
                                        const Event               *handle,
                                        const bsls::TimeInterval&  newEpochTime)
 {
-    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                            d_dispatcherThread));
+    BSLS_ASSERT(!isInDispatcherThread());
 
     const EventQueue::Pair *h = castToQueuePair(handle);
     int ret;
@@ -1274,8 +1270,7 @@ int EventScheduler::start()
 
 int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 {
-    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                            d_dispatcherThread));
+    BSLS_ASSERT(!isInDispatcherThread());
 
     // Implementation note: d_dispatcherMutex is in a lock hierarchy with
     // d_mutex and must be locked first.
@@ -1312,8 +1307,7 @@ int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 
 void EventScheduler::stop()
 {
-    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                            d_dispatcherThread));
+    BSLS_ASSERT(!isInDispatcherThread());
 
     // Implementation note: d_dispatcherMutex is in a lock hierarchy with
     // d_mutex and must be locked first.
@@ -1374,6 +1368,8 @@ bsl::optional<bsls::TimeInterval> EventScheduler::scheduledEventTime(
         return bsl::nullopt;                                          // RETURN
     }
 
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
     bsls::TimeInterval rv;
     rv.addMicroseconds(handle.d_handle.key());
     return rv;
@@ -1385,6 +1381,8 @@ bsl::optional<bsls::TimeInterval> EventScheduler::scheduledEventTime(
     if (0 == (const RecurringEvent *)handle) {
         return bsl::nullopt;                                          // RETURN
     }
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     bsls::TimeInterval rv;
     rv.addMicroseconds(handle.d_handle.key());
