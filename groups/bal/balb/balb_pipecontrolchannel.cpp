@@ -10,6 +10,7 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bdls_pathutil.h>
 #include <bdls_pipeutil.h>
 
+#include <bslmt_lockguard.h>
 #include <bslmt_threadutil.h>
 
 #include <bslma_default.h>
@@ -558,6 +559,7 @@ PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
 , d_backgroundState(e_STOPPED)
 , d_permissions(k_DEFAULT_PERMISSIONS)
 , d_isPipeOpen(false)
+, d_mutex()
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     d_impl.d_windows.d_handle = INVALID_HANDLE_VALUE;
@@ -579,6 +581,7 @@ PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
 , d_backgroundState(e_STOPPED)
 , d_permissions(permissions)
 , d_isPipeOpen(false)
+, d_mutex()
 {
     BSLS_ASSERT(bdls::FilePermissions::isValidBaseBits(permissions));
 
@@ -634,6 +637,9 @@ int PipeControlChannel::start(const char                     *pipeName,
     if (d_backgroundState == e_RUNNING) {
         return 2;                                                     // RETURN
     }
+
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     // See test driver case 9, on windows, createNamedPipe does not
     // fail if the named pipe is already open!!!!!
@@ -671,6 +677,8 @@ void PipeControlChannel::shutdown()
     if (e_RUNNING != d_backgroundState.testAndSwap(e_RUNNING, e_STOPPING)) {
         return;                                                       // RETURN
     }
+
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     if (bslmt::ThreadUtil::self() == d_thread) {
         // When 'shutdown' is called from the same thread as the background
@@ -747,10 +755,17 @@ bool PipeControlChannel::dispatchLeftoverMessage()
 
 void PipeControlChannel::stop()
 {
-    if (bslmt::ThreadUtil::invalidHandle() != d_thread) {
-        bslmt::ThreadUtil::join(d_thread);
-        d_thread = bslmt::ThreadUtil::invalidHandle();
+    // Note that on Windows `join` writes to the handle.  For thread-safety,
+    // `d_mutex` must be held to write to `d_thread` so a copy is used.
+
+    bslmt::ThreadUtil::Handle handle = d_thread;
+    if (bslmt::ThreadUtil::invalidHandle() != handle) {
+        bslmt::ThreadUtil::join(handle);
     }
+
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    d_thread = bslmt::ThreadUtil::invalidHandle();
 
     d_backgroundState = e_STOPPED;
 

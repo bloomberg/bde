@@ -232,6 +232,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdls_filepermissions.h>
 
+#include <bslmt_mutex.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 
@@ -312,6 +313,8 @@ class PipeControlChannel {
         } d_windows;
 
     } d_impl;                                 // platform-specific imp
+
+    bslmt::Mutex              d_mutex;        // protects non-atomic data
 
     // PRIVATE MANIPULATORS
 
