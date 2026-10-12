@@ -1583,7 +1583,7 @@ Utf8Util::IntPtr Utf8Util::numBytesRaw(const bsl::string_view& string,
     // Note that since we are assuming the string already passed one of the
     // validation functions our work is very simple.
 
-    for (int i = 0; i < numCodePoints && numBytes < string.length(); ++i) {
+    for (IntPtr i = 0; i < numCodePoints && numBytes < string.length(); ++i) {
         BSLS_ASSERT(u::isValidUtf8CodePoint(&string[numBytes]));
         numBytes += u::utf8Size(string[numBytes]);
     }

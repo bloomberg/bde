@@ -1156,7 +1156,7 @@ unsigned int crc32cSse64bit(const unsigned char *data,
     crc = ~crc;
 
     // Process ('length' mod 1024) bytes
-    unsigned int i = length % 1024;
+    bsl::size_t i = length % 1024;
     if (i) {
         length -= i; // length = k * 1024 for k in {0, 1, 2, ...}
         crc     = crc32c8s(data, i, crc);
