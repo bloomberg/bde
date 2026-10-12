@@ -56,5 +56,10 @@ TAGS
 
 # MacOS files
 .DS_Store
+
+# editor and tooling directories
 .vscode/
+.vscode.bak.*/
+.idea/
+.claude/
 
