@@ -823,8 +823,12 @@ class MockAccumulatingHashingAlgorithm {
         const char *ptr = reinterpret_cast<const char *>(voidPtr);
         char *newPtr = new char [d_length + length];
         char *oldPtr = d_data;
-        memcpy(newPtr, oldPtr, d_length);
-        memcpy(newPtr + d_length, ptr, length);
+        if (d_length) {
+            memcpy(newPtr, oldPtr, d_length);
+        }
+        if (length) {
+            memcpy(newPtr + d_length, ptr, length);
+        }
 
         d_data = newPtr;
         delete [] oldPtr;
