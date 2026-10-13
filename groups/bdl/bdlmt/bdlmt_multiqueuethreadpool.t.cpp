@@ -3312,8 +3312,6 @@ int main(int argc, char *argv[]) {
         defaultAttrs.setThreadName("OtherName");
 
         bslmt::ThreadUtil::Handle handle;
-        bslmt::ThreadAttributes   detached;
-        detached.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
         enum { k_SHORT_SLEEP = 20 * 1000 }; // 20 ms
 
@@ -3379,7 +3377,6 @@ int main(int argc, char *argv[]) {
                 bslmt::Barrier pauseBarrier(2);
                 ASSERT(0 == bslmt::ThreadUtil::createWithAllocator(
                                    &handle,
-                                   detached,
                                    bdlf::BindUtil::bind(&waitPauseAndIncrement,
                                                         &pauseBarrier,
                                                         &mX,
@@ -3397,6 +3394,12 @@ int main(int argc, char *argv[]) {
                 // Having unblocked the threadpool job, pause() should now be
                 // able to complete
                 pauseBarrier.wait();
+
+                // Join the thread so that it (including its release of memory
+                // obtained from `ta`) completes before `pauseBarrier` and `ta`
+                // go out of scope.
+                ASSERT(0 == bslmt::ThreadUtil::join(handle));
+
                 ASSERT(1 == pauseCount);
                 ASSERT(X.isPaused(id1));
 

@@ -101,7 +101,7 @@ MultiQueueThreadPool_ClearGuard<TYPE>::~MultiQueueThreadPool_ClearGuard()
                      // --------------------------------
 
 // PRIVATE MANIPULATORS
-void MultiQueueThreadPool_Queue::setPaused()
+bool MultiQueueThreadPool_Queue::setPaused()
 {
     BSLS_ASSERT(e_PAUSING == d_runState);
 
@@ -122,10 +122,11 @@ void MultiQueueThreadPool_Queue::setPaused()
         // Note that 'd_numActiveQueues' is decremented at the completion of
         // 'deleteQueueCb', and hence should not be modified on this execution
         // path.
+
+        return false;                                                 // RETURN
     }
-    else {
-        --d_multiQueueThreadPool_p->d_numActiveQueues;
-    }
+
+    return true;
 }
 
 // CREATORS
@@ -222,13 +223,26 @@ void MultiQueueThreadPool_Queue::drainWaitWhilePausing()
 
 void MultiQueueThreadPool_Queue::executeFront()
 {
+    // Note that once 'd_numActiveQueues' is decremented, this queue may be
+    // destroyed (e.g., 'stop' followed by the destruction of the
+    // 'MultiQueueThreadPool'), so the decrement must occur after 'd_lock' is
+    // released and must be the final access of any member.
+
+    MultiQueueThreadPool *multiQueueThreadPool = d_multiQueueThreadPool_p;
+
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
         BSLS_ASSERT(!d_list.empty());
 
         if (e_PAUSING == d_runState) {
-            setPaused();
+            bool decrementQueueCount = setPaused();
+
+            guard.release()->unlock();
+
+            if (decrementQueueCount) {
+                --multiQueueThreadPool->d_numActiveQueues;
+            }
 
             return;                                                   // RETURN
         }
@@ -276,6 +290,8 @@ void MultiQueueThreadPool_Queue::executeFront()
     // Note that 'pause' might be called while executing the functors since no
     // lock is held.
 
+    bool decrementQueueCount = false;
+
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
@@ -296,12 +312,16 @@ void MultiQueueThreadPool_Queue::executeFront()
             else {
                 d_runState = e_NOT_SCHEDULED;
 
-                --d_multiQueueThreadPool_p->d_numActiveQueues;
+                decrementQueueCount = true;
             }
         }
         else {
-            setPaused();
+            decrementQueueCount = setPaused();
         }
+    }
+
+    if (decrementQueueCount) {
+        --multiQueueThreadPool->d_numActiveQueues;
     }
 }
 

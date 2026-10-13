@@ -446,9 +446,15 @@ class MultiQueueThreadPool_Queue {
 
     /// Mark this queue as paused, notify any threads blocked on
     /// `d_pauseCondition`, and schedule the deletion job if this queue is
-    /// to be deleted.  The behavior is undefined unless this queue's lock
-    /// is in a locked state and `e_PAUSING == d_runState`.
-    void setPaused();
+    /// to be deleted.  Return `true` if the caller must decrement
+    /// `d_numActiveQueues` of the associated `MultiQueueThreadPool` after
+    /// releasing this queue's lock, and `false` otherwise.  The behavior is
+    /// undefined unless this queue's lock is in a locked state and
+    /// `e_PAUSING == d_runState`.  Note that the decrement must occur after
+    /// the lock is released since, once `d_numActiveQueues` is decremented,
+    /// this queue may be destroyed (e.g., by the destruction of the
+    /// associated `MultiQueueThreadPool` after a `stop`).
+    bool setPaused();
 
   public:
     // TRAITS
