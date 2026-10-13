@@ -266,14 +266,21 @@ int ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::tryLockWrite()
     if (0 == d_mutex.tryLock()) {
         bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
 
-        if (0 == (state & k_READER_MASK)) {
-            // Since the mutex is obtained and there are no readers (and none
-            // can enter while the mutex is held), the lock has been obtained.
+        while (0 == (state & k_READER_MASK)) {
+            // Since the mutex is obtained and there are currently no readers,
+            // attempt to obtain the lock.  Note that a new pending writer does
+            // not prevent lock acquisition.
 
-            ATOMIC_OP::addInt64AcqRel(&d_state, k_WRITER);
+            const bsls::Types::Int64 oldState = state;
+            state = ATOMIC_OP::testAndSwapInt64AcqRel(&d_state,
+                                                      state,
+                                                      state + k_WRITER);
 
-            return 0;                                                 // RETURN
+            if (oldState == state) {
+                return 0;                                             // RETURN
+            }
         }
+
         d_mutex.unlock();
     }
     return 1;

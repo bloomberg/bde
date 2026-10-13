@@ -555,6 +555,8 @@ int main(int argc, char *argv[])
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
 
+        const int ONE_PENDING_WRITER = 10;
+
         const int DATA_NO_READER[] = {   0,  10,  20 };
 
         const int DATA_READER[]    = {   1,   2,   3,
@@ -578,7 +580,7 @@ int main(int argc, char *argv[])
                 script.push_back(DATA_NO_READER[i]);
                 script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
                 script.push_back(TestImpl::k_GET);
-                script.push_back(TestImpl::k_ADD);
+                script.push_back(TestImpl::k_CAS);
                 script.push_back(DATA_NO_READER[i] + 100);
             }
 
@@ -616,7 +618,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nFailure due to readers." << endl;
+        if (verbose) cout << "\nFailure due to existing readers." << endl;
 
         for (bsls::Types::size_type i = 0; i < NUM_READER; ++i) {
             bsl::vector<int> script;
@@ -637,6 +639,63 @@ int main(int argc, char *argv[])
                 Obj obj;
                 int rv = obj.tryLockWrite();
                 ASSERT(1 == rv);
+
+                TestImpl::assertScriptComplete();
+            }
+        }
+
+        if (verbose) cout << "\nFailure due to readers entering." << endl;
+
+        for (bsls::Types::size_type i = 0; i < NUM_READER; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
+                script.push_back(TestImpl::k_GET);
+                script.push_back(0);
+                script.push_back(DATA_READER[i]);
+                script.push_back(TestImpl::k_CAS);
+                script.push_back(DATA_READER[i]);
+                script.push_back(TestImpl::k_UNLOCK);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                int rv = obj.tryLockWrite();
+                ASSERT(1 == rv);
+
+                TestImpl::assertScriptComplete();
+            }
+        }
+
+        if (verbose) cout << "\nSuccess when pending writer enters." << endl;
+
+        {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
+                script.push_back(TestImpl::k_GET);
+                script.push_back(0);
+                script.push_back(ONE_PENDING_WRITER);
+                script.push_back(TestImpl::k_CAS);
+                script.push_back(ONE_PENDING_WRITER);
+                script.push_back(TestImpl::k_CAS);
+                script.push_back(ONE_PENDING_WRITER + 100);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                int rv = obj.tryLockWrite();
+                ASSERT(0 == rv);
 
                 TestImpl::assertScriptComplete();
             }
