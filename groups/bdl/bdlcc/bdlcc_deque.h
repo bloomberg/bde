@@ -135,6 +135,26 @@ BSLS_IDENT("$Id: $")
 // (which matches the epoch used in
 // `bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)`.
 //
+// On platforms that support `bsl::chrono`, there are constructors that take
+// `bsl::chrono`-style clocks.  If the clock type indicated at construction is
+// `bsl::chrono::system_clock`, then the results will be the same as if
+// `bsls::SystemClockType::e_REALTIME` was indicated.  If the clock type
+// indicated at construction is `bsl::chrono::steady_clock`, then the results
+// will be the same as if `bsls::SystemClockType::e_MONOTONIC` was indicated.
+// Constructing from a user-defined clock is not supported.
+//
+// In addition, the `timedPush*` and `timedPop*` methods have overloads that
+// take a `bsl::chrono::time_point` with an arbitrary clock.  The epoch for
+// such a timeout is the one associated with that time point, and not the one
+// indicated at construction.  Supplying a `bsl::chrono::time_point` that uses
+// the same clock as the one indicated at construction is strongly
+// recommended: if the clocks do not match, the method must make an additional
+// comparison against `CLOCK::now()` (and potentially do so repeatedly) to
+// ensure that it does not time out before the specified time point has
+// occurred, and hence is less efficient.  Note that, in that case, the
+// container's mutex may be released and reacquired more than once before the
+// method returns.
+//
 ///WARNING: Synchronization Required on Destruction
 ///------------------------------------------------
 // The behavior for the destructor is undefined unless all access or
@@ -462,6 +482,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #include <bsl_cstdio.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bsl_chrono.h>
+#endif
+
 #include <vector>
 
 namespace BloombergLP {
@@ -639,6 +663,116 @@ class Deque {
           bsl::size_t                  highWaterMark,
           bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Create a container of objects of (template parameter) `TYPE`, with no
+    /// high water mark, and use the realtime system clock to indicate the
+    /// epoch used for all time intervals (see {Supported Clock-Types} in the
+    /// component documentation).  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
+    explicit
+    Deque(const bsl::chrono::system_clock&,
+          bslma::Allocator                 *basicAllocator = 0);
+
+    /// Create a container of objects of (template parameter) `TYPE`, with no
+    /// high water mark, and use the monotonic system clock to indicate the
+    /// epoch used for all time intervals (see {Supported Clock-Types} in the
+    /// component documentation).  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
+    explicit
+    Deque(const bsl::chrono::steady_clock&,
+          bslma::Allocator                 *basicAllocator = 0);
+
+    /// Create a container of objects of (template parameter) `TYPE`, with the
+    /// specified `highWaterMark`, and use the realtime system clock to
+    /// indicate the epoch used for all time intervals (see {Supported
+    /// Clock-Types} in the component documentation).  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  The behavior is
+    /// undefined unless `highWaterMark > 0`.
+    Deque(bsl::size_t                       highWaterMark,
+          const bsl::chrono::system_clock&,
+          bslma::Allocator                 *basicAllocator = 0);
+
+    /// Create a container of objects of (template parameter) `TYPE`, with the
+    /// specified `highWaterMark`, and use the monotonic system clock to
+    /// indicate the epoch used for all time intervals (see {Supported
+    /// Clock-Types} in the component documentation).  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  The behavior is
+    /// undefined unless `highWaterMark > 0`.
+    Deque(bsl::size_t                       highWaterMark,
+          const bsl::chrono::steady_clock&,
+          bslma::Allocator                 *basicAllocator = 0);
+
+    /// Create a container of objects of (template parameter) `TYPE` containing
+    /// the sequence of elements in the specified range `[begin .. end)`,
+    /// having no high water mark, and use the realtime system clock to
+    /// indicate the epoch used for all time intervals (see {Supported
+    /// Clock-Types} in the component documentation).  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  Note that the items in
+    /// the range are treated as `const` objects, copied without being
+    /// modified.
+    template <class INPUT_ITER>
+    Deque(INPUT_ITER                        begin,
+          INPUT_ITER                        end,
+          const bsl::chrono::system_clock&,
+          bslma::Allocator                 *basicAllocator = 0);
+
+    /// Create a container of objects of (template parameter) `TYPE` containing
+    /// the sequence of elements in the specified range `[begin .. end)`,
+    /// having no high water mark, and use the monotonic system clock to
+    /// indicate the epoch used for all time intervals (see {Supported
+    /// Clock-Types} in the component documentation).  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  Note that the items in
+    /// the range are treated as `const` objects, copied without being
+    /// modified.
+    template <class INPUT_ITER>
+    Deque(INPUT_ITER                        begin,
+          INPUT_ITER                        end,
+          const bsl::chrono::steady_clock&,
+          bslma::Allocator                 *basicAllocator = 0);
+
+    /// Create a container of objects of (template parameter) `TYPE` containing
+    /// the sequence of `TYPE` values in the specified range `[begin .. end)`
+    /// having the specified `highWaterMark`, and use the realtime system
+    /// clock to indicate the epoch used for all time intervals (see
+    /// {Supported Clock-Types} in the component documentation).  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is 0, the currently installed default allocator is used.  The behavior
+    /// is undefined unless `highWaterMark > 0`.  Note that if the number of
+    /// elements in the range `[begin, end)` exceeds `highWaterMark`, the
+    /// effect will be the same as if the extra elements were added by forced
+    /// pushes.  Also note that the items in the range are treated as `const`
+    /// objects, copied without being modified.
+    template <class INPUT_ITER>
+    Deque(INPUT_ITER                        begin,
+          INPUT_ITER                        end,
+          bsl::size_t                       highWaterMark,
+          const bsl::chrono::system_clock&,
+          bslma::Allocator                 *basicAllocator = 0);
+
+    /// Create a container of objects of (template parameter) `TYPE` containing
+    /// the sequence of `TYPE` values in the specified range `[begin .. end)`
+    /// having the specified `highWaterMark`, and use the monotonic system
+    /// clock to indicate the epoch used for all time intervals (see
+    /// {Supported Clock-Types} in the component documentation).  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is 0, the currently installed default allocator is used.  The behavior
+    /// is undefined unless `highWaterMark > 0`.  Note that if the number of
+    /// elements in the range `[begin, end)` exceeds `highWaterMark`, the
+    /// effect will be the same as if the extra elements were added by forced
+    /// pushes.  Also note that the items in the range are treated as `const`
+    /// objects, copied without being modified.
+    template <class INPUT_ITER>
+    Deque(INPUT_ITER                        begin,
+          INPUT_ITER                        end,
+          bsl::size_t                       highWaterMark,
+          const bsl::chrono::steady_clock&,
+          bslma::Allocator                 *basicAllocator = 0);
+#endif
 
     /// Create a container having the same value as the specified `original`
     /// object.  Optionally specify a `basicAllocator` used to supply
@@ -826,6 +960,111 @@ class Deque {
     /// there is no guarantee that this method will return after `timeout`.
     int timedPushFront(bslmf::MovableRef<TYPE>   item,
                        const bsls::TimeInterval& timeout);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Remove the last item in this container and load that item value into
+    /// the specified `*item`.  If this container is empty, block until an item
+    /// is available or until the specified `timeout` expires.  `timeout` is an
+    /// *absolute* time represented as an interval from some epoch, which is
+    /// determined by the clock associated with the time point.  Return 0 on
+    /// success, and a non-zero value if the call timed out before an item was
+    /// available.  Note that this method can block indefinitely if another
+    /// thread has the mutex locked, particularly by a proctor object -- there
+    /// is no guarantee that this method will return after `timeout`.  Also
+    /// note that the container's mutex may be released and reacquired more
+    /// than once before this method returns.
+    template <class CLOCK, class DURATION>
+    int timedPopBack(TYPE                                           *item,
+                     const bsl::chrono::time_point<CLOCK, DURATION>& timeout);
+
+    /// Remove the first item in this container and load that item value into
+    /// the specified `*item`.  If this container is empty, block until an item
+    /// is available or until the specified `timeout` expires.  `timeout` is an
+    /// *absolute* time represented as an interval from some epoch, which is
+    /// determined by the clock associated with the time point.  Return 0 on
+    /// success, and a non-zero value if the call timed out before an item was
+    /// available.  Note that this method can block indefinitely if another
+    /// thread has the mutex locked, particularly by a proctor object -- there
+    /// is no guarantee that this method will return after `timeout`.  Also
+    /// note that the container's mutex may be released and reacquired more
+    /// than once before this method returns.
+    template <class CLOCK, class DURATION>
+    int timedPopFront(TYPE                                           *item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout);
+
+    /// Append the specified `item` to the back of this container if space is
+    /// available, otherwise (if the container is full) block waiting for space
+    /// to become available or until the specified `timeout` expires.
+    /// `timeout` is an *absolute* time represented as an interval from some
+    /// epoch, which is determined by the clock associated with the time point.
+    /// Return 0 if space was or became available and this container was
+    /// updated, and a non-zero value if the call timed out before space became
+    /// available and this container was left unmodified.  Note that this
+    /// method can block indefinitely if another thread has the mutex locked,
+    /// particularly by a proctor object -- there is no guarantee that this
+    /// method will return after `timeout`.  Also note that the container's
+    /// mutex may be released and reacquired more than once before this method
+    /// returns.
+    template <class CLOCK, class DURATION>
+    int timedPushBack(const TYPE&                                     item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout);
+
+    /// Append the specified move-insertable `item` to the back of this
+    /// container if space is available, otherwise (if the container is full)
+    /// block waiting for space to become available or until the specified
+    /// `timeout` expires.  `timeout` is an *absolute* time represented as an
+    /// interval from some epoch, which is determined by the clock associated
+    /// with the time point.  If the container is modified, `item` is left in a
+    /// valid but unspecified state, otherwise `item` is unchanged.  Return 0
+    /// if space was or became available and this container was updated, and a
+    /// non-zero value if the call timed out before space became available and
+    /// this container was left unmodified.  Note that this method can block
+    /// indefinitely if another thread has the mutex locked, particularly by a
+    /// proctor object -- there is no guarantee that this method will return
+    /// after `timeout`.  Also note that the container's mutex may be released
+    /// and reacquired more than once before this method returns.
+    template <class CLOCK, class DURATION>
+    int timedPushBack(bslmf::MovableRef<TYPE>                         item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout);
+
+    /// Append the specified `item` to the front of this container if space is
+    /// available, otherwise (if the container is full) block waiting for space
+    /// to become available or until the specified `timeout` expires.
+    /// `timeout` is an *absolute* time represented as an interval from some
+    /// epoch, which is determined by the clock associated with the time point.
+    /// Return 0 if space was or became available and this container was
+    /// updated, and a non-zero value if the call timed out before space became
+    /// available and this container was left unmodified.  Note that this
+    /// method can block indefinitely if another thread has the mutex locked,
+    /// particularly by a proctor object -- there is no guarantee that this
+    /// method will return after `timeout`.  Also note that the container's
+    /// mutex may be released and reacquired more than once before this method
+    /// returns.
+    template <class CLOCK, class DURATION>
+    int timedPushFront(
+                      const TYPE&                                     item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout);
+
+    /// Append the specified move-insertable `item` to the front of this
+    /// container if space is available, otherwise (if the container is full)
+    /// block waiting for space to become available or until the specified
+    /// `timeout` expires.  `timeout` is an *absolute* time represented as an
+    /// interval from some epoch, which is determined by the clock associated
+    /// with the time point.  If the container is modified, `item` is left in a
+    /// valid but unspecified state, otherwise `item` is left unchanged.
+    /// Return 0 if space was or became available and this container was
+    /// updated, and a non-zero value if the call timed out before space became
+    /// available and this container was left unmodified.  Note that this
+    /// method can block indefinitely if another thread has the mutex locked,
+    /// particularly by a proctor object -- there is no guarantee that this
+    /// method will return after `timeout`.  Also note that the container's
+    /// mutex may be released and reacquired more than once before this method
+    /// returns.
+    template <class CLOCK, class DURATION>
+    int timedPushFront(
+                      bslmf::MovableRef<TYPE>                         item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout);
+#endif
 
     /// If this container is non-empty, remove the last item, load that item
     /// into the specified `*item`, and return 0 indicating success.  If
@@ -1754,6 +1993,132 @@ Deque<TYPE>::Deque(INPUT_ITER                   begin,
     BSLS_ASSERT(highWaterMark > 0);
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class TYPE>
+inline
+Deque<TYPE>::Deque(const bsl::chrono::system_clock&,
+                   bslma::Allocator                 *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(bsls::SystemClockType::e_REALTIME)
+, d_notFullCondition(bsls::SystemClockType::e_REALTIME)
+, d_monoDeque(basicAllocator)
+, d_highWaterMark(maxSizeT())
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+{
+}
+
+template <class TYPE>
+inline
+Deque<TYPE>::Deque(const bsl::chrono::steady_clock&,
+                   bslma::Allocator                 *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(bsls::SystemClockType::e_MONOTONIC)
+, d_notFullCondition(bsls::SystemClockType::e_MONOTONIC)
+, d_monoDeque(basicAllocator)
+, d_highWaterMark(maxSizeT())
+, d_clockType(bsls::SystemClockType::e_MONOTONIC)
+{
+}
+
+template <class TYPE>
+inline
+Deque<TYPE>::Deque(bsl::size_t                       highWaterMark,
+                   const bsl::chrono::system_clock&,
+                   bslma::Allocator                 *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(bsls::SystemClockType::e_REALTIME)
+, d_notFullCondition(bsls::SystemClockType::e_REALTIME)
+, d_monoDeque(basicAllocator)
+, d_highWaterMark(highWaterMark)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+{
+    BSLS_ASSERT(highWaterMark > 0);
+}
+
+template <class TYPE>
+inline
+Deque<TYPE>::Deque(bsl::size_t                       highWaterMark,
+                   const bsl::chrono::steady_clock&,
+                   bslma::Allocator                 *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(bsls::SystemClockType::e_MONOTONIC)
+, d_notFullCondition(bsls::SystemClockType::e_MONOTONIC)
+, d_monoDeque(basicAllocator)
+, d_highWaterMark(highWaterMark)
+, d_clockType(bsls::SystemClockType::e_MONOTONIC)
+{
+    BSLS_ASSERT(highWaterMark > 0);
+}
+
+template <class TYPE>
+template <class INPUT_ITER>
+inline
+Deque<TYPE>::Deque(INPUT_ITER                        begin,
+                   INPUT_ITER                        end,
+                   const bsl::chrono::system_clock&,
+                   bslma::Allocator                 *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(bsls::SystemClockType::e_REALTIME)
+, d_notFullCondition(bsls::SystemClockType::e_REALTIME)
+, d_monoDeque(begin, end, basicAllocator)
+, d_highWaterMark(maxSizeT())
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+{
+}
+
+template <class TYPE>
+template <class INPUT_ITER>
+inline
+Deque<TYPE>::Deque(INPUT_ITER                        begin,
+                   INPUT_ITER                        end,
+                   const bsl::chrono::steady_clock&,
+                   bslma::Allocator                 *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(bsls::SystemClockType::e_MONOTONIC)
+, d_notFullCondition(bsls::SystemClockType::e_MONOTONIC)
+, d_monoDeque(begin, end, basicAllocator)
+, d_highWaterMark(maxSizeT())
+, d_clockType(bsls::SystemClockType::e_MONOTONIC)
+{
+}
+
+template <class TYPE>
+template <class INPUT_ITER>
+inline
+Deque<TYPE>::Deque(INPUT_ITER                        begin,
+                   INPUT_ITER                        end,
+                   bsl::size_t                       highWaterMark,
+                   const bsl::chrono::system_clock&,
+                   bslma::Allocator                 *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(bsls::SystemClockType::e_REALTIME)
+, d_notFullCondition(bsls::SystemClockType::e_REALTIME)
+, d_monoDeque(begin, end, basicAllocator)
+, d_highWaterMark(highWaterMark)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+{
+    BSLS_ASSERT(highWaterMark > 0);
+}
+
+template <class TYPE>
+template <class INPUT_ITER>
+inline
+Deque<TYPE>::Deque(INPUT_ITER                        begin,
+                   INPUT_ITER                        end,
+                   bsl::size_t                       highWaterMark,
+                   const bsl::chrono::steady_clock&,
+                   bslma::Allocator                 *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(bsls::SystemClockType::e_MONOTONIC)
+, d_notFullCondition(bsls::SystemClockType::e_MONOTONIC)
+, d_monoDeque(begin, end, basicAllocator)
+, d_highWaterMark(highWaterMark)
+, d_clockType(bsls::SystemClockType::e_MONOTONIC)
+{
+    BSLS_ASSERT(highWaterMark > 0);
+}
+#endif
+
 template <class TYPE>
 inline
 Deque<TYPE>::Deque(const Deque<TYPE>&  original,
@@ -2201,6 +2566,160 @@ int Deque<TYPE>::timedPushFront(bslmf::MovableRef<TYPE>   item,
 
     return 0;
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class TYPE>
+template <class CLOCK, class DURATION>
+int Deque<TYPE>::timedPopBack(
+                      TYPE                                           *item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout)
+{
+    bool shouldSignal;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.empty()) {
+            if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
+        }
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        *item = bslmf::MovableRefUtil::move(d_monoDeque.back());
+#else
+        *item = d_monoDeque.back();
+#endif
+        d_monoDeque.pop_back();
+
+        shouldSignal = d_monoDeque.size() < d_highWaterMark;
+    }
+
+    if (shouldSignal) {
+        d_notFullCondition.signal();
+    }
+
+    return 0;
+}
+
+template <class TYPE>
+template <class CLOCK, class DURATION>
+int Deque<TYPE>::timedPopFront(
+                      TYPE                                           *item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout)
+{
+    bool shouldSignal;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.empty()) {
+            if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
+        }
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        *item = bslmf::MovableRefUtil::move(d_monoDeque.front());
+#else
+        *item = d_monoDeque.front();
+#endif
+        d_monoDeque.pop_front();
+
+        shouldSignal = d_monoDeque.size() < d_highWaterMark;
+    }
+
+    if (shouldSignal) {
+        d_notFullCondition.signal();
+    }
+
+    return 0;
+}
+
+template <class TYPE>
+template <class CLOCK, class DURATION>
+int Deque<TYPE>::timedPushBack(
+                      const TYPE&                                     item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
+        }
+        d_monoDeque.push_back(item);
+    }
+
+    d_notEmptyCondition.signal();
+
+    return 0;
+}
+
+template <class TYPE>
+template <class CLOCK, class DURATION>
+int Deque<TYPE>::timedPushBack(
+                      bslmf::MovableRef<TYPE>                         item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
+        }
+        d_monoDeque.push_back(bslmf::MovableRefUtil::move(item));
+    }
+
+    d_notEmptyCondition.signal();
+
+    return 0;
+}
+
+template <class TYPE>
+template <class CLOCK, class DURATION>
+int Deque<TYPE>::timedPushFront(
+                      const TYPE&                                     item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
+        }
+        d_monoDeque.push_front(item);
+    }
+
+    d_notEmptyCondition.signal();
+
+    return 0;
+}
+
+template <class TYPE>
+template <class CLOCK, class DURATION>
+int Deque<TYPE>::timedPushFront(
+                      bslmf::MovableRef<TYPE>                         item,
+                      const bsl::chrono::time_point<CLOCK, DURATION>& timeout)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
+        }
+        d_monoDeque.push_front(bslmf::MovableRefUtil::move(item));
+    }
+
+    d_notEmptyCondition.signal();
+
+    return 0;
+}
+#endif
 
 template <class TYPE>
 int Deque<TYPE>::tryPopBack(TYPE *item)

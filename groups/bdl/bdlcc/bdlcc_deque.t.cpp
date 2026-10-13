@@ -33,6 +33,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -42,6 +43,7 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_chrono.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -121,6 +123,14 @@ enum { PLAT_EXC = 0 };
 // [23] Deque(ITER, ITER, hwm, alloc);
 // [23] Deque(ITER, ITER, hwm, clock);
 // [23] Deque(ITER, ITER, hwm, clock, alloc);
+// [23] Deque(system_clock, alloc);
+// [23] Deque(steady_clock, alloc);
+// [23] Deque(hwm, system_clock, alloc);
+// [23] Deque(hwm, steady_clock, alloc);
+// [23] Deque(ITER, ITER, system_clock, alloc);
+// [23] Deque(ITER, ITER, steady_clock, alloc);
+// [23] Deque(ITER, ITER, hwm, system_clock, alloc);
+// [23] Deque(ITER, ITER, hwm, steady_clock, alloc);
 // [ 2] ~Deque();
 //
 // MANIPULATORS
@@ -208,6 +218,12 @@ enum { PLAT_EXC = 0 };
 // [26] int timedPopFront(TYPE *, const TimeInterval&); - move semantics
 // [26] int timedPushBack(TYPE&&, const TimeInterval&);
 // [26] int timedPushFront(TYPE&&, const TimeInterval&);
+// [29] int timedPopBack(TYPE *, const time_point&);
+// [29] int timedPopFront(TYPE *, const time_point&);
+// [29] int timedPushBack(const TYPE&, const time_point&);
+// [29] int timedPushBack(TYPE&&, const time_point&);
+// [29] int timedPushFront(const TYPE&, const time_point&);
+// [29] int timedPushFront(TYPE&&, const time_point&);
 //
 // ACCESSORS
 // [23] bslma::Allocator *allocator() const;
@@ -1715,6 +1731,55 @@ namespace USAGE_EXAMPLE_1 {
 // ```
 
 }  // close namespace USAGE_EXAMPLE_1
+
+//=============================================================================
+//                                  TEST CASE 29
+//-----------------------------------------------------------------------------
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+namespace TEST_CASE_29 {
+
+/// Functor that performs a `bsl::chrono`-timed `timedPopFront` from (or
+/// `timedPushBack` to) the `Obj` supplied at construction, waiting up to 10
+/// seconds for an item (or room) to become available, and loads the return
+/// code into the `int` supplied at construction.
+class Waiter {
+
+    // DATA
+    Obj     *d_deque_p;
+    bool     d_isPop;
+    Element *d_item_p;
+    int     *d_rc_p;
+
+  public:
+    // CREATORS
+
+    /// Create a functor that will pop into (if the specified `isPop` is
+    /// `true`) or push from the specified `*item` on the specified `*deque`
+    /// and load the result into the specified `*rc`.
+    Waiter(Obj *deque, bool isPop, Element *item, int *rc)
+    : d_deque_p(deque)
+    , d_isPop(isPop)
+    , d_item_p(item)
+    , d_rc_p(rc)
+    {
+    }
+
+    // MANIPULATORS
+
+    /// Perform the pop or push.
+    void operator()()
+    {
+        const bsl::chrono::steady_clock::time_point timeout =
+                   bsl::chrono::steady_clock::now() + bsl::chrono::seconds(10);
+
+        *d_rc_p = d_isPop ? d_deque_p->timedPopFront(d_item_p, timeout)
+                          : d_deque_p->timedPushBack(*d_item_p, timeout);
+    }
+};
+
+}  // close namespace TEST_CASE_29
+#endif
 
 //=============================================================================
 //                                  TEST CASE 26
@@ -5408,6 +5473,196 @@ int main(int argc, char *argv[])
                                       bsl::format("case {}", test)));
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING `bsl::chrono` TIME-POINT TIMED PUSH & POP
+        //
+        // Concerns:
+        // 1. Arguments are passed correctly: the item is pushed to (or popped
+        //    from, and loaded into `*item`) the requested end, the
+        //    movable-reference overloads move from their argument, and the
+        //    timeout is honored rather than ignored.
+        //
+        // 2. The final state is correct: after success the deque reflects the
+        //    push or pop; after a timeout the deque, the item pushed, and the
+        //    item popped into are unchanged.
+        //
+        // 3. Pushes succeed below the high-water mark and time out at it.
+        //
+        // 4. The return value is 0 on success and non-zero on timeout.
+        //
+        // 5. Each push overload signals a thread waiting for an item
+        //    (not-empty), and each pop overload signals a thread waiting for
+        //    room (not-full).
+        //
+        // Plan:
+        // 1. On an `e_MONOTONIC` deque with a high-water mark, push with each
+        //    overload up to the high-water mark, then pop with each overload,
+        //    verifying the return values, `length()`, and the popped values.
+        //    Use `bsltf::MovableAllocTestType` to verify the movable-reference
+        //    overloads moved.  (C-1..4)
+        //
+        // 2. Repeat each call on a full (or empty) deque, passing an already
+        //    expired `bsl::chrono::steady_clock` time point, and verify the
+        //    return value and that no state was modified.  How the wait
+        //    itself honors the time point is the responsibility of
+        //    `bslmt::Condition` and is not retested here.  (C-1..4)
+        //
+        // 3. Start a thread blocked in a `timedPopFront` on an empty deque
+        //    (or `timedPushBack` on a full one), then call each push (or pop)
+        //    overload and verify the waiting thread completes successfully
+        //    rather than timing out.  (C-5)
+        //
+        // Testing:
+        //   int timedPopBack(TYPE *, const time_point&);
+        //   int timedPopFront(TYPE *, const time_point&);
+        //   int timedPushBack(const TYPE&, const time_point&);
+        //   int timedPushBack(TYPE&&, const time_point&);
+        //   int timedPushFront(const TYPE&, const time_point&);
+        //   int timedPushFront(TYPE&&, const time_point&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                      "TESTING `bsl::chrono` TIME-POINT TIMED PUSH & POP\n"
+                      "================================================\n";
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        using namespace TEST_CASE_29;
+
+        typedef bsls::SystemClockType Ct;
+
+        const bsl::chrono::steady_clock::time_point EXPIRED =
+                 bsl::chrono::steady_clock::now() - bsl::chrono::seconds(1);
+        const bsl::chrono::steady_clock::time_point FUTURE  =
+                 bsl::chrono::steady_clock::now() + bsl::chrono::seconds(30);
+
+        if (verbose) cout << "\tSingle-threaded: copy overloads\n";
+        {
+            Obj        x(2, Ct::e_MONOTONIC, &ta);
+            const Obj& X = x;
+            Element    e = -1.0;
+
+            ASSERT(0 != x.timedPopBack( &e, EXPIRED));
+            ASSERT(0 != x.timedPopFront(&e, EXPIRED));
+            ASSERT(-1.0 == e);
+            ASSERT(0 == X.length());
+
+            ASSERT(0 == x.timedPushBack( 1.0, FUTURE));
+            ASSERT(0 == x.timedPushFront(2.0, FUTURE));
+            ASSERT(2 == X.length());
+
+            ASSERT(0 != x.timedPushBack( 3.0, EXPIRED));
+            ASSERT(0 != x.timedPushFront(3.0, EXPIRED));
+            ASSERT(2 == X.length());
+
+            ASSERT(0 == x.timedPopBack(&e, FUTURE));
+            ASSERT(1.0 == e);
+            ASSERT(1 == X.length());
+
+            ASSERT(0 == x.timedPopFront(&e, FUTURE));
+            ASSERT(2.0 == e);
+            ASSERT(0 == X.length());
+        }
+
+        if (verbose) cout << "\tSingle-threaded: move overloads\n";
+        {
+            MObj        x(2, Ct::e_MONOTONIC, &ta);
+            const MObj& X = x;
+            MElement    vA('A', &ta), vB('B', &ta), vC('C', &ta);
+            MElement    result('Z', &ta);
+
+            ASSERT(0 == x.timedPushBack( MUtil::move(vA), FUTURE));
+            ASSERT(e_MOVED == bsltf::getMovedFrom(vA));
+            ASSERT(1 == X.length());
+
+            ASSERT(0 == x.timedPushFront(MUtil::move(vB), FUTURE));
+            ASSERT(e_MOVED == bsltf::getMovedFrom(vB));
+            ASSERT(2 == X.length());
+
+            ASSERT(0 != x.timedPushBack( MUtil::move(vC), EXPIRED));
+            ASSERT(0 != x.timedPushFront(MUtil::move(vC), EXPIRED));
+            ASSERT(e_MOVED != bsltf::getMovedFrom(vC));
+            ASSERT('C' == vC.data());
+            ASSERT(2 == X.length());
+
+            ASSERT(0 == x.timedPopBack(&result, FUTURE));
+            ASSERT('A' == result.data());
+            ASSERT(1 == X.length());
+
+            ASSERT(0 == x.timedPopFront(&result, FUTURE));
+            ASSERT('B' == result.data());
+            ASSERT(0 == X.length());
+        }
+
+        if (verbose) cout << "\tPush signals a waiting pop\n";
+        for (int ti = 0; ti < 4; ++ti) {
+            Obj        x(1, Ct::e_MONOTONIC, &ta);
+            const Obj& X = x;
+            Element    item = -1.0;
+            int        rc   = -1;
+
+            bslmt::ThreadUtil::Handle handle;
+            CREATETHREAD(handle, Waiter(&x, true, &item, &rc));
+
+            bslmt::ThreadUtil::microSleep(10 * MICRO_100TH_SEC);  // .1s
+
+            Element v = ti;
+            switch (ti) {
+              case 0: {
+                ASSERT(0 == x.timedPushBack( v, FUTURE));
+              } break;
+              case 1: {
+                ASSERT(0 == x.timedPushFront(v, FUTURE));
+              } break;
+              case 2: {
+                ASSERT(0 == x.timedPushBack( MUtil::move(v), FUTURE));
+              } break;
+              case 3: {
+                ASSERT(0 == x.timedPushFront(MUtil::move(v), FUTURE));
+              } break;
+            }
+
+            bslmt::ThreadUtil::join(handle);
+
+            ASSERTV(ti, rc,   0  == rc);
+            ASSERTV(ti, item, ti == item);
+            ASSERTV(ti, 0 == X.length());
+        }
+
+        if (verbose) cout << "\tPop signals a waiting push\n";
+        for (int ti = 0; ti < 2; ++ti) {
+            Obj        x(1, Ct::e_MONOTONIC, &ta);
+            const Obj& X = x;
+            Element    item = 2.0;
+            int        rc   = -1;
+
+            ASSERT(0 == x.timedPushBack(1.0, FUTURE));
+
+            bslmt::ThreadUtil::Handle handle;
+            CREATETHREAD(handle, Waiter(&x, false, &item, &rc));
+
+            bslmt::ThreadUtil::microSleep(10 * MICRO_100TH_SEC);  // .1s
+
+            Element e = -1.0;
+            if (ti) {
+                ASSERT(0 == x.timedPopFront(&e, FUTURE));
+            }
+            else {
+                ASSERT(0 == x.timedPopBack( &e, FUTURE));
+            }
+            ASSERTV(ti, e, 1.0 == e);
+
+            bslmt::ThreadUtil::join(handle);
+
+            ASSERTV(ti, rc, 0 == rc);
+            ASSERTV(ti, 1 == X.length());
+            ASSERT(0 == x.tryPopFront(&e));
+            ASSERTV(ti, e, 2.0 == e);
+        }
+#else
+        if (verbose) cout << "\tskipped: `bsl::chrono` not available\n";
+#endif
+      } break;
       case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
@@ -5702,6 +5957,11 @@ int main(int argc, char *argv[])
         // 4. Run the c'tors with exceptions injected, to insure that no
         //    memory is leaked.
         //
+        // 5. Where `bsl::chrono` is available, include the c'tors taking a
+        //    `bsl::chrono::system_clock` or `bsl::chrono::steady_clock`,
+        //    choosing the one corresponding to the clock type of the
+        //    iteration.
+        //
         // Testing:
         //   Deque();
         //   Deque(alloc);
@@ -5719,6 +5979,14 @@ int main(int argc, char *argv[])
         //   Deque(ITER, ITER, hwm, alloc);
         //   Deque(ITER, ITER, hwm, clock);
         //   Deque(ITER, ITER, hwm, clock, alloc);
+        //   Deque(system_clock, alloc);
+        //   Deque(steady_clock, alloc);
+        //   Deque(hwm, system_clock, alloc);
+        //   Deque(hwm, steady_clock, alloc);
+        //   Deque(ITER, ITER, system_clock, alloc);
+        //   Deque(ITER, ITER, steady_clock, alloc);
+        //   Deque(ITER, ITER, hwm, system_clock, alloc);
+        //   Deque(ITER, ITER, hwm, steady_clock, alloc);
         //   bslma::Allocator *allocator() const;
         //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
@@ -5732,8 +6000,17 @@ int main(int argc, char *argv[])
         const Element range[] = { 1.0, 2.0 };
         const Element * const b = range, * const e = range + 2;
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        const bsl::chrono::system_clock sys = bsl::chrono::system_clock();
+        const bsl::chrono::steady_clock ste = bsl::chrono::steady_clock();
+
+        const char lastCtor = 'x';
+#else
+        const char lastCtor = 'p';
+#endif
+
         bool done = false;
-        for (char ctor = 'a'; ctor <= 'p' ; ++ctor) {
+        for (char ctor = 'a'; ctor <= lastCtor; ++ctor) {
             for (int sctInt = 0; sctInt < 2; ++sctInt) {
                 const bsls::SystemClockType::Enum sct =
                                     sctInt ? bsls::SystemClockType::e_MONOTONIC
@@ -5744,10 +6021,13 @@ int main(int argc, char *argv[])
                 const Int64 daStart = da.numBlocksTotal();
                 const Int64 taStart = ta.numBlocksTotal();
 
-                const bool isRange =  ctor > 'h';
-                const bool isHwm   = (ctor - 'a') % 8 >= 4;
-                const bool isSct   = (ctor - 'a') % 4 >= 2;
-                const bool isTa    = (ctor - 'a') % 2;
+                const bool isChrono = ctor > 'p';
+                const bool isRange  = isChrono ? ctor > 't'
+                                               : ctor > 'h';
+                const bool isHwm    = isChrono ? (ctor - 'q') % 4 >= 2
+                                               : (ctor - 'a') % 8 >= 4;
+                const bool isSct    = isChrono || (ctor - 'a') % 4 >= 2;
+                const bool isTa     = (ctor - 'a') % 2;
 
                 int numPasses = 0;
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN((isTa ? ta : da)) {
@@ -5801,8 +6081,43 @@ int main(int argc, char *argv[])
                       } break;
                       case 'p': {
                         pMX = new (fa) Obj(b, e, hwm, sct, &ta);
+                        done = 'p' == lastCtor;
+                      } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                      case 'q': {
+                        pMX = sctInt ? new (fa) Obj(ste)
+                                     : new (fa) Obj(sys);
+                      } break;
+                      case 'r': {
+                        pMX = sctInt ? new (fa) Obj(ste, &ta)
+                                     : new (fa) Obj(sys, &ta);
+                      } break;
+                      case 's': {
+                        pMX = sctInt ? new (fa) Obj(hwm, ste)
+                                     : new (fa) Obj(hwm, sys);
+                      } break;
+                      case 't': {
+                        pMX = sctInt ? new (fa) Obj(hwm, ste, &ta)
+                                     : new (fa) Obj(hwm, sys, &ta);
+                      } break;
+                      case 'u': {
+                        pMX = sctInt ? new (fa) Obj(b, e, ste)
+                                     : new (fa) Obj(b, e, sys);
+                      } break;
+                      case 'v': {
+                        pMX = sctInt ? new (fa) Obj(b, e, ste, &ta)
+                                     : new (fa) Obj(b, e, sys, &ta);
+                      } break;
+                      case 'w': {
+                        pMX = sctInt ? new (fa) Obj(b, e, hwm, ste)
+                                     : new (fa) Obj(b, e, hwm, sys);
+                      } break;
+                      case 'x': {
+                        pMX = sctInt ? new (fa) Obj(b, e, hwm, ste, &ta)
+                                     : new (fa) Obj(b, e, hwm, sys, &ta);
                         done = true;
                       } break;
+#endif
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
