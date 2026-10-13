@@ -698,7 +698,7 @@ void PipeControlChannel::shutdown()
 
     int microSleepTime = k_MIN_MICRO_SLEEP_TIME / 256;   // don't sleep until
                                                          // 8th pass
-    while (d_backgroundState != e_STOPPED) {
+    while (e_STOPPING == d_backgroundState) {
         // The background thread will set 'd_backgroundState' to 'e_STOPPED'
         // when it exits.  In the meantime, it might or might not be blocked
         // reading from the pipe.  So we iterate doing non-blocking writes,
