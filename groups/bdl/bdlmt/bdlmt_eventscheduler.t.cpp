@@ -1989,7 +1989,8 @@ void *workerThread10(void *arg)
                   cout << "\t\tAdded event: "; P_(id); P_(i);
                   printMutex.unlock();
               }
-              if (0 != pX->cancelEvent(h) && !testTimingFailure.loadRelaxed()) {
+              if (   0 != pX->cancelEvent(h)
+                  && !testTimingFailure.loadRelaxed()) {
                   // We tried and the `cancelEvent` failed, but we do not want
                   // to generate an error unless we can *guarantee* that the
                   // `cancelEvent` should have succeeded.
@@ -2023,7 +2024,8 @@ void *workerThread10(void *arg)
                   cout << "\t\tAdded clock: "; P_(id); P_(i);
                   printMutex.unlock();
               }
-              if (0 != pX->cancelEvent(h) && !testTimingFailure.loadRelaxed()) {
+              if (   0 != pX->cancelEvent(h)
+                  && !testTimingFailure.loadRelaxed()) {
                   // We tried and the `cancelRecurringEvent` failed, but we do
                   // not want to generate an error unless we can *guarantee*
                   // that the `cancelRecurringEvent` should have succeeded.
@@ -2081,9 +2083,20 @@ void waitAndStart(Obj *mX, bslmt::Barrier *barrier)
     if (veryVerbose) {
         ET("Invoking start");
     }
+
+    // The `barrier` only guarantees that the stopping thread is about to
+    // invoke `stop`, not that `stop` has marked the scheduler as not running.
+    const bsls::TimeInterval deadline =
+                          bsls::SystemTime::nowMonotonicClock().addSeconds(10);
+    while (   mX->isStarted()
+           && bsls::SystemTime::nowMonotonicClock() < deadline) {
+        bslmt::ThreadUtil::yield();
+    }
     ASSERT(false == mX->isStarted())
+
     mX->start();
-    ASSERT(true == mX->isStarted())
+    ASSERT(true == mX->isStarted());
+
     if (veryVerbose) {
         ET("Started");
     }
@@ -4533,18 +4546,20 @@ int main(int argc, char *argv[])
         //   time source.
         //
         // Plan:
-        //   1. Create objects with all values of `clockType`, and verify that the
-        //   value returned by the `now` accessor is as expected.
-        //   2. Create a test time source and verify that the value returned by the
-        //   `now` accessor matches that of the test time source.
+        //   1. Create objects with all values of `clockType`, and verify that
+        //   the value returned by the `now` accessor is as expected.
+        //
+        //   2. Create a test time source and verify that the value returned by
+        //   the `now` accessor matches that of the test time source.
+        //
         //   3. Create a test time source with non-default test allocator and
-        //   verify that the value returned by `now` accessor matches that of the
-        //   test time source.  Check that the provided test allocator was used
-        //   and the default allocator was not used.
+        //   verify that the value returned by `now` accessor matches that of
+        //   the test time source.  Check that the provided test allocator was
+        //   used and the default allocator was not used.
         //
         // Testing:
         //   bsls::TimeInterval bdlmt::EventScheduler::now() const
-        //   bsls::TimeInterval bdlmt::EventSchedulerTestTimeSource::now() const
+        //   bsls::TI bdlmt::EventSchedulerTestTimeSource::now() const
         //   `bdlmt::EventSchedulerTestTimeSource` is allocator-aware.
         // --------------------------------------------------------------------
 
@@ -4640,7 +4655,7 @@ int main(int argc, char *argv[])
                 ASSERT(oam.isInUseSame());
 
                 timeSource.advanceTime(bsls::TimeInterval(
-                                                bdlt::TimeUnitRatio::k_S_PER_D));
+                                              bdlt::TimeUnitRatio::k_S_PER_D));
                 ASSERT(X.now() == timeSource.now());
 
                 // No extra allocations on `now` call
