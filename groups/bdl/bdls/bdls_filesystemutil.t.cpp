@@ -4630,8 +4630,8 @@ int main(int argc, char *argv[])
         //   Define the functions provided in usage example 2, then test them
         //   and make sure they function as intended, by:
         //
-        //   1) Create a series of file in 1 second intervals, and record the
-        //      time of creation.
+        //   1) Create a series of files in 100 millisecond intervals, and
+        //      record the time of creation.
         //   2) Call the `findMatchingFilesInTimeframe` function on the list of
         //      files created with the timeframe specified as an interval
         //      in between all file creations.
@@ -4675,7 +4675,10 @@ int main(int argc, char *argv[])
             Obj::write(fd, buffer, bytes);
             Obj::close(fd);
 
-            bslmt::ThreadUtil::microSleep(10000);
+            // Sleep long enough that the files' modification times are
+            // distinct, even on file systems having a timestamp granularity
+            // as coarse as 10 milliseconds.
+            bslmt::ThreadUtil::microSleep(100000);
 
             Obj::getLastModificationTime(&modTime[i], s.str());
             if (veryVerbose) {
@@ -5302,10 +5305,11 @@ int main(int argc, char *argv[])
             NA = 0
         };
 
-        // All contemporary file systems that support modification timestamps
-        // provide at least microsecond precision for those timestamps.
+        // Many contemporary file systems that support modification timestamps
+        // provide at least microsecond precision for those timestamps, but
+        // some have a granularity as coarse as 10 milliseconds.
         const bdlt::DatetimeInterval MOD_TIME_PRECISION(
-            0, 0, 0, 0, 0, 1);
+            0, 0, 0, 0, 10, 0);
 
         typedef bdlt::Datetime DT;
 
