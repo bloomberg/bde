@@ -264,9 +264,11 @@ bool SleepOnADuration(
 {
     using namespace bsl::chrono;
 
+    const milliseconds k_TOLERANCE(1);
+
     const steady_clock::time_point tp = steady_clock::now();
     bslmt::ThreadUtil::sleep(sleepTime);
-    return (steady_clock::now() - tp) >= sleepTime;
+    return (steady_clock::now() - tp) > sleepTime - k_TOLERANCE;
 }
 
 /// Sleep until the specified `CLOCK` has counted off the specified
