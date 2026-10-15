@@ -646,6 +646,15 @@ unsigned u_errno()
 #endif
 }
 
+void u_clearErrno()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    SetLastError(0);
+#else
+    errno = 0;
+#endif
+}
+
 namespace u {
 
                               // ===============
@@ -2656,10 +2665,15 @@ void TestObject<STRING_TYPE>::kill(bsl::string_view path)
     // `{bsl, std, std::pmr}::string`.
 
     STRING_TYPE stringTypePath = hostPath.c_str();
-    int rc = d_recurse ? Obj::remove(stringTypePath, true)
-                       : Obj::remove(stringTypePath);    // `recursiveFlag`
-                                                         // defaults to `false`
-    ASSERTV(hostPath, exp(), rc, d_recurse, errno,
+    u_clearErrno();
+
+    const int rc = d_recurse
+                 ? Obj::remove(stringTypePath, true)
+                 : Obj::remove(stringTypePath);       // `recursiveFlag`
+                                                      // defaults to `false`
+
+    const unsigned removeErrno = u_errno();
+    ASSERTV(hostPath, exp(), rc, d_recurse, removeErrno,
                                                   ((0 == exp()) == (0 == rc)));
 }
 
@@ -2714,7 +2728,14 @@ TestObject<STRING_TYPE>::~TestObject()
     // have changed the working directory out of `d_homeDir`.
 
     ASSERT_FOR_CERTAIN(0 == Obj::setWorkingDirectory(d_startDir));
-    ASSERT(0 == Obj::remove(d_homeDir, true));    // absolute host path
+    {
+        // `d_homeDir` is an absolute host path.
+
+        u_clearErrno();
+        const int      removeRc    = Obj::remove(d_homeDir, true);
+        const unsigned removeErrno = u_errno();
+        ASSERTV(d_homeDir, removeRc, removeErrno, 0 == removeRc);
+    }
 }
 
 // MANIPULATORS
@@ -4309,7 +4330,10 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
 
     bsl::string cwd;
     Obj::getWorkingDirectory(&cwd);
-    ASSERTV(case5_tmpdir_base, cwd, 0 == Obj::remove(case5_tmpdir_base, true));
+    u_clearErrno();
+    const int      removeRc    = Obj::remove(case5_tmpdir_base, true);
+    const unsigned removeErrno = u_errno();
+    ASSERTV(case5_tmpdir_base, cwd, removeRc, removeErrno, 0 == removeRc);
 }
 
 template <class VECTOR_TYPE>
@@ -4504,7 +4528,12 @@ void testCase4_findMatchingPaths(const char         *vectorTypeName,
     ASSERT(0 == rc);
     ASSERT(resultPaths.empty());
 
-    ASSERT(0 == Obj::remove(path, true));
+    {
+        u_clearErrno();
+        const int      removeRc    = Obj::remove(path, true);
+        const unsigned removeErrno = u_errno();
+        ASSERTV(path, removeRc, removeErrno, 0 == removeRc);
+    }
 }
 
 template <class STRING_TYPE>
@@ -4612,7 +4641,12 @@ int main(int argc, char *argv[])
                           << tmpWorkingDir
                           << endl;
 
-        LOOP_ASSERT(tmpWorkingDir, 0 == Obj::remove(tmpWorkingDir, true));
+        {
+            u_clearErrno();
+            const int      removeRc    = Obj::remove(tmpWorkingDir, true);
+            const unsigned removeErrno = u_errno();
+            ASSERTV(tmpWorkingDir, removeRc, removeErrno, 0 == removeRc);
+        }
     }
     ASSERT(0 == Obj::createDirectories(  tmpWorkingDir, true));
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
@@ -4704,7 +4738,12 @@ int main(int argc, char *argv[])
 
         ASSERT(results.size() == END - START + 1);
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
-        ASSERT(0 == Obj::remove(logPath.c_str(), true));
+        {
+            u_clearErrno();
+            const int      removeRc    = Obj::remove(logPath.c_str(), true);
+            const unsigned removeErrno = u_errno();
+            ASSERTV(logPath, removeRc, removeErrno, 0 == removeRc);
+        }
       } break;
       case 34: {
         // --------------------------------------------------------------------
@@ -4823,7 +4862,12 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
-        ASSERT(0 == Obj::remove(logPath.c_str(), true));
+        {
+            u_clearErrno();
+            const int      removeRc    = Obj::remove(logPath.c_str(), true);
+            const unsigned removeErrno = u_errno();
+            ASSERTV(logPath, removeRc, removeErrno, 0 == removeRc);
+        }
       } break;
       case 33: {
         // --------------------------------------------------------------------
@@ -6305,8 +6349,10 @@ int main(int argc, char *argv[])
         // cleaned up at the end of `main` anyway, and this code is just
         // intended to test some changes made to Unix `remove`.
 
-        int rc = Obj::remove(root, true);
-        ASSERT(0 == rc);
+        u_clearErrno();
+        const int      rc          = Obj::remove(root, true);
+        const unsigned removeErrno = u_errno();
+        ASSERTV(root, rc, removeErrno, 0 == rc);
         ASSERT(!Obj::exists(root));
 #endif
       } break;
@@ -6372,7 +6418,12 @@ int main(int argc, char *argv[])
             ASSERT(Obj::k_ERROR_PATH_NOT_FOUND ==
                    Obj::createDirectories(childOfFilePath));
 
-            ASSERT(0 == Obj::remove(testBaseDir, true));
+            {
+                u_clearErrno();
+                const int      removeRc    = Obj::remove(testBaseDir, true);
+                const unsigned removeErrno = u_errno();
+                ASSERTV(testBaseDir, removeRc, removeErrno, 0 == removeRc);
+            }
         }
 
         if (verbose) cout << "Testing `createPrivateDirectory`\n";
@@ -6412,7 +6463,12 @@ int main(int argc, char *argv[])
             ASSERT(Obj::k_ERROR_PATH_NOT_FOUND ==
                    Obj::createPrivateDirectory(clildOfNonexistentDirPath));
 
-            ASSERT(0 == Obj::remove(testBaseDir, true));
+            {
+                u_clearErrno();
+                const int      removeRc    = Obj::remove(testBaseDir, true);
+                const unsigned removeErrno = u_errno();
+                ASSERTV(testBaseDir, removeRc, removeErrno, 0 == removeRc);
+            }
         }
       } break;
       case 23: {
@@ -6856,7 +6912,12 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(itr->first, itr->second, 0 == itr->second);
         }
 
-        LOOP_ASSERT(dir, 0 == Obj::remove(dir, true));
+        {
+            u_clearErrno();
+            const int      removeRc    = Obj::remove(dir, true);
+            const unsigned removeErrno = u_errno();
+            ASSERTV(dir, removeRc, removeErrno, 0 == removeRc);
+        }
 
         // Check narrow and wide lookups.
 
@@ -6983,7 +7044,12 @@ int main(int argc, char *argv[])
             }
             ASSERT(eqBaseDir);
 
-            ASSERT(0 == Obj::remove(testBaseDir, true));
+            {
+                u_clearErrno();
+                const int      removeRc    = Obj::remove(testBaseDir, true);
+                const unsigned removeErrno = u_errno();
+                ASSERTV(testBaseDir, removeRc, removeErrno, 0 == removeRc);
+            }
         }
 
         if (verbose) cout << "Testing `createPrivateDirectory`\n";
@@ -7019,7 +7085,12 @@ int main(int argc, char *argv[])
                 cout.flags(flags);
             }
             ASSERT(eqLeafDir);
-            ASSERT(0 == Obj::remove(fullPath, true));
+            {
+                u_clearErrno();
+                const int      removeRc    = Obj::remove(fullPath, true);
+                const unsigned removeErrno = u_errno();
+                ASSERTV(fullPath, removeRc, removeErrno, 0 == removeRc);
+            }
         }
 #endif
       } break;
@@ -7962,7 +8033,12 @@ int main(int argc, char *argv[])
 
             // Clean up the directories
 
-            ASSERT(Obj::remove("tmp", true) == 0);
+            {
+                u_clearErrno();
+                const int      removeRc    = Obj::remove("tmp", true);
+                const unsigned removeErrno = u_errno();
+                ASSERTV("tmp", removeRc, removeErrno, 0 == removeRc);
+            }
         }
       } break;
       case 10: {
@@ -8224,7 +8300,12 @@ int main(int argc, char *argv[])
             ASSERT(f != Obj::k_INVALID_FD);
             ASSERT(INT_SIZEOF(int) == Obj::read(f, &value, INT_SIZEOF(int)));
             ASSERT(0 == Obj::close(f));
-            ASSERT(0 == Obj::remove(tmpFile, true));
+            {
+                u_clearErrno();
+                const int      removeRc    = Obj::remove(tmpFile, true);
+                const unsigned removeErrno = u_errno();
+                ASSERTV(tmpFile, removeRc, removeErrno, 0 == removeRc);
+            }
             LOOP2_ASSERT(i, value, i == value);
         }
 
@@ -8279,7 +8360,12 @@ int main(int argc, char *argv[])
             }
 
             // Delete the whole directory
-            ASSERT(0 == Obj::remove(tmpFile, true));
+            {
+                u_clearErrno();
+                const int      removeRc    = Obj::remove(tmpFile, true);
+                const unsigned removeErrno = u_errno();
+                ASSERTV(tmpFile, removeRc, removeErrno, 0 == removeRc);
+            }
         }
       } break;
       case 6: {
@@ -8677,7 +8763,14 @@ int main(int argc, char *argv[])
 
         //clean up
 
-       ASSERT(0 == Obj::remove("tmp.filesystemutil.case4", true));
+        {
+            const char *const dirName = "tmp.filesystemutil.case4";
+
+            u_clearErrno();
+            const int      removeRc    = Obj::remove(dirName, true);
+            const unsigned removeErrno = u_errno();
+            ASSERTV(dirName, removeRc, removeErrno, 0 == removeRc);
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -9813,9 +9906,6 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(lengths[i], 0 == memcmp(buffer, blockA,
                                                                    numBytesA));
 
-                    // Confirm that write fails if seek point is beyond end of
-                    // file.
-
                     position = Obj::seek(fd, lengths[i], Obj::e_SEEK_FROM_END);
                     LOOP2_ASSERT(lengths[i], position,
                                            numBytesA + lengths[i] == position);
@@ -10718,7 +10808,11 @@ int main(int argc, char *argv[])
                             filenameBuffer));
 
                 if (Obj::exists(logPath.c_str())) {
-                    ASSERT(0 == Obj::remove(logPath.c_str(), true));
+                    u_clearErrno();
+                    const int      removeRc    =
+                                            Obj::remove(logPath.c_str(), true);
+                    const unsigned removeErrno = u_errno();
+                    ASSERTV(logPath, removeRc, removeErrno, 0 == removeRc);
                 }
                 Obj::FileDescriptor f = Obj::open(logPath.c_str(),
                                                   Obj::e_OPEN_OR_CREATE,
@@ -10800,7 +10894,13 @@ int main(int argc, char *argv[])
             // Clean up
 
             ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
-            ASSERT(0 == Obj::remove(logPath.c_str(), true));
+            {
+                u_clearErrno();
+                const int      removeRc    =
+                                        Obj::remove(logPath.c_str(), true);
+                const unsigned removeErrno = u_errno();
+                ASSERTV(logPath, removeRc, removeErrno, 0 == removeRc);
+            }
 
             // exercise temp name, file, directory
 
