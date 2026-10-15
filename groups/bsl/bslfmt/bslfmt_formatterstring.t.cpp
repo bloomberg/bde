@@ -1173,7 +1173,7 @@ int main(int argc, char **argv)
                    "\n================\n");
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)                                          \
- && defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION < 170000
+ && defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION <= 200100
         // This test case fails on macOS with old libc++, probably due to
         // discrepancies between the library implementation and the C++
         // standard.
