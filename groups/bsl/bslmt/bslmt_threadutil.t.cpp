@@ -1718,8 +1718,8 @@ int main(int argc, char *argv[])
             rc = Obj::join(extraHandle);
             ASSERT(0 == rc);
 
-            // Special case: set limit to 1, which means only the current thread
-            // can exist.
+            // Special case: set limit to 1, which means only the current
+            // thread can exist.
             Obj::setThreadLimit(1);
             rc = Obj::create(&extraHandle, &TC::noopThreadFunc, 0);
             ASSERT(rc != 0);
@@ -2385,6 +2385,8 @@ int main(int argc, char *argv[])
                                             Attr::e_SCHED_RR   == policy);
 #elif defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_DARWIN)
             const bool willFail = false;
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+            const bool willFail = true;
 #else
 # error unrecognized platform
 #endif

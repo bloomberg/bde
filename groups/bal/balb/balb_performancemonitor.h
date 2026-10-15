@@ -74,6 +74,14 @@ BSLS_IDENT("$Id: $")
 // `procfs.h` header not supporting that compiler in 32-bit mode.
 // (DRQS 170291732)
 //
+///Unsupported Platform - Emscripten
+///----------------------------------
+// Note that performance statistics are not collected when building with
+// Emscripten (WebAssembly).  The WebAssembly sandbox (e.g., a browser or
+// Node.js) provides no `/proc` filesystem or equivalent API for querying
+// per-process CPU, memory, or thread usage, so `registerPid` will always
+// return a non-zero value on this platform.
+//
 ///Iterator Invalidation
 ///---------------------
 // Registration of new pids does not invalidate existing iterators.
@@ -270,6 +278,8 @@ class PerformanceMonitor {
     typedef bsls::Platform::OsFreeBsd OsType;
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
     typedef bsls::Platform::OsDarwin  OsType;
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+    typedef bsls::Platform::OsEmscripten OsType;
 #elif defined(BSLS_PLATFORM_OS_UNIX)
     typedef bsls::Platform::OsUnix    OsType;
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)

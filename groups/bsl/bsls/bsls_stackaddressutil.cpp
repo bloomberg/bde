@@ -168,6 +168,10 @@ int getProcessName(char *output, int length)
                                  // versions.
     }
     return 0;
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+    (void)output;
+    (void)length;
+    return -1;
 #else
 # error    Unrecognized Platform
 #endif
@@ -573,6 +577,22 @@ int StackAddressUtil::getStackAddresses(void **buffer,
 }  // close package namespace
 
 // SOLARIS
+#endif
+
+#if defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+
+namespace bsls {
+
+int StackAddressUtil::getStackAddresses(void **buffer, int maxFrames)
+{
+    (void)buffer;
+    (void)maxFrames;
+    return -1;
+}
+
+}  // close package namespace
+
+// EMSCRIPTEN
 #endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)

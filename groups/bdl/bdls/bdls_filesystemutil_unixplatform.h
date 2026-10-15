@@ -111,8 +111,9 @@ BSLS_IDENT("$Id: $")
 //:   different Unixes, if they support it.  This environment is enabled on AIX
 //:   if the `_LARGE_FILE` macro is defined, and it is enabled on Linux and
 //:   Solaris if the `_LARGEFILE64_SOURCE` macro is defined.  :   Neither
-//:   Cygwin, Darwin, nor FreeBSD support this environment, because they
-//:   natively support large (64-bit) file operations in all compilation modes.
+//:   Cygwin, Darwin, Emscripten, nor FreeBSD support this environment,
+//:   because they natively support large (64-bit) file operations in all
+//:   compilation modes.
 //:
 //: `Off Type`:
 //:   Short for "Offset Type".  This column lists the type that a program
@@ -152,24 +153,25 @@ BSLS_IDENT("$Id: $")
 // cells.
 //
 // ```
-// |---------|------|--------|-----|----------|----------|---------------|
-// | OS      | Mode | FOB=64 | LF  | Off Type | Off Bits | Macro Defined |
-// |=========+======+========+=====+==========+==========+===============|
-// | AIX     |   32 |    N/A |  No | 'off64_t'|       64 | *_64_BIT_OFF64|
-// | AIX     |   32 |    N/A | Yes | 'off_t'  |       64 | *_64_BIT_OFF  |
-// | AIX     |   64 |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
-// | Cygiwn  |  N/A |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
-// | Darwin  |  N/A |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
-// | FreeBSD |  N/A |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
-// | Linux   |   32 |     No |  No | 'off_t'  |       32 | *_32_BIT_OFF  |
-// | Linux   |   32 |     No | Yes | 'off64_t'|       64 | *_64_BIT_OFF64|
-// | Linux   |   32 |    Yes | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
-// | Linux   |   64 |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
-// | Solaris |   32 |     No |  No | 'off_t'  |       32 | *_32_BIT_OFF  |
-// | Solaris |   32 |     No | Yes | 'off64_t'|       64 | *_64_BIT_OFF64|
-// | Solaris |   32 |    Yes | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
-// | Solaris |   64 |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
-// |---------+------+--------+-----+----------+----------+---------------+
+// |------------|------|--------|-----|----------|----------|---------------|
+// | OS         | Mode | FOB=64 | LF  | Off Type | Off Bits | Macro Defined |
+// |============+======+========+=====+==========+==========+===============|
+// | AIX        |   32 |    N/A |  No | 'off64_t'|       64 | *_64_BIT_OFF64|
+// | AIX        |   32 |    N/A | Yes | 'off_t'  |       64 | *_64_BIT_OFF  |
+// | AIX        |   64 |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
+// | Cygiwn     |  N/A |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
+// | Darwin     |  N/A |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
+// | Emscripten |  N/A |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
+// | FreeBSD    |  N/A |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
+// | Linux      |   32 |     No |  No | 'off_t'  |       32 | *_32_BIT_OFF  |
+// | Linux      |   32 |     No | Yes | 'off64_t'|       64 | *_64_BIT_OFF64|
+// | Linux      |   32 |    Yes | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
+// | Linux      |   64 |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
+// | Solaris    |   32 |     No |  No | 'off_t'  |       32 | *_32_BIT_OFF  |
+// | Solaris    |   32 |     No | Yes | 'off64_t'|       64 | *_64_BIT_OFF64|
+// | Solaris    |   32 |    Yes | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
+// | Solaris    |   64 |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
+// |------------+------+--------+-----+----------+----------+---------------+
 // ```
 
 #include <bsls_platform.h>
@@ -209,6 +211,12 @@ BSLS_IDENT("$Id: $")
                                    // Darwin
 
     #elif defined(BSLS_PLATFORM_OS_DARWIN)
+
+        #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF 1
+
+                                // Emscripten
+
+    #elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
 
         #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF 1
 
@@ -286,7 +294,8 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS) ||                          \
     defined(BSLS_PLATFORM_OS_AIX) ||                              \
-    defined(BSLS_PLATFORM_OS_LINUX)
+    defined(BSLS_PLATFORM_OS_LINUX) ||                            \
+    defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
 
    #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER st_mtim.tv_nsec
 

@@ -1374,7 +1374,7 @@ int main(int argc, char *argv[])
                      ++iterations) {
 
                     const bsls::Types::Int64 offset =
-                                  (getRand64() & getBitMask(bits)) % testPeriod;
+                                 (getRand64() & getBitMask(bits)) % testPeriod;
 
                     if (veryVerbose) {
                         T_ P_(bits) P_(iterations); (offset);
@@ -2064,7 +2064,7 @@ int main(int argc, char *argv[])
 #if defined BSLS_PLATFORM_OS_SOLARIS || defined BSLS_PLATFORM_OS_FREEBSD
         const Int64 timeQuantum = nsecsPerSecond / CLK_TCK;
 #elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX    \
-   || defined BSLS_PLATFORM_OS_DARWIN
+   || defined BSLS_PLATFORM_OS_DARWIN || defined BSLS_PLATFORM_OS_EMSCRIPTEN
         const Int64 timeQuantum = nsecsPerSecond / sysconf(_SC_CLK_TCK);
                                         // On our local flavor of Linux, old
                                         // POSIX requirements and immoderate

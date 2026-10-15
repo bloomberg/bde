@@ -144,6 +144,11 @@ struct ObjectFileFormat {
     typedef Dladdr Policy;
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR 1
 
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+
+    typedef Dummy Policy;
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED 1
+
 #else
 
     typedef Dummy Policy;

@@ -45,7 +45,8 @@ target_compile_definitions(
         $<$<C_COMPILER_ID:GNU>:USE_REAL_MALLOC>
 )
 
-if (NOT CMAKE_SYSTEM_NAME STREQUAL "SunOS")
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "SunOS"
+    AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     target_compile_definitions(
         ${target}
         PRIVATE

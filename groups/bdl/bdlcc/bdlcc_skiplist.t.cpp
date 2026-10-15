@@ -7992,6 +7992,8 @@ if (veryVerbose) cout << "Elapsed: " << elapsed << " seconds\n";
         cout << " Windows";
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
         cout << " MacOS";
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+        cout << " Emscripten";
 #else
 # error "unrecognized platform"
 #endif

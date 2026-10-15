@@ -722,6 +722,12 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_CPU_VER_MAJOR);
 #endif
 
+#if defined(BSLS_PLATFORM_CPU_WASM)
+    P_MACRO(BSLS_PLATFORM_CPU_WASM);
+#else
+    D_MACRO(BSLS_PLATFORM_CPU_WASM);
+#endif
+
 #if defined(BSLS_PLATFORM_CPU_X86)
     P_MACRO(BSLS_PLATFORM_CPU_X86);
 #else
@@ -756,6 +762,12 @@ static void printFlags()
     P_MACRO(BSLS_PLATFORM_OS_DARWIN);
 #else
     D_MACRO(BSLS_PLATFORM_OS_DARWIN);
+#endif
+
+#if defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+    P_MACRO(BSLS_PLATFORM_OS_EMSCRIPTEN);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_EMSCRIPTEN);
 #endif
 
 #if defined(BSLS_PLATFORM_OS_FREEBSD)
@@ -1355,6 +1367,12 @@ static void printFlags()
     D_MACRO(__EDG__);
 #endif
 
+#if defined(__EMSCRIPTEN__)
+    P_MACRO(__EMSCRIPTEN__);
+#else
+    D_MACRO(__EMSCRIPTEN__);
+#endif
+
 #if defined(__FreeBSD__)
     P_MACRO(__FreeBSD__);
 #else
@@ -1581,6 +1599,24 @@ static void printFlags()
     P_MACRO(__WCHAR_UNSIGNED__);
 #else
     D_MACRO(__WCHAR_UNSIGNED__);
+#endif
+
+#if defined(__wasm__)
+    P_MACRO(__wasm__);
+#else
+    D_MACRO(__wasm__);
+#endif
+
+#if defined(__wasm32__)
+    P_MACRO(__wasm32__);
+#else
+    D_MACRO(__wasm32__);
+#endif
+
+#if defined(__wasm64__)
+    P_MACRO(__wasm64__);
+#else
+    D_MACRO(__wasm64__);
 #endif
 
 #if defined(__WIN32__)
@@ -2568,6 +2604,9 @@ int main(int argc, char *argv[])
         #if defined(BSLS_PLATFORM_OS_DARWIN)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_DARWIN, 1);
         #endif
+        #if defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+            MACRO_TESTEQ(BSLS_PLATFORM_OS_EMSCRIPTEN, 1);
+        #endif
         #if defined(BSLS_PLATFORM_OS_SOLARIS)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_SOLARIS, 1);
         #endif
@@ -2639,6 +2678,9 @@ int main(int argc, char *argv[])
         #endif
         #if defined(BSLS_PLATFORM_CPU_SPARC)
             MACRO_TESTEQ(BSLS_PLATFORM_CPU_SPARC, 1);
+        #endif
+        #if defined(BSLS_PLATFORM_CPU_WASM)
+            MACRO_TESTEQ(BSLS_PLATFORM_CPU_WASM, 1);
         #endif
         #if defined(BSLS_PLATFORM_CPU_32_BIT)
             MACRO_TESTEQ(BSLS_PLATFORM_CPU_32_BIT, 1);

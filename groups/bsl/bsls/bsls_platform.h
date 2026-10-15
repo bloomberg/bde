@@ -43,6 +43,7 @@ BSLS_IDENT("$Id: $")
 //                     @_OS_SOLARIS
 //                     @_OS_CYGWIN
 //                     @_OS_DARWIN
+//                     @_OS_EMSCRIPTEN
 //
 // @_OS_WINDOWS        @_OS_WINNT
 //                     @_OS_WIN9X
@@ -72,6 +73,7 @@ BSLS_IDENT("$Id: $")
 // @_CPU_POWERPC
 // @_CPU_SPARC
 // @_CPU_ARM
+// @_CPU_WASM
 //
 // =============================================================
 //                             COMPILER
@@ -440,6 +442,8 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_OS_WINDOWS                                      1
     #elif defined(__APPLE__)
         #define BSLS_PLATFORM_OS_DARWIN                                       1
+    #elif defined(__EMSCRIPTEN__)
+        #define BSLS_PLATFORM_OS_EMSCRIPTEN                                   1
     #else
         #if defined(__GNUC__)
             #error "Unable to determine on which OS the compiler is running."
@@ -523,6 +527,12 @@ struct bsls_Platform_Assert;
         #else
             #error "Unsupported ARM platform."
         #endif
+    #elif defined(__wasm64__)
+        #define BSLS_PLATFORM_CPU_WASM                                        1
+        #define BSLS_PLATFORM_CPU_64_BIT                                      1
+    #elif defined(__wasm32__) || defined(__wasm__)
+        #define BSLS_PLATFORM_CPU_WASM                                        1
+        #define BSLS_PLATFORM_CPU_32_BIT                                      1
     #else
         #if defined(__GNUC__)
             #error "Unable to determine on which CPU the compiler is running."
@@ -625,6 +635,10 @@ struct bsls_Platform_Assert;
     #elif BYTE_ORDER == BIG_ENDIAN
         #define BSLS_PLATFORM_IS_BIG_ENDIAN                                   1
     #endif
+
+// Emscripten/WebAssembly
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+    #define BSLS_PLATFORM_IS_LITTLE_ENDIAN                                    1
 
 // MSVC and Windows
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -784,6 +798,7 @@ struct bsls_Platform_Assert;
 #define BSLS_PLATFORM_OS_SUBTYPE_COUNT                                        \
     BSLS_PLATFORM_OS_CYGWIN                                                   \
   + BSLS_PLATFORM_OS_DARWIN                                                   \
+  + BSLS_PLATFORM_OS_EMSCRIPTEN                                               \
   + BSLS_PLATFORM_OS_FREEBSD                                                  \
   + BSLS_PLATFORM_OS_LINUX                                                    \
   + BSLS_PLATFORM_OS_SOLARIS                                                  \
@@ -817,7 +832,8 @@ struct bsls_Platform_Assert;
   + BSLS_PLATFORM_CPU_MIPS                                                    \
   + BSLS_PLATFORM_CPU_POWERPC                                                 \
   + BSLS_PLATFORM_CPU_SPARC                                                   \
-  + BSLS_PLATFORM_CPU_ARM != 1
+  + BSLS_PLATFORM_CPU_ARM                                                     \
+  + BSLS_PLATFORM_CPU_WASM != 1
     #error "Exactly one processor must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif
@@ -862,13 +878,14 @@ struct Platform {
     struct OsUnix    : OsAny {};
     struct OsWindows : OsAny {};
 
-    struct OsAix     : OsUnix {};
-    struct OsCygwin  : OsUnix {};
-    struct OsDarwin  : OsUnix {};
-    struct OsFreeBsd : OsUnix {};
-    struct OsHpux    : OsUnix {};
-    struct OsLinux   : OsUnix {};
-    struct OsSolaris : OsUnix {};
+    struct OsAix        : OsUnix {};
+    struct OsCygwin     : OsUnix {};
+    struct OsDarwin     : OsUnix {};
+    struct OsEmscripten : OsUnix {};
+    struct OsFreeBsd    : OsUnix {};
+    struct OsHpux       : OsUnix {};
+    struct OsLinux      : OsUnix {};
+    struct OsSolaris    : OsUnix {};
 
     struct OsAix_V5 : OsAix {};
 
@@ -912,6 +929,8 @@ struct Platform {
     struct CpuArmv7 : CpuArm {};
     struct CpuArmv8 : CpuArm {};
 
+    struct CpuWasm  : CpuAny {};
+
                               // PLATFORM TRAITS
 
     //OS TRAIT
@@ -937,6 +956,9 @@ struct Platform {
         #else
             typedef OsSolaris_V8     Os;
         #endif
+    #endif
+    #if defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+        typedef OsEmscripten        Os;
     #endif
     #if defined(BSLS_PLATFORM_OS_WINDOWS)
         typedef OsWinNT             Os;
@@ -974,6 +996,9 @@ struct Platform {
     #endif
     #if defined(BSLS_PLATFORM_CPU_ARM_V8)
         typedef CpuArmv8 Cpu;
+    #endif
+    #if defined(BSLS_PLATFORM_CPU_WASM)
+        typedef CpuWasm  Cpu;
     #endif
 };
 

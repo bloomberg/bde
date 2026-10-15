@@ -1432,6 +1432,8 @@ void BenchmarkSuite::run(int   iterations,
     cout << "Windows";
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
     cout << "Darwin(OSX)";
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+    cout << "Emscripten";
 #else
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif

@@ -40,6 +40,7 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 #   include <errno.h>            // ::program_invocation_name
 # elif defined BSLS_PLATFORM_OS_SOLARIS
 #   include <bsl_fstream.h>
+# elif defined BSLS_PLATFORM_OS_EMSCRIPTEN
 # else
 #   error Unrecognized Platform
 # endif
@@ -253,6 +254,10 @@ int ProcessUtil::getProcessName(bsl::string *result)
     }
     result->assign(argv0);
     return 0;
+
+#elif defined BSLS_PLATFORM_OS_EMSCRIPTEN
+
+    return -1;
 
 #elif defined BSLS_PLATFORM_OS_SOLARIS
 

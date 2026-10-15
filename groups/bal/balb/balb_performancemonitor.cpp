@@ -566,12 +566,12 @@ int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 
 template <>
 class PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd> {
-    // Provide a specialization of the 'Collector' class template for the Linux
-    // platform.  Solaris, AIX, and Linux all support the /proc filesystem, from
-    // which we extract the performance measures for the monitored pid.  On
-    // Linux, the layout and content of this file system differs from the
-    // layout and content of the file system on Solaris or AIX, hence this
-    // 'Collector' class template specialization.
+    // Provide a specialization of the 'Collector' class template for the
+    // Linux platform.  Solaris, AIX, and Linux all support the /proc
+    // filesystem, from which we extract the performance measures for the
+    // monitored pid.  On Linux, the layout and content of this file system
+    // differs from the layout and content of the file system on Solaris or
+    // AIX, hence this 'Collector' class template specialization.
 
     // Note that the FreeBSD implementation is stateless.  However, the
     // 'Collector' template requires a constructor accepting a single
@@ -937,6 +937,61 @@ int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
     BSLS_LOG_TRACE("Collected performance measures for PID %d (%s)",
                    stats->d_pid, stats->d_description.c_str());
     return 0;
+}
+
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+
+template <>
+class PerformanceMonitor::Collector<bsls::Platform::OsEmscripten> {
+    // Provide a specialization of the 'Collector' class template for the
+    // Emscripten platform.  Note that performance statistics are not
+    // collected on this platform: Emscripten programs run inside a
+    // WebAssembly sandbox (e.g., a browser or Node.js) that provides no
+    // '/proc' filesystem or equivalent API for querying per-process CPU,
+    // memory, or thread usage, so 'initialize' and 'collect' always fail.
+
+  public:
+    // CREATORS
+    Collector(bslma::Allocator *basicAllocator = 0);
+        // Create an instance of this class.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    // MANIPULATORS
+    int initialize(Statistics              *stats,
+                   int                      pid,
+                   const bsl::string_view&  description);
+        // Initialize the specified 'stats' to represent the specified 'pid'
+        // having the specified user-defined 'description'.  Return a non-zero
+        // value, as performance statistics are not available on this
+        // platform.
+
+    int collect(Statistics *stats);
+        // Do nothing with the specified 'stats' and return a non-zero value,
+        // as performance statistics are not available on this platform.
+};
+
+// CREATORS
+PerformanceMonitor::Collector<bsls::Platform::OsEmscripten>
+::Collector(bslma::Allocator *)
+{
+}
+
+// MANIPULATORS
+int PerformanceMonitor::Collector<bsls::Platform::OsEmscripten>
+::initialize(Statistics *stats, int pid, const bsl::string_view &description)
+{
+    stats->d_pid         = pid;
+    stats->d_description = description;
+
+    BSLS_LOG_DEBUG("Performance statistics are not supported on Emscripten");
+    return -1;
+}
+
+int PerformanceMonitor::Collector<bsls::Platform::OsEmscripten>
+::collect(Statistics *)
+{
+    return -1;
 }
 
 #elif defined(BSLS_PLATFORM_OS_UNIX)
@@ -1487,7 +1542,7 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
         stats->d_lstData[e_CPU_UTIL_USER]   = values[USER_PROCESSOR_TIME]
                                            .doubleValue;
         stats->d_lstData[e_CPU_UTIL_SYSTEM] = stats->d_lstData[e_CPU_UTIL] -
-                                              stats->d_lstData[e_CPU_UTIL_USER];
+                                             stats->d_lstData[e_CPU_UTIL_USER];
         ++stats->d_numSamples[e_RATE_MEASURE];
         ++samplesCollected[e_RATE_MEASURE];
     }

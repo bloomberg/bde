@@ -428,9 +428,10 @@ class MmapAllocator : public bslma::Allocator {
 
         return result;
 
-#elif defined(BSLS_PLATFORM_OS_LINUX)  \
-   || defined(BSLS_PLATFORM_OS_DARWIN) \
-   || defined(BSLS_PLATFORM_OS_CYGWIN)
+#elif defined(BSLS_PLATFORM_OS_LINUX)      \
+   || defined(BSLS_PLATFORM_OS_DARWIN)     \
+   || defined(BSLS_PLATFORM_OS_CYGWIN)     \
+   || defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
         return d_allocator_p->allocate(size);
 #else
 #error Not implemented.
@@ -439,9 +440,10 @@ class MmapAllocator : public bslma::Allocator {
 
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE
     {
-#if defined(BSLS_PLATFORM_OS_LINUX)  \
- || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX)      \
+ || defined(BSLS_PLATFORM_OS_DARWIN)     \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)     \
+ || defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
         d_allocator_p->deallocate(address);
 #else
         MapType::iterator it = d_map.find(address);

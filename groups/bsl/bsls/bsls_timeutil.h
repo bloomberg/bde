@@ -272,7 +272,9 @@ struct TimeUtil {
     typedef struct { Types::Int64 d_opaque; }  OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_AIX
     typedef timebasestruct_t                   OpaqueNativeTime;
-#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+#elif defined(BSLS_PLATFORM_OS_LINUX)                                         \
+   || defined(BSLS_PLATFORM_OS_CYGWIN)                                        \
+   || defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
     typedef timespec                           OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_DARWIN
     typedef struct { Types::Uint64 d_opaque; } OpaqueNativeTime;

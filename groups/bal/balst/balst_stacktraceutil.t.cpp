@@ -184,6 +184,11 @@ typedef bsls::StackAddressUtil Address;
     enum { FORMAT_DWARF = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_WIN=1,
            PLAT_DARWIN = 0 };
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
+    enum { FORMAT_DWARF = 0 };
+    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_WIN=0,
+           PLAT_DARWIN = 0 };
 #else
 # error unknown object file format
 #endif

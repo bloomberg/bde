@@ -190,6 +190,7 @@ struct OperatingSystem {
         e_AIX,
         e_CYGWIN,
         e_DARWIN,
+        e_EMSCRIPTEN,
         e_FREEBSD,
         e_LINUX,
         e_SOLARIS,
@@ -197,7 +198,7 @@ struct OperatingSystem {
     };
 
     enum {
-        k_NUM_ENUMERATORS = 7
+        k_NUM_ENUMERATORS = 8
     };
 
     BSLMF_ASSERT(k_NUM_ENUMERATORS == e_WINDOWS + 1);
@@ -231,6 +232,8 @@ struct PlatformUtil {
         LargeFileMode::e_NOT_DEFINED;
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
         LargeFileMode::e_NOT_DEFINED;
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+        LargeFileMode::e_NOT_DEFINED;
 #elif defined(BSLS_PLATFORM_OS_FREEBSD)
         LargeFileMode::e_NOT_DEFINED
 #elif defined(BSLS_PLATFORM_OS_LINUX) && defined(_LARGEFILE64_SOURCE)
@@ -243,7 +246,6 @@ struct PlatformUtil {
         LargeFileMode::e_NOT_DEFINED;
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
         LargeFileMode::e_NOT_DEFINED;
-#elif
 #else
 # error "`bdls_filesystemutil_unixplatform` does not support this platform."
 #endif
@@ -254,6 +256,8 @@ struct PlatformUtil {
 #elif defined(BSLS_PLATFORM_OS_CYGWIN)
         FileOffsetBits::e_NOT_DEFINED;
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
+        FileOffsetBits::e_NOT_DEFINED;
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
         FileOffsetBits::e_NOT_DEFINED;
 #elif defined(BSLS_PLATFORM_OS_LINUX) \
    && defined(_FILE_OFFSET_BITS)      \
@@ -280,6 +284,8 @@ struct PlatformUtil {
         OperatingSystem::e_CYGWIN;
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
         OperatingSystem::e_DARWIN;
+#elif defined(BSLS_PLATFORM_OS_EMSCRIPTEN)
+        OperatingSystem::e_EMSCRIPTEN;
 #elif defined(BSLS_PLATFORM_OS_FREEBSD)
         OperatingSystem::e_FREEBSD;
 #elif defined(BSLS_PLATFORM_OS_LINUX)
@@ -505,6 +511,7 @@ int main(int argc, char *argv[])
         static const OPS AIX = u::OperatingSystem::e_AIX;
         static const OPS CYG = u::OperatingSystem::e_CYGWIN;
         static const OPS DAR = u::OperatingSystem::e_DARWIN;
+        static const OPS EMS = u::OperatingSystem::e_EMSCRIPTEN;
         static const OPS FRE = u::OperatingSystem::e_FREEBSD;
         static const OPS LIN = u::OperatingSystem::e_LINUX;
         static const OPS SOL = u::OperatingSystem::e_SOLARIS;
@@ -555,14 +562,14 @@ int main(int argc, char *argv[])
               {  L_  , DAR,     B64,        F64,        L__, 1, 0, 0 },
               {  L_  , DAR,     B64,        F64,        LDF, 1, 0, 0 },
 
-              {  L_  , FRE,     B32,        F__,        L__, 1, 0, 0 },
-              {  L_  , FRE,     B32,        F__,        LDF, 1, 0, 0 },
-              {  L_  , FRE,     B32,        F64,        L__, 1, 0, 0 },
-              {  L_  , FRE,     B32,        F64,        LDF, 1, 0, 0 },
-              {  L_  , FRE,     B64,        F__,        L__, 1, 0, 0 },
-              {  L_  , FRE,     B64,        F__,        LDF, 1, 0, 0 },
-              {  L_  , FRE,     B64,        F64,        L__, 1, 0, 0 },
-              {  L_  , FRE,     B64,        F64,        LDF, 1, 0, 0 },
+              {  L_  , EMS,     B32,        F__,        L__, 1, 0, 0 },
+              {  L_  , EMS,     B32,        F__,        LDF, 1, 0, 0 },
+              {  L_  , EMS,     B32,        F64,        L__, 1, 0, 0 },
+              {  L_  , EMS,     B32,        F64,        LDF, 1, 0, 0 },
+              {  L_  , EMS,     B64,        F__,        L__, 1, 0, 0 },
+              {  L_  , EMS,     B64,        F__,        LDF, 1, 0, 0 },
+              {  L_  , EMS,     B64,        F64,        L__, 1, 0, 0 },
+              {  L_  , EMS,     B64,        F64,        LDF, 1, 0, 0 },
 
               {  L_  , FRE,     B32,        F__,        L__, 1, 0, 0 },
               {  L_  , FRE,     B32,        F__,        LDF, 1, 0, 0 },

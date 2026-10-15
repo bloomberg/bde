@@ -189,7 +189,8 @@ struct PlatformUtil {
     /// integral multiple of the maximum alignment.  The behavior is
     /// undefined unless `0 <= size`.
     ///
-    /// lmf_ForwardingTypeDEPRECATED: Use `AlignmentUtil::roundUpToMaximalAlignment` instead.
+    /// lmf_ForwardingTypeDEPRECATED: Use
+    /// `AlignmentUtil::roundUpToMaximalAlignment` instead.
     static int roundUpToMaximalAlignment(int size);
 };
 
@@ -220,6 +221,12 @@ struct PlatformUtil {
     /// defined in `bsls_platform` instead.
     #define BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN \
                                                 BSLS_PLATFORM_IS_LITTLE_ENDIAN
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_WASM)
+    /// @DEPRECATED: Use preprocessor macro `BSLS_PLATFORM_IS_LITTLE_ENDIAN`
+    /// defined in `bsls_platform` instead.
+    #define BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN BSLS_PLATFORM_IS_LITTLE_ENDIAN
 #endif
 
 #if !defined(BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN)
