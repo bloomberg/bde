@@ -4828,6 +4828,15 @@ void testEqualityOverloadsStr()
     const char *const    nullStr = 0;
     const char *const notNullStr = "non-empty string literal";
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wnonnull"
+  // gcc does not understand that `BSLS_ASSERT` here throws and gives a
+  // warning for essentially unreachable code.
+  //
+  // argument 1 null where non-null expected [-Wnonnull]
+  //    return __builtin_strlen(__s);
+#endif
     ASSERT_FAIL((void)(   nullStr ==    objA));
     ASSERT_PASS((void)(notNullStr ==    objA));
 
@@ -4839,6 +4848,9 @@ void testEqualityOverloadsStr()
 
     ASSERT_FAIL((void)(   objA    !=    nullStr));
     ASSERT_PASS((void)(   objA    != notNullStr));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
 #endif
 }
 
