@@ -9837,7 +9837,7 @@ int main(int argc, char *argv[])
                     position = Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
                     LOOP2_ASSERT(lengths[i], position, 0 == position);
 
-                    bytesWritten = Obj::write(fd, blockB, lengths[i]);
+                    bytesWritten = Obj::write(fd, blockA, lengths[i]);
                     LOOP2_ASSERT(lengths[i], bytesWritten,
                                                    lengths[i] == bytesWritten);
 
