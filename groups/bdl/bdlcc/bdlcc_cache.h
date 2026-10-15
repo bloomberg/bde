@@ -542,13 +542,22 @@ class Cache {
     /// number of items successfully removed.
     int eraseBulk(const bsl::vector<KEY>& keys);
 
-    /// Move the specified `key` and its associated `value` into this cache.
+    /// Insert the specified `key` and its associated `value` into this cache.
     /// If `key` already exists, then its value will be replaced with `value`.
-    /// Note that all the methods that take moved objects provide the `basic`
+    /// `value` is copied (or moved, for the overloads taking a
+    /// `bslmf::MovableRef<VALUE>`) into a newly allocated `VALUE` object,
+    /// whether or not `key` already exists.  If `key` does not already exist,
+    /// `key` is copied into the eviction queue and is also copied (or moved,
+    /// for the overloads taking a `bslmf::MovableRef<KEY>`) into the cache;
+    /// otherwise, `key` is neither copied nor moved.  Note that eviction (see
+    /// `highWatermark`) is performed before `key` is looked up, so if `key`
+    /// is evicted by this call it is treated as not already existing.  Also
+    /// note that all the methods that take moved objects provide the `basic`
     /// but not the `strong` exception guarantee -- throws may occur after the
-    /// objects are moved out of; the cache will not be modified, but `key` or
-    /// `value` may be changed.  Also note that `key` must be copyable, even if
-    /// it is moved.
+    /// objects are moved out of; no entry for `key` will be added and no value
+    /// will be replaced, but items (possibly including any existing entry for
+    /// `key`) may have been evicted, and `key` or `value` may be changed.
+    /// Finally, note that `key` must be copyable, even if it is moved.
     void insert(const KEY& key, const VALUE& value);
     void insert(const KEY& key, bslmf::MovableRef<VALUE> value);
     void insert(bslmf::MovableRef<KEY> key, const VALUE& value);
@@ -556,31 +565,65 @@ class Cache {
 
     /// Insert the specified `key` and its associated `valuePtr` into this
     /// cache.  If `key` already exists, then its value will be replaced
-    /// with `value`.  Note that the method with `key` moved provides the
-    /// `basic` but not the `strong` exception guarantee -- if a throw
-    /// occurs, the cache will not be modified, but `key` may be changed.
-    /// Also note that `key` must be copyable, even if it is moved.
+    /// with `valuePtr`.  `valuePtr` is copied, so that this cache shares
+    /// ownership of the `VALUE` object referred to by `valuePtr`; the `VALUE`
+    /// object itself is neither copied nor moved.  If `key` does not already
+    /// exist, `key` is copied into the eviction queue and is also copied (or
+    /// moved, for the overload taking a `bslmf::MovableRef<KEY>`) into the
+    /// cache; otherwise, `key` is neither copied nor moved.  Note that the
+    /// method with `key` moved provides the `basic` but not the `strong`
+    /// exception guarantee -- if a throw occurs, no entry for `key` will be
+    /// added or changed, but `key` may be changed.  Also note that `key` must
+    /// be copyable, even if it is moved.
     void insert(const KEY& key, const ValuePtrType& valuePtr);
     void insert(bslmf::MovableRef<KEY> key, const ValuePtrType& valuePtr);
 
     /// Insert the specified range of Key-Value pairs specified by
     /// `[ begin, end )` into this cache.  If a key already exists, then its
     /// value will be replaced with the value.  Return the number of items
-    /// successfully inserted.
+    /// successfully inserted, i.e., the number of keys that did not already
+    /// exist (keys whose values are replaced are not counted).  Each value (a
+    /// `ValuePtrType`) is copied, so that this cache shares ownership of the
+    /// referenced `VALUE` object; the `VALUE` object itself is neither copied
+    /// nor moved.  Each key that does not already exist is copied twice: once
+    /// into the eviction queue and once into the cache; keys that already
+    /// exist are not copied.  The elements of the range are not modified.
+    /// Note that eviction is performed, as needed, before each element is
+    /// inserted, so a key inserted earlier in the same call may be evicted,
+    /// inserted again, and counted twice in the returned value.
     template <class INPUT_ITERATOR>
     int insertBulk(INPUT_ITERATOR begin, INPUT_ITERATOR end);
 
     /// Insert the specified `data` (composed of Key-Value pairs) into this
     /// cache.  If a key already exists, then its value will be replaced
     /// with the value.  Return the number of items successfully inserted.
+    /// Each value (a `ValuePtrType`) is copied, so that this cache shares
+    /// ownership of the referenced `VALUE` object; the `VALUE` object itself
+    /// is neither copied nor moved.  Each key that does not already exist is
+    /// copied twice: once into the eviction queue and once into the cache;
+    /// keys that already exist are not copied.  Note that eviction is
+    /// performed, as needed, before each element is inserted, so a key
+    /// inserted earlier in the same call may be evicted, inserted again, and
+    /// counted twice in the returned value.
     int insertBulk(const bsl::vector<KVType>& data);
 
     /// Insert the specified `data` (composed of Key-Value pairs) into this
     /// cache.  If a key already exists, then its value will be replaced
     /// with the value.  Return the number of items successfully inserted.
+    /// Each value (a `ValuePtrType`) is moved (or, when its key already
+    /// exists and the platform lacks rvalue references, copied) into this
+    /// cache; in either case, the referenced `VALUE` object itself is neither
+    /// copied nor moved.  Each key that does not already exist is copied into
+    /// the eviction queue and then moved into the cache; keys that already
+    /// exist are neither copied nor moved.  The length of `data` is
+    /// unchanged, but its elements are left in a valid but unspecified state.
     /// If an exception occurs during this action, we provide only the
     /// basic guarantee - both this cache and `data` will be in some valid
-    /// but unspecified state.
+    /// but unspecified state.  Note that eviction is performed, as needed,
+    /// before each element is inserted, so a key inserted earlier in the same
+    /// call may be evicted, inserted again, and counted twice in the returned
+    /// value.  Also note that `KEY` must be copyable, even though keys are
+    /// moved.
     int insertBulk(bslmf::MovableRef<bsl::vector<KVType> > data);
 
     /// Remove the item at the front of the eviction queue.  Invoke the
