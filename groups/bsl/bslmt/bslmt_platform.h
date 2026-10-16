@@ -72,20 +72,7 @@ struct Platform {
 
     #ifdef BSLS_PLATFORM_OS_UNIX
 
-    #if defined(BSLS_PLATFORM_OS_AIX)
-
-    // The POSIX semaphore on IBM has a maximum count of 32k.  Other POSIX
-    // implementations support counts up to 'INT_MAX', and, historically,
-    // 'bslmt::Semaphore' also supported 'INT_MAX'.  On AIX, use a semaphore
-    // that maintains the count in a separate atomic integer to enable
-    // consistent semaphore usage across platforms.
-
-    typedef CountedSemaphore SemaphorePolicy;
-    typedef PosixSemaphore CountedSemaphoreImplPolicy;
-    #define BSLMT_PLATFORM_COUNTED_SEMAPHORE
-    #define BSLMT_PLATFORM_POSIX_SEMAPHORE
-
-    #elif defined(BSLS_PLATFORM_OS_DARWIN)
+    #if defined(BSLS_PLATFORM_OS_DARWIN)
 
     // Darwin doesn't implement sem_getvalue.
 
