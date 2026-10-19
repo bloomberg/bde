@@ -103,6 +103,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlsb_memoutstreambuf.h>
 
+#include <bslalg_untrustedarrayreadutil.h>
+
 #include <bslma_allocator.h>
 
 #include <bsls_assert.h>
@@ -1203,26 +1205,20 @@ BerDecoder_Node::decodeArray(TYPE *variable)
 
     const int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
 
-    // The hint comes from untrusted input.  Always consume it (it applies to
-    // the next array only, never to a sibling), but only honor it to the
-    // extent it is justified by bytes the producer has *actually* delivered
-    // into the streambuf.  Never trust `d_expectedLength` as a budget here: it
-    // is a wire claim from the same source as the hint.  Each BER TLV
-    // (Tag-Length-Value) tuple is at least 2 bytes (1-byte tag + 1-byte
-    // length=0) regardless of element type, so `in_avail() / 2` is a tight
-    // upper bound on the number of elements that can follow.  For streambufs
-    // that don't report buffered bytes (sockets/pipes with empty get area,
-    // some filtering streambufs), `in_avail()` returns 0 (or -1 at EOF, which
-    // truncates to 0 after division), in which case we simply drop the hint
-    // and let `vector`'s geometric growth amortize the per-element `resize`
-    // cost.
-    const int arrayLengthHint = d_decoder->d_arrayLengthHint;
+    // The hint is untrusted: always consume it (it applies to the next array
+    // only), and honor it only as far as the buffered bytes can hold elements.
+    const int arrayLengthHint = bsl::max(0,
+                                         bsl::min(d_decoder->d_arrayLengthHint,
+                                                  maxSize));
     d_decoder->d_arrayLengthHint = 0;
-    bdlat_ArrayFunctions::reserve(
-                                 variable,
-                                 static_cast<int>(bsl::min<bsl::streamsize>(
-                                     bsl::min(arrayLengthHint, maxSize),
-                                     d_decoder->d_streamBuf->in_avail() / 2)));
+    const bsl::size_t capacity =
+                           bslalg::UntrustedArrayReadUtil::computeReserveCount(
+                               arrayLengthHint,
+                               2,  // smallest TLV: 1-byte tag and length
+                               d_decoder->d_streamBuf->in_avail());
+
+    // `capacity <= arrayLengthHint`, so it fits in `int`.
+    bdlat_ArrayFunctions::reserve(variable, static_cast<int>(capacity));
 
     int i = static_cast<int>(bdlat_ArrayFunctions::size(*variable));
     while (this->hasMore()) {

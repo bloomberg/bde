@@ -13,11 +13,15 @@
 
 #include <bsla_maybeunused.h>
 
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bslim_testutil.h>
 
 #include <bslmf_assert.h>
 
 #include <bsls_byteorder.h>
+#include <bsls_keyword.h>
 #include <bsls_log.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
@@ -29,6 +33,7 @@
 #include <bsl_cstring.h>
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
+#include <bsl_streambuf.h>
 #include <bsl_string.h>
 
 using namespace BloombergLP;
@@ -3533,6 +3538,50 @@ static int testVerifyTimeZoneModernVersionFormat(int verbose)
     return 0;
 }
 
+                          // ======================
+                          // class TrickleStreamBuf
+                          // ======================
+
+/// This class implements a stream buffer that delivers the bytes of a
+/// fixed-size buffer one at a time and reports no buffered bytes beyond the
+/// current one, as a network stream buffer might.
+class TrickleStreamBuf : public bsl::streambuf {
+
+    // DATA
+    const char  *d_data_p;  // data to deliver (held, not owned)
+    bsl::size_t  d_size;    // number of bytes in `d_data_p`
+    bsl::size_t  d_next;    // index of the next byte to deliver
+    char         d_byte;    // get area holding the current byte
+
+  protected:
+    // PROTECTED MANIPULATORS
+
+    /// Make the next byte the get area, and return it, or return `eof` if
+    /// all bytes have been delivered.
+    int_type underflow() BSLS_KEYWORD_OVERRIDE
+    {
+        if (d_next == d_size) {
+            return traits_type::eof();                                // RETURN
+        }
+        d_byte = d_data_p[d_next++];
+        setg(&d_byte, &d_byte, &d_byte + 1);
+        return traits_type::to_int_type(d_byte);
+    }
+
+  public:
+    // CREATORS
+
+    /// Create a stream buffer delivering the specified `size` bytes of the
+    /// specified `data`.
+    TrickleStreamBuf(const char *data, bsl::size_t size)
+    : d_data_p(data)
+    , d_size(size)
+    , d_next(0)
+    , d_byte(0)
+    {
+    }
+};
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -3674,11 +3723,18 @@ int main(int argc, char *argv[])
         // 12. `read` fails when version '2' `numLocalTimeTypes` is invalid
         // 13. `read` fails when version '\0' `abbrevDataSize` is invalid
         // 14. `read` fails when version '2' `abbrevDataSize` is invalid
+        // 15. `read` fails without allocating memory proportional to the
+        //     header counts when the stream is truncated after the header
+        //     ({DRQS 184851447}).
         //
         // Plan:
         // 1. Create a string stream with incorrect header information for each
         //    variable in the header and verify that `read` returns a non-zero
         //    value.
+        //
+        // 2. Create a stream holding only a header with very large counts,
+        //    and verify that `read` fails and the maximum number of bytes
+        //    allocated is small.  (C-15)
         //
         // Testing:
         //   CONCERN: `read` fails when header information is invalid
@@ -3796,6 +3852,72 @@ int main(int argc, char *argv[])
                     baltzo::Zoneinfo TZ;
                     ASSERT(expectedError == readMethod(&TZ, inputStream));
 
+                }
+            }
+
+            if (verbose)
+                cout << "\tLarge counts, truncated stream ("
+                     << MODE_STR
+                     << ")." << endl;
+
+            for (size_t i = 0; i < NUM_VALID_VERSIONS; ++i) {
+                const char VERSION = VALID_VERSIONS[i];
+
+                const int COUNTS[]   = {0x08000000, INT_MAX};
+                const int NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+                for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                    const int COUNT = COUNTS[ti];
+
+                    for (char attribute = 'a'; attribute <= 'f'; ++attribute) {
+                        if (veryVerbose) {
+                            T_ T_ P_(VERSION) P_(COUNT) P(attribute)
+                        }
+
+                        RawHeader RH;
+                        RH.setVersion(VERSION);
+                        switch (attribute) {
+                          case 'a':
+                            RH.setNumIsGmt(COUNT);
+                            break;
+                          case 'b':
+                            RH.setNumIsStd(COUNT);
+                            break;
+                          case 'c':
+                            RH.setNumLeaps(COUNT);
+                            break;
+                          case 'd':
+                            RH.setNumTransitions(COUNT);
+                            break;
+                          case 'e':
+                            RH.setNumLocalTimeTypes(COUNT);
+                            break;
+                          case 'f':
+                            RH.setAbbrevDataSize(COUNT);
+                            break;
+                        }
+
+                        bdlsb::FixedMemInStreamBuf isb(
+                                           reinterpret_cast<const char *>(&RH),
+                                           sizeof RH);
+                        bsl::istream inputStream(&isb);
+
+                        bslma::TestAllocator da("default", veryVeryVerbose);
+                        bslma::DefaultAllocatorGuard dag(&da);
+
+                        baltzo::Zoneinfo TZ(&da);
+                        ASSERTV(VERSION,
+                                COUNT,
+                                attribute,
+                                0 != readMethod(&TZ, inputStream));
+                        // Loose bound: ~8KB expected, hundreds of MB before
+                        // the fix for {DRQS 184851447}.
+                        ASSERTV(VERSION,
+                                COUNT,
+                                attribute,
+                                da.numBytesMax(),
+                                da.numBytesMax() < 1024 * 1024);
+                    }
                 }
             }
 
@@ -4675,9 +4797,17 @@ int main(int argc, char *argv[])
         // 1. `read` and `readRaw` succeed in reading binary data with multiple
         //    transitions.
         //
+        // 2. `read` and `readRaw` succeed in reading arrays that take several
+        //    read steps because the stream buffer does not report how many
+        //    bytes it buffers.
+        //
         // Plan:
         // 1. Use a table-based approach to create a string stream with
         //    multiple transitions and local time types.
+        //
+        // 2. Read data having several thousand transitions from a stream
+        //    buffer that delivers one byte at a time, and verify the result.
+        //    (C-2)
         //
         // Testing:
         //   CONCERN: `read` retrieves data with multiple transitions
@@ -4795,6 +4925,45 @@ int main(int argc, char *argv[])
                         ASSERTV(TRANS_LINE, LTT_LINE, rc, 0 == rc);
                     }
                 }
+            }
+        }
+
+        if (verbose) cout << "\nTesting arrays read in several steps.\n";
+
+        for (size_t i = 0; i < NUM_VALID_VERSIONS; ++i) {
+            const char VERSION   = VALID_VERSIONS[i];
+            const int  NUM_TRANS = 3000;  // several minimum-size read steps
+
+            RawHeader RH;
+            RH.setVersion(VERSION);
+            RH.setNumTransitions(NUM_TRANS);
+            RH.setNumLocalTimeTypes(5);
+
+            ZoneinfoData ZI(RH);
+
+            for (char mode = 'a'; mode <= 'b'; ++mode) {
+                const bool RAW_MODE = 'a' == mode ? true : false;
+
+                if (veryVerbose) {
+                    T_ P_(VERSION) P(RAW_MODE)
+                }
+
+                TrickleStreamBuf isb(ZI.buffer(), ZI.size());
+                bsl::istream     inputStream(&isb);
+
+                baltzo::Zoneinfo TZ;
+                int              rc = RAW_MODE ? Obj::readRaw(&TZ, inputStream)
+                                               : Obj::read(&TZ, inputStream);
+                ASSERTV(VERSION, RAW_MODE, rc, 0 == rc);
+
+                rc = '\0' == VERSION
+                         ? verifyTimeZone(ZI, TZ, L_, false, RAW_MODE)
+                         : verifyTimeZoneModernVersionFormat(ZI,
+                                                             TZ,
+                                                             L_,
+                                                             false,
+                                                             RAW_MODE);
+                ASSERTV(VERSION, RAW_MODE, rc, 0 == rc);
             }
         }
       } break;

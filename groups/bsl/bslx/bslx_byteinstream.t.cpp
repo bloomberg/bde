@@ -12,6 +12,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -924,9 +925,16 @@ if (veryVerbose) {
         //
         // 2. Unexternalization position does not effect output.
         //
+        // 3. A length exceeding the remaining data invalidates the stream
+        //    without allocating memory in proportion to the length.
+        //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
+        //
+        // 2. Unexternalize strings whose lengths exceed the remaining data
+        //    into a string using a test allocator, and verify that the stream
+        //    is invalidated and that no memory is allocated.  (C-3)
         //
         // Testing:
         //   getString(bsl::string& variable);
@@ -989,6 +997,32 @@ if (veryVerbose) {
 
             bsl::string val;
             ASSERT(&mX == &mX.getString(val));
+        }
+
+        if (verbose) {
+            cout << "\nTesting lengths exceeding the remaining data." << endl;
+        }
+        {
+            const int LENGTHS[]   = {6, 0x01000000, INT_MAX};
+            const int NUM_LENGTHS = sizeof LENGTHS / sizeof *LENGTHS;
+
+            for (int ti = 0; ti < NUM_LENGTHS; ++ti) {
+                const int LENGTH = LENGTHS[ti];
+
+                Out o(VERSION_SELECTOR);
+                o.putLength(LENGTH);
+                o.putArrayUint8("abcde", 5);
+
+                Obj        mX(o.data(), o.length());
+                const Obj& X = mX;
+
+                bslma::TestAllocator ta("string", veryVerbose);
+                bsl::string          val(&ta);
+
+                mX.getString(val);
+                ASSERTV(LENGTH, !X.isValid());
+                ASSERTV(LENGTH, ta.numBytesTotal(), 0 == ta.numBytesTotal());
+            }
         }
       } break;
       case 25: {
@@ -1162,13 +1196,20 @@ if (veryVerbose) {
         //
         // 2. The unexternalization position does not effect output.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. A count whose byte size overflows `int` invalidates the stream
+        //    without reading past the end of the buffer.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
         //
-        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
+        // 2. Request counts whose byte size overflows `int` from a short
+        //    buffer, and verify the stream is invalidated and the cursor is
+        //    unchanged.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   getArrayFloat64(double *variables, int numVariables);
@@ -1247,6 +1288,30 @@ if (veryVerbose) {
             double ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayFloat64(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 0x20000000,  // 8 * 2^29 == 2^32
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char   skip[8];
+                double ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayFloat64(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         if (verbose)
             cout << "\nNegative Testing." << endl;
@@ -1287,13 +1352,20 @@ if (veryVerbose) {
         //
         // 2. The unexternalization position does not effect output.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. A count whose byte size overflows `int` invalidates the stream
+        //    without reading past the end of the buffer.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
         //
-        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
+        // 2. Request counts whose byte size overflows `int` from a short
+        //    buffer, and verify the stream is invalidated and the cursor is
+        //    unchanged.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   getArrayFloat32(float *variables, int numVariables);
@@ -1373,6 +1445,30 @@ if (veryVerbose) {
             float ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayFloat32(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 0x40000000,  // 4 * 2^30 == 2^32
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char  skip[8];
+                float ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayFloat32(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         if (verbose)
             cout << "\nNegative Testing." << endl;
@@ -1413,13 +1509,20 @@ if (veryVerbose) {
         //
         // 2. Unexternalization position does not effect output.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. A count whose byte size overflows `int` invalidates the stream
+        //    without reading past the end of the buffer.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
         //
-        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
+        // 2. Request counts whose byte size overflows `int` from a short
+        //    buffer, and verify the stream is invalidated and the cursor is
+        //    unchanged.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   getArrayInt64(bsls::Types::Int64 *variables, int numVariables);
@@ -1500,6 +1603,30 @@ if (veryVerbose) {
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt64(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 0x20000000,  // 8 * 2^29 == 2^32
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char               skip[8];
+                bsls::Types::Int64 ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayInt64(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -1571,6 +1698,30 @@ if (veryVerbose) {
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint64(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 0x20000000,  // 8 * 2^29 == 2^32
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char                skip[8];
+                bsls::Types::Uint64 ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayUint64(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -1639,13 +1790,20 @@ if (veryVerbose) {
         //
         // 2. Unexternalization position does not effect output.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. A count whose byte size overflows `int` invalidates the stream
+        //    without reading past the end of the buffer.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
         //
-        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
+        // 2. Request counts whose byte size overflows `int` from a short
+        //    buffer, and verify the stream is invalidated and the cursor is
+        //    unchanged.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   getArrayInt56(bsls::Types::Int64 *variables, int numVariables);
@@ -1725,6 +1883,30 @@ if (veryVerbose) {
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt56(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 613566757,  // 7 * 613566757 == 2^32 + 3
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char               skip[8];
+                bsls::Types::Int64 ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayInt56(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -1795,6 +1977,30 @@ if (veryVerbose) {
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint56(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 613566757,  // 7 * 613566757 == 2^32 + 3
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char                skip[8];
+                bsls::Types::Uint64 ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayUint56(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -1863,13 +2069,20 @@ if (veryVerbose) {
         //
         // 2. Unexternalization position does not effect output.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. A count whose byte size overflows `int` invalidates the stream
+        //    without reading past the end of the buffer.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
         //
-        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
+        // 2. Request counts whose byte size overflows `int` from a short
+        //    buffer, and verify the stream is invalidated and the cursor is
+        //    unchanged.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   getArrayInt48(bsls::Types::Int64 *variables, int numVariables);
@@ -1949,6 +2162,30 @@ if (veryVerbose) {
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt48(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 715827883,  // 6 * 715827883 == 2^32 + 2
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char               skip[8];
+                bsls::Types::Int64 ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayInt48(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -2020,6 +2257,30 @@ if (veryVerbose) {
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint48(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 715827883,  // 6 * 715827883 == 2^32 + 2
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char                skip[8];
+                bsls::Types::Uint64 ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayUint48(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -2088,13 +2349,20 @@ if (veryVerbose) {
         //
         // 2. Unexternalization position does not effect output.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. A count whose byte size overflows `int` invalidates the stream
+        //    without reading past the end of the buffer.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
         //
-        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
+        // 2. Request counts whose byte size overflows `int` from a short
+        //    buffer, and verify the stream is invalidated and the cursor is
+        //    unchanged.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   getArrayInt40(bsls::Types::Int64 *variables, int numVariables);
@@ -2174,6 +2442,30 @@ if (veryVerbose) {
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt40(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 858993460,  // 5 * 858993460 == 2^32 + 4
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char               skip[8];
+                bsls::Types::Int64 ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayInt40(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -2245,6 +2537,30 @@ if (veryVerbose) {
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint40(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 858993460,  // 5 * 858993460 == 2^32 + 4
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char                skip[8];
+                bsls::Types::Uint64 ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayUint40(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -2313,13 +2629,20 @@ if (veryVerbose) {
         //
         // 2. Unexternalization position does not effect output.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. A count whose byte size overflows `int` invalidates the stream
+        //    without reading past the end of the buffer.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
         //
-        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
+        // 2. Request counts whose byte size overflows `int` from a short
+        //    buffer, and verify the stream is invalidated and the cursor is
+        //    unchanged.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   getArrayInt32(int *variables, int numVariables);
@@ -2399,6 +2722,30 @@ if (veryVerbose) {
             int ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt32(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 0x40000000,  // 4 * 2^30 == 2^32
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char skip[8];
+                int  ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayInt32(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -2470,6 +2817,30 @@ if (veryVerbose) {
             unsigned int ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint32(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 0x40000000,  // 4 * 2^30 == 2^32
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char         skip[8];
+                unsigned int ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayUint32(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -2536,13 +2907,20 @@ if (veryVerbose) {
         //
         // 2. Unexternalization position does not effect output.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. A count whose byte size overflows `int` invalidates the stream
+        //    without reading past the end of the buffer.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
         //
-        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
+        // 2. Request counts whose byte size overflows `int` from a short
+        //    buffer, and verify the stream is invalidated and the cursor is
+        //    unchanged.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   getArrayInt24(int *variables, int numVariables);
@@ -2623,6 +3001,30 @@ if (veryVerbose) {
             int ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt24(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 1431655766,  // 3 * 1431655766 == 2^32+2
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char skip[8];
+                int  ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayInt24(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -2694,6 +3096,30 @@ if (veryVerbose) {
             unsigned int ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint24(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { 1431655766,  // 3 * 1431655766 == 2^32+2
+                                      INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char         skip[8];
+                unsigned int ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayUint24(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -2760,13 +3186,20 @@ if (veryVerbose) {
         //
         // 2. Unexternalization position does not effect output.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. A count whose byte size overflows `int` invalidates the stream
+        //    without reading past the end of the buffer.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
         //
-        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
+        // 2. Request counts whose byte size overflows `int` from a short
+        //    buffer, and verify the stream is invalidated and the cursor is
+        //    unchanged.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   getArrayInt16(short *variables, int numVariables);
@@ -2846,6 +3279,29 @@ if (veryVerbose) {
             short ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt16(ar, 3));
         }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char  skip[8];
+                short ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayInt16(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
+        }
 
         // --------------------------------------------------------------------
 
@@ -2916,6 +3372,29 @@ if (veryVerbose) {
 
             unsigned short ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint16(ar, 3));
+        }
+        {
+            // Verify counts whose byte size overflows `int` are rejected.
+
+            const char BUFFER[16] = { 0 };
+            const int  COUNTS[]   = { INT_MAX };
+            const int  NUM_COUNTS = sizeof COUNTS / sizeof *COUNTS;
+
+            for (int ti = 0; ti < NUM_COUNTS; ++ti) {
+                const int COUNT = COUNTS[ti];
+
+                if (veryVerbose) { T_ P(COUNT) }
+
+                Obj mX(BUFFER, sizeof BUFFER);  const Obj& X = mX;
+
+                // Cursor 8 let sizes wrapped to -8..-1 pass the old check.
+                char           skip[8];
+                unsigned short ar[] = { 0, 0, 0 };
+                mX.getArrayInt8(skip, 8);
+                mX.getArrayUint16(ar, COUNT);
+                ASSERTV(COUNT, !X.isValid());
+                ASSERTV(COUNT, 8 == X.cursor());
+            }
         }
 
         // --------------------------------------------------------------------

@@ -15,6 +15,8 @@ BSLS_IDENT_RCSID(baltzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 
 #include <bdlt_timeunitratio.h>
 
+#include <bslalg_untrustedarrayreadutil.h>
+
 #include <bslmf_assert.h>
 
 #include <bsl_fstream.h>
@@ -171,8 +173,9 @@ static const char *EXPECTED_HEADER_ID = "TZif";
 
 /// Read the specified `numValues` of the parameterized `TYPE` from the
 /// specified `stream` into the specified `result`.  Return 0 on success and
-/// -1 if the read failed.  Note that `sizeof(TYPE)` must equal the size of
-/// the packed stream data.
+/// -1 if the read failed.  The behavior is undefined unless `result` is
+/// empty and `0 <= numValues`.  Note that `sizeof(TYPE)` must equal the size
+/// of the packed stream data.
 template <class TYPE>
 static inline
 int readRawArray(bsl::vector<TYPE> *result,
@@ -180,13 +183,35 @@ int readRawArray(bsl::vector<TYPE> *result,
                  int                numValues)
 {
     BSLS_ASSERT(result);
+    BSLS_ASSERT(result->empty());
+    BSLS_ASSERT(0 <= numValues);
 
-    if (0 != numValues) {
-        int numBytes = static_cast<int>(sizeof(TYPE)) * numValues;
-        result->resize(numValues);
-        if (!stream.read((char *)&result->front(), numBytes)) {
+    // `numValues` is untrusted, so grow `result` as data arrives.
+    const bsl::size_t k_MIN_NUM_VALUES_TO_READ = 1024;
+
+    const bsl::size_t numValuesTotal = static_cast<bsl::size_t>(numValues);
+    bsl::size_t       numValuesRead  = 0;
+
+    while (numValuesRead < numValuesTotal) {
+        const bsl::size_t numValuesToRead =
+                          bslalg::UntrustedArrayReadUtil::computeNextReadCount(
+                              numValuesRead,
+                              numValuesTotal - numValuesRead,
+                              sizeof(TYPE),
+                              stream.rdbuf()->in_avail(),
+                              k_MIN_NUM_VALUES_TO_READ);
+
+        // Exact `reserve` prevents `resize` from growing capacity further.
+        result->reserve(numValuesRead + numValuesToRead);
+        result->resize(numValuesRead + numValuesToRead);
+
+        const bsl::size_t numBytesToRead = numValuesToRead * sizeof(TYPE);
+        if (!stream.read(
+                      reinterpret_cast<char *>(result->data() + numValuesRead),
+                      static_cast<bsl::streamsize>(numBytesToRead))) {
             return -1;                                                // RETURN
         }
+        numValuesRead += numValuesToRead;
     }
     return 0;
 }

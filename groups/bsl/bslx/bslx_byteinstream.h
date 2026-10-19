@@ -324,6 +324,8 @@ BSLS_IDENT("$Id: $")
 #include <bslx_instreamfunctions.h>
 #include <bslx_marshallingutil.h>
 
+#include <bslalg_untrustedarrayreadutil.h>
+
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_types.h>
@@ -1407,28 +1409,21 @@ ByteInStream& ByteInStream::getString(bsl::string& variable)
     }
     BSLS_ASSERT(0 <= length);
 
-    // 'length' could be corrupt or invalid, so we limit the initial 'resize'
-    // to something that can accommodate the preponderance of strings that will
-    // arise in practice.  The remaining portion of a string longer than 16M is
-    // read in via a second pass.
+    if (!bslalg::UntrustedArrayReadUtil::canReadAll(
+                                              static_cast<bsl::size_t>(length),
+                                              MarshallingUtil::k_SIZEOF_INT8,
+                                              this->length() - cursor())) {
+        invalidate();
+        return *this;                                                 // RETURN
+    }
 
-    enum { k_INITIAL_ALLOCATION_SIZE = 16 * 1024 * 1024 };
-
-    const int initialLength = length < k_INITIAL_ALLOCATION_SIZE
-                              ? length
-                              : k_INITIAL_ALLOCATION_SIZE;
-
-    variable.resize(initialLength);
+    variable.resize(length);
 
     if (0 == length) {
         return *this;                                                 // RETURN
     }
 
-    getArrayUint8(&variable.front(), initialLength);
-    if (isValid() && length > initialLength) {
-        variable.resize(length);
-        getArrayUint8(&variable[initialLength], length - initialLength);
-    }
+    getArrayUint8(&variable.front(), length);
 
     return *this;
 }
@@ -1447,12 +1442,15 @@ ByteInStream& ByteInStream::getArrayInt64(bsls::Types::Int64 *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT64 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT64,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayInt64(variables,
                                        d_buffer + cursor(),
                                        numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT64 * count;
     }
     else {
         invalidate();
@@ -1473,12 +1471,15 @@ ByteInStream& ByteInStream::getArrayUint64(bsls::Types::Uint64 *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT64 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT64,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayUint64(variables,
                                         d_buffer + cursor(),
                                         numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT64 * count;
     }
     else {
         invalidate();
@@ -1499,12 +1500,15 @@ ByteInStream& ByteInStream::getArrayInt56(bsls::Types::Int64 *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT56 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT56,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayInt56(variables,
                                        d_buffer + cursor(),
                                        numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT56 * count;
     }
     else {
         invalidate();
@@ -1525,12 +1529,15 @@ ByteInStream& ByteInStream::getArrayUint56(bsls::Types::Uint64 *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT56 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT56,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayUint56(variables,
                                         d_buffer + cursor(),
                                         numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT56 * count;
     }
     else {
         invalidate();
@@ -1551,12 +1558,15 @@ ByteInStream& ByteInStream::getArrayInt48(bsls::Types::Int64 *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT48 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT48,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayInt48(variables,
                                        d_buffer + cursor(),
                                        numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT48 * count;
     }
     else {
         invalidate();
@@ -1577,12 +1587,15 @@ ByteInStream& ByteInStream::getArrayUint48(bsls::Types::Uint64 *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT48 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT48,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayUint48(variables,
                                         d_buffer + cursor(),
                                         numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT48 * count;
     }
     else {
         invalidate();
@@ -1603,12 +1616,15 @@ ByteInStream& ByteInStream::getArrayInt40(bsls::Types::Int64 *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT40 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT40,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayInt40(variables,
                                        d_buffer + cursor(),
                                        numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT40 * count;
     }
     else {
         invalidate();
@@ -1629,12 +1645,15 @@ ByteInStream& ByteInStream::getArrayUint40(bsls::Types::Uint64 *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT40 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT40,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayUint40(variables,
                                         d_buffer + cursor(),
                                         numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT40 * count;
     }
     else {
         invalidate();
@@ -1654,12 +1673,15 @@ ByteInStream& ByteInStream::getArrayInt32(int *variables, int numVariables)
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT32 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT32,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayInt32(variables,
                                        d_buffer + cursor(),
                                        numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT32 * count;
     }
     else {
         invalidate();
@@ -1680,12 +1702,15 @@ ByteInStream& ByteInStream::getArrayUint32(unsigned int *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT32 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT32,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayUint32(variables,
                                         d_buffer + cursor(),
                                         numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT32 * count;
     }
     else {
         invalidate();
@@ -1705,12 +1730,15 @@ ByteInStream& ByteInStream::getArrayInt24(int *variables, int numVariables)
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT24 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT24,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayInt24(variables,
                                        d_buffer + cursor(),
                                        numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT24 * count;
     }
     else {
         invalidate();
@@ -1731,12 +1759,15 @@ ByteInStream& ByteInStream::getArrayUint24(unsigned int *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT24 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT24,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayUint24(variables,
                                         d_buffer + cursor(),
                                         numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT24 * count;
     }
     else {
         invalidate();
@@ -1756,12 +1787,15 @@ ByteInStream& ByteInStream::getArrayInt16(short *variables, int numVariables)
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT16 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT16,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayInt16(variables,
                                        d_buffer + cursor(),
                                        numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT16 * count;
     }
     else {
         invalidate();
@@ -1782,12 +1816,15 @@ ByteInStream& ByteInStream::getArrayUint16(unsigned short *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT16 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT16,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayUint16(variables,
                                         d_buffer + cursor(),
                                         numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT16 * count;
     }
     else {
         invalidate();
@@ -1807,12 +1844,15 @@ ByteInStream& ByteInStream::getArrayInt8(char *variables, int numVariables)
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT8 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_INT8,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayInt8(variables,
                                       d_buffer + cursor(),
                                       numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_INT8 * count;
     }
     else {
         invalidate();
@@ -1864,12 +1904,15 @@ ByteInStream& ByteInStream::getArrayFloat64(double *variables,
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_FLOAT64 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_FLOAT64,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayFloat64(variables,
                                          d_buffer + cursor(),
                                          numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_FLOAT64 * count;
     }
     else {
         invalidate();
@@ -1889,12 +1932,15 @@ ByteInStream& ByteInStream::getArrayFloat32(float *variables, int numVariables)
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_FLOAT32 * numVariables;
-    if (cursor() + len  <= length()) {
+    const bsl::size_t count = static_cast<bsl::size_t>(numVariables);
+    if (bslalg::UntrustedArrayReadUtil::canReadAll(
+                                        count,
+                                        MarshallingUtil::k_SIZEOF_FLOAT32,
+                                        length() - cursor())) {
         MarshallingUtil::getArrayFloat32(variables,
                                          d_buffer + cursor(),
                                          numVariables);
-        d_cursor += len;
+        d_cursor += MarshallingUtil::k_SIZEOF_FLOAT32 * count;
     }
     else {
         invalidate();

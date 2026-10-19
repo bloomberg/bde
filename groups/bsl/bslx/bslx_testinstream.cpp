@@ -7,6 +7,8 @@ BSLS_IDENT_RCSID(bslx_testinstream_cpp,"$Id$ $CSID$")
 #include <bslx_marshallingutil.h>
 #include <bslx_testoutstream.h>                 // for testing only
 
+#include <bslalg_untrustedarrayreadutil.h>
+
 #include <bsls_assert.h>
 #include <bsls_log.h>
 
@@ -43,10 +45,17 @@ void TestInStream::checkArray(TypeCode::Enum code,
     BSLS_ASSERT(0 < elementSize);
     BSLS_ASSERT(0 <= numElements);
 
-    checkTypeCodeAndAvailableLength(
-                            code, k_SIZEOF_ARRLEN + elementSize * numElements);
+    checkTypeCodeAndAvailableLength(code, k_SIZEOF_ARRLEN);
 
     if (!isValid()) {
+        return;                                                       // RETURN
+    }
+
+    if (!bslalg::UntrustedArrayReadUtil::canReadAll(
+                                      numElements,
+                                      elementSize,
+                                      length() - cursor() - k_SIZEOF_ARRLEN)) {
+        invalidate();
         return;                                                       // RETURN
     }
 
@@ -465,19 +474,22 @@ TestInStream& TestInStream::getString(bsl::string& variable)
 {
     int length;
     getLength(length);
+    if (!isValid()) {
+        return *this;                                                 // RETURN
+    }
 
-    if (isValid()) {
-        variable.resize(length);
+    // The implementation cannot call 'getArrayUint8' since the input limit has
+    // already been modified.
 
-        // The implementation cannot call 'getArrayUint8' since the input limit
-        // has already been modified.
+    checkArray(TypeCode::e_UINT8, Util::k_SIZEOF_INT8, length);
+    if (!isValid()) {
+        return *this;                                                 // RETURN
+    }
 
-        checkArray(TypeCode::e_UINT8, Util::k_SIZEOF_INT8, length);
-
-        if (length > 0 && isValid()) {
-            Util::getArrayInt8(&variable.front(), d_buffer + cursor(), length);
-            d_cursor += Util::k_SIZEOF_INT8 * length;
-        }
+    variable.resize(length);
+    if (0 < length) {
+        Util::getArrayInt8(&variable.front(), d_buffer + cursor(), length);
+        d_cursor += Util::k_SIZEOF_INT8 * length;
     }
 
     return *this;

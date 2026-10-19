@@ -42,3 +42,4 @@ bslalg_typetraitnil
 bslalg_typetraitpair
 bslalg_typetraits
 bslalg_typetraitusesbslmaallocator
+bslalg_untrustedarrayreadutil

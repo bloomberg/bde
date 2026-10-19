@@ -16,6 +16,8 @@ BSLS_IDENT_RCSID(balber_berutil_cpp, "$Id$ $CSID$")
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
+#include <bslalg_untrustedarrayreadutil.h>
+
 #include <bslmt_once.h>
 #include <bsls_assert.h>
 #include <bsls_log.h>
@@ -1160,28 +1162,26 @@ int BerUtil_StringImpUtil::getStringValue(bsl::string              *value,
         return -1;                                                    // RETURN
     }
 
-    // Read the body in geometrically growing chunks so that peak allocation is
-    // bounded by a small multiple of the bytes the producer has actually
-    // delivered, rather than by the (untrusted) `length`.  The initial chunk
-    // is also the threshold below which the entire body is read in a single
-    // pass.  Note that we do not rely on `string`'s `resize_and_overwrite`
-    // growing capacity geometrically (its contract does not guarantee it); the
-    // doubling at the call site is what bounds peak allocation.
-    const bsl::size_t k_INITIAL_CHUNK = 4 * 1024;
+    // `length` is untrusted, so grow `value` as data arrives.
+    const bsl::size_t k_MIN_READ_COUNT = 4 * 1024;
 
     value->clear();
     bsl::size_t remaining = static_cast<bsl::size_t>(length);
-    bsl::size_t chunkSize = k_INITIAL_CHUNK;
     while (remaining > 0) {
-        const bsl::size_t bytesToRead = bsl::min(remaining, chunkSize);
-        const bsl::size_t oldSize     = value->size();
+        const bsl::size_t oldSize = value->size();
+        const bsl::size_t bytesToRead =
+                          bslalg::UntrustedArrayReadUtil::computeNextReadCount(
+                              oldSize,
+                              remaining,
+                              1,
+                              streamBuf->in_avail(),
+                              k_MIN_READ_COUNT);
         value->resize_and_overwrite(oldSize + bytesToRead,
                                     u::ReadChunkFunctor(streamBuf, oldSize));
         if (value->size() != oldSize + bytesToRead) {
             return -1;                                                // RETURN
         }
         remaining -= bytesToRead;
-        chunkSize *= 2;
     }
 
     return 0;

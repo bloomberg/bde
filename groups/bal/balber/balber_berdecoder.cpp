@@ -8,6 +8,8 @@ BSLS_IDENT_RCSID(balber_berdecoder_cpp, "$Id$ $CSID$")
 
 #include <bdlma_localbufferedobject.h>
 
+#include <bslalg_untrustedarrayreadutil.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_format.h>
 #include <bsl_iterator.h>
@@ -131,22 +133,20 @@ int BerDecoder_Node::readVectorByte(bsl::vector<t_BYTE> *variable,
         return logError(errMsg->c_str());                             // RETURN
     }
 
-    // Read the body in geometrically growing chunks so that peak allocation
-    // is bounded by a small multiple of the bytes the producer has actually
-    // delivered, rather than by the (untrusted) `d_expectedLength`.  The
-    // initial chunk is also the threshold below which the entire body is
-    // read in a single pass.  Note that we do not rely on `vector`'s
-    // `resize` growing capacity geometrically (its contract does not
-    // guarantee it); the doubling at the call site is what bounds peak
-    // allocation.
-    const bsl::size_t k_INITIAL_CHUNK = 4 * 1024;
+    // `d_expectedLength` is untrusted, so grow `variable` as data arrives.
+    const bsl::size_t k_MIN_READ_COUNT = 4 * 1024;
 
     variable->clear();
     bsl::size_t remaining = static_cast<bsl::size_t>(d_expectedLength);
-    bsl::size_t chunkSize = k_INITIAL_CHUNK;
     while (remaining > 0) {
-        const bsl::size_t bytesToRead = bsl::min(remaining, chunkSize);
-        const bsl::size_t oldSize     = variable->size();
+        const bsl::size_t oldSize = variable->size();
+        const bsl::size_t bytesToRead =
+                          bslalg::UntrustedArrayReadUtil::computeNextReadCount(
+                              oldSize,
+                              remaining,
+                              1,
+                              d_decoder->d_streamBuf->in_avail(),
+                              k_MIN_READ_COUNT);
         variable->resize(oldSize + bytesToRead);
         char *data = reinterpret_cast<char *>(variable->data() + oldSize);
         // `bytesToRead <= INT_MAX` (bounded by validated `d_expectedLength`),
@@ -160,7 +160,6 @@ int BerDecoder_Node::readVectorByte(bsl::vector<t_BYTE> *variable,
             return logError(errMsg->c_str());                         // RETURN
         }
         remaining -= bytesToRead;
-        chunkSize *= 2;
     }
 
     d_consumedBodyBytes += d_expectedLength;

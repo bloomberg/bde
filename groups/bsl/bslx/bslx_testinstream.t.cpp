@@ -2,6 +2,8 @@
 #include <bslx_testinstream.h>
 #include <bslx_testoutstream.h>                 // for testing only
 
+#include <bslx_marshallingutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
@@ -9,6 +11,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstdio.h>
@@ -590,6 +593,56 @@ void testGetArray(const ArrayTestTable *data,
         }
     }
 
+}
+
+// ============================================================================
+//                FUNCTION `testGetArrayOverflow` FOR TESTING
+// ----------------------------------------------------------------------------
+// The function `testGetArrayOverflow` is a generic, parameterized function to
+// test that array input methods invalidate the stream when the array size in
+// bytes overflows `int`.  For each overflowing length, it builds a buffer
+// holding the type code followed by that length, with no array data, invokes
+// the array input method referred to by `getArrayFunc` with that length, and
+// verifies that the stream is invalidated.
+// ----------------------------------------------------------------------------
+
+/// Verify that the array input method pointed to by the specified
+/// `getArrayFunc` member pointer invalidates a stream holding the specified
+/// type `code` followed by an array length for which the array size, in
+/// elements of the specified `elementSize` bytes, overflows `int`.
+template <class ElemType>
+void testGetArrayOverflow(
+                 TypeCode::Enum code,
+                 int            elementSize,
+                 TestInStream&  (TestInStream::*getArrayFunc)(ElemType *, int))
+{
+    // The first length wraps the size to a small value, if it fits in `int`.
+    const bsls::Types::Int64 k_WRAP    = bsls::Types::Int64(1) << 32;
+    const bsls::Types::Int64 LENGTHS[] = {
+        (k_WRAP + elementSize - 1) / elementSize,
+        INT_MAX};
+    const int NUM_LENGTHS = sizeof LENGTHS / sizeof *LENGTHS;
+
+    for (int ti = 0; ti < NUM_LENGTHS; ++ti) {
+        if (INT_MAX < LENGTHS[ti]) {
+            continue;  // 2-byte elements: wrapping length exceeds `INT_MAX`
+        }
+        const int LENGTH = static_cast<int>(LENGTHS[ti]);
+
+        char buffer[16] = {0};
+        buffer[0]       = static_cast<char>(code);
+
+        // `TestOutStream` cannot write a length without the array data.
+        MarshallingUtil::putInt32(buffer + 1, LENGTH);
+
+        Obj        mX(buffer, sizeof buffer);
+        const Obj& X = mX;
+        mX.setQuiet(true);
+
+        ElemType variables[1];
+        (mX.*getArrayFunc)(variables, LENGTH);
+        ASSERTV(static_cast<int>(code), LENGTH, !X.isValid());
+    }
 }
 
 // ============================================================================
@@ -1488,9 +1541,16 @@ int main(int argc, char *argv[]) {
         //
         // 2. Unexternalization position does not effect output.
         //
+        // 3. A length exceeding the remaining data invalidates the stream
+        //    without allocating memory in proportion to the length.
+        //
         // Plan:
         // 1. Unexternalize at different offsets and verify the values.  (C-1,
         //    C-2)
+        //
+        // 2. Unexternalize strings whose lengths exceed the remaining data
+        //    into a string using a test allocator, and verify that the stream
+        //    is invalidated and that no memory is allocated.  (C-3)
         //
         // Testing:
         //   getString(bsl::string& variable);
@@ -1543,6 +1603,33 @@ int main(int argc, char *argv[]) {
             ASSERT(!X);
             ASSERT(false == X.isEmpty());
             ASSERT(X.cursor() != X.length());
+        }
+
+        if (verbose) {
+            cout << "\nTesting lengths exceeding the remaining data." << endl;
+        }
+        {
+            const int LENGTHS[]   = {6, 0x01000000, INT_MAX};
+            const int NUM_LENGTHS = sizeof LENGTHS / sizeof *LENGTHS;
+
+            for (int ti = 0; ti < NUM_LENGTHS; ++ti) {
+                const int LENGTH = LENGTHS[ti];
+
+                Out o(VERSION_SELECTOR);
+                o.putLength(LENGTH);
+                o.putArrayUint8("abcde", 5);
+
+                Obj        mX(o.data(), o.length());
+                const Obj& X = mX;
+                mX.setQuiet(true);
+
+                bslma::TestAllocator ta("string", veryVeryVerbose);
+                bsl::string          val(&ta);
+
+                mX.getString(val);
+                ASSERTV(LENGTH, !X.isValid());
+                ASSERTV(LENGTH, ta.numBytesTotal(), 0 == ta.numBytesTotal());
+            }
         }
       } break;
       case 29: {
@@ -2104,12 +2191,19 @@ int main(int argc, char *argv[]) {
         //
         // 2. The method implements the type check correctly.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. The method invalidates the stream if the array size in bytes
+        //    overflows `int`.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Iterate through a set of test vectors that verify correct
         //    behavior with valid data and correct error detection with invalid
-        //    data.  (C-1..3)
+        //    data.  (C-1..2, C-4)
+        //
+        // 2. Read arrays whose length prefix matches a length for which the
+        //    array size in bytes overflows `int`, and verify that the stream
+        //    is invalidated.  (C-3)
         //
         // Testing:
         //   getArrayFloat64(double *variables, int numVariables);
@@ -2165,6 +2259,11 @@ int main(int argc, char *argv[]) {
 
             testGetArray<ElemType, FuncPtr>(DATA, DATA_LEN, V_ORIG, FUNC);
         }
+
+        if (verbose) cout << "\nTesting overflowing array sizes." << endl;
+        {
+            testGetArrayOverflow(FC::e_FLOAT64, 8, &Obj::getArrayFloat64);
+        }
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -2179,12 +2278,19 @@ int main(int argc, char *argv[]) {
         //
         // 2. The method implements the type check correctly.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. The method invalidates the stream if the array size in bytes
+        //    overflows `int`.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Iterate through a set of test vectors that verify correct
         //    behavior with valid data and correct error detection with invalid
-        //    data.  (C-1..3)
+        //    data.  (C-1..2, C-4)
+        //
+        // 2. Read arrays whose length prefix matches a length for which the
+        //    array size in bytes overflows `int`, and verify that the stream
+        //    is invalidated.  (C-3)
         //
         // Testing:
         //   getArrayFloat32(float *variables, int numVariables);
@@ -2240,6 +2346,11 @@ int main(int argc, char *argv[]) {
 
             testGetArray<ElemType, FuncPtr>(DATA, DATA_LEN, V_ORIG, FUNC);
         }
+
+        if (verbose) cout << "\nTesting overflowing array sizes." << endl;
+        {
+            testGetArrayOverflow(FC::e_FLOAT32, 4, &Obj::getArrayFloat32);
+        }
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -2254,12 +2365,19 @@ int main(int argc, char *argv[]) {
         //
         // 2. The methods implement the type check correctly.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. The methods invalidate the stream if the array size in bytes
+        //    overflows `int`.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Iterate through a set of test vectors that verify correct
         //    behavior with valid data and correct error detection with invalid
-        //    data.  (C-1..3)
+        //    data.  (C-1..2, C-4)
+        //
+        // 2. Read arrays whose length prefix matches a length for which the
+        //    array size in bytes overflows `int`, and verify that the stream
+        //    is invalidated.  (C-3)
         //
         // Testing:
         //   getArrayInt64(bsls::Types::Int64 *variables, int numVariables);
@@ -2363,6 +2481,12 @@ int main(int argc, char *argv[]) {
 
             testGetArray<ElemType, FuncPtr>(DATA, DATA_LEN, V_ORIG, FUNC);
         }
+
+        if (verbose) cout << "\nTesting overflowing array sizes." << endl;
+        {
+            testGetArrayOverflow(FC::e_INT64,  8, &Obj::getArrayInt64);
+            testGetArrayOverflow(FC::e_UINT64, 8, &Obj::getArrayUint64);
+        }
       } break;
       case 22: {
         // --------------------------------------------------------------------
@@ -2377,12 +2501,19 @@ int main(int argc, char *argv[]) {
         //
         // 2. The methods implement the type check correctly.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. The methods invalidate the stream if the array size in bytes
+        //    overflows `int`.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Iterate through a set of test vectors that verify correct
         //    behavior with valid data and correct error detection with invalid
-        //    data.  (C-1..3)
+        //    data.  (C-1..2, C-4)
+        //
+        // 2. Read arrays whose length prefix matches a length for which the
+        //    array size in bytes overflows `int`, and verify that the stream
+        //    is invalidated.  (C-3)
         //
         // Testing:
         //   getArrayInt56(bsls::Types::Int64 *variables, int numVariables);
@@ -2486,6 +2617,12 @@ int main(int argc, char *argv[]) {
 
             testGetArray<ElemType, FuncPtr>(DATA, DATA_LEN, V_ORIG, FUNC);
         }
+
+        if (verbose) cout << "\nTesting overflowing array sizes." << endl;
+        {
+            testGetArrayOverflow(FC::e_INT56,  7, &Obj::getArrayInt56);
+            testGetArrayOverflow(FC::e_UINT56, 7, &Obj::getArrayUint56);
+        }
       } break;
       case 21: {
         // --------------------------------------------------------------------
@@ -2500,12 +2637,19 @@ int main(int argc, char *argv[]) {
         //
         // 2. The methods implement the type check correctly.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. The methods invalidate the stream if the array size in bytes
+        //    overflows `int`.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Iterate through a set of test vectors that verify correct
         //    behavior with valid data and correct error detection with invalid
-        //    data.  (C-1..3)
+        //    data.  (C-1..2, C-4)
+        //
+        // 2. Read arrays whose length prefix matches a length for which the
+        //    array size in bytes overflows `int`, and verify that the stream
+        //    is invalidated.  (C-3)
         //
         // Testing:
         //   getArrayInt48(bsls::Types::Int64 *variables, int numVariables);
@@ -2609,6 +2753,12 @@ int main(int argc, char *argv[]) {
 
             testGetArray<ElemType, FuncPtr>(DATA, DATA_LEN, V_ORIG, FUNC);
         }
+
+        if (verbose) cout << "\nTesting overflowing array sizes." << endl;
+        {
+            testGetArrayOverflow(FC::e_INT48,  6, &Obj::getArrayInt48);
+            testGetArrayOverflow(FC::e_UINT48, 6, &Obj::getArrayUint48);
+        }
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -2623,12 +2773,19 @@ int main(int argc, char *argv[]) {
         //
         // 2. The methods implement the type check correctly.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. The methods invalidate the stream if the array size in bytes
+        //    overflows `int`.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Iterate through a set of test vectors that verify correct
         //    behavior with valid data and correct error detection with invalid
-        //    data.  (C-1..3)
+        //    data.  (C-1..2, C-4)
+        //
+        // 2. Read arrays whose length prefix matches a length for which the
+        //    array size in bytes overflows `int`, and verify that the stream
+        //    is invalidated.  (C-3)
         //
         // Testing:
         //   getArrayInt40(bsls::Types::Int64 *variables, int numVariables);
@@ -2732,6 +2889,12 @@ int main(int argc, char *argv[]) {
 
             testGetArray<ElemType, FuncPtr>(DATA, DATA_LEN, V_ORIG, FUNC);
         }
+
+        if (verbose) cout << "\nTesting overflowing array sizes." << endl;
+        {
+            testGetArrayOverflow(FC::e_INT40,  5, &Obj::getArrayInt40);
+            testGetArrayOverflow(FC::e_UINT40, 5, &Obj::getArrayUint40);
+        }
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -2746,12 +2909,19 @@ int main(int argc, char *argv[]) {
         //
         // 2. The methods implement the type check correctly.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. The methods invalidate the stream if the array size in bytes
+        //    overflows `int`.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Iterate through a set of test vectors that verify correct
         //    behavior with valid data and correct error detection with invalid
-        //    data.  (C-1..3)
+        //    data.  (C-1..2, C-4)
+        //
+        // 2. Read arrays whose length prefix matches a length for which the
+        //    array size in bytes overflows `int`, and verify that the stream
+        //    is invalidated.  (C-3)
         //
         // Testing:
         //   getArrayInt32(int *variables, int numVariables);
@@ -2854,6 +3024,12 @@ int main(int argc, char *argv[]) {
 
             testGetArray<ElemType, FuncPtr>(DATA, DATA_LEN, V_ORIG, FUNC);
         }
+
+        if (verbose) cout << "\nTesting overflowing array sizes." << endl;
+        {
+            testGetArrayOverflow(FC::e_INT32,  4, &Obj::getArrayInt32);
+            testGetArrayOverflow(FC::e_UINT32, 4, &Obj::getArrayUint32);
+        }
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -2868,12 +3044,19 @@ int main(int argc, char *argv[]) {
         //
         // 2. The methods implement the type check correctly.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. The methods invalidate the stream if the array size in bytes
+        //    overflows `int`.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Iterate through a set of test vectors that verify correct
         //    behavior with valid data and correct error detection with invalid
-        //    data.  (C-1..3)
+        //    data.  (C-1..2, C-4)
+        //
+        // 2. Read arrays whose length prefix matches a length for which the
+        //    array size in bytes overflows `int`, and verify that the stream
+        //    is invalidated.  (C-3)
         //
         // Testing:
         //   getArrayInt24(int *variables, int numVariables);
@@ -2976,6 +3159,12 @@ int main(int argc, char *argv[]) {
 
             testGetArray<ElemType, FuncPtr>(DATA, DATA_LEN, V_ORIG, FUNC);
         }
+
+        if (verbose) cout << "\nTesting overflowing array sizes." << endl;
+        {
+            testGetArrayOverflow(FC::e_INT24,  3, &Obj::getArrayInt24);
+            testGetArrayOverflow(FC::e_UINT24, 3, &Obj::getArrayUint24);
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -2990,12 +3179,19 @@ int main(int argc, char *argv[]) {
         //
         // 2. The methods implement the type check correctly.
         //
-        // 3. QoI: asserted precondition violations are detected when enabled.
+        // 3. The methods invalidate the stream if the array size in bytes
+        //    overflows `int`.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         // 1. Iterate through a set of test vectors that verify correct
         //    behavior with valid data and correct error detection with invalid
-        //    data.  (C-1..3)
+        //    data.  (C-1..2, C-4)
+        //
+        // 2. Read arrays whose length prefix matches a length for which the
+        //    array size in bytes overflows `int`, and verify that the stream
+        //    is invalidated.  (C-3)
         //
         // Testing:
         //   getArrayInt16(short *variables, int numVariables);
@@ -3097,6 +3293,12 @@ int main(int argc, char *argv[]) {
             const int DATA_LEN = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             testGetArray<ElemType, FuncPtr>(DATA, DATA_LEN, V_ORIG, FUNC);
+        }
+
+        if (verbose) cout << "\nTesting overflowing array sizes." << endl;
+        {
+            testGetArrayOverflow(FC::e_INT16,  2, &Obj::getArrayInt16);
+            testGetArrayOverflow(FC::e_UINT16, 2, &Obj::getArrayUint16);
         }
       } break;
       case 16: {
