@@ -1,6 +1,36 @@
-bsl-internal (4.41.0.0) unstable; urgency=low
+bsl-internal (4.42.0.0) unstable; urgency=low
 
-  * 078d3dd98 Bumped version to 4.41.0.0
+  * 3a86b7ded Bumped version to 4.42.0.0
+  * f909ee139 Support compiling to Wasm via Emscripten (#5933)
+  * 543af272c bdlcc_cache.h: improve doc (#6025)
+  * ce459c514 correct version for newly obtained data (#6027)
+  * 0029493ab remove case 4 for old macOS libc++ versions (#6026)
+  * 9e54f6eb5 fix warning identically to how it was handled in bslstl_string.t.cpp (#6023)
+  * f167bf625 Drqs 186672604/bdls filesystemutil improve error reporting 20261015 (#6022)
+  * 05d0f5eae correct blockB to blockA (#6021)
+  * 7cbdb0bc1 assume a 10ms file timestamp granularity (#6019)
+  * d3e7c7db4 add loop to ensure  comes-after (#6018)
+  * aae0a5475 add tolerance for SleepOnADuraton, just like SleepOnATimeInterval (#6017)
+  * 016a3fb72 fix ubsan issue (#6016)
+  * e6292603c Support bsl::chrono::time_point overloads for bdlcc::Deque (#5956)
+  * 3547aa2a6 Drqs 186638112/bslmt readerwritermuteximpl try lock write 20261013 (#6015)
+  * 60f20d219 Drqs 186635860/bdlmt multiqueuethreadpool tsan 20261013 (#6014)
+  * 8f5aa62ce incorporate claude threading issue correction (#6013)
+  * a2f2ffdfb add mutex to make shutdown and stop thread-safe (#6012)
+  * 815f33c3a Ignore editor and tooling directories (#6010)
+  * 1d934c6d4 [DRQS 185647451] Fix potentially infinite loop in crc32c and potential UB in utf8Util (#6008)
+  * 597dab6cf bdlmt_timereventscheduler: Add missing `d_dispatcherThreadId` initializers (#6009)
+  * 6edeebf4e Fix minor issues with bdlmt_multiprioritythreadpool usage examples (#6006)
+  * 949940c0b fix tsan issues (#6007)
+  * 01a571e13 [DRQS 183952855] optional monadic operations in C++03 (#5966)
+  * 398483fd3 fix transparent lookup with movableref (#5991)
+  * 490bc7bec make isStillPrime atomic (#6005)
+  * 39b8f2a95 fix TSAN issues (#6004)
+  * 380bcccaf Merge releases/4.41.x (#5997)
+  * 75dcd6173 Add `BlobUtil::deepCopy` for convenient deep copies - {DRQS 184866595} (#5921)
+  * 503d3ffd0 Drqs 168067792/bdlcc stripedunordered add emplace 2 (#5955)
+  * a68704d6d Reduce frequency of bslmt_testutil case 8 tsan failures (#6001)
+  * e48f48382 reduce case 4 failures (#6000)
   * 4712408fd increase timeout duration and verify no timeout (#5995)
   * 9959fbe78 . (#5994)
   * 017d93818 fix tsan issues (#5993)
@@ -94,7 +124,7 @@ bsl-internal (4.41.0.0) unstable; urgency=low
   * dee0edd40 Remove buffer overrun. (#5866)
   * 5eeddba6f Remove unused parameter warning. (#5863)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 6 Oct 2026 14:55:59 +0000
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Sat, 17 Oct 2026 16:44:37 +0000
 
 bsl-internal (4.38.0.0) git; urgency=low
 

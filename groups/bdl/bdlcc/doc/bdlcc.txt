@@ -45,22 +45,22 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlcc' package currently has 20 components having 4 levels of physical
+ The 'bdlcc' package currently has 23 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  4. bdlcc_sharedobjectpool
+  5. bdlcc_sharedobjectpool
 
-  3. bdlcc_objectpool
+  4. bdlcc_objectpool
 
-  2. bdlcc_fixedqueue
+  3. bdlcc_fixedqueue
      bdlcc_singleconsumerqueue
      bdlcc_singleproducerqueue
      bdlcc_stripedunorderedmap
      bdlcc_stripedunorderedmultimap
 
-  1. bdlcc_boundedqueue
+  2. bdlcc_boundedqueue
      bdlcc_cache
      bdlcc_deque
      bdlcc_fixedqueueindexmanager
@@ -73,6 +73,10 @@
      bdlcc_skiplist
      bdlcc_stripedunorderedcontainerimpl
      bdlcc_timequeue
+
+  1. bdlcc_stripedunorderedcontainerimpl_cpp03                        !PRIVATE!
+     bdlcc_stripedunorderedmap_cpp03                                  !PRIVATE!
+     bdlcc_stripedunorderedmultimap_cpp03                             !PRIVATE!
 ..
 
 /Component Synopsis
@@ -128,11 +132,20 @@
 : 'bdlcc_stripedunorderedcontainerimpl':
 :      Provide common implementation of *striped* un-ordered map/multimap.
 :
+: 'bdlcc_stripedunorderedcontainerimpl_cpp03':                        !PRIVATE!
+:      Provide C++03 implementation for bdlcc_stripedunorderedcontainerimpl.h
+:
 : 'bdlcc_stripedunorderedmap':
 :      Provide a bucket-group locking (i.e., *striped*) unordered map.
 :
+: 'bdlcc_stripedunorderedmap_cpp03':                                  !PRIVATE!
+:      Provide C++03 implementation for bdlcc_stripedunorderedmap.h
+:
 : 'bdlcc_stripedunorderedmultimap':
 :      Provide a bucket-group locking (*striped*) unordered multimap.
+:
+: 'bdlcc_stripedunorderedmultimap_cpp03':                             !PRIVATE!
+:      Provide C++03 implementation for bdlcc_stripedunorderedmultimap.h
 :
 : 'bdlcc_timequeue':
 :      Provide an efficient queue for time events.
