@@ -32,6 +32,8 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bslh_hash.h>
 #include <bsls_timeutil.h>
 
@@ -900,11 +902,14 @@ int makeDirectory(const char *path, bool isPrivate)
 
 /// Delete everything in the tree whose root directory is specified by the
 /// specified open file descriptor `dirFD`, not including the root.  Close
-/// `dirFd`.  The behavior is undefined unless `dirFD` refers to a directory
-/// and not a symlink.  Return 0 on success and a non-zero value otherwise.
+/// `dirFd`.  Wait for busy NFS ".nfs*" entries to go away until the
+/// specified `nfsDeadline`, measured on the monotonic clock.  The behavior is
+/// undefined unless `dirFD` refers to a directory and not a symlink.  Return
+/// 0 on success and a non-zero value otherwise.
 static
 int u_removeContentsOfTree(
-                 const BloombergLP::bdls::FilesystemUtil::FileDescriptor dirFD)
+           const BloombergLP::bdls::FilesystemUtil::FileDescriptor dirFD,
+           const bsls::TimeInterval&                               nfsDeadline)
 {
     typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
 
@@ -981,89 +986,152 @@ int u_removeContentsOfTree(
     prevName.reserve(k_MIN_NAME_MAX);
 
     ::dirent *entry_p = 0;
+
+    // Deleting entries while iterating over a directory with 'readdir_r'
+    // may cause other entries to be skipped (POSIX leaves unspecified
+    // whether entries are returned after the directory has been modified,
+    // and this is observed in practice on NFS).  Therefore, we rewind and
+    // make additional passes over the directory until a pass removes
+    // nothing.  The number of passes is limited to 'k_MAX_PASSES' so that we
+    // are guaranteed to terminate even if another process keeps adding
+    // entries to the tree concurrently.  If entries remain after the last
+    // pass, the caller's subsequent attempt to remove this directory will
+    // fail.
+    //
+    // On NFS, unlinking a file that is still referenced on the client (for
+    // example, while an asynchronous close is still in flight) renames it to
+    // a hidden ".nfs*" name instead of deleting it.  Unlinking that ".nfs*"
+    // name fails with 'EBUSY' until the client deletes it.  We skip such
+    // entries, sleep 'k_NFS_BUSY_SLEEP_USEC' microseconds, and make another
+    // pass.  These passes do not count against 'k_MAX_PASSES'; they stop at
+    // 'nfsDeadline', which is shared by the whole tree.  If busy entries
+    // remain at the deadline, we fail with 'errno' set to 'EBUSY'.
+
+    enum { k_MAX_PASSES          = 5,
+           k_NFS_BUSY_SLEEP_USEC = 10 * 1000 };
+
+    int  rc;
+    bool removedAny;
+    bool sawBusyNfs;
+    int  numPasses = 0;
+    do {
+        ++numPasses;
+        removedAny = false;
+        sawBusyNfs = false;
+        prevName.clear();
+        ::rewinddir(dir);
+
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-    int rc;
-    while (errno = 0, rc = ::readdir_r(dir, &entry, &entry_p),
-                                       0 == rc && 0 != entry_p && 0 == errno) {
+        while (errno = 0, rc = ::readdir_r(dir, &entry, &entry_p),
+                                   0 == rc && 0 != entry_p && 0 == errno) {
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
 
-        const bsl::string_view name = entry.d_name;
-        if (name.length() <= 2 && shortIsDotOrDots(entry.d_name)) {
-            continue;
-        }
-
-        // Sometimes, after deleting the last file in the directory,
-        // 'readdir_r' returns the same file name again, in which case we just
-        // skip and go around again.
-
-        if (name == prevName) {
-            continue;
-        }
-
-        FileDescriptor entryFD = ::openat(dirFD,
-                                          entry.d_name,
-                                          O_DIRECTORY | O_RDONLY | O_NOFOLLOW,
-                                          0);
-        if (-1 != entryFD) {
-            // 'entry.d_name' is a directory.
-
-            // 'u_removeContentsOfTree' will close 'entryFD'.
-
-            const int rc = u_removeContentsOfTree(entryFD);
-            if (0 != rc) {
-                return -7;                                            // RETURN
+            const bsl::string_view name = entry.d_name;
+            if (name.length() <= 2 && shortIsDotOrDots(entry.d_name)) {
+                continue;
             }
-        }
 
-        const int flag = -1 != entryFD ? AT_REMOVEDIR : 0;
-        if (0 != ::unlinkat(dirFD, entry.d_name, flag)) {
-            return -9;                                                // RETURN
-        }
+            // Sometimes, after deleting the last file in the directory,
+            // 'readdir_r' returns the same file name again, in which case we
+            // just skip and go around again.
 
-        // update 'prevName'
+            if (name == prevName) {
+                continue;
+            }
+
+            FileDescriptor entryFD = ::openat(
+                                           dirFD,
+                                           entry.d_name,
+                                           O_DIRECTORY | O_RDONLY | O_NOFOLLOW,
+                                           0);
+            if (-1 != entryFD) {
+                // 'entry.d_name' is a directory.
+
+                // 'u_removeContentsOfTree' will close 'entryFD'.
+
+                const int rc = u_removeContentsOfTree(entryFD, nfsDeadline);
+                if (0 != rc) {
+                    return -7;                                        // RETURN
+                }
+            }
+
+            const int flag = -1 != entryFD ? AT_REMOVEDIR : 0;
+            if (0 != ::unlinkat(dirFD, entry.d_name, flag)) {
+                // Since 'readdir_r' is unreliable once the directory has been
+                // modified, it may return a name that was already deleted
+                // earlier in this pass (not only the immediately preceding
+                // one caught by the 'prevName' check above).  Treat 'ENOENT'
+                // as "already gone" and continue; any entries that remain
+                // will be found by the next pass.
+
+                if (ENOENT == errno) {
+                    continue;
+                }
+
+                // An NFS "silly-renamed" file that is still referenced on
+                // the client.  The client deletes it on last close.
+
+                if (EBUSY == errno && 0 == name.find(".nfs")) {
+                    sawBusyNfs = true;
+                    continue;
+                }
+                return -9;                                            // RETURN
+            }
+
+            // update 'prevName'
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
-        if (prevName.capacity() < name.length()) {
-            BSLS_ASSERT(prevName.capacity() == k_MIN_NAME_MAX);
-            BSLS_ASSERT(name.length() <= nameMax);
+            if (prevName.capacity() < name.length()) {
+                BSLS_ASSERT(prevName.capacity() == k_MIN_NAME_MAX);
+                BSLS_ASSERT(name.length() <= nameMax);
 
-            // This will allocate from the default allocator, but will occur
-            // at most once per call of this function.
+                // This will allocate from the default allocator, but will
+                // occur at most once per call of this function.
 
-            prevName.reserve(nameMax);
-        }
+                prevName.reserve(nameMax);
+            }
 #endif
-        BSLS_ASSERT(name.length() <= prevName.capacity());
-        prevName = name;
-    }
+            BSLS_ASSERT(name.length() <= prevName.capacity());
+            prevName   = name;
+            removedAny = true;
+        }
 
 #if defined(BSLS_PLATFORM_OS_AIX)
-    if (9 == rc) {
-        // '9 == rc' just means 'readdir_r' reached the end of the directory on
-        // AIX.
+        if (9 == rc) {
+            // '9 == rc' just means 'readdir_r' reached the end of the
+            // directory on AIX.
 
-        rc = 0;
-    }
+            rc = 0;
+        }
 #endif
 
-    // The 'while' condition was '0 == rc && 0 != entry_p && 0 == errno' and
-    // and on success we expect that to be true except '0 == entry_p'.  If
-    // '0 != rc' or '0 != errno' it means some sort of error happened.
+        // The 'while' condition was '0 == rc && 0 != entry_p && 0 == errno'
+        // and on success we expect that to be true except '0 == entry_p'.
+        // If '0 != rc' or '0 != errno' it means some sort of error happened.
 
-    if (0 != rc) {
-        return -10;                                                   // RETURN
-    }
-    else if (0 != errno) {
-        return -11;                                                   // RETURN
-    }
-    BSLS_ASSERT(0 == entry_p);
+        if (0 != rc) {
+            return -10;                                               // RETURN
+        }
+        else if (0 != errno) {
+            return -11;                                               // RETURN
+        }
+        BSLS_ASSERT(0 == entry_p);
+
+        if (sawBusyNfs) {
+            if (bsls::SystemTime::nowMonotonicClock() >= nfsDeadline) {
+                errno = EBUSY;
+                return -12;                                           // RETURN
+            }
+            bslmt::ThreadUtil::microSleep(k_NFS_BUSY_SLEEP_USEC);
+        }
+    } while (sawBusyNfs || (removedAny && numPasses < k_MAX_PASSES));
 
     return 0;
 }
@@ -2554,7 +2622,17 @@ int FilesystemUtil::remove(const char *path, bool recursiveFlag)
         // 'leaf' is a directory.
 
         if (recursiveFlag) {
-            const int rc = u_removeContentsOfTree(leafFD);
+            // Wait at most 'k_NFS_MAX_WAIT_SEC' seconds in total for busy
+            // NFS ".nfs*" entries anywhere in the tree.
+
+            enum { k_NFS_MAX_WAIT_SEC = 2 };
+
+            const bsls::TimeInterval nfsDeadline =
+                                       bsls::SystemTime::nowMonotonicClock() +
+                                       bsls::TimeInterval(k_NFS_MAX_WAIT_SEC,
+                                                          0);
+
+            const int rc = u_removeContentsOfTree(leafFD, nfsDeadline);
             if (0 != rc) {
                 return -100 + rc;                                     // RETURN
             }

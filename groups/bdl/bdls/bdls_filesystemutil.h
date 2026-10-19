@@ -1007,13 +1007,21 @@ struct FilesystemUtil {
     /// on success and a non-zero value otherwise.  If `path` refers to a
     /// symbolic link, the symbolic link will be removed, not the target of
     /// the link.  Note that if `path` is a directory, and the directory is
-    /// not empty, and recursive is `false`, this method will fail.  Also
-    /// note that if the function fails when `recursive` is `true`, it may
+    /// not empty, and `recursiveFlag` is `false`, this method will fail.  Also
+    /// note that if the function fails when `recursiveFlag` is `true`, it may
     /// or may not have removed *some* files or directories before failing.
-    /// Also note that if `remove` is called on "." or "..", it will fail
-    /// with no effect.  The parameterized `STRING_TYPE` must be one of
-    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported),
-    /// `bsl::string_view`, or `bslstl::StringRef`.
+    /// Also note that if `recursiveFlag` is `true` and other processes or
+    /// threads concurrently add files or directories to the tree rooted at
+    /// `path`, this method may fail (and may leave some of the added, or
+    /// pre-existing, entries in place).  Also note that on Unix, if
+    /// `recursiveFlag` is `true` and the tree is on NFS, the NFS client
+    /// renames files that are still open to ".nfs*" names and deletes them on
+    /// last close; this method waits up to 2 seconds in total for such files
+    /// to go away, and fails if any remain.  Also note that if `remove` is
+    /// called on "." or "..", it will fail with no effect.  The parameterized
+    /// `STRING_TYPE` must be one of `bsl::string`, `std::string`,
+    /// `std::pmr::string` (if supported), `bsl::string_view`, or
+    /// `bslstl::StringRef`.
     ///
     /// WINDOWS-SPECIFIC WARNING: When `recursiveFlag` is `true`, it is
     /// possible for this function to descend into a directory symbolic link,

@@ -440,6 +440,54 @@ void makeArbitraryFile(const char *path)
     ASSERT(0 == Obj::close(fd));
 }
 
+/// Print a recursive listing of the specified `path` to standard output,
+/// followed by the exit status of the listing command.  Note that the
+/// listing command fails if an entry vanishes while it runs, so this does
+/// not assert on its status.
+static void listDirectory(const bsl::string& path)
+{
+    const bsl::string cmd = e_UNIX ? "ls -laR " + path
+                                   : "DIR /A /S " + path;
+    cout << "Running: " << cmd << endl;
+    const int rc = ::system(cmd.c_str());
+    cout << "Exit status: " << rc << endl;
+}
+
+/// Retry recursively removing the specified `path` every 10 milliseconds, for
+/// at most 15 seconds.  Print the number of tries and the elapsed time, and
+/// whether the removal succeeded.  Note that this exists to diagnose a failure
+/// seen on NFS under parallel load: `remove` returned -107 with `errno` 16
+/// (`EBUSY`), meaning an `unlinkat` of a file inside a subdirectory failed.
+/// The suspected cause, not yet confirmed, is a ".nfs*" file: the NFS client
+/// renames a file that is still referenced instead of deleting it, and refuses
+/// to unlink the new name until the client deletes it.  `remove` now waits up
+/// to 2 seconds for such files; the timing printed here shows how long they
+/// actually last.
+static void retryRemove(const bsl::string& path)
+{
+    const bsls::TimeInterval start   = bsls::SystemTime::nowMonotonicClock();
+    const bsls::TimeInterval maxWait(15, 0);
+    int                      tries   = 0;
+    int                      rc;
+    bsls::TimeInterval       elapsed;
+    do {
+        bslmt::ThreadUtil::microSleep(10 * 1000);
+        ++tries;
+        rc      = Obj::remove(path, true);
+        elapsed = bsls::SystemTime::nowMonotonicClock() - start;
+    } while (0 != rc && elapsed < maxWait);
+
+    if (0 == rc) {
+        cout << "Retry removed " << path << " after " << tries
+             << " tries, " << elapsed.totalMilliseconds() << " ms" << endl;
+    }
+    else {
+        cout << "Retry failed to remove " << path << " after " << tries
+             << " tries, " << elapsed.totalMilliseconds() << " ms, rc: "
+             << rc << endl;
+    }
+}
+
 /// Create a symbolic link, referring to the specified `oldPath`, at the
 /// specified `newPath` path.
 static bool createSymlink(const bsl::string& oldPath,
@@ -3582,7 +3630,7 @@ void testCase10_getFileSize(const char         *typeName,
 
         const Obj::Offset EXPECTED = 0;
 #else
-        STRING_TYPE dirName("/tmp/getFileSizeDir");
+        STRING_TYPE dirName("/tmp/" + buildTempName(test, "getFileSizeDir"));
 #endif
 
         bsl::string tmpDirName(dirName.data(), dirName.length());
@@ -4322,6 +4370,10 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
         LOOP_ASSERT(filename, Obj::exists(filename));
         LOOP_ASSERT(filename, !Obj::isDirectory(filename));
         LOOP_ASSERT(filename, !Obj::isRegularFile(filename));
+
+        rc = Obj::close(socketFd);
+        ASSERT(0 == rc);
+
         Obj::remove(filename);
     }
 #endif  // BSLS_PLATFORM_OS_WINDOWS (unix domain socket)
@@ -6704,7 +6756,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bsl::string dir = "bdls_filesystemutil.temp.20";
+        bsl::string dir = buildTempName(test, "temp");
         bsl::string logPath = dir;
 
         Obj::remove(dir, true);
@@ -6801,8 +6853,8 @@ int main(int argc, char *argv[])
         for (size_t i = 0; i < NUM_FILES; ++i) {
             WIN32_FIND_DATAW   findDataW;
             const bsl::wstring name = bsl::wstring(filenames[i]) + L".log";
-            const bsl::wstring path =
-                            L"bdls_filesystemutil.temp.20\\logs20\\" + name;
+            const bsl::wstring path = bsl::wstring(dir.begin(), dir.end()) +
+                                      L"\\logs20\\" + name;
 
             if (veryVerbose) {
                 int mode = _setmode(_fileno(stdout), _O_U16TEXT);
@@ -6825,8 +6877,7 @@ int main(int argc, char *argv[])
         for (size_t i = 0; i < NUM_NAMES; ++i) {
             WIN32_FIND_DATAA findDataA;
             const bsl::string name = bsl::string(NAMES[i]) + ".log";
-            const bsl::string path =
-                           "bdls_filesystemutil.temp.20" PS "logs20" PS + name;
+            const bsl::string path = dir + PS "logs20" PS + name;
 
             if (veryVerbose) { T_; P_(i); P(name); }
 
@@ -6917,6 +6968,11 @@ int main(int argc, char *argv[])
             const int      removeRc    = Obj::remove(dir, true);
             const unsigned removeErrno = u_errno();
             ASSERTV(dir, removeRc, removeErrno, 0 == removeRc);
+
+            if (0 != removeRc) {
+                listDirectory(dir);
+                retryRemove(dir);
+            }
         }
 
         // Check narrow and wide lookups.
@@ -8305,6 +8361,11 @@ int main(int argc, char *argv[])
                 const int      removeRc    = Obj::remove(tmpFile, true);
                 const unsigned removeErrno = u_errno();
                 ASSERTV(tmpFile, removeRc, removeErrno, 0 == removeRc);
+
+                if (0 != removeRc) {
+                    listDirectory(tmpFile);
+                    retryRemove(tmpFile);
+                }
             }
             LOOP2_ASSERT(i, value, i == value);
         }
@@ -8365,6 +8426,11 @@ int main(int argc, char *argv[])
                 const int      removeRc    = Obj::remove(tmpFile, true);
                 const unsigned removeErrno = u_errno();
                 ASSERTV(tmpFile, removeRc, removeErrno, 0 == removeRc);
+
+                if (0 != removeRc) {
+                    listDirectory(tmpFile);
+                    retryRemove(tmpFile);
+                }
             }
         }
       } break;
@@ -8442,6 +8508,8 @@ int main(int argc, char *argv[])
                               verbose,
                               veryVerbose,
                               veryVeryVerbose);
+#else
+        (void) isWindows;
 #endif  // Not Darwin
 
         // Test various cases of what is located at the destination (possibly
@@ -10954,11 +11022,12 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\n3. Large File" << endl;
 
-        int rc = system("dd if=/dev/zero of=/tmp/fiveGBFile "
-               "bs=1024000 count=5000");
-        ASSERT(0 == rc);
+        const string fileName = "/tmp/" + buildTempName(test, "fiveGBFile");
+        const string cmd      = "dd if=/dev/zero of=" + fileName +
+                                " bs=1024000 count=5000";
 
-        string fileName("/tmp/fiveGBFile");
+        int rc = system(cmd.c_str());
+        ASSERT(0 == rc);
 
         Obj::Offset off = Obj::getFileSize(fileName);
         ASSERT(5120000000LL == off);
