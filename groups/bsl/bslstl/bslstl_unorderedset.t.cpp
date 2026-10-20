@@ -5278,6 +5278,8 @@ if (verbose) {
         validateIteration(mX);
         testContainerHasData(X, 1, dataSamples, MAX_SAMPLE);
 
+        delete[] dataSamples;
+
         if (veryVerbose) {
             printf("Clear `x` and confirm that it is empty.\n");
         }

@@ -5201,6 +5201,8 @@ int main(int argc, char *argv[])
         validateIteration(mX);
         testContainerHasData(X, 2, dataSamples, MAX_SAMPLE);
 
+        delete[] dataSamples;
+
         if (veryVerbose)
             printf("Clear `x` and confirm that it is empty.\n");
 

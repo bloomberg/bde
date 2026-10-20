@@ -6731,9 +6731,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
 
     ASSERTV(LINE, object.size(), count, object.size() == count);
 
-    bool *foundValues = new bool[count];
-    memset(foundValues, 0, count);
-
     for (size_t ii = 0; ii < count; ++ii) {
         const TValueType& v = values[ii];
         CIter it = object.find(v.first);
@@ -11246,6 +11243,8 @@ int main(int argc, char *argv[])
 
         testContainerHasData(x, 1, dataSamples, MAX_SAMPLE);
         testContainerHasData(y, 1, dataSamples, MAX_SAMPLE);
+
+        delete[] dataSamples;
 
         if (veryVerbose)
             printf("Create an unordered_map, `z`, that is a copy of `x`\n");

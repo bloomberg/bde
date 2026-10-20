@@ -227,6 +227,11 @@ int main(int argc, char *argv[])
                 // Oops -- this will leak.
 
                 ASSERT(0 != testAllocator.blocksOutstanding());
+
+                // Clean up the deliberate leak so that sanitizers do not
+                // report it.
+
+                testAllocator.deallocate(arena);
             }
             ASSERT(na == bslma::Default::defaultAllocator());
         }

@@ -178,6 +178,14 @@ BSLS_IDENT("$Id$ $CSID$")
 //         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //         // 0, the currently installed default allocator is used.
 //
+//     ~MyVector()
+//         // Destroy this object.
+//     {
+//         bslalg::ArrayDestructionPrimitives::destroy(d_array_p,
+//                                                     d_array_p + d_size);
+//         d_allocator_p->deallocate(d_array_p);
+//     }
+//
 //     // ...
 //
 //     // MANIPULATORS

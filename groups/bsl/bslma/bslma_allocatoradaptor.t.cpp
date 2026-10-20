@@ -108,6 +108,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
             std::strcpy(d_data, s);
         }
 
+        ~FilePath() { d_allocator->deallocate(d_data); }
+
         bslma::Allocator *getAllocator() const { return d_allocator; }
 
         // ...

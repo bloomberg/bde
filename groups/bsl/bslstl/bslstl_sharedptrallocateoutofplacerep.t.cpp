@@ -11,7 +11,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>            // `atoi`
+#include <stdlib.h>            // `atoi`, `free`, `malloc`
 
 #include <new>
 
@@ -141,15 +141,19 @@ void deleterFunction(TYPE *ptr)
                          // struct BasicDeleter
                          // ===================
 
-/// Basic deleter to simply forward a call to `delete` with a pointer passed
-/// to the function call operator.
+/// Basic deleter to destroy the object at a pointer passed to the function
+/// call operator and release its memory using `free`.  Note that this
+/// deleter is compatible with objects whose memory was obtained from
+/// `StdAllocator` (i.e., using `malloc`).
 template <class TYPE>
 struct BasicDeleter {
 
-    /// Delete the specified `ptr`, using `delete ptr`.
+    /// Destroy the object at the specified `ptr` and release its memory
+    /// using `free`.
     void operator()(TYPE *ptr) const
     {
-        delete ptr;
+        ptr->~TYPE();
+        free(ptr);
     }
 };
 

@@ -365,7 +365,7 @@ my_String::my_String(const my_String& original)
 my_String::~my_String()
 {
     ASSERT(d_string_p);
-    delete d_string_p;
+    operator delete(d_string_p);
 }
 
 // ...

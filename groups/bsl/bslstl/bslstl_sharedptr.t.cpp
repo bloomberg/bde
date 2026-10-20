@@ -1329,6 +1329,16 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
             d_alerts.push_back(alertPtr);
         }
 
+        /// Release all alerts being monitored by this user.  Note that this
+        /// method is not part of the usage example; it is used by the test
+        /// driver to break the cyclic reference after the leak has been
+        /// demonstrated, and may result in the destruction of this object.
+        void releaseAlerts()
+        {
+            bsl::vector<bsl::shared_ptr<Alert> > alerts;
+            alerts.swap(d_alerts);
+        }
+
 
         // ...
     };
@@ -7674,11 +7684,11 @@ void Harness::testCase38(int value)
         (void) R;  // suppress compiler warning
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl:: static_pointer_cast<T>(R)));
+           == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl:: static_pointer_cast<T>(R)));
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::dynamic_pointer_cast<T>(R)));
+           == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::dynamic_pointer_cast<T>(R)));
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::  const_pointer_cast<T>(R)));
+           == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::  const_pointer_cast<T>(R)));
     }
 
     // page 592
@@ -8915,11 +8925,13 @@ int main(int argc, char *argv[])
 // Note that the `User` and `Alert` classes could typically be used as follows:
 // ```
         bslma::TestAllocator ta("Example 2");
+        User *rawUserPtr = 0;
         {
             ta.setQuiet(true);
 
             bsl::shared_ptr<User> userPtr;
             userPtr.createInplace(&ta);
+            rawUserPtr = userPtr.get();
 
             bsl::shared_ptr<Alert> alertPtr;
             alertPtr.createInplace(&ta);
@@ -8933,6 +8945,10 @@ int main(int argc, char *argv[])
         }
 
         // MEMORY LEAK !!
+
+        // Break the cycle so that the leak is not reported by sanitizers.
+
+        rawUserPtr->releaseAlerts();
 
         {
 
@@ -18243,7 +18259,8 @@ int main(int argc, char *argv[])
 
                 {
                     bsl::shared_ptr<CountConstructorsAndDestructors []> x =
-                        bsl::make_shared<CountConstructorsAndDestructors[]>(numObjects);
+                           bsl::make_shared<CountConstructorsAndDestructors[]>(
+                                                                   numObjects);
 
 
                     ASSERTV(gNumConstructors, gNumConstructors == numObjects);
@@ -18266,8 +18283,10 @@ int main(int argc, char *argv[])
                 gNumDestructors  = 0;
 
                 {
-                    bsl::shared_ptr<CountConstructorsAndDestructors[numObjects]> x =
-                        bsl::make_shared<CountConstructorsAndDestructors[numObjects]>();
+                    bsl::shared_ptr<
+                                   CountConstructorsAndDestructors[numObjects]>
+                          x = bsl::make_shared<CountConstructorsAndDestructors[
+                                                                numObjects]>();
 
 
                     ASSERTV(gNumConstructors, gNumConstructors == numObjects);
@@ -21093,7 +21112,8 @@ int main(int argc, char *argv[])
 
                 {
                     bsl::shared_ptr<CountConstructorsAndDestructors []> a =
-                        bsl::make_shared<CountConstructorsAndDestructors[]>(numObjects);
+                           bsl::make_shared<CountConstructorsAndDestructors[]>(
+                                                                   numObjects);
                     bsl::shared_ptr<CountConstructorsAndDestructors []> b;
 
                     a.swap(b);

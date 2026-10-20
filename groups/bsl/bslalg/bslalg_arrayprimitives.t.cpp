@@ -203,6 +203,14 @@ namespace {
         MyVector(const MyVector&   original,
                  bslma::Allocator *basicAllocator = 0);
 
+        /// Destroy this object.
+        ~MyVector()
+        {
+            bslalg::ArrayDestructionPrimitives::destroy(d_array_p,
+                                                        d_array_p + d_size);
+            d_allocator_p->deallocate(d_array_p);
+        }
+
         // ...
 
         // MANIPULATORS
@@ -4842,11 +4850,11 @@ bool operator!=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
         if (verbose) printf("\t...with `const int *`.\n");                    \
         func<const int *>(true, true);                                        \
                                                                               \
-        if (verbose) printf("\t...with `volatile int *`.\n");                    \
+        if (verbose) printf("\t...with `volatile int *`.\n");                 \
         func<volatile int *>(true, true);                                     \
                                                                               \
-        if (verbose) printf("\t...with `const volatile int *`.\n");                    \
-        func<const volatile int*>(true, true);                                       \
+        if (verbose) printf("\t...with `const volatile int *`.\n");           \
+        func<const volatile int*>(true, true);                                \
                                                                               \
         if (verbose) printf("\t...with `FnPtrConvertibleType`.\n");           \
         func<FnPtrConvertibleType>(false, false);                             \
