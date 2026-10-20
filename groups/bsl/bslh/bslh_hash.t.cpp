@@ -69,6 +69,8 @@ using namespace BloombergLP;
 // [ 3] void hashAppend(HASHALG& hashAlg, long double input);
 // [ 3] void hashAppend(HASHALG& hashAlg, const char (&input)[N]);
 // [ 3] void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N]);
+// [ 3] void hashAppend(HASHALG&, const char *input, size_t numElements);
+// [ 3] void hashAppend(HASHALG&, const TYPE *input, size_t numElements);
 // [ 3] void hashAppend(HASHALG& hashAlg, const void *input);
 // [ 3] void hashAppend(HASHALG& hashAlg, RT (*input)(ARGS...));
 // ----------------------------------------------------------------------------
@@ -800,14 +802,16 @@ class MockHashingAlgorithm {
 /// algorithms by `hashAppend`.
 class MockAccumulatingHashingAlgorithm {
 
-    char   *d_data;   // Data we were asked to hash
-    size_t  d_length; // Length of the data we were asked to hash
+    char   *d_data;     // Data we were asked to hash
+    size_t  d_length;   // Length of the data we were asked to hash
+    size_t  d_numCalls; // Number of times `operator()` was called
 
   public:
     /// Create a new `MockAccumulatingHashingAlgorithm`
     MockAccumulatingHashingAlgorithm()
     : d_data(0)
     , d_length(0)
+    , d_numCalls(0)
     {
     }
 
@@ -834,6 +838,7 @@ class MockAccumulatingHashingAlgorithm {
         delete [] oldPtr;
 
         d_length += length;
+        ++d_numCalls;
     }
 
     /// Return the pointer stored by `operator()`.  The behaviour is
@@ -848,6 +853,12 @@ class MockAccumulatingHashingAlgorithm {
     size_t getLength()
     {
         return d_length;
+    }
+
+    /// Return the number of times `operator()` has been called.
+    size_t getNumCalls()
+    {
+        return d_numCalls;
     }
 };
 
@@ -1672,6 +1683,20 @@ int main(int argc, char *argv[])
         //
         // 11. `bslh::Hash<>()` uses the default allocator.
         //
+        // 12. The three-argument `hashAppend` for a contiguous sequence of
+        //     `char` values, given a `const` or non-`const` pointer, passes
+        //     that sequence to the hashing algorithm in a single call, and
+        //     passes exactly the same bytes as hashing the elements one at a
+        //     time would.
+        //
+        // 13. The three-argument `hashAppend` for a contiguous sequence of
+        //     objects of an arbitrary (template parameter) `TYPE`, given a
+        //     `const` or non-`const` pointer, hashes the elements one at a
+        //     time.
+        //
+        // 14. The three-argument `hashAppend` overloads pass nothing at all
+        //     to the hashing algorithm when `0 == numElements`.
+        //
         // Plan:
         // 1. Use a mock hashing algorithm to test that `hashAppend` inputs the
         //    same bytes when given -0.0 or +0.0 floating point numbers. (C-2)
@@ -1706,6 +1731,12 @@ int main(int argc, char *argv[])
         // 8. Declare types and `hashAppend`s in various namespaces, and ensure
         //    the correct ones are used.  (C-10)
         //
+        // 9. Call the three-argument `hashAppend` with `char` and non-`char`
+        //    sequences, both `const` and non-`const`, and verify the bytes
+        //    accumulated by a mocked hashing algorithm, the number of calls
+        //    made to it, and that an empty sequence results in no calls at
+        //    all.  (C-12..14)
+        //
         // Testing:
         //   void hashAppend(HASHALG& hashAlg, bool input);
         //   void hashAppend(HASHALG& hashAlg, char input);
@@ -1729,6 +1760,8 @@ int main(int argc, char *argv[])
         //   void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N]);
         //   void hashAppend(HASHALG& hashAlg, const void *input);
         //   void hashAppend(HASHALG& hashAlg, RT (*input)(ARGS...));
+        //   void hashAppend(HASHALG&, const char *input, size_t numElements);
+        //   void hashAppend(HASHALG&, const TYPE *input, size_t numElements);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING `hashAppend`"
@@ -2169,6 +2202,93 @@ int main(int argc, char *argv[])
 
             TestDriver<void (*)()>                               fnptr0Driver;
             fnptr0Driver.testHashAppendPassThrough(L_);
+        }
+
+        if (verbose) printf("Use a mock hashing algorithm to test the"
+                            " three-argument `hashAppend` on `char` and"
+                            " non-`char` sequences.  (C-12..14)\n");
+        {
+            // non-`const` `char` pointer
+
+            char         cseq[] = "asdf";
+            const size_t CSEQ_LEN = sizeof(cseq);
+
+            // A `MockHashingAlgorithm` records only the most recent call, so
+            // observing the full sequence proves it was passed in one call.
+
+            MockHashingAlgorithm cseqAlg;
+            hashAppend(cseqAlg, cseq, CSEQ_LEN);
+            ASSERTV(cseqAlg.getLength(), CSEQ_LEN,
+                                              cseqAlg.getLength() == CSEQ_LEN);
+            ASSERT(binaryCompare(cseq, cseqAlg.getData(), CSEQ_LEN));
+
+            // `const` `char` pointer
+
+            const char *constCseq = cseq;
+
+            MockHashingAlgorithm constCseqAlg;
+            hashAppend(constCseqAlg, constCseq, CSEQ_LEN);
+            ASSERTV(constCseqAlg.getLength(), CSEQ_LEN,
+                                         constCseqAlg.getLength() == CSEQ_LEN);
+            ASSERT(binaryCompare(cseq, constCseqAlg.getData(), CSEQ_LEN));
+
+            // same bytes as hashing one element at a time
+
+            MockAccumulatingHashingAlgorithm bulkAlg;
+            hashAppend(bulkAlg, constCseq, CSEQ_LEN);
+
+            MockAccumulatingHashingAlgorithm elementAlg;
+            for (size_t i = 0; i < CSEQ_LEN; ++i) {
+                hashAppend(elementAlg, cseq[i]);
+            }
+
+            ASSERTV(bulkAlg.getLength(), elementAlg.getLength(),
+                                bulkAlg.getLength() == elementAlg.getLength());
+            ASSERTV(bulkAlg.getNumCalls(), 1 == bulkAlg.getNumCalls());
+            ASSERT(binaryCompare(bulkAlg.getData(),
+                                 elementAlg.getData(),
+                                 bulkAlg.getLength()));
+
+            // non-`const` `int` pointer
+
+            int          iseq[] = {1, 2, 3, 4};
+            const size_t ISEQ_LEN = sizeof(iseq) / sizeof(*iseq);
+
+            MockAccumulatingHashingAlgorithm iseqAlg;
+            hashAppend(iseqAlg, iseq, ISEQ_LEN);
+            ASSERTV(iseqAlg.getLength(), sizeof(iseq),
+                                          iseqAlg.getLength() == sizeof(iseq));
+            ASSERTV(iseqAlg.getNumCalls(), ISEQ_LEN,
+                                          iseqAlg.getNumCalls() == ISEQ_LEN);
+            ASSERT(binaryCompare(reinterpret_cast<const char *>(iseq),
+                                 iseqAlg.getData(),
+                                 sizeof(iseq)));
+
+            // `const` `int` pointer
+
+            const int *constIseq = iseq;
+
+            MockAccumulatingHashingAlgorithm constIseqAlg;
+            hashAppend(constIseqAlg, constIseq, ISEQ_LEN);
+            ASSERTV(constIseqAlg.getLength(), sizeof(iseq),
+                                     constIseqAlg.getLength() == sizeof(iseq));
+            ASSERTV(constIseqAlg.getNumCalls(), ISEQ_LEN,
+                                     constIseqAlg.getNumCalls() == ISEQ_LEN);
+            ASSERT(binaryCompare(reinterpret_cast<const char *>(iseq),
+                                 constIseqAlg.getData(),
+                                 sizeof(iseq)));
+
+            // An empty sequence must not be passed to the algorithm at all.
+
+            MockAccumulatingHashingAlgorithm emptyCseqAlg;
+            hashAppend(emptyCseqAlg, constCseq, 0);
+            ASSERTV(emptyCseqAlg.getNumCalls(),
+                    0 == emptyCseqAlg.getNumCalls());
+
+            MockAccumulatingHashingAlgorithm emptyIseqAlg;
+            hashAppend(emptyIseqAlg, constIseq, 0);
+            ASSERTV(emptyIseqAlg.getNumCalls(),
+                    0 == emptyIseqAlg.getNumCalls());
         }
 
         if (verbose) printf("Generate positive infinity in a number of ways"

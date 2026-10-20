@@ -4632,6 +4632,15 @@ void hashAppend(HASHALG& hashAlg, const vector<VALUE_TYPE, ALLOCATOR>& input)
     }
 }
 
+template <class HASHALG, class ALLOCATOR>
+inline
+void hashAppend(HASHALG& hashAlg, const vector<char, ALLOCATOR>& input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, input.size());
+    hashAppend(hashAlg, input.data(), input.size());
+}
+
 
                    // -------------------------------------
                    // class vector<VALUE_TYPE *, ALLOCATOR>

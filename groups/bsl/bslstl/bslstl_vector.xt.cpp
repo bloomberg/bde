@@ -847,6 +847,84 @@ bsl::vector<TYPE, ALLOC>& gg(bsl::vector<TYPE, ALLOC> *object,
 //                       GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+                          // ===========================
+                          // class CountingHashAlgorithm
+                          // ===========================
+
+/// This class implements a hashing algorithm, outside namespace `bslh`,
+/// that counts the calls made to it and the bytes passed in those calls.
+class CountingHashAlgorithm {
+
+    // DATA
+    std::size_t d_numCalls;  // number of calls to `operator()`
+    std::size_t d_numBytes;  // total `length` passed to `operator()`
+
+  public:
+    // TYPES
+    typedef std::size_t result_type;
+
+    // CREATORS
+
+    /// Create a `CountingHashAlgorithm` that has seen no calls.
+    CountingHashAlgorithm()
+    : d_numCalls(0)
+    , d_numBytes(0)
+    {
+    }
+
+    // MANIPULATORS
+
+    /// Count one call passing the specified `length` bytes.
+    void operator()(const void *, std::size_t length)
+    {
+        ++d_numCalls;
+        d_numBytes += length;
+    }
+
+    /// Return the number of bytes passed so far.
+    result_type computeHash()
+    {
+        return d_numBytes;
+    }
+
+    // ACCESSORS
+
+    /// Return the number of calls made to `operator()`.
+    std::size_t numCalls() const
+    {
+        return d_numCalls;
+    }
+
+    /// Return the number of bytes passed to `operator()`.
+    std::size_t numBytes() const
+    {
+        return d_numBytes;
+    }
+};
+
+/// Verify that hashing the specified `container` with a
+/// `CountingHashAlgorithm` makes the same calls as hashing its size and then
+/// each of its elements in turn.  Use the specified `line` in any failure.
+template <class CONTAINER>
+void verifyElementWiseHashAppend(int line, const CONTAINER& container)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    CountingHashAlgorithm actual;
+    hashAppend(actual, container);
+
+    CountingHashAlgorithm expected;
+    hashAppend(expected, container.size());
+    for (std::size_t i = 0; i < container.size(); ++i) {
+        hashAppend(expected, container[i]);
+    }
+
+    ASSERTV(line, actual.numCalls(), expected.numCalls(),
+                                    actual.numCalls() == expected.numCalls());
+    ASSERTV(line, actual.numBytes(), expected.numBytes(),
+                                    actual.numBytes() == expected.numBytes());
+}
+
                             // ==========================
                             // class StatefulStlAllocator
                             // ==========================
@@ -4232,6 +4310,16 @@ void TestDriver<TYPE, ALLOC>::testCase34()
     //      different internal representation (due to the lack or presence
     //      of an allocator, and/or different capacities) always hash as equal.
     //   3) Unequal objects hash as unequal (not required, but we can hope).
+    //   4) The hash value of an object is the same as the hash value
+    //      obtained by appending the length of the vector followed by each
+    //      of its elements in turn.  In particular, the optimized hashing of
+    //      a contiguous sequence of `char` values does not change the hash
+    //      value.
+    //   5) A `vector` of a type other than `char` is hashed element by
+    //      element, including by an algorithm outside `bslh`.
+    //   6) A non-empty `vector<char>` passes its size and then its elements
+    //      to the algorithm in exactly two calls, and an empty one passes
+    //      only its size.
     //
     // Plan:
     //   For concerns 1 and 3, Specify a set A of unique allocators including
@@ -4245,6 +4333,17 @@ void TestDriver<TYPE, ALLOC>::testCase34()
     //   extending it by different amounts in the set E, followed by erasing
     //   its contents using `clear`.  Then recreate the original value and
     //   verify that the second object still hashes equal to the first.
+    //
+    //   For concern 4 create an object using each element in S and compare
+    //   its hash value with the hash value obtained by explicitly appending
+    //   the length and then each element in turn.
+    //
+    //   For concern 5, in `main`, hash a `vector<int>` with a
+    //   `CountingHashAlgorithm` and compare the calls with hashing the size
+    //   and then each element.
+    //
+    //   For concern 6, in `main`, hash empty and non-empty `vector<char>`
+    //   objects with a `CountingHashAlgorithm` and count the calls.
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, const vector<T,A>&);
@@ -4397,6 +4496,31 @@ void TestDriver<TYPE, ALLOC>::testCase34()
                     }
                 }
             }
+        }
+    }
+
+    if (verbose)
+        printf("\tCompare hash values with element-wise hashing.\n");
+    {
+        for (int si = 0; si < NUM_SPECS; ++si) {
+            const char *const U_SPEC = SPECS[si];
+
+            Obj mU(ALLOCATOR[0]); const Obj& U = gg(&mU, U_SPEC);
+
+            Hasher::HashAlgorithm expected;
+            {
+                using ::BloombergLP::bslh::hashAppend;
+
+                hashAppend(expected, U.size());
+                for (std::size_t k = 0; k < U.size(); ++k) {
+                    hashAppend(expected, U[k]);
+                }
+            }
+
+            const HashType EXPECTED =
+                                 static_cast<HashType>(expected.computeHash());
+
+            ASSERTV(si, U_SPEC, hasher(U), EXPECTED, hasher(U) == EXPECTED);
         }
     }
 }
@@ -20428,11 +20552,42 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase34,
+                      char,
                       signed char,
                       size_t,
                       bsltf::TemplateTestFacility::ObjectPtr,
                       bsltf::TemplateTestFacility::FunctionPtr,
                       const char *);
+
+        if (verbose) printf("Hash `vector<int>` with an algorithm outside"
+                            " `bslh`.  (C-5)\n");
+        {
+            const std::size_t NUM_ELEMENTS = 3;
+
+            const bsl::vector<int> INTS(NUM_ELEMENTS, 7);
+            verifyElementWiseHashAppend(L_, INTS);
+        }
+
+        if (verbose) printf("Count the calls made for `vector<char>`."
+                            "  (C-6)\n");
+        {
+            using ::BloombergLP::bslh::hashAppend;
+
+            const std::size_t SIZE_ONLY     = 1;  // the size
+            const std::size_t SIZE_AND_DATA = 2;  // the size, then the data
+
+            bsl::vector<char> mX; const bsl::vector<char>& X = mX;
+
+            CountingHashAlgorithm emptyAlg;
+            hashAppend(emptyAlg, X);
+            ASSERTV(emptyAlg.numCalls(), SIZE_ONLY == emptyAlg.numCalls());
+
+            mX.assign(5, 'a');
+
+            CountingHashAlgorithm fullAlg;
+            hashAppend(fullAlg, X);
+            ASSERTV(fullAlg.numCalls(), SIZE_AND_DATA == fullAlg.numCalls());
+        }
       } break;
       case 33: {
         // --------------------------------------------------------------------
@@ -21374,7 +21529,8 @@ int main(int argc, char *argv[])
                 foundMax |= DEFAULT_MAX_LENGTH == len;
 
                 for (unsigned jj = 0; jj < NUM_DATA; ++jj) {
-                    ASSERT(ii == jj || strcmp(DATA[ii].d_spec, DATA[jj].d_spec));
+                    ASSERT(ii == jj ||
+                           strcmp(DATA[ii].d_spec, DATA[jj].d_spec));
                 }
             }
             ASSERT(foundMax);

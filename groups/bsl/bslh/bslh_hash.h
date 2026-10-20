@@ -80,7 +80,11 @@ BSLS_IDENT("$Id: $")
 // the pointer rather than the data that is pointed to.
 //
 // Within this component, `hashAppend` has been implemented for all of the
-// fundamental types, and for arrays.  When `hashAppend` is reached on a
+// fundamental types, and for arrays.  In addition, a three-argument overload,
+// `hashAppend(hashAlg, input, numElements)`, is provided for hashing a
+// contiguous sequence of objects that is not an array (for example, the
+// elements of a `bsl::vector<char>`), where `input` is the address of the
+// first element of the sequence.  When `hashAppend` is reached on a
 // fundamental type, the hashing algorithm is no longer propagated, and instead
 // a pointer to the beginning of the type in memory is passed to the algorithm,
 // along with the length of the type.  There are special cases with floating
@@ -667,6 +671,31 @@ void hashAppend(HASH_ALGORITHM& hashAlg, TYPE (&input)[N]);
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N]);
 
+/// Passes the specified `numElements` `char` values starting at the
+/// specified `input` address into the specified `hashAlg` to be combined
+/// into the internal state of the algorithm which is used to produce the
+/// resulting hash value.  The behavior is undefined unless `input` refers
+/// to a contiguous sequence of at least `numElements` `char` values.  Note
+/// that a non-empty sequence will be hashed in only one call to `hashAlg`,
+/// and an empty sequence is not passed to `hashAlg` at all.
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM&  hashAlg,
+                const char      *input,
+                size_t           numElements);
+
+/// Passes the specified `numElements` objects starting at the specified
+/// `input` address into the specified `hashAlg` to be combined into the
+/// internal state of the algorithm which is used to produce the resulting
+/// hash value.  The behavior is undefined unless `input` refers to a
+/// contiguous sequence of at least `numElements` objects of the (template
+/// parameter) `TYPE`.  Note that the elements will be hashed one at a time
+/// by calling `hashAppend` because `TYPE` might not be hashable as a
+/// contiguous sequence of bytes.
+template <class HASH_ALGORITHM, class TYPE>
+void hashAppend(HASH_ALGORITHM&  hashAlg,
+                const TYPE      *input,
+                size_t           numElements);
+
 }  // close package namespace
 
 // ============================================================================
@@ -849,24 +878,21 @@ template <class HASH_ALGORITHM, size_t N>
 inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char (&input)[N])
 {
-    hashAlg(&input, sizeof(char)*N);
+    hashAppend(hashAlg, input, N);
 }
 
 template <class HASH_ALGORITHM, size_t N>
 inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const char (&input)[N])
 {
-    hashAlg(&input, sizeof(char)*N);
+    hashAppend(hashAlg, input, N);
 }
 
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE (&input)[N])
 {
-
-    for (size_t i = 0; i < N; ++i) {
-        hashAppend(hashAlg, input[i]);
-    }
+    hashAppend(hashAlg, input, N);
 }
 
 
@@ -874,7 +900,29 @@ template <class HASH_ALGORITHM, class TYPE, size_t N>
 inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N])
 {
-    for (size_t i = 0; i < N; ++i) {
+    hashAppend(hashAlg, input, N);
+}
+
+template <class HASH_ALGORITHM>
+inline
+void bslh::hashAppend(HASH_ALGORITHM&  hashAlg,
+                      const char      *input,
+                      size_t           numElements)
+{
+    if (0 != numElements) {
+        hashAlg(input, numElements);
+    }
+}
+
+template <class HASH_ALGORITHM, class TYPE>
+inline
+void bslh::hashAppend(HASH_ALGORITHM&  hashAlg,
+                      const TYPE      *input,
+                      size_t           numElements)
+{
+    using bslh::hashAppend;
+
+    for (size_t i = 0; i < numElements; ++i) {
         hashAppend(hashAlg, input[i]);
     }
 }

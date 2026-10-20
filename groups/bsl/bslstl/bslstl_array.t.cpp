@@ -240,6 +240,88 @@ static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
 //=============================================================================
+//                       GLOBAL HELPER CLASSES FOR TESTING
+//-----------------------------------------------------------------------------
+
+                          // ===========================
+                          // class CountingHashAlgorithm
+                          // ===========================
+
+/// This class implements a hashing algorithm, outside namespace `bslh`,
+/// that counts the calls made to it and the bytes passed in those calls.
+class CountingHashAlgorithm {
+
+    // DATA
+    std::size_t d_numCalls;  // number of calls to `operator()`
+    std::size_t d_numBytes;  // total `length` passed to `operator()`
+
+  public:
+    // TYPES
+    typedef std::size_t result_type;
+
+    // CREATORS
+
+    /// Create a `CountingHashAlgorithm` that has seen no calls.
+    CountingHashAlgorithm()
+    : d_numCalls(0)
+    , d_numBytes(0)
+    {
+    }
+
+    // MANIPULATORS
+
+    /// Count one call passing the specified `length` bytes.
+    void operator()(const void *, std::size_t length)
+    {
+        ++d_numCalls;
+        d_numBytes += length;
+    }
+
+    /// Return the number of bytes passed so far.
+    result_type computeHash()
+    {
+        return d_numBytes;
+    }
+
+    // ACCESSORS
+
+    /// Return the number of calls made to `operator()`.
+    std::size_t numCalls() const
+    {
+        return d_numCalls;
+    }
+
+    /// Return the number of bytes passed to `operator()`.
+    std::size_t numBytes() const
+    {
+        return d_numBytes;
+    }
+};
+
+/// Verify that hashing the specified `container` with a
+/// `CountingHashAlgorithm` makes the same calls as hashing its size and then
+/// each of its elements in turn.  Use the specified `line` in any failure.
+template <class CONTAINER>
+void verifyElementWiseHashAppend(int line, const CONTAINER& container)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    CountingHashAlgorithm actual;
+    hashAppend(actual, container);
+
+    CountingHashAlgorithm expected;
+    hashAppend(expected, container.size());
+    for (std::size_t i = 0; i < container.size(); ++i) {
+        hashAppend(expected, container[i]);
+    }
+
+    ASSERTV(line, actual.numCalls(), expected.numCalls(),
+                                    actual.numCalls() == expected.numCalls());
+    ASSERTV(line, actual.numBytes(), expected.numBytes(),
+                                    actual.numBytes() == expected.numBytes());
+}
+
+//=============================================================================
 //                 GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -2776,12 +2858,40 @@ void TestDriver<TYPE, SIZE>::testCase22()
     //
     // 2. Unequal objects hash as unequal (not required, but we can hope).
     //
+    // 3. The hash value of an object is the same as the hash value obtained
+    //    by appending the size of the array followed by each of its elements
+    //    in turn.  In particular, the optimized hashing of a contiguous
+    //    sequence of `char` values does not change the hash value.
+    //
+    // 4. Concerns 1-3 hold for a zero-sized array.
+    //
+    // 5. An `array` of a type other than `char` is hashed element by element,
+    //    including by an algorithm outside `bslh`.
+    //
+    // 6. A non-empty `array<char, N>` passes its size and then its elements
+    //    to the algorithm in exactly two calls, and an empty one passes only
+    //    its size.
+    //
     // Plan:
     // 1. Specify a set S of unique object values having various minor or
     //    subtle differences.
     //
     // 2. Verify the correctness of hash values matching using all elements of
     //    the cross product S X S.  (C-1..2)
+    //
+    // 3. For each element of S, compare the hash value of that element with
+    //    the hash value obtained by explicitly appending the size and then
+    //    each element in turn.  (C-3)
+    //
+    // 4. Repeat steps 1-3 with `SIZE` of 0, for which S degenerates to a set
+    //    containing only the empty array.  (C-4)
+    //
+    // 5. In `main`, hash an `array<int, 3>` with a `CountingHashAlgorithm`,
+    //    and compare the calls with hashing the size and then each element.
+    //    (C-5)
+    //
+    // 6. In `main`, hash empty and non-empty `array<char, N>` objects with a
+    //    `CountingHashAlgorithm` and count the calls.  (C-6)
     //
     // Testing:
     //   void hashAppend(HASH_ALGORITHM&, const bsl::array<TYPE, SIZE>&);
@@ -2835,6 +2945,29 @@ void TestDriver<TYPE, SIZE>::testCase22()
                 ASSERTV(SIZE, i, j, hX1 == hX2);
             }
         }
+    }
+
+    if (veryVerbose) printf("\t\t\tComparing with element-wise hashing.\n");
+
+    for (size_t i = 0; i < NUM_SPECS; ++i) {
+        const char *const SPEC = DATA[SIZE].d_spec_p[i];
+
+        Obj mX; const Obj& X = gg(&mX, SPEC);
+
+        Hasher::HashAlgorithm expected;
+        {
+            using ::BloombergLP::bslh::hashAppend;
+
+            hashAppend(expected, SIZE);
+            for (size_t k = 0; k < SIZE; ++k) {
+                hashAppend(expected, X[k]);
+            }
+        }
+
+        const HashType EXPECTED =
+                                 static_cast<HashType>(expected.computeHash());
+
+        ASSERTV(SIZE, i, hasher(X), EXPECTED, hasher(X) == EXPECTED);
     }
 }
 
@@ -5310,11 +5443,39 @@ int main(int argc, char *argv[])
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper
                      , testCase22
+                     , char
                      , signed char
                      , size_t
                      , bsltf::TemplateTestFacility::ObjectPtr
                      , bsltf::TemplateTestFacility::FunctionPtr
                      , const char *);
+
+        if (verbose) printf("Hash `array<int, 3>` with an algorithm outside"
+                            " `bslh`.  (C-5)\n");
+        {
+            const bsl::array<int, 3> INTS = {{7, 8, 9}};
+            verifyElementWiseHashAppend(L_, INTS);
+        }
+
+        if (verbose) printf("Count the calls made for `array<char, N>`."
+                            "  (C-6)\n");
+        {
+            using ::BloombergLP::bslh::hashAppend;
+
+            const std::size_t SIZE_ONLY     = 1;  // the size
+            const std::size_t SIZE_AND_DATA = 2;  // the size, then the data
+
+            const bsl::array<char, 0> EMPTY = {};
+            const bsl::array<char, 5> FULL  = {{'a', 'b', 'c', 'd', 'e'}};
+
+            CountingHashAlgorithm emptyAlg;
+            hashAppend(emptyAlg, EMPTY);
+            ASSERTV(emptyAlg.numCalls(), SIZE_ONLY == emptyAlg.numCalls());
+
+            CountingHashAlgorithm fullAlg;
+            hashAppend(fullAlg, FULL);
+            ASSERTV(fullAlg.numCalls(), SIZE_AND_DATA == fullAlg.numCalls());
+        }
       } break;
       case 21: {
         // --------------------------------------------------------------------

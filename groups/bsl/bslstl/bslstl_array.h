@@ -552,6 +552,11 @@ const TYPE&& get(const array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT;
 template <class HASH_ALGORITHM, class TYPE, size_t SIZE>
 void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<TYPE, SIZE>& input);
 
+/// Pass the specified `input` to the specified `hashAlgorithm`.  Note that
+/// the elements of a non-empty `input` are passed in a single call.
+template <class HASH_ALGORITHM, size_t SIZE>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<char, SIZE>& input);
+
 }  // close namespace bsl
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
@@ -623,6 +628,13 @@ namespace bslh {
 template <class HASH_ALGORITHM, class TYPE, size_t SIZE>
 void hashAppend(HASH_ALGORITHM&               hashAlgorithm,
                 const std::array<TYPE, SIZE>& input);
+
+/// Pass the specified `input` to the specified `hashAlgorithm` hashing
+/// algorithm of the (template parameter) type `HASH_ALGORITHM`.  Note that
+/// the elements of a non-empty `input` are passed in a single call.
+template <class HASH_ALGORITHM, size_t SIZE>
+void hashAppend(HASH_ALGORITHM&               hashAlgorithm,
+                const std::array<char, SIZE>& input);
 
 }  // close namespace bslh
 }  // close enterprise namespace
@@ -917,6 +929,16 @@ void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<TYPE, SIZE>& input)
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
+
+template <class HASH_ALGORITHM, size_t SIZE>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<char, SIZE>& input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    hashAppend(hashAlgorithm, SIZE);
+    hashAppend(hashAlgorithm, input.data(), SIZE);
+}
+
 }  // close namespace bsl
 
 // FREE OPERATORS
@@ -1052,6 +1074,16 @@ void hashAppend(HASH_ALGORITHM&               hashAlgorithm,
             hashAppend(hashAlgorithm, input[i]);
         }
     }
+}
+
+template <class HASH_ALGORITHM, size_t SIZE>
+void hashAppend(HASH_ALGORITHM&               hashAlgorithm,
+                const std::array<char, SIZE>& input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    hashAppend(hashAlgorithm, SIZE);
+    hashAppend(hashAlgorithm, input.data(), SIZE);
 }
 
 }  // close namespace bslh
