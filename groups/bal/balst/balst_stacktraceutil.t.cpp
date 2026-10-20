@@ -13,8 +13,6 @@
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
 
-#include <bsla_maybeunused.h>
-
 #include <bslim_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -2076,7 +2074,8 @@ int main(int argc, char *argv[])
 
     // make sure the shared lib containing `malloc` is loaded
 
-    BSLA_MAYBE_UNUSED void *sharedLibMalloc = bsl::malloc(100);
+    void *sharedLibMalloc = bsl::malloc(100);
+    bsl::free(sharedLibMalloc);
 
     bsl::string argv0(&ta);
     int rc = bdls::PathUtil::getBasename(&argv0, argv[0]);

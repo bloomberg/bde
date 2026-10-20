@@ -7482,6 +7482,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERTV(LINE, LINE == RECORD->fixedFields().lineNumber());
             ASSERTV(LINE, 0 == bsl::strcmp(FILENAME,
                                            RECORD->fixedFields().fileName()));
+
+            if (!CATEGORY) {
+                // A record obtained without a category is allocated from the
+                // default allocator (not the logger's record pool) and is
+                // otherwise leaked, as it is never passed to `logMessage`.
+
+                bslma::Default::defaultAllocator()->deleteObject(RECORD);
+            }
         }
 
         ball::LoggerManager::shutDownSingleton();

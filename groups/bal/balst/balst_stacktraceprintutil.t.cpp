@@ -9,8 +9,6 @@
 
 #include <bdlb_string.h>
 
-#include <bsla_maybeunused.h>
-
 #include <bslim_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -1043,7 +1041,8 @@ int main(int argc, char *argv[])
 
     // make sure the shared lib containing `malloc` is loaded
 
-    BSLA_MAYBE_UNUSED void *sharedLibMalloc = bsl::malloc(100);
+    void *sharedLibMalloc = bsl::malloc(100);
+    bsl::free(sharedLibMalloc);
 
     // see if we can avoid calling `malloc` from here on out
 

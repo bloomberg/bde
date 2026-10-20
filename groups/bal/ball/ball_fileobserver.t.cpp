@@ -2830,6 +2830,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == globbuf.gl_pathc);
             bsl::ifstream fs;
             fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+            globfree(&globbuf);
             ASSERT(fs.is_open());
 
             int         linesNum = 0;
@@ -3009,6 +3010,7 @@ int main(int argc, char *argv[])
                 glob_t globbuf;
                 ASSERTV(LINE, 0 == glob(expected.c_str(), 0, 0, &globbuf));
                 ASSERTV(LINE, 1 == globbuf.gl_pathc);
+                globfree(&globbuf);
 
                 removeFilesByPrefix(expected.c_str());
             }
