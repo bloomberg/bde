@@ -11,18 +11,21 @@ BSLS_IDENT("$Id: $")
 //  bsls::AtomicOperations_ARM_ALL_GCC: implementation of atomics for ARM/GCC.
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
-// on the Linux ARM platform with GCC.  The classes are for private use only.
-// See `bsls_atomicoperations` and `bsls_atomic` for the public interface to
-// atomics.
+// on the Linux ARM platform with older releases of GCC and Clang.  The classes
+// are for private use only.  See `bsls_atomicoperations` and `bsls_atomic` for
+// the public interface to atomics.
 //
-// IMPLEMENTATION NOTES: Wherever possible we use atomic intrinsics that both
-// GCC 4.6+ and Clang 3.2+ support.  Otherwise the inline assembly code is
-// used that can be compiled both by GCC and Clang.  This puts some
-// restrictions on the assembly code because Clang doesn't support register
-// pairs that represent a 64bit value.  So instead of `ldrexd %1, %H1, [%3]`
-// the exact registers have to be specified, as in `ldrexd r2, r3, [%3]`.  Note
-// also that operations like `ldrexd` and `stdrexd` are supported only starting
-// from `armv6zk`, so not every armv6 platform will work.
+// `bsls_atomicoperations_all_all_gccintrinsics.h` is used for gcc 4.7+ and
+// provides C++11 atomics.  `bsls_atomicoperations_all_all_clangintrinsics.h`
+// is used for clang 3.1+ and provides C++11 atomics.
+//
+// IMPLEMENTATION NOTES: Inline assembly code is used that can be compiled both
+// by GCC and Clang.  This puts some restrictions on the assembly code because
+// Clang doesn't support register pairs that represent a 64bit value.  So
+// instead of `ldrexd %1, %H1, [%3]` the exact registers have to be specified,
+// as in `ldrexd r2, r3, [%3]`.  Note also that operations like `ldrexd` and
+// `stdrexd` are supported only starting from `armv6zk`, so not every armv6
+// platform will work.
 //
 // For more details on ARM atomic primitives see the Linux kernel source code
 // (arch/arm/include/asm/atomic.h) and the "C/C++11 mappings to processors"
@@ -36,8 +39,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#if defined(BSLS_PLATFORM_CPU_ARM) \
-    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
+#if defined(BSLS_PLATFORM_CPU_ARM)                                            \
+    && ((defined(BSLS_PLATFORM_CMP_GNU)                                       \
+              && BSLS_PLATFORM_CMP_VERSION < 40700)                           \
+     || (defined(BSLS_PLATFORM_CMP_CLANG)                                     \
+              && BSLS_PLATFORM_CMP_VERSION < 30100))
 
 namespace BloombergLP {
 
@@ -142,101 +148,75 @@ public:
                      // struct AtomicOperations_ARM_ALL_GCC
                      // -----------------------------------
 
-#if BSLS_PLATFORM_CMP_VERSION < 40700
-#   if defined(BSLS_PLATFORM_CPU_ARM_V7)
+#if defined(BSLS_PLATFORM_CPU_ARM_V7)
 
-#       define BSLS_ATOMICOPERATIONS_BARRIER()          \
-            asm volatile ("dmb" ::: "memory")           \
+#   define BSLS_ATOMICOPERATIONS_BARRIER()              \
+        asm volatile ("dmb" ::: "memory")               \
 
-#       define BSLS_ATOMICOPERATIONS_INSTR_BARRIER()    \
-            asm volatile ("isb")                        \
+#   define BSLS_ATOMICOPERATIONS_INSTR_BARRIER()        \
+        asm volatile ("isb")                            \
 
-#   else
-
-#       define BSLS_ATOMICOPERATIONS_BARRIER()                      \
-            do {                                                    \
-                int temp_reg = 0;                                   \
-                asm volatile (                                      \
-                        "mcr p15, 0, %[temp_reg], c7, c10, 5 \n\t"  \
-                        :                                           \
-                        : [temp_reg] "r" (temp_reg)                 \
-                        : "memory");                                \
-            } while (0)                                             \
-
-#       define BSLS_ATOMICOPERATIONS_INSTR_BARRIER()                \
-            do {                                                    \
-                int temp_reg = 0;                                   \
-                asm volatile (                                      \
-                        "mcr p15, 0, %[temp_reg], c7, c5, 4 \n\t"   \
-                        :                                           \
-                        : [temp_reg] "r" (temp_reg));               \
-            } while (0)                                             \
-
-#   endif
 #else
-#   define BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
+
+#   define BSLS_ATOMICOPERATIONS_BARRIER()                          \
+        do {                                                        \
+            int temp_reg = 0;                                       \
+            asm volatile (                                          \
+                    "mcr p15, 0, %[temp_reg], c7, c10, 5 \n\t"      \
+                    :                                               \
+                    : [temp_reg] "r" (temp_reg)                     \
+                    : "memory");                                    \
+        } while (0)                                                 \
+
+#   define BSLS_ATOMICOPERATIONS_INSTR_BARRIER()                    \
+        do {                                                        \
+            int temp_reg = 0;                                       \
+            asm volatile (                                          \
+                    "mcr p15, 0, %[temp_reg], c7, c5, 4 \n\t"       \
+                    :                                               \
+                    : [temp_reg] "r" (temp_reg));                   \
+        } while (0)                                                 \
+
 #endif
 
 inline
 int AtomicOperations_ARM_ALL_GCC::
     getInt(const AtomicTypes::Int *atomicInt)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    return __atomic_load_n(&atomicInt->d_value, __ATOMIC_SEQ_CST);
-#else
     int result = atomicInt->d_value;
     BSLS_ATOMICOPERATIONS_BARRIER();
 
     return result;
-
-#endif
 }
 
 inline
 int AtomicOperations_ARM_ALL_GCC::
     getIntAcquire(const AtomicTypes::Int *atomicInt)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    return __atomic_load_n(&atomicInt->d_value, __ATOMIC_ACQUIRE);
-#else
     return getInt(atomicInt);
-#endif
 }
 
 inline
 void AtomicOperations_ARM_ALL_GCC::
     setInt(AtomicTypes::Int *atomicInt, int value)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_SEQ_CST);
-#else
     BSLS_ATOMICOPERATIONS_BARRIER();
     atomicInt->d_value = value;
     BSLS_ATOMICOPERATIONS_BARRIER();
-#endif
 }
 
 inline
 void AtomicOperations_ARM_ALL_GCC::
     setIntRelease(AtomicTypes::Int *atomicInt, int value)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_RELEASE);
-#else
     BSLS_ATOMICOPERATIONS_BARRIER();
     setInt(atomicInt, value);
-#endif
 }
 
 inline
 int AtomicOperations_ARM_ALL_GCC::
     swapInt(AtomicTypes::Int *atomicInt, int swapValue)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    return __atomic_exchange_n(&atomicInt->d_value,
-                               swapValue,
-                               __ATOMIC_SEQ_CST);
-#else
     int oldValue;
     int tmp;
 
@@ -258,7 +238,6 @@ int AtomicOperations_ARM_ALL_GCC::
     BSLS_ATOMICOPERATIONS_INSTR_BARRIER();
 
     return oldValue;
-#endif
 }
 
 inline
@@ -267,35 +246,22 @@ int AtomicOperations_ARM_ALL_GCC::
                    int compareValue,
                    int swapValue)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    __atomic_compare_exchange_n(&atomicInt->d_value, &compareValue, swapValue,
-                                false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
-    return compareValue;
-#else
     return __sync_val_compare_and_swap(&atomicInt->d_value,
                                        compareValue,
                                        swapValue);
-#endif
 }
 
 inline
 int AtomicOperations_ARM_ALL_GCC::
     addIntNv(AtomicTypes::Int *atomicInt, int value)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    return __atomic_add_fetch(&atomicInt->d_value, value, __ATOMIC_SEQ_CST);
-#else
     return __sync_add_and_fetch(&atomicInt->d_value, value);
-#endif
 }
 
 inline
 Types::Int64 AtomicOperations_ARM_ALL_GCC::
     getInt64(const AtomicTypes::Int64 *atomicInt)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    return __atomic_load_n(&atomicInt->d_value, __ATOMIC_SEQ_CST);
-#else
     Types::Int64 result;
 
     asm volatile (
@@ -312,18 +278,13 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
     BSLS_ATOMICOPERATIONS_BARRIER();
 
     return result;
-#endif
 }
 
 inline
 void AtomicOperations_ARM_ALL_GCC::
     setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    return __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_SEQ_CST);
-#else
     swapInt64(atomicInt, value);
-#endif
 }
 
 inline
@@ -331,11 +292,6 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
     swapInt64(AtomicTypes::Int64 *atomicInt,
               Types::Int64 swapValue)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    return __atomic_exchange_n(&atomicInt->d_value,
-                               swapValue,
-                               __ATOMIC_SEQ_CST);
-#else
     Types::Int64 oldValue;
     int rc;
 
@@ -363,7 +319,6 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
     BSLS_ATOMICOPERATIONS_INSTR_BARRIER();
 
     return oldValue;
-#endif
 }
 
 inline
@@ -372,15 +327,6 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
                      Types::Int64 compareValue,
                      Types::Int64 swapValue)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    __atomic_compare_exchange_n(&atomicInt->d_value,
-                                &compareValue,
-                                swapValue,
-                                false,
-                                __ATOMIC_SEQ_CST,
-                                __ATOMIC_SEQ_CST);
-    return compareValue;
-#else
     Types::Int64 oldValue;
     int rc;
 
@@ -414,7 +360,6 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
     BSLS_ATOMICOPERATIONS_INSTR_BARRIER();
 
     return oldValue;
-#endif
 }
 
 inline
@@ -422,9 +367,6 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
     addInt64Nv(AtomicTypes::Int64 *atomicInt,
                Types::Int64 value)
 {
-#ifdef BSLS_ATOMICOPERATIONS_USE_CPP11_INTRINSICS
-    return __atomic_add_fetch(&atomicInt->d_value, value, __ATOMIC_SEQ_CST);
-#else
     Types::Int64 old;
     Types::Int64 newVal;
     Types::Int64 prev = atomicInt->d_value;
@@ -435,14 +377,13 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
     } while (old != (prev = testAndSwapInt64(atomicInt, old, newVal)));
 
     return newVal;
-#endif
 }
 
 }  // close package namespace
 
 }  // close enterprise namespace
 
-#endif  // defined(BSLS_PLATFORM_CPU_ARM) && (CMP_GNU || CMP_CLANG)
+#endif  // CPU_ARM && (GNU < 4.7 || CLANG < 3.1)
 
 #endif
 

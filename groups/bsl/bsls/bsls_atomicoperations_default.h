@@ -163,15 +163,15 @@ BSLS_IDENT("$Id: $")
 // platform is 32-bit) or `bsls::AtomicOperations_Default64` (if the platform
 // is 64-bit).
 //
-// For example, let's take the X86_64 platform with GCC compiler.  The derived
-// class for this platform, `bsls::AtomicOperations_X64_ALL_GCC`, inherits from
-// `bsls::AtomicOperations_Default64` and implements all platform-specific
-// atomic operations:
+// For example, let's take the X86_64 platform with the MSVC compiler.  The
+// derived class for this platform, `bsls::AtomicOperations_X64_WIN_MSVC`,
+// inherits from `bsls::AtomicOperations_Default64` and implements all
+// platform-specific atomic operations:
 // ```
-// struct bsls::AtomicOperations_X64_ALL_GCC
-//     : bsls::AtomicOperations_Default64<bsls::AtomicOperations_X64_ALL_GCC>
+// struct bsls::AtomicOperations_X64_WIN_MSVC
+//     : bsls::AtomicOperations_Default64<bsls::AtomicOperations_X64_WIN_MSVC>
 // {
-//     typedef bsls::Atomic_TypeTraits<bsls::AtomicOperations_X64_ALL_GCC>
+//     typedef bsls::Atomic_TypeTraits<bsls::AtomicOperations_X64_WIN_MSVC>
 //         AtomicTypes;   // for explanation of atomic type traits see below
 //
 //         // *** atomic functions for int ***
@@ -188,14 +188,14 @@ BSLS_IDENT("$Id: $")
 // };
 // ```
 // A derived class can also override some default atomic implementations from a
-// base class.  For example, `bsls::AtomicOperations_X64_ALL_GCC` can provide a
-// better implementation for `getIntAcquire` than the one provided by the
+// base class.  For example, `bsls::AtomicOperations_X64_WIN_MSVC` can provide
+// a better implementation for `getIntAcquire` than the one provided by the
 // `bsls::AtomicOperations_DefaultInt` base class.  So
-// `bsls::AtomicOperations_X64_ALL_GCC` implements its own `getIntAcquire` with
-// the same signature as in the base class:
+// `bsls::AtomicOperations_X64_WIN_MSVC` implements its own `getIntAcquire`
+// with the same signature as in the base class:
 // ```
-// struct bsls::AtomicOperations_X64_ALL_GCC
-//     : bsls::AtomicOperations_Default64<bsls::AtomicOperations_X64_ALL_GCC>
+// struct bsls::AtomicOperations_X64_WIN_MSVC
+//     : bsls::AtomicOperations_Default64<bsls::AtomicOperations_X64_WIN_MSVC>
 // {
 //         // *** atomic functions for int ***
 //     static int getIntAcquire(const AtomicTypes::Int *atomicInt);
@@ -220,16 +220,20 @@ BSLS_IDENT("$Id: $")
 //                       Default32              Default64
 //                           ^                      ^
 //                           |                      |
-//             X86_ALL_GCC --+                      +-- X64_ALL_GCC
-//                           |                      |
 //            X86_WIN_MSVC --+                      +-- X64_WIN_MSVC
 //                           |                      |
-//       POWERPC32_AIX_XLC --+                      +-- POWERPC64_AIX_XLC
+//          ARM32_WIN_MSVC --+                      +-- ARM64_WIN_MSVC
 //                           |                      |
 //          SPARC32_SUN_CC --+                      +-- SPARC64_SUN_CC
-//                                                  |
-//                                                  +-- IA64_HP_ACC
+//                           |                      |
+//   ALL_ALL_GCCIntrinsics --+                      +-- ALL_ALL_GCCIntrinsics
+//                           |                      |
+// ALL_ALL_ClangIntrinsics --+                      +-- ALL_ALL_ClangIntrinsics
 // ```
+//
+// Note that this diagram omits the alternative implementations that are
+// selected only for compilers older than gcc 4.7 or clang 3.1, which are
+// expected to be retired.
 //
 // The last part of the implementation is the atomic type traits class.  We
 // need a special representation for atomic primitive types to ensure
@@ -247,27 +251,28 @@ BSLS_IDENT("$Id: $")
 // ```
 // Each platform-specific implementation has to provide its own specialization
 // of the type traits class.  For example, the specialization for the x86_64
-// platform defined by the `bsls::AtomicOperations_X64_ALL_GCC` class might
+// platform defined by the `bsls::AtomicOperations_X64_WIN_MSVC` class might
 // look like:
 // ```
 // template <>
-// struct bsls::Atomic_TypeTraits<bsls::AtomicOperations_X64_ALL_GCC>
+// struct bsls::Atomic_TypeTraits<bsls::AtomicOperations_X64_WIN_MSVC>
 // {
 //     struct Int
 //     {
-//         volatile int d_value __attribute__((__aligned__(sizeof(int))));
+//         __declspec(align(4))
+//         volatile int d_value;
 //     };
 //
 //     struct Int64
 //     {
-//         volatile bsls::Types::Int64 d_value
-//                   __attribute__((__aligned__(sizeof(bsls::Types::Int64))));
+//         __declspec(align(8))
+//         volatile bsls::Types::Int64 d_value;
 //     };
 //
 //     struct Pointer
 //     {
-//         void * volatile d_value
-//                               __attribute__((__aligned__(sizeof(void *))));
+//         __declspec(align(8))
+//         void * volatile d_value;
 //     };
 // };
 // ```

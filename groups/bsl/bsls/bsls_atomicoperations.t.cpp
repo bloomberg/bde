@@ -2335,9 +2335,7 @@ int main(int argc, char *argv[]) {
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-#if defined(BSLS_PLATFORM_OS_AIX)
-    pthread_setconcurrency(20);
-#elif defined(BSLS_PLATFORM_OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
     pthread_setconcurrency(20);
     thr_setconcurrency(20);
 #endif

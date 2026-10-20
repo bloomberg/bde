@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 87 components having 16 levels of physical
+ The 'bsls' package currently has 84 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -77,8 +77,6 @@
 
    6. bsls_alignmenttotype
       bsls_annotation                                    !DEPRECATED!
-      bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
-      bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
       bsls_keyword
       bsls_nullptr
       bsls_performancehint
@@ -88,7 +86,6 @@
       bsls_atomicoperations_arm32_win_msvc                            !PRIVATE!
       bsls_atomicoperations_arm64_win_msvc                            !PRIVATE!
       bsls_atomicoperations_arm_all_gcc                               !PRIVATE!
-      bsls_atomicoperations_powerpc_aix_xlc_default                   !PRIVATE!
       bsls_atomicoperations_powerpc_all_gcc                           !PRIVATE!
       bsls_atomicoperations_x64_all_gcc                               !PRIVATE!
       bsls_atomicoperations_x64_win_msvc                              !PRIVATE!
@@ -191,15 +188,6 @@
 :
 : 'bsls_atomicoperations_default':                                    !PRIVATE!
 :      Provide default implementation for atomic operations.
-:
-: 'bsls_atomicoperations_powerpc32_aix_xlc':                          !PRIVATE!
-:      Provide implementations of atomic operations for PowerPC/AIX-32bit.
-:
-: 'bsls_atomicoperations_powerpc64_aix_xlc':                          !PRIVATE!
-:      Provide implementations of atomic operations for PowerPC/AIX-64bit.
-:
-: 'bsls_atomicoperations_powerpc_aix_xlc_default':                    !PRIVATE!
-:      Provide default base implementations of atomics for PowerPC/AIX.
 :
 : 'bsls_atomicoperations_powerpc_all_gcc':                            !PRIVATE!
 :      Provide implementations of atomic operations for gcc on PowerPC

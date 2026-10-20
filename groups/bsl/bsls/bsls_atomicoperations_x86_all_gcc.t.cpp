@@ -5,8 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if defined(BSLS_PLATFORM_CPU_X86) \
-    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+    && ((defined(BSLS_PLATFORM_CMP_GNU)                                       \
+              && BSLS_PLATFORM_CMP_VERSION < 40700)                           \
+     || (defined(BSLS_PLATFORM_CMP_CLANG)                                     \
+              && BSLS_PLATFORM_CMP_VERSION < 30100))
 
 // For thread support
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -279,7 +282,7 @@ int main(int argc, char *argv[])
 }
 
 #else // BSLS_PLATFORM_CPU_X86 &&
-      // (BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG)
+      // (BSLS_PLATFORM_CMP_GNU < 4.7 || BSLS_PLATFORM_CMP_CLANG < 3.1)
 
 int main(int argc, char *argv[])
 {
@@ -293,7 +296,7 @@ int main(int argc, char *argv[])
 }
 
 #endif // BSLS_PLATFORM_CPU_X86 &&
-       // (BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG)
+       // (BSLS_PLATFORM_CMP_GNU < 4.7 || BSLS_PLATFORM_CMP_CLANG < 3.1)
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

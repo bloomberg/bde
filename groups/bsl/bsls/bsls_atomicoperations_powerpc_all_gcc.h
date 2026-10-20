@@ -17,16 +17,14 @@ BSLS_IDENT("$Id: $")
 //
 // `bsls_atomicoperations_all_all_gccintrinsics.h` is used for gcc 4.7+ and
 // provides C++11 atomics.  The implementation herein is intended for earlier
-// versions of gcc and will work correctly for 64-bit programs, as well as for
-// 32-bit programs on AIX 6 or better, where AIX kernel saves and restores
-// 64-bit registers across context switches and interrupts, even in 32-bit
-// programs.  According to IBM developers, this guarantee is not provided by
-// the 32-bit ABI when running Linux kernel on POWER hardware, and therefore
-// 64-bit atomic operations using gcc __sync_* intrinsics might not operate
-// properly in some circumstances on Linux on POWER.  If running on Linux on
-// POWER, it is highly recommended that gcc 4.7+ be used, such as the IBM
-// Advanced Toolchain (AT) which currently provides gcc 4.8.3 for POWER, or the
-// RedHat Developer Toolset (DTS) for POWER.
+// versions of gcc and will work correctly for 64-bit programs.  For 32-bit
+// programs, the 32-bit ABI does not guarantee that the Linux kernel preserves
+// 64-bit registers across context switches and interrupts on POWER hardware,
+// and therefore 64-bit atomic operations using gcc __sync_* intrinsics might
+// not operate properly in some circumstances.  It is highly recommended that
+// gcc 4.7+ be used, such as the IBM Advanced Toolchain (AT) which provides
+// more recent releases of gcc for POWER, or the RedHat Developer Toolset (DTS)
+// for POWER.
 //
 // IMPLEMENTATION NOTE: there are likely excess explicit barriers since gcc
 // __sync_* intrinsics may provide their own barriers
@@ -35,7 +33,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_POWERPC)                                        \
+    && (defined(BSLS_PLATFORM_CMP_GNU)                                        \
+             && BSLS_PLATFORM_CMP_VERSION < 40700)
 
 namespace BloombergLP {
 
@@ -459,7 +459,7 @@ Types::Int64 AtomicOperations_POWERPC_ALL_GCC::
 
 }  // close enterprise namespace
 
-#endif  // BSLS_PLATFORM_CPU_POWERPC && BSLS_PLATFORM_CMP_GNU
+#endif  // CPU_POWERPC && GNU < 4.7
 
 #endif
 

@@ -11,9 +11,13 @@ BSLS_IDENT("$Id: $")
 // bsls::AtomicOperations_X64_ALL_GCC: implementation of atomics for X86_64/GCC
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
-// on the Linux X86_64 platform with GCC.  The classes are for private use
-// only.  See `bsls_atomicoperations` and `bsls_atomic` for the public
-// interface to atomics.
+// on the Linux X86_64 platform with older releases of GCC and Clang.  The
+// classes are for private use only.  See `bsls_atomicoperations` and
+// `bsls_atomic` for the public interface to atomics.
+//
+// `bsls_atomicoperations_all_all_gccintrinsics.h` is used for gcc 4.7+ and
+// provides C++11 atomics.  `bsls_atomicoperations_all_all_clangintrinsics.h`
+// is used for clang 3.1+ and provides C++11 atomics.
 //
 ///Notes
 ///-----
@@ -27,8 +31,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#if defined(BSLS_PLATFORM_CPU_X86_64) \
-    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
+#if defined(BSLS_PLATFORM_CPU_X86_64)                                         \
+    && ((defined(BSLS_PLATFORM_CMP_GNU)                                       \
+              && BSLS_PLATFORM_CMP_VERSION < 40700)                           \
+     || (defined(BSLS_PLATFORM_CMP_CLANG)                                     \
+              && BSLS_PLATFORM_CMP_VERSION < 30100))
 
 namespace BloombergLP {
 
@@ -281,7 +288,7 @@ Types::Int64 AtomicOperations_X64_ALL_GCC::
 
 }  // close enterprise namespace
 
-#endif // defined(BSLS_PLATFORM_CPU_X86_64) && (CMP_GNU || CMP_CLANG)
+#endif // CPU_X86_64 && (GNU < 4.7 || CLANG < 3.1)
 
 #endif
 
