@@ -1318,12 +1318,18 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing `BlobBuffer` swap\n";
         {
+            bslma::Allocator *da = bslma::Default::defaultAllocator();
+
             static const int      aSize = 256;
-            bsl::shared_ptr<char> aBuffer(new char[aSize]);
+            bsl::shared_ptr<char> aBuffer(
+                                     static_cast<char *>(da->allocate(aSize)),
+                                     da);
             bdlbb::BlobBuffer     aBlobBuffer(aBuffer, aSize);
 
             static const int      bSize = 128;
-            bsl::shared_ptr<char> bBuffer(new char[bSize]);
+            bsl::shared_ptr<char> bBuffer(
+                                     static_cast<char *>(da->allocate(bSize)),
+                                     da);
             bdlbb::BlobBuffer     bBlobBuffer(bBuffer, bSize);
 
             aBlobBuffer.swap(bBlobBuffer);
@@ -1498,6 +1504,8 @@ int main(int argc, char *argv[])
 #endif
         const int SIZE = 256;
 
+        bslma::Allocator *da = bslma::Default::defaultAllocator();
+
         if (verbose) cout << "Testing `is_nothrow_move_constructible` trait\n";
         {
             ASSERT(EXP_NOTHROW ==
@@ -1510,7 +1518,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing `BlobBuffer` move construction\n";
         {
 
-            BufT              aBuffer(new char[SIZE]);
+            BufT              aBuffer(static_cast<char *>(da->allocate(SIZE)),
+                                      da);
             bdlbb::BlobBuffer source(aBuffer, SIZE);
             bdlbb::BlobBuffer target(MoveUtil::move(source));
 
@@ -1529,7 +1538,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing `BlobBuffer` move assignment\n";
         {
-            BufT              aBuffer(new char[SIZE]);
+            BufT              aBuffer(static_cast<char *>(da->allocate(SIZE)),
+                                      da);
             bdlbb::BlobBuffer sourceBuffer(aBuffer, SIZE);
             bdlbb::BlobBuffer targetBuffer;
             targetBuffer = MoveUtil::move(sourceBuffer);
@@ -1585,7 +1595,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == source.totalSize()           );
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-            BufT                        buf(new char[SIZE]);
+            BufT buf(static_cast<char *>(da->allocate(SIZE)), da);
+
             bdlbb::BlobBuffer           bufs[] = {
                                                      { buf, SIZE },
                                                      { buf, SIZE }
@@ -1689,7 +1700,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == source.totalSize()           );
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-            BufT                        buf(new char[SIZE]);
+            BufT buf(static_cast<char *>(da->allocate(SIZE)), da);
+
             bdlbb::BlobBuffer           bufs[] = {
                                                       { buf, SIZE },
                                                       { buf, SIZE }

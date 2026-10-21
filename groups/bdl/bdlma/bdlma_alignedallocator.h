@@ -216,10 +216,14 @@ BSLS_IDENT("$Id$")
 // ```
 // char *address = (char *) alignedAllocator->allocateAligned(1024, 4096);
 // ```
-// Finally, we verify that the obtained address actually is aligned as
+// Then, we verify that the obtained address actually is aligned as
 // expected:
 // ```
 // assert(0 == ((bsl::size_t)address & (4096 - 1)));
+// ```
+// Finally, we return the memory to the allocator:
+// ```
+// alignedAllocator->deallocate(address);
 // ```
 
 #include <bslscm_version.h>

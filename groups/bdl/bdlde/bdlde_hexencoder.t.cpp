@@ -936,7 +936,9 @@ int main(int argc, char *argv[])
                 Obj        mX;
                 const Obj& X = mX;
 
-                int rc = mX.convert(&buffer,
+                char fullBuffer[2];  // one input byte encodes to two chars
+
+                int rc = mX.convert(fullBuffer,
                                     &numOut,
                                     &numIn,
                                     &source,
