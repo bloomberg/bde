@@ -1195,14 +1195,18 @@ BSLS_IDENT("$Id: $")
 // against C++20).
 //
 // This macro is defined first for the following compiler versions:
-//   - GCC 13.1
+//   - GCC 13.2 (**)
 //   - Clang 17.0 with either:
 //     - libc++ 21.1.0, or
-//     - libstdc++ 13.1
+//     - libstdc++ 13.2 (**)
 //   - VS 16.11 / MSVC 19.29
 //
 // (*) Up to libc++ 20.10 there is a bug with character arrays
 //     https://github.com/llvm/llvm-project/issues/115935
+//
+// (**) libstdc++ 13.1 reads out of bounds when parsing integers in
+//      wide-character format strings (fixed on the GCC 13 branch for
+//      `__GLIBCXX__` datestamps from 20230630).
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER`
 ///--------------------------------------------------------
@@ -2487,6 +2491,16 @@ BSLS_IDENT("$Id: $")
   /// TBD: is this a concern only for the old ABI short string, that we now
   /// have a macro to detect?
 # if (defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION < 170000L)
+#   undef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+# endif
+
+  /// libstdc++ 13.1 has an out-of-bounds read when parsing an integer (e.g.,
+  /// a width or precision) in a wide-character format string: up to 32
+  /// characters are read regardless of the length of the string.  The bug was
+  /// fixed on the GCC 13 branch on 2023-06-29 (before the 13.2 release), so we
+  /// use the libstdc++ datestamp to detect the affected versions.
+# if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE == 13 &&   \
+     __GLIBCXX__ < 20230630
 #   undef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 # endif
 
