@@ -350,6 +350,10 @@ int main(int argc, char *argv[])
                  << "==================================" << endl;
         }
 
+#ifndef BDE_BUILD_TARGET_TSAN
+        // This test fails under the thread sanitizer due to the cleanup of
+        // the detached threads, so it is disabled there.
+
         bslma::TestAllocator ga(veryVeryVeryVerbose);
         bslma::Default::setGlobalAllocator(&ga);
         {
@@ -408,6 +412,11 @@ int main(int argc, char *argv[])
         ASSERT(0 == ga.numAllocations());
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+#else
+        if (verbose) {
+            cout << "Test skipped under the thread sanitizer." << endl;
+        }
+#endif
       }  break;
       case 3: {
         // --------------------------------------------------------------------
