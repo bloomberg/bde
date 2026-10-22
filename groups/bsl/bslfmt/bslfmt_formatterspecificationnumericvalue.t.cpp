@@ -874,7 +874,12 @@ void verifyBadArgumentTypeReferenced()
     verifyBadArgumentTypeReferencedWithType<t_CHAR,
                                             std::basic_string_view<t_CHAR> >();
 #endif
-#ifndef BSLSTL_STRING_VIEW_IS_ALIASED
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED) &&                               \
+    !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+    // When `std::format` is used, a non-aliased `bsl::basic_string_view` has
+    // no `std::formatter` at this level (it is provided by the higher-level
+    // `bslfmt_formatterstring`), so it cannot be passed to
+    // `std::make_format_args`.
     verifyBadArgumentTypeReferencedWithType<t_CHAR,
                                             bsl::basic_string_view<t_CHAR> >();
 #endif
