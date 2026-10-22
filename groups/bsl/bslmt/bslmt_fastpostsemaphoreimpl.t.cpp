@@ -12,6 +12,7 @@
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
@@ -1451,6 +1452,9 @@ int main(int argc, char *argv[])
         //   CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (3)
         // --------------------------------------------------------------------
 
+#ifndef BSLS_PLATFORM_OS_DARWIN
+        // This test takes too long to run on Darwin, so it is disabled there.
+
         {
             char s[1024];
 
@@ -1469,6 +1473,11 @@ int main(int argc, char *argv[])
         ExhaustiveTest::test(Exhaustive_post,    0,
                              Exhaustive_wait,    0,
                              Exhaustive_disable, 0);
+#else
+        if (verbose) {
+            cout << "Test skipped on Darwin (excessive run time)." << endl;
+        }
+#endif
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1489,6 +1498,9 @@ int main(int argc, char *argv[])
         //   CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (2)
         // --------------------------------------------------------------------
 
+#ifndef BSLS_PLATFORM_OS_DARWIN
+        // This test takes too long to run on Darwin, so it is disabled there.
+
         {
             char s[1024];
 
@@ -1507,6 +1519,11 @@ int main(int argc, char *argv[])
         ExhaustiveTest::test(Exhaustive_post2, 0,
                              Exhaustive_wait,  0,
                              Exhaustive_wait,  0);
+#else
+        if (verbose) {
+            cout << "Test skipped on Darwin (excessive run time)." << endl;
+        }
+#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
