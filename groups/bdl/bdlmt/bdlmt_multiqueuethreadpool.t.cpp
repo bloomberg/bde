@@ -2162,16 +2162,15 @@ int main(int argc, char *argv[]) {
         // 1. Use `setBatchSize` to set the batching size and directly verify
         //    the result of `batchSize`.  (C-1)
         //
-        // 2. From the main thread, use `setBatchSize` to set the batching size
-        //    and submit at least this number of jobs to the queue with the
-        //    first job using a barrier to sync the thread-pool thread with the
-        //    main thread twice.  After the first synchronization, the main
+        // 2. From the main thread, use `setBatchSize` to set the batching
+        //    size, pause the queue, and submit more than this number of jobs
+        //    to the queue with the first job using a barrier to sync the
+        //    thread-pool thread with the main thread twice.  Resume the queue
+        //    so that all the jobs are available when the thread-pool thread
+        //    selects the batch.  After the first synchronization, the main
         //    thread will delete the queue containing the jobs.  After the
-        //    second synchronization, the main thread will verify the number
-        //    of executed jobs is frequently the batch size using
-        //    `numProcessed`.  Note that the number of executed jobs will not
-        //    always match the batch size since the timing of when the thread
-        //    from the thread pool will take jobs can not be guaranteed.  (C-2)
+        //    second synchronization, the main thread will verify the number of
+        //    executed jobs is the batch size using `numProcessed`.  (C-2)
         //
         // 3. Verify the number of enqueued, processed, and deleted jobs in
         //    P-2 to ensure no jobs were lost.  Use `numQueues` and
@@ -2220,19 +2219,13 @@ int main(int argc, char *argv[]) {
         {
             const int k_ENQUEUE = 5;
 
-            int count[k_ENQUEUE + 1];
-
-            for (int batchSize = 1; batchSize <= 4; ++batchSize) {
-                for (int i = 0; i <= k_ENQUEUE; ++i) {
-                    count[i] = 0;
-                }
-
+            for (int batchSize = 1; batchSize < k_ENQUEUE; ++batchSize) {
                 Obj        mX(bslmt::ThreadAttributes(), 1, 1, 30);
                 const Obj& X = mX;
 
                 STARTPOOL(mX);
 
-                for (int i = 0; i < 100; ++i) {
+                for (int i = 0; i < 10; ++i) {
                     int queueId = mX.createQueue();
 
                     mX.setBatchSize(queueId, batchSize);
@@ -2241,10 +2234,17 @@ int main(int argc, char *argv[]) {
 
                     Func job = bdlf::BindUtil::bind(&waitWait, &barrier);
 
+                    // Pause the queue so that all jobs are present when the
+                    // thread-pool thread selects the batch.
+
+                    ASSERT(0 == mX.pauseQueue(queueId));
+
                     mX.enqueueJob(queueId, job);
                     for (int j = 1; j < k_ENQUEUE; ++j) {
                         mX.enqueueJob(queueId, noop);
                     }
+
+                    ASSERT(0 == mX.resumeQueue(queueId));
 
                     barrier.wait();
                     mX.deleteQueue(queueId, noop);  // must not wait
@@ -2262,18 +2262,10 @@ int main(int argc, char *argv[]) {
                                          &deletedJobs);
 
                     ASSERT(k_ENQUEUE == enqueuedJobs);
-                    ASSERT(k_ENQUEUE == doneJobs + deletedJobs);
-
-                    ++count[doneJobs];
-
-                    mX.deleteQueue(queueId);
-                }
-
-                ASSERTV(batchSize, count[batchSize], 30 <= count[batchSize]);
-
-                ASSERT(0 == count[0]);
-                for (int i = batchSize + 1; i <= k_ENQUEUE; ++i) {
-                    ASSERT(0 == count[i]);
+                    ASSERTV(batchSize, doneJobs, batchSize == doneJobs);
+                    ASSERTV(batchSize,
+                            deletedJobs,
+                            k_ENQUEUE - batchSize == deletedJobs);
                 }
             }
         }
