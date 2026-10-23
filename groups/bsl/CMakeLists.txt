@@ -9,7 +9,7 @@ bbs_setup_target_uor(${target}
 # TODO: probably, make sense to make it default argument in
 # the cl toolchain.
 
-if (CXX_COMPILER_ID STREQUAL "MSVC")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_compile_options(bslma INTERFACE /bigobj)
     target_compile_options(bslstl INTERFACE /bigobj)
     target_compile_options(bsltf INTERFACE /bigobj)
