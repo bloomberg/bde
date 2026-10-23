@@ -439,12 +439,12 @@ RET Overloaded_ConstNoexceptMemberFunctionPointer<OBJ, RET, ARGS...>
     return (obj->*d_fp)(std::forward<ARGS>(args)...);
 }
 
-#endif
+#endif  // defined(BSLS_COMPILERFEATURES_SUPPORT_CTAD)
 
 }  // close package namespace
 }  // close enterprise namespace
 
-#endif // ! defined(INCLUDED_BDLF_OVERLOADED)
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2024 Bloomberg Finance L.P.

@@ -28,17 +28,25 @@ using namespace bsl;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// This component consists of an empty tag type and a constant object of that
-// type.  There is minimal functionality to test.
+// The component under test is a class template, `bdlf::Overloaded`, whose
+// objects form an overload set from a sequence of callables.  We verify that
+// overload sets can be built from various kinds of callables, and that
+// invoking one calls the callable selected by overload resolution.
 //-----------------------------------------------------------------------------
+// CREATORS
 // [1] Overloaded::Overloaded(...)
+// [2] Overloaded::Overloaded(...)
+// [3] Overloaded::Overloaded(...)
+// [5] Overloaded::Overloaded(...)
+//
+// ACCESSORS
 // [1] Overloaded::operator()(...)
+// [2] Overloaded::operator()(...)
+// [3] Overloaded::operator()(...)
+// [4] Overloaded::operator()(...)
+// [5] Overloaded::operator()(...)
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
-// [2] FREE FUNCTIONS AND MEMBER FUNCTIONS
-// [3] TEMPLATED FREE FUNCTIONS AND MEMBER FUNCTIONS
-// [4] WORKING WITH `VARIANT`
-// [5] FUNCTION POINTERS WITH REFERENCE PARAMETERS
 // [6] USAGE EXAMPLE
 
 // ============================================================================
@@ -95,63 +103,63 @@ void aSsErT(bool condition, const char *message, int line)
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 enum {
-    kVoid,
+    e_VOID,
 
-    kShort,
-    kUnsignedShort,
-    kInt,
-    kUnsignedInt,
+    e_SHORT,
+    e_UNSIGNED_SHORT,
+    e_INT,
+    e_UNSIGNED_INT,
 
-    kFloat,
-    kDouble,
-    kLongDouble,
+    e_FLOAT,
+    e_DOUBLE,
+    e_LONG_DOUBLE,
 
-    kStringView,
-    kEndOfList
+    e_STRING_VIEW,
+    e_END_OF_LIST
 };
 
 //  -- operator ()
 struct FloatingPoint {
-    int operator()(float)       const {return kFloat;}
-    int operator()(double)      const {return kDouble;}
-    int operator()(long double) const {return kLongDouble;}
+    int operator()(float)       const {return e_FLOAT;}
+    int operator()(double)      const {return e_DOUBLE;}
+    int operator()(long double) const {return e_LONG_DOUBLE;}
 };
 
 //  ----- free functions
-namespace FreeFN {
-    // A collection of free functions that take a single parameter, and return
-    // an enum value corresponding to the type that they were called with.
-    int HandleShort                 (short) { return kShort; }
-    int HandleUnsignedShort(unsigned short) { return kUnsignedShort; }
-    int HandleInt                     (int) { return kInt; }
-    int HandleUnsignedInt    (unsigned int) { return kUnsignedInt; }
+
+/// A collection of functions that take a single parameter, and return an
+/// enum value corresponding to the type that they were called with.
+struct FreeFN {
+    static int HandleShort                 (short) { return e_SHORT; }
+    static int HandleUnsignedShort(unsigned short) { return e_UNSIGNED_SHORT; }
+    static int HandleInt                     (int) { return e_INT; }
+    static int HandleUnsignedInt    (unsigned int) { return e_UNSIGNED_INT; }
 
     // The same handlers, taking their argument by reference.
-    int HandleShortRef        (const short&)          { return kShort; }
-    int HandleUnsignedShortRef(const unsigned short&)
+    static int HandleShortRef        (const short&)  { return e_SHORT; }
+    static int HandleUnsignedShortRef(const unsigned short&)
     {
-        return kUnsignedShort;
+        return e_UNSIGNED_SHORT;
     }
-    int HandleDoubleRef       (const double&)         { return kDouble; }
+    static int HandleDoubleRef       (const double&) { return e_DOUBLE; }
 
-    int TemplateFN() { return kVoid; }
+    static int TemplateFN() { return e_VOID; }
 
     // A templated function that returns an enum value corresponding to the
     // type that they were instantiated  with.
     template <class TYPE>
-    int TemplateFN(TYPE) {
-        if (std::is_same_v<TYPE, short>)            return kShort;
-        if (std::is_same_v<TYPE, unsigned short>)   return kUnsignedShort;
-        if (std::is_same_v<TYPE, int>)              return kInt;
-        if (std::is_same_v<TYPE, unsigned int>)     return kUnsignedInt;
-        if (std::is_same_v<TYPE, float>)            return kFloat;
-        if (std::is_same_v<TYPE, double>)           return kDouble;
-        if (std::is_same_v<TYPE, long double>)      return kLongDouble;
-        if (std::is_same_v<TYPE, string_view>)      return kStringView;
+    static int TemplateFN(TYPE) {
+        if (std::is_same_v<TYPE, short>)            return e_SHORT;
+        if (std::is_same_v<TYPE, unsigned short>)   return e_UNSIGNED_SHORT;
+        if (std::is_same_v<TYPE, int>)              return e_INT;
+        if (std::is_same_v<TYPE, unsigned int>)     return e_UNSIGNED_INT;
+        if (std::is_same_v<TYPE, float>)            return e_FLOAT;
+        if (std::is_same_v<TYPE, double>)           return e_DOUBLE;
+        if (std::is_same_v<TYPE, long double>)      return e_LONG_DOUBLE;
+        if (std::is_same_v<TYPE, string_view>)      return e_STRING_VIEW;
         return -1;  // some other type
     }
-
-}  // close namespace FreeFN
+};
 
 //  ----- member functions
 
@@ -159,25 +167,29 @@ namespace FreeFN {
 /// types that we are testing, and return the enum corresponding to the
 /// type.
 struct StaticMF {
-    static int HandleIntMF (int) { return kInt;}
+    static int HandleIntMF (int) { return e_INT;}
 };
 
 /// A structure containing a set of member functions that take the types
 /// that we are testing, and return the enum corresponding to the type.
 struct NonStaticMF {
 
-    int HandleShortMF          (short)                { return kShort;}
-    int HandleUnsignedShortMF  (unsigned short)       { return kUnsignedShort;}
-    int CHandleShortMF         (short)          const { return kShort;}
-    int CHandleUnsignedShortMF (unsigned short) const { return kUnsignedShort;}
-
-    int CHandleIntMF           (int)            const { return kInt;}
-    int NHandleIntMF           (int)                  noexcept { return kInt;}
-    int CNHandleUnsignedIntMF  (unsigned int)   const noexcept {
-        return kUnsignedInt;
+    int HandleShortMF          (short)                { return e_SHORT;}
+    int HandleUnsignedShortMF  (unsigned short)       {
+        return e_UNSIGNED_SHORT;
+    }
+    int CHandleShortMF         (short)          const { return e_SHORT;}
+    int CHandleUnsignedShortMF (unsigned short) const {
+        return e_UNSIGNED_SHORT;
     }
 
-    int CHandleStringViewMF    (string_view)    const { return kStringView;}
+    int CHandleIntMF           (int)            const { return e_INT;}
+    int NHandleIntMF           (int)                  noexcept { return e_INT;}
+    int CNHandleUnsignedIntMF  (unsigned int)   const noexcept {
+        return e_UNSIGNED_INT;
+    }
+
+    int CHandleStringViewMF    (string_view)    const { return e_STRING_VIEW;}
 };
 
 //  ----- templated member functions
@@ -190,18 +202,18 @@ struct staticTemplateMF {
 #       pragma GCC diagnostic push
 #       pragma GCC diagnostic ignored "-Wc++23-extensions"
 #   endif
-    static int operator()() { return kVoid; }
+    static int operator()() { return e_VOID; }
 
     template <class TYPE>
     static int operator()(TYPE) noexcept {
-        if (bsl::is_same_v<TYPE, short>)            return kShort;
-        if (bsl::is_same_v<TYPE, unsigned short>)   return kUnsignedShort;
-        if (bsl::is_same_v<TYPE, int>)              return kInt;
-        if (bsl::is_same_v<TYPE, unsigned int>)     return kUnsignedInt;
-        if (bsl::is_same_v<TYPE, float>)            return kFloat;
-        if (bsl::is_same_v<TYPE, double>)           return kDouble;
-        if (bsl::is_same_v<TYPE, long double>)      return kLongDouble;
-        if (bsl::is_same_v<TYPE, string_view>)      return kStringView;
+        if (bsl::is_same_v<TYPE, short>)            return e_SHORT;
+        if (bsl::is_same_v<TYPE, unsigned short>)   return e_UNSIGNED_SHORT;
+        if (bsl::is_same_v<TYPE, int>)              return e_INT;
+        if (bsl::is_same_v<TYPE, unsigned int>)     return e_UNSIGNED_INT;
+        if (bsl::is_same_v<TYPE, float>)            return e_FLOAT;
+        if (bsl::is_same_v<TYPE, double>)           return e_DOUBLE;
+        if (bsl::is_same_v<TYPE, long double>)      return e_LONG_DOUBLE;
+        if (bsl::is_same_v<TYPE, string_view>)      return e_STRING_VIEW;
         return -1;  // some other type
     }
 #   ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -209,18 +221,18 @@ struct staticTemplateMF {
 #   endif
 # endif  // BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR
 
-    static int MemberFN() { return kVoid; }
+    static int MemberFN() { return e_VOID; }
 
     template <class TYPE>
     static int MemberFN(TYPE) noexcept {
-        if (bsl::is_same_v<TYPE, short>)            return kShort;
-        if (bsl::is_same_v<TYPE, unsigned short>)   return kUnsignedShort;
-        if (bsl::is_same_v<TYPE, int>)              return kInt;
-        if (bsl::is_same_v<TYPE, unsigned int>)     return kUnsignedInt;
-        if (bsl::is_same_v<TYPE, float>)            return kFloat;
-        if (bsl::is_same_v<TYPE, double>)           return kDouble;
-        if (bsl::is_same_v<TYPE, long double>)      return kLongDouble;
-        if (bsl::is_same_v<TYPE, string_view>)      return kStringView;
+        if (bsl::is_same_v<TYPE, short>)            return e_SHORT;
+        if (bsl::is_same_v<TYPE, unsigned short>)   return e_UNSIGNED_SHORT;
+        if (bsl::is_same_v<TYPE, int>)              return e_INT;
+        if (bsl::is_same_v<TYPE, unsigned int>)     return e_UNSIGNED_INT;
+        if (bsl::is_same_v<TYPE, float>)            return e_FLOAT;
+        if (bsl::is_same_v<TYPE, double>)           return e_DOUBLE;
+        if (bsl::is_same_v<TYPE, long double>)      return e_LONG_DOUBLE;
+        if (bsl::is_same_v<TYPE, string_view>)      return e_STRING_VIEW;
         return -1;  // some other type
     }
 };
@@ -231,34 +243,34 @@ struct staticTemplateMF {
 /// does the same thing.
 struct TemplateMF {
 
-    int operator()() const { return kVoid; }
+    int operator()() const { return e_VOID; }
 
     template <class TYPE>
     int operator()(TYPE) const noexcept {
-        if (bsl::is_same_v<TYPE, short>)            return kShort;
-        if (bsl::is_same_v<TYPE, unsigned short>)   return kUnsignedShort;
-        if (bsl::is_same_v<TYPE, int>)              return kInt;
-        if (bsl::is_same_v<TYPE, unsigned int>)     return kUnsignedInt;
-        if (bsl::is_same_v<TYPE, float>)            return kFloat;
-        if (bsl::is_same_v<TYPE, double>)           return kDouble;
-        if (bsl::is_same_v<TYPE, long double>)      return kLongDouble;
-        if (bsl::is_same_v<TYPE, string_view>)      return kStringView;
+        if (bsl::is_same_v<TYPE, short>)            return e_SHORT;
+        if (bsl::is_same_v<TYPE, unsigned short>)   return e_UNSIGNED_SHORT;
+        if (bsl::is_same_v<TYPE, int>)              return e_INT;
+        if (bsl::is_same_v<TYPE, unsigned int>)     return e_UNSIGNED_INT;
+        if (bsl::is_same_v<TYPE, float>)            return e_FLOAT;
+        if (bsl::is_same_v<TYPE, double>)           return e_DOUBLE;
+        if (bsl::is_same_v<TYPE, long double>)      return e_LONG_DOUBLE;
+        if (bsl::is_same_v<TYPE, string_view>)      return e_STRING_VIEW;
         return -1;  // some other type
     }
 
 
-    int voidMemberFN() const { return kVoid; }
+    int voidMemberFN() const { return e_VOID; }
 
     template <class TYPE>
     int MemberFN(TYPE) const noexcept {
-        if (bsl::is_same_v<TYPE, short>)            return kShort;
-        if (bsl::is_same_v<TYPE, unsigned short>)   return kUnsignedShort;
-        if (bsl::is_same_v<TYPE, int>)              return kInt;
-        if (bsl::is_same_v<TYPE, unsigned int>)     return kUnsignedInt;
-        if (bsl::is_same_v<TYPE, float>)            return kFloat;
-        if (bsl::is_same_v<TYPE, double>)           return kDouble;
-        if (bsl::is_same_v<TYPE, long double>)      return kLongDouble;
-        if (bsl::is_same_v<TYPE, string_view>)      return kStringView;
+        if (bsl::is_same_v<TYPE, short>)            return e_SHORT;
+        if (bsl::is_same_v<TYPE, unsigned short>)   return e_UNSIGNED_SHORT;
+        if (bsl::is_same_v<TYPE, int>)              return e_INT;
+        if (bsl::is_same_v<TYPE, unsigned int>)     return e_UNSIGNED_INT;
+        if (bsl::is_same_v<TYPE, float>)            return e_FLOAT;
+        if (bsl::is_same_v<TYPE, double>)           return e_DOUBLE;
+        if (bsl::is_same_v<TYPE, long double>)      return e_LONG_DOUBLE;
+        if (bsl::is_same_v<TYPE, string_view>)      return e_STRING_VIEW;
         return -1;  // some other type
     }
 };
@@ -269,18 +281,18 @@ struct TemplateMF {
 template <class CALLABLE>
 void checkEm(const CALLABLE& call)
 {
-    ASSERT(kVoid          == call());
+    ASSERT(e_VOID           == call());
 
-    ASSERT(kShort         == call(         (short)2));
-    ASSERT(kUnsignedShort == call((unsigned short)2));
-    ASSERT(kInt           == call(                2));
-    ASSERT(kUnsignedInt   == call(      (unsigned)2));
+    ASSERT(e_SHORT          == call(         (short)2));
+    ASSERT(e_UNSIGNED_SHORT == call((unsigned short)2));
+    ASSERT(e_INT            == call(                2));
+    ASSERT(e_UNSIGNED_INT   == call(      (unsigned)2));
 
-    ASSERT(kFloat         == call(2.0f));
-    ASSERT(kDouble        == call(2.0));
-    ASSERT(kLongDouble    == call(2.0L));
+    ASSERT(e_FLOAT          == call(2.0f));
+    ASSERT(e_DOUBLE         == call(2.0));
+    ASSERT(e_LONG_DOUBLE    == call(2.0L));
 
-    ASSERT(kStringView    == call(string_view("2.0")));
+    ASSERT(e_STRING_VIEW    == call(string_view("2.0")));
 
     short          lvShort       = 2;
     unsigned short lvUShort      = 2;
@@ -293,16 +305,16 @@ void checkEm(const CALLABLE& call)
 
     string_view    lvStringView("2.0");
 
-    ASSERT(kShort         == call(lvShort));
-    ASSERT(kUnsignedShort == call(lvUShort));
-    ASSERT(kInt           == call(lvInt));
-    ASSERT(kUnsignedInt   == call(lvUInt));
+    ASSERT(e_SHORT          == call(lvShort));
+    ASSERT(e_UNSIGNED_SHORT == call(lvUShort));
+    ASSERT(e_INT            == call(lvInt));
+    ASSERT(e_UNSIGNED_INT   == call(lvUInt));
 
-    ASSERT(kFloat         == call(lvFloat));
-    ASSERT(kDouble        == call(lvDouble));
-    ASSERT(kLongDouble    == call(lvLongDouble));
+    ASSERT(e_FLOAT          == call(lvFloat));
+    ASSERT(e_DOUBLE         == call(lvDouble));
+    ASSERT(e_LONG_DOUBLE    == call(lvLongDouble));
 
-    ASSERT(kStringView    == call(lvStringView));
+    ASSERT(e_STRING_VIEW    == call(lvStringView));
 
     const short&          clvShort      = lvShort;
     const unsigned short& clvUShort     = lvUShort;
@@ -315,36 +327,36 @@ void checkEm(const CALLABLE& call)
 
     const string_view&    clvStringView = lvStringView;
 
-    ASSERT(kShort         == call(clvShort));
-    ASSERT(kUnsignedShort == call(clvUShort));
-    ASSERT(kInt           == call(clvInt));
-    ASSERT(kUnsignedInt   == call(clvUInt));
+    ASSERT(e_SHORT          == call(clvShort));
+    ASSERT(e_UNSIGNED_SHORT == call(clvUShort));
+    ASSERT(e_INT            == call(clvInt));
+    ASSERT(e_UNSIGNED_INT   == call(clvUInt));
 
-    ASSERT(kFloat         == call(clvFloat));
-    ASSERT(kDouble        == call(clvDouble));
-    ASSERT(kLongDouble    == call(clvLongDouble));
+    ASSERT(e_FLOAT          == call(clvFloat));
+    ASSERT(e_DOUBLE         == call(clvDouble));
+    ASSERT(e_LONG_DOUBLE    == call(clvLongDouble));
 
-    ASSERT(kStringView    == call(clvStringView));
+    ASSERT(e_STRING_VIEW    == call(clvStringView));
 }
 
-/// Call the `operator()` of the specified `call` the specified `p` and
-/// various types, and ensure that the return value corresponds to the types
-/// that were passed.
+/// Call the `operator()` of the specified `call` with the specified
+/// `objectPtr` and various types, and ensure that the return value
+/// corresponds to the types that were passed.
 template <class CALLABLE, class PARAM>
-void checkEm(const CALLABLE& call, PARAM p)
+void checkEm(const CALLABLE& call, PARAM objectPtr)
 {
-    ASSERT(kVoid          == call(p));
+    ASSERT(e_VOID           == call(objectPtr));
 
-    ASSERT(kShort         == call(p,          (short)2));
-    ASSERT(kUnsignedShort == call(p, (unsigned short)2));
-    ASSERT(kInt           == call(p,                 2));
-    ASSERT(kUnsignedInt   == call(p,       (unsigned)2));
+    ASSERT(e_SHORT          == call(objectPtr,          (short)2));
+    ASSERT(e_UNSIGNED_SHORT == call(objectPtr, (unsigned short)2));
+    ASSERT(e_INT            == call(objectPtr,                 2));
+    ASSERT(e_UNSIGNED_INT   == call(objectPtr,       (unsigned)2));
 
-    ASSERT(kFloat         == call(p, 2.0f));
-    ASSERT(kDouble        == call(p, 2.0));
-    ASSERT(kLongDouble    == call(p, 2.0L));
+    ASSERT(e_FLOAT          == call(objectPtr, 2.0f));
+    ASSERT(e_DOUBLE         == call(objectPtr, 2.0));
+    ASSERT(e_LONG_DOUBLE    == call(objectPtr, 2.0L));
 
-    ASSERT(kStringView    == call(p, string_view("2.0")));
+    ASSERT(e_STRING_VIEW    == call(objectPtr, string_view("2.0")));
 
     short          lvShort       = 2;
     unsigned short lvUShort      = 2;
@@ -357,16 +369,16 @@ void checkEm(const CALLABLE& call, PARAM p)
 
     string_view    lvStringView("2.0");
 
-    ASSERT(kShort         == call(p, lvShort));
-    ASSERT(kUnsignedShort == call(p, lvUShort));
-    ASSERT(kInt           == call(p, lvInt));
-    ASSERT(kUnsignedInt   == call(p, lvUInt));
+    ASSERT(e_SHORT          == call(objectPtr, lvShort));
+    ASSERT(e_UNSIGNED_SHORT == call(objectPtr, lvUShort));
+    ASSERT(e_INT            == call(objectPtr, lvInt));
+    ASSERT(e_UNSIGNED_INT   == call(objectPtr, lvUInt));
 
-    ASSERT(kFloat         == call(p, lvFloat));
-    ASSERT(kDouble        == call(p, lvDouble));
-    ASSERT(kLongDouble    == call(p, lvLongDouble));
+    ASSERT(e_FLOAT          == call(objectPtr, lvFloat));
+    ASSERT(e_DOUBLE         == call(objectPtr, lvDouble));
+    ASSERT(e_LONG_DOUBLE    == call(objectPtr, lvLongDouble));
 
-    ASSERT(kStringView    == call(p, lvStringView));
+    ASSERT(e_STRING_VIEW    == call(objectPtr, lvStringView));
 
     const short&          clvShort      = lvShort;
     const unsigned short& clvUShort     = lvUShort;
@@ -379,22 +391,60 @@ void checkEm(const CALLABLE& call, PARAM p)
 
     const string_view&    clvStringView = lvStringView;
 
-    ASSERT(kShort         == call(p, clvShort));
-    ASSERT(kUnsignedShort == call(p, clvUShort));
-    ASSERT(kInt           == call(p, clvInt));
-    ASSERT(kUnsignedInt   == call(p, clvUInt));
+    ASSERT(e_SHORT          == call(objectPtr, clvShort));
+    ASSERT(e_UNSIGNED_SHORT == call(objectPtr, clvUShort));
+    ASSERT(e_INT            == call(objectPtr, clvInt));
+    ASSERT(e_UNSIGNED_INT   == call(objectPtr, clvUInt));
 
-    ASSERT(kFloat         == call(p, clvFloat));
-    ASSERT(kDouble        == call(p, clvDouble));
-    ASSERT(kLongDouble    == call(p, clvLongDouble));
+    ASSERT(e_FLOAT          == call(objectPtr, clvFloat));
+    ASSERT(e_DOUBLE         == call(objectPtr, clvDouble));
+    ASSERT(e_LONG_DOUBLE    == call(objectPtr, clvLongDouble));
 
-    ASSERT(kStringView    == call(p, clvStringView));
+    ASSERT(e_STRING_VIEW    == call(objectPtr, clvStringView));
 }
-#endif
 
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
+
+namespace usage_example_1 {
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// First, create a bsl::variant object that can contain several different
+// types.
+// ```
+void run()
+{
+    bsl::variant<unsigned, double, bsl::string> v;
+// ```
+// Next, Create an Overload object containing several options:
+// ```
+    bdlf::Overloaded over{
+          [] (unsigned)           {return 1;}
+        , [] (double)             {return 2;}
+        , [] (const bsl::string&) {return 3;}
+        };
+// ```
+// Set the value of variant, and then call std::visit, passing the overload set
+// and the variant.  Check the return value to see that the right lambda was
+// called.
+// ```
+    v = 2U;
+    ASSERT(1 == bsl::visit(over, v));
+    v = 2.0;
+    ASSERT(2 == bsl::visit(over, v));
+    v = bsl::string("2.0");
+    ASSERT(3 == bsl::visit(over, v));
+}
+// ```
+
+}  // close namespace usage_example_1
+#endif
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -440,31 +490,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        // First, create a bsl::variant object that can contain several
-        // different types.
-        // ```
-        bsl::variant<unsigned, double, bsl::string> v;
-        // ```
-        // Next, Create an Overload object containing several options:
-        // ```
-        bdlf::Overloaded over{
-              [](unsigned)           {return 1;}
-            , [](double)             {return 2;}
-            , [](const bsl::string&) {return 3;}
-            };
-        // ```
-        // Set the value of variant, and then call std::visit, passing the
-        // overload set and the variant.  Check the return value to see that
-        // the right lambda was called.
-        // ```
-        v = 2U;
-        ASSERT(1 == bsl::visit(over, v));
-        v = 2.0;
-        ASSERT(2 == bsl::visit(over, v));
-        v = bsl::string("2.0");
-        ASSERT(3 == bsl::visit(over, v));
-        // ```
-
+        usage_example_1::run();
 #endif
       } break;
       case 5: {
@@ -500,7 +526,8 @@ int main(int argc, char *argv[])
         //    argument by value.  (C-3)
         //
         // Testing:
-        //   FUNCTION POINTERS WITH REFERENCE PARAMETERS
+        //   Overloaded::Overloaded(...)
+        //   Overloaded::operator()(...)
         // --------------------------------------------------------------------
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
@@ -518,14 +545,14 @@ int main(int argc, char *argv[])
             const short&          clvShort  = lvShort;
             const unsigned short& clvUShort = lvUShort;
 
-            ASSERT(kShort         == over(         (short)2));
-            ASSERT(kUnsignedShort == over((unsigned short)2));
+            ASSERT(e_SHORT          == over(         (short)2));
+            ASSERT(e_UNSIGNED_SHORT == over((unsigned short)2));
 
-            ASSERT(kShort         == over(lvShort));
-            ASSERT(kUnsignedShort == over(lvUShort));
+            ASSERT(e_SHORT          == over(lvShort));
+            ASSERT(e_UNSIGNED_SHORT == over(lvUShort));
 
-            ASSERT(kShort         == over(clvShort));
-            ASSERT(kUnsignedShort == over(clvUShort));
+            ASSERT(e_SHORT          == over(clvShort));
+            ASSERT(e_UNSIGNED_SHORT == over(clvUShort));
         }
 
         {
@@ -538,14 +565,14 @@ int main(int argc, char *argv[])
             const int&    clvInt    = lvInt;
             const double& clvDouble = lvDouble;
 
-            ASSERT(kInt    == over(2));
-            ASSERT(kDouble == over(2.0));
+            ASSERT(e_INT    == over(2));
+            ASSERT(e_DOUBLE == over(2.0));
 
-            ASSERT(kInt    == over(lvInt));
-            ASSERT(kDouble == over(lvDouble));
+            ASSERT(e_INT    == over(lvInt));
+            ASSERT(e_DOUBLE == over(lvDouble));
 
-            ASSERT(kInt    == over(clvInt));
-            ASSERT(kDouble == over(clvDouble));
+            ASSERT(e_INT    == over(clvInt));
+            ASSERT(e_DOUBLE == over(clvDouble));
         }
 
         {
@@ -558,14 +585,14 @@ int main(int argc, char *argv[])
             const int&   clvInt   = lvInt;
             const short& clvShort = lvShort;
 
-            ASSERT(kInt   == over(2));
-            ASSERT(kShort == over((short)2));
+            ASSERT(e_INT   == over(2));
+            ASSERT(e_SHORT == over((short)2));
 
-            ASSERT(kInt   == over(lvInt));
-            ASSERT(kShort == over(lvShort));
+            ASSERT(e_INT   == over(lvInt));
+            ASSERT(e_SHORT == over(lvShort));
 
-            ASSERT(kInt   == over(clvInt));
-            ASSERT(kShort == over(clvShort));
+            ASSERT(e_INT   == over(clvInt));
+            ASSERT(e_SHORT == over(clvShort));
         }
 
 #endif
@@ -583,7 +610,7 @@ int main(int argc, char *argv[])
         //    and verify the results (C-1)
         //
         // Testing:
-        //   WORKING WITH `VARIANT`
+        //   Overloaded::operator()(...)
         // --------------------------------------------------------------------
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
@@ -596,90 +623,90 @@ int main(int argc, char *argv[])
             typedef bsl::variant<short, unsigned short,
                                  int,   unsigned int,
                                  float, double, long double,
-                                 string_view>   V;
+                                 string_view>   BslVariant;
 
-            V                v;
+            BslVariant       bslVariant;
             bdlf::Overloaded over{
-                  [](short)          {return kShort;}
-                , [](unsigned short) {return kUnsignedShort;}
-                , [](int)            {return kInt;}
-                , [](unsigned int)   {return kUnsignedInt;}
+                  [](short)          {return e_SHORT;}
+                , [](unsigned short) {return e_UNSIGNED_SHORT;}
+                , [](int)            {return e_INT;}
+                , [](unsigned int)   {return e_UNSIGNED_INT;}
 
-                , [](float)          {return kFloat;}
-                , [](double)         {return kDouble;}
-                , [](long double)    {return kLongDouble;}
+                , [](float)          {return e_FLOAT;}
+                , [](double)         {return e_DOUBLE;}
+                , [](long double)    {return e_LONG_DOUBLE;}
 
-                , [](string_view)  {return kStringView;}
+                , [](string_view)  {return e_STRING_VIEW;}
             };
 
-            v = (short) 2;
-            ASSERT(kShort == bsl::visit(over, v));
+            bslVariant = (short) 2;
+            ASSERT(e_SHORT == bsl::visit(over, bslVariant));
 
-            v = (unsigned short) 2;
-            ASSERT(kUnsignedShort == bsl::visit(over, v));
+            bslVariant = (unsigned short) 2;
+            ASSERT(e_UNSIGNED_SHORT == bsl::visit(over, bslVariant));
 
-            v = 2;
-            ASSERT(kInt == bsl::visit(over, v));
+            bslVariant = 2;
+            ASSERT(e_INT == bsl::visit(over, bslVariant));
 
-            v = (unsigned) 2;
-            ASSERT(kUnsignedInt == bsl::visit(over, v));
+            bslVariant = (unsigned) 2;
+            ASSERT(e_UNSIGNED_INT == bsl::visit(over, bslVariant));
 
-            v = 2.0f;
-            ASSERT(kFloat == bsl::visit(over, v));
+            bslVariant = 2.0f;
+            ASSERT(e_FLOAT == bsl::visit(over, bslVariant));
 
-            v = 2.0;
-            ASSERT(kDouble == bsl::visit(over, v));
+            bslVariant = 2.0;
+            ASSERT(e_DOUBLE == bsl::visit(over, bslVariant));
 
-            v = 2.0L;
-            ASSERT(kLongDouble == bsl::visit(over, v));
+            bslVariant = 2.0L;
+            ASSERT(e_LONG_DOUBLE == bsl::visit(over, bslVariant));
 
-            v = string_view("2.0");
-            ASSERT(kStringView == bsl::visit(over, v));
+            bslVariant = string_view("2.0");
+            ASSERT(e_STRING_VIEW == bsl::visit(over, bslVariant));
         }
 
         {   // using std::variant
             typedef std::variant<short, unsigned short,
                                  int,   unsigned int,
                                  float, double, long double,
-                                 string_view>   V;
+                                 string_view>   StdVariant;
 
-            V                v;
+            StdVariant       stdVariant;
             bdlf::Overloaded over{
-                  [](short)          {return kShort;}
-                , [](unsigned short) {return kUnsignedShort;}
-                , [](int)            {return kInt;}
-                , [](unsigned int)   {return kUnsignedInt;}
+                  [](short)          {return e_SHORT;}
+                , [](unsigned short) {return e_UNSIGNED_SHORT;}
+                , [](int)            {return e_INT;}
+                , [](unsigned int)   {return e_UNSIGNED_INT;}
 
-                , [](float)          {return kFloat;}
-                , [](double)         {return kDouble;}
-                , [](long double)    {return kLongDouble;}
+                , [](float)          {return e_FLOAT;}
+                , [](double)         {return e_DOUBLE;}
+                , [](long double)    {return e_LONG_DOUBLE;}
 
-                , [](string_view)  {return kStringView;}
+                , [](string_view)  {return e_STRING_VIEW;}
             };
 
-            v = (short) 2;
-            ASSERT(kShort == std::visit(over, v));
+            stdVariant = (short) 2;
+            ASSERT(e_SHORT == std::visit(over, stdVariant));
 
-            v = (unsigned short) 2;
-            ASSERT(kUnsignedShort == std::visit(over, v));
+            stdVariant = (unsigned short) 2;
+            ASSERT(e_UNSIGNED_SHORT == std::visit(over, stdVariant));
 
-            v = 2;
-            ASSERT(kInt == std::visit(over, v));
+            stdVariant = 2;
+            ASSERT(e_INT == std::visit(over, stdVariant));
 
-            v = (unsigned) 2;
-            ASSERT(kUnsignedInt == std::visit(over, v));
+            stdVariant = (unsigned) 2;
+            ASSERT(e_UNSIGNED_INT == std::visit(over, stdVariant));
 
-            v = 2.0f;
-            ASSERT(kFloat == std::visit(over, v));
+            stdVariant = 2.0f;
+            ASSERT(e_FLOAT == std::visit(over, stdVariant));
 
-            v = 2.0;
-            ASSERT(kDouble == std::visit(over, v));
+            stdVariant = 2.0;
+            ASSERT(e_DOUBLE == std::visit(over, stdVariant));
 
-            v = 2.0L;
-            ASSERT(kLongDouble == std::visit(over, v));
+            stdVariant = 2.0L;
+            ASSERT(e_LONG_DOUBLE == std::visit(over, stdVariant));
 
-            v = string_view("2.0");
-            ASSERT(kStringView == std::visit(over, v));
+            stdVariant = string_view("2.0");
+            ASSERT(e_STRING_VIEW == std::visit(over, stdVariant));
         }
 
 #endif
@@ -703,7 +730,8 @@ int main(int argc, char *argv[])
         //    correct option was invoked.
         //
         // Testing:
-        //   TEMPLATED FREE FUNCTIONS AND MEMBER FUNCTIONS
+        //   Overloaded::Overloaded(...)
+        //   Overloaded::operator()(...)
         // --------------------------------------------------------------------
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
@@ -731,7 +759,7 @@ int main(int argc, char *argv[])
 
         //  auto over3 = Overloaded{&FreeFN::TemplateFN};   // fails
         auto over3 = bdlf::Overloaded{
-              [](void)           {return kVoid;}
+              [](void)           {return e_VOID;}
             , &FreeFN::TemplateFN<short>
             , &FreeFN::TemplateFN<unsigned short>
             , &FreeFN::TemplateFN<int>
@@ -745,7 +773,7 @@ int main(int argc, char *argv[])
 
         //  auto over4 = Overloaded{&staticTemplateMF::MemberFN};   // fails
         auto over4 = bdlf::Overloaded{
-              [](void)           {return kVoid;}
+              [](void)           {return e_VOID;}
             , &staticTemplateMF::MemberFN<short>
             , &staticTemplateMF::MemberFN<unsigned short>
             , &staticTemplateMF::MemberFN<int>
@@ -800,7 +828,8 @@ int main(int argc, char *argv[])
         //    useless). (C-2)
         //
         // Testing:
-        //   FREE FUNCTIONS AND MEMBER FUNCTIONS
+        //   Overloaded::Overloaded(...)
+        //   Overloaded::operator()(...)
         // --------------------------------------------------------------------
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
@@ -811,14 +840,14 @@ int main(int argc, char *argv[])
         int someValue = 3;
 
         checkEm(bdlf::Overloaded{
-              [&someValue](void)  {  (void)someValue;  return kVoid;  }
+              [&someValue](void)  {  (void)someValue;  return e_VOID;  }
             , FloatingPoint{}
             , FreeFN::HandleShort
             , FreeFN::HandleUnsignedShort
             , StaticMF::HandleIntMF
             , FreeFN::HandleUnsignedInt
 
-            , [](string_view)  {return kStringView;}
+            , [](string_view)  {return e_STRING_VIEW;}
             });
 
         // I would like the line below marked `does not work; see above` to
@@ -840,44 +869,44 @@ int main(int argc, char *argv[])
         // other members of the overload.  That example is marked as
         // `see above (2)`.
         auto over1 = bdlf::Overloaded{
-              [](NonStaticMF *)                 {return kVoid;}
+              [](NonStaticMF *)                 {return e_VOID;}
             , &NonStaticMF::HandleShortMF
             , &NonStaticMF::HandleUnsignedShortMF
             , &NonStaticMF::NHandleIntMF    // noexcept
     //      , &NonStaticMF::CHandleIntMF    // does not work; see comment above
-            , [](NonStaticMF *, unsigned int)   {return kUnsignedInt;}
+            , [](NonStaticMF *, unsigned int)   {return e_UNSIGNED_INT;}
 
-            , [](NonStaticMF *, float)          {return kFloat;}
-            , [](NonStaticMF *, double)         {return kDouble;}
-            , [](NonStaticMF *, long double)    {return kLongDouble;}
+            , [](NonStaticMF *, float)          {return e_FLOAT;}
+            , [](NonStaticMF *, double)         {return e_DOUBLE;}
+            , [](NonStaticMF *, long double)    {return e_LONG_DOUBLE;}
 
             , &NonStaticMF::CHandleStringViewMF // see above (2)
             };
 
         auto over2 = bdlf::Overloaded{
-              [](const NonStaticMF *)                 {return kVoid;}
+              [](const NonStaticMF *)                 {return e_VOID;}
             , &NonStaticMF::CHandleShortMF
             , &NonStaticMF::CHandleUnsignedShortMF
-            , [](const NonStaticMF *, int)            {return kInt;}
+            , [](const NonStaticMF *, int)            {return e_INT;}
             , &NonStaticMF::CNHandleUnsignedIntMF
 
-            , [](const NonStaticMF *, float)          {return kFloat;}
-            , [](const NonStaticMF *, double)         {return kDouble;}
-            , [](const NonStaticMF *, long double)    {return kLongDouble;}
+            , [](const NonStaticMF *, float)          {return e_FLOAT;}
+            , [](const NonStaticMF *, double)         {return e_DOUBLE;}
+            , [](const NonStaticMF *, long double)    {return e_LONG_DOUBLE;}
 
             , &NonStaticMF::CHandleStringViewMF
             };
 
-            NonStaticMF        obj;
-            NonStaticMF       *p  = &obj;
-            const NonStaticMF *cp = &obj;
+            NonStaticMF        object;
+            NonStaticMF       *objectPtr      = &object;
+            const NonStaticMF *constObjectPtr = &object;
 
-            checkEm(over1, p);
-            checkEm(over2, cp);
+            checkEm(over1, objectPtr);
+            checkEm(over2, constObjectPtr);
 
         //  Check to see that noexcept propagates
-            ASSERT(!noexcept(over1 (p, 2.0))); // a lambda
-            ASSERT( noexcept(over1 (p, 2)));   // NonStaticMF::NHandleIntMF
+            ASSERT(!noexcept(over1 (objectPtr, 2.0))); // a lambda
+            ASSERT( noexcept(over1 (objectPtr, 2)));   // NHandleIntMF
 
 #endif
       } break;
@@ -916,31 +945,31 @@ int main(int argc, char *argv[])
         // Build an overload set from a series of lambdas.  This is expected to
         // be the most common usage.
         checkEm(bdlf::Overloaded{
-              [](void)           {return kVoid;}
+              [](void)           {return e_VOID;}
 
-            , [](short)          {return kShort;}
-            , [](unsigned short) {return kUnsignedShort;}
-            , [](int)            {return kInt;}
-            , [](unsigned int)   {return kUnsignedInt;}
+            , [](short)          {return e_SHORT;}
+            , [](unsigned short) {return e_UNSIGNED_SHORT;}
+            , [](int)            {return e_INT;}
+            , [](unsigned int)   {return e_UNSIGNED_INT;}
 
-            , [](float)          {return kFloat;}
-            , [](double)         {return kDouble;}
-            , [](long double)    {return kLongDouble;}
+            , [](float)          {return e_FLOAT;}
+            , [](double)         {return e_DOUBLE;}
+            , [](long double)    {return e_LONG_DOUBLE;}
 
-            , [](string_view)  {return kStringView;}
+            , [](string_view)  {return e_STRING_VIEW;}
             });
 
         // Build an overload set from a series of lambdas and a struct that
         // has an `operator()`
         checkEm(bdlf::Overloaded{
-              [](void)           {return kVoid;}
+              [](void)           {return e_VOID;}
             , FloatingPoint{}
-            , [](short)          {return kShort;}
-            , [](unsigned short) {return kUnsignedShort;}
-            , [](int)            {return kInt;}
-            , [](unsigned int)   {return kUnsignedInt;}
+            , [](short)          {return e_SHORT;}
+            , [](unsigned short) {return e_UNSIGNED_SHORT;}
+            , [](int)            {return e_INT;}
+            , [](unsigned int)   {return e_UNSIGNED_INT;}
 
-            , [](string_view)  {return kStringView;}
+            , [](string_view)  {return e_STRING_VIEW;}
             });
 
 #endif

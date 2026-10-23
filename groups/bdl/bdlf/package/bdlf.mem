@@ -4,3 +4,4 @@ bdlf_noop
 bdlf_noop_cpp03
 bdlf_overloaded
 bdlf_placeholder
+bdlf_visitutil
