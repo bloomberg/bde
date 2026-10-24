@@ -37,12 +37,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlf' package currently has 6 components having 3 levels of physical
+ The 'bdlf' package currently has 7 components having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   3. bdlf_bind
+     bdlf_visitutil
 
   2. bdlf_memfn
      bdlf_noop
@@ -71,6 +72,9 @@
 :
 : 'bdlf_placeholder':
 :      Provide a parameterized placeholder and specialized placeholders.
+:
+: 'bdlf_visitutil':
+:      Provide a utility for visiting a variant with an overload set.
 
 /Related Packages in Package Group 'bdl'
 /---------------------------------------

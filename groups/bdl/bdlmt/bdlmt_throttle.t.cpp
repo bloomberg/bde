@@ -478,6 +478,13 @@ namespace Case_Usage {
 
 namespace Case_Allow_None {
 
+#ifdef BDE_BUILD_TARGET_TSAN
+const int numThreads = 8;     // TSAN instrumentation makes 40 spinning
+                              // threads too slow for the completion guard
+#else
+const int numThreads = u::numThreads;
+#endif
+
 bsls::AtomicInt64 eventsSoFar(0);
 bsls::AtomicInt   atomicBarrier(-1);
 
@@ -487,7 +494,9 @@ void threadJobIf()
 {
     enum { k_TIGHT_ITERATIONS = 1024 };
 
-    while (atomicBarrier < 0) {}
+    while (atomicBarrier < 0) {
+        bslmt::ThreadUtil::yield();
+    }
 
     while (atomicBarrier < 1) {
         int delta = 0;
@@ -515,7 +524,9 @@ void threadJobInit()
     static bdlmt::Throttle throttle = BDLMT_THROTTLE_INIT_ALLOW_NONE;
     bool lastDone = false;
 
-    while (atomicBarrier < 0) {}
+    while (atomicBarrier < 0) {
+        bslmt::ThreadUtil::yield();
+    }
 
     while (atomicBarrier < 1) {
         int delta = 0;
@@ -584,7 +595,9 @@ void threadJobIf()
 {
     enum { k_TIGHT_ITERATIONS = 1024 };
 
-    while (atomicBarrier < 0) {}
+    while (atomicBarrier < 0) {
+        bslmt::ThreadUtil::yield();
+    }
 
     while (atomicBarrier < 1) {
         int delta = 0;
@@ -612,7 +625,9 @@ void threadJobInit()
     static bdlmt::Throttle throttle = BDLMT_THROTTLE_INIT_ALLOW_ALL;
 
     bool lastDone = false;
-    while (atomicBarrier < 0) {}
+    while (atomicBarrier < 0) {
+        bslmt::ThreadUtil::yield();
+    }
 
     while (atomicBarrier < 1) {
         int delta = 0;
@@ -886,7 +901,9 @@ bslmt::Barrier  barrier(u::numThreads + 1);
 void threadJob()
 {
     barrier.wait();
-    while (0 != atomicBarrier) {}
+    while (0 != atomicBarrier) {
+        bslmt::ThreadUtil::yield();
+    }
 
     for (int jj = 0; jj < eventsPerPeriodPerThread; ++jj) {
         BDLMT_THROTTLE_IF(eventsPerPeriod, period) {
@@ -977,9 +994,10 @@ int main(int argc, char *argv[])
         //    appropriately control an `else` block as well.
         //
         // Plan:
-        // 1. Have 40 threads in a tight loop calling the `allow no` macro
-        //    controlling a `then` clause that we confirm was never taken, and
-        //    an `else` clause that we confirm was always taken.
+        // 1. Have 40 threads (8 under TSAN) in a tight loop calling the
+        //    `allow no` macro controlling a `then` clause that we confirm was
+        //    never taken, and an `else` clause that we confirm was always
+        //    taken.
         // 2. Measure the speed with which events are approved.
         //
         // Testing:
@@ -996,7 +1014,7 @@ int main(int argc, char *argv[])
         namespace TC = Case_Allow_None;
 
         bslmt::ThreadGroup tg(&u::ta);
-        tg.addThreads(&TC::threadJobIf, u::numThreads);
+        tg.addThreads(&TC::threadJobIf, TC::numThreads);
 
         {
             u::sleep(0.01);
@@ -1007,7 +1025,7 @@ int main(int argc, char *argv[])
             const double elapsed     = 1e-9 * static_cast<double>(
                                                        u::nanoClock() - start);
             const double events      = static_cast<double>(TC::eventsSoFar);
-            const double eventsPerSecond = events / elapsed / u::numThreads;
+            const double eventsPerSecond = events / elapsed / TC::numThreads;
 
             tg.joinAll();
 
@@ -1020,7 +1038,7 @@ int main(int argc, char *argv[])
         TC::eventsSoFar = 0;
         TC::atomicBarrier = -1;
 
-        tg.addThreads(&TC::threadJobInit, u::numThreads);
+        tg.addThreads(&TC::threadJobInit, TC::numThreads);
 
         u::sleep(0.01);
         const Uint64 start = u::nanoClock();
@@ -1030,7 +1048,7 @@ int main(int argc, char *argv[])
         const double elapsed         = 1e-9 * static_cast<double>(
                                                        u::nanoClock() - start);
         const double events          = static_cast<double>(TC::eventsSoFar);
-        const double eventsPerSecond = events / elapsed / u::numThreads;
+        const double eventsPerSecond = events / elapsed / TC::numThreads;
 
         tg.joinAll();
 

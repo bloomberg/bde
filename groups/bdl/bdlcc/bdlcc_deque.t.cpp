@@ -7679,6 +7679,11 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL(prB[1000 * 1000]);
                 ASSERT_SAFE_FAIL(prB[-1]);
 
+                // Release `X` before locking `Y` so the test never holds both
+                // mutexes in this order (avoids a TSAN lock-order report).
+
+                prB.release();
+
                 const Obj::ConstProctor PRC(&Y);
 
                 pdy = &*PRC;

@@ -2401,6 +2401,18 @@ int main(int argc, char *argv[])
                                   : " expected to succeed\n");
             }
 
+#if defined(BDE_BUILD_TARGET_TSAN)
+            if (willFail) {
+                // When `pthread_create` with an explicit scheduling policy
+                // fails, glibc tears down an already-started thread that
+                // ThreadSanitizer has not yet initialized, and TSan crashes.
+                // See https://github.com/google/sanitizers/issues/1088
+
+                if (verbose) cout << "    skipped under ThreadSanitizer\n";
+                continue;
+            }
+#endif
+
             Attr attr;
             attr.setStackSize(50 * 1024);
             attr.setSchedulingPolicy(policy);
