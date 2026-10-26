@@ -49,15 +49,63 @@ BSLS_IDENT("$Id: $")
 // [00112233445566778899aAbBcCdDeEfF]
 // ```
 //
+///UUID Versions
+///-------------
+// `GuidUtil` generates UUIDs of three of the versions specified by RFC 9562
+// (https://www.rfc-editor.org/rfc/rfc9562):
+//
+// * Version 4 -- 122 randomly generated bits -- produced by `generate` and
+//   `generateNonSecure`.
+// * Version 5 -- derived deterministically from a namespace ID and a name
+//   using the SHA-1 hash -- produced by `generateFromName`.
+// * Version 7 -- a 48-bit big-endian Unix epoch timestamp in milliseconds
+//   followed by 74 randomly generated bits -- produced by `generateVersion7`
+//   and `generateNonSecureVersion7`.
+//
+// Each of these functions sets the "variant" bits to `10` and the "version"
+// bits to its version, which `getVersion` returns.
+//
+///Version 7 UUIDs and Ordering
+///----------------------------
+// The leading 48 bits of a version 7 UUID hold the generation time, in
+// milliseconds since the Unix epoch, in big-endian byte order.  Because
+// `bdlb::Guid` orders lexicographically by byte, version 7 UUIDs generated in
+// different milliseconds sort in generation order, unless the system clock is
+// adjusted.
+//
+// Within a process, the timestamp never decreases, even if the system clock
+// is set back.  This holds across threads, but not across processes or hosts.
+// After the clock is set back, calls still return immediately, but every UUID
+// gets the largest timestamp already used, so those UUIDs are in no
+// particular order.  Once the clock passes that timestamp, UUIDs get the
+// clock's time again.  A clock set forward and then corrected has the same
+// effect.
+//
+// Within a single millisecond there is no ordering guarantee:
+//
+// * Two UUIDs generated in the same millisecond may compare in either order.
+// * The clock is read once per call, so all the UUIDs loaded by one call to a
+//   batch overload share one timestamp, in no particular order.
+//
+// The system clock can tick less often than once a millisecond.  On Windows
+// a tick is about 15.6 milliseconds by default.  UUIDs generated within one
+// tick share a timestamp, so they too are in no particular order.
+//
 ///Cryptographic Security
 ///----------------------
-// `GuidUtil` provides three families of functions for generating GUIDs:
-// `generate`, `generateNonSecure`, and `generateFromName`.  The `generate` and
-// `generateNonSecure` methods use random number generators, with the slower
-// `generate` methods aiming to produce cryptographically secure UUIDs by
-// accessing underlying system resources to obtain truly random numbers, and
-// the faster `generateNonSecure` methods using a fast high-quality (but not
-// strictly cryptographically secure) in-process random-number generator.
+// `GuidUtil` provides five families of functions for generating GUIDs:
+// `generate`, `generateNonSecure`, `generateVersion7`,
+// `generateNonSecureVersion7`, and `generateFromName`.  All but the last use
+// random number generators, with the slower `generate` and `generateVersion7`
+// methods aiming to produce cryptographically secure UUIDs by accessing
+// underlying system resources to obtain truly random numbers, and the faster
+// `generateNonSecure` and `generateNonSecureVersion7` methods using a fast
+// high-quality (but not strictly cryptographically secure) in-process
+// random-number generator.
+//
+// Note that a version 7 UUID discloses the time at which it was created, and
+// has 48 fewer random bits than a version 4 UUID, so it should not be used
+// where the unguessability of a version 4 UUID is required.
 //
 // The `generateFromName` method does not use random numbers, but produces a
 // UUID deterministically based on a given name and namespace.  The user should
@@ -70,6 +118,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Generating GUIDs for Employee Records
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we are building a system for managing records for employees in a
 // large international firm.  These records have no natural field which can be
 // used as a unique ID, so a GUID must be created for each employee.
@@ -112,8 +164,7 @@ BSLS_IDENT("$Id: $")
 // };
 // ```
 // Next, we create free functions `operator<` and `operator==` to allow
-// comparison of `MyEmployee` objects.  We take advantage of the monotonically
-// increasing nature of sequential GUIDs to implement these methods.
+// comparison of `MyEmployee` objects.
 // ```
 //
 // /// Return `true` if the specified `lhs` object has the same value as
@@ -176,6 +227,38 @@ BSLS_IDENT("$Id: $")
 //     assert(e2 < e3 || e3 < e2);
 //     assert(e1 < e3 || e3 < e1);
 // ```
+//
+///Example 2: Generating Time-Ordered Keys for an Event Store
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we are appending events to a store indexed by event ID, and want
+// the IDs to sort in the order the events occur.
+//
+// First, we generate the IDs for a batch of three events:
+// ```
+//     bdlb::Guid eventIds[3];
+//     bdlb::GuidUtil::generateVersion7(eventIds, 3);
+// ```
+// Then, we confirm that each ID advertises itself as a version 7 UUID:
+// ```
+//     for (int i = 0; i < 3; ++i) {
+//         assert(7 == bdlb::GuidUtil::getVersion(eventIds[i]));
+//     }
+// ```
+// Next, we generate an ID for an event that occurs 20 milliseconds later,
+// longer than one tick of the system clock (see {Version 7 UUIDs and
+// Ordering}):
+// ```
+//     bslmt::ThreadUtil::microSleep(20000);
+//     const bdlb::Guid laterEventId = bdlb::GuidUtil::generateVersion7();
+// ```
+// Finally, we verify that the later event sorts after all the earlier ones:
+// ```
+//     for (int i = 0; i < 3; ++i) {
+//         assert(eventIds[i] < laterEventId);
+//     }
+// ```
+// Note that this component makes no such guarantee for GUIDs generated within
+// the same millisecond; see {Version 7 UUIDs and Ordering}.
 
 #include <bdlscm_version.h>
 
@@ -234,7 +317,8 @@ class GuidState_Imp {
                               // ===============
 
 /// This `struct` provides a namespace for functions that create Universally
-/// Unique Identifiers per RFC 4122 (http://www.ietf.org/rfc/rfc4122.txt).
+/// Unique Identifiers per RFC 4122 (http://www.ietf.org/rfc/rfc4122.txt) and
+/// its successor, RFC 9562 (https://www.rfc-editor.org/rfc/rfc9562).
 struct GuidUtil {
 
     // CLASS METHODS
@@ -274,6 +358,57 @@ struct GuidUtil {
     /// Note that this function generates high quality, albeit not
     /// cryptographically secure, random numbers for GUIDs.
     static Guid generateNonSecure();
+
+    /// Generate a sequence of GUIDs meeting the RFC 9562 version 7
+    /// specification, and load the resulting GUIDs into the array referred
+    /// to by the specified `result`.  Optionally specify `numGuids`,
+    /// indicating the number of GUIDs to load into the `result` array.  If
+    /// `numGuids` is not supplied, a default of 1 is used.  An RFC 9562
+    /// version 7 GUID consists of a 48-bit big-endian Unix epoch timestamp
+    /// in milliseconds, four "version" bits set to `0111`, two "variant"
+    /// bits set to `10`, and 74 randomly generated bits.  The behavior is
+    /// undefined unless `result` refers to a contiguous sequence of at
+    /// least `numGuids` `Guid` objects.  Note that the timestamp is read
+    /// once per call, so all the loaded GUIDs share the same timestamp; see
+    /// {Version 7 UUIDs and Ordering}.
+    static void generateVersion7(Guid *result, bsl::size_t numGuids = 1);
+
+    /// Generate and return a single GUID meeting the RFC 9562 version 7
+    /// specification, consisting of a 48-bit big-endian Unix epoch
+    /// timestamp in milliseconds, four "version" bits set to `0111`, two
+    /// "variant" bits set to `10`, and 74 randomly generated bits.  Note
+    /// that the timestamp is never less than that of a version 7 GUID
+    /// previously generated by this process; see {Version 7 UUIDs and
+    /// Ordering}.
+    static Guid generateVersion7();
+
+    /// Generate a sequence of GUIDs meeting the RFC 9562 version 7
+    /// specification, and load the resulting GUIDs into the array referred
+    /// to by the specified `result`.  Optionally specify `numGuids`,
+    /// indicating the number of GUIDs to load into the `result` array.  If
+    /// `numGuids` is not supplied, a default of 1 is used.  An RFC 9562
+    /// version 7 GUID consists of a 48-bit big-endian Unix epoch timestamp
+    /// in milliseconds, four "version" bits set to `0111`, two "variant"
+    /// bits set to `10`, and 74 randomly generated bits.  The behavior is
+    /// undefined unless `result` refers to a contiguous sequence of at
+    /// least `numGuids` `Guid` objects.  Note that this function generates
+    /// high quality, albeit not cryptographically secure, random numbers
+    /// for GUIDs.  Also note that the timestamp is read once per call, so
+    /// all the loaded GUIDs share the same timestamp; see {Version 7 UUIDs
+    /// and Ordering}.
+    static void generateNonSecureVersion7(Guid        *result,
+                                          bsl::size_t  numGuids = 1);
+
+    /// Generate and return a single GUID meeting the RFC 9562 version 7
+    /// specification, consisting of a 48-bit big-endian Unix epoch
+    /// timestamp in milliseconds, four "version" bits set to `0111`, two
+    /// "variant" bits set to `10`, and 74 randomly generated bits.  Note
+    /// that this function generates high quality, albeit not
+    /// cryptographically secure, random numbers for GUIDs.  Also note that
+    /// the timestamp is never less than that of a version 7 GUID
+    /// previously generated by this process; see {Version 7 UUIDs and
+    /// Ordering}.
+    static Guid generateNonSecureVersion7();
 
     /// Generate and return a single GUID meeting the RFC 4122 version 5
     /// specification from the specified `namespaceId` and `name`.
@@ -327,7 +462,7 @@ struct GuidUtil {
 
     /// Return the version of the specified `guid` object.  The behavior is
     /// undefined unless the contents of the `guid` object are compliant
-    /// with RFC 4122.
+    /// with RFC 4122 or RFC 9562.
     static int getVersion(const bdlb::Guid& guid);
 
     /// Return the most significant 8 bytes of the specified `guid`.

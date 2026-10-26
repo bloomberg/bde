@@ -18,9 +18,13 @@ BSLS_IDENT_RCSID(RCSid_bdlb_guidutil_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_atomicoperations.h>
 #include <bsls_byteorder.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdio.h>
@@ -153,6 +157,87 @@ void makeRfc4122Compliant(unsigned char *bytes, const unsigned char *end)
     }
 }
 
+/// The largest millisecond count yet returned by `unixTimestampMs48Bits` in
+/// this process, before truncation.
+static bsls::AtomicOperations::AtomicTypes::Int64 s_lastV7TimestampMs = { 0 };
+
+/// Return the low-order 48 bits of the number of milliseconds that have
+/// elapsed since the Unix epoch, never less than the value returned by any
+/// previous call in this process.
+inline
+bsls::Types::Uint64 unixTimestampMs48Bits()
+{
+    const bsls::Types::Int64 now =
+                      bsls::SystemTime::nowRealtimeClock().totalMilliseconds();
+
+    // Publish `now` if it is the largest value seen so far, and return the
+    // largest value seen either way.
+
+    typedef bsls::AtomicOperations Ops;
+
+    bsls::Types::Int64 result = Ops::getInt64Acquire(&s_lastV7TimestampMs);
+
+    while (now > result) {
+        const bsls::Types::Int64 prev =
+                Ops::testAndSwapInt64AcqRel(&s_lastV7TimestampMs, result, now);
+        if (prev == result) {
+            result = now;
+            break;
+        }
+
+        result = prev;
+    }
+
+    return static_cast<bsls::Types::Uint64>(result) & 0xFFFFFFFFFFFFULL;
+}
+
+/// Make the buffer starting at the specified `bytes` and ending at the
+/// address just before the specified `end` comply with RFC 9562 version 7,
+/// using the specified `timestamp` (a count of milliseconds since the Unix
+/// epoch) as the leading 48 bits of every GUID in that buffer.  The
+/// behavior is undefined unless `bytes <= end`, the size of the buffer
+/// defined by `end - bytes` is a non-negative multiple of
+/// `Guid::k_GUID_NUM_BYTES`, and `timestamp < (1 << 48)`.
+inline
+void makeRfc9562Version7Compliant(unsigned char       *bytes,
+                                  const unsigned char *end,
+                                  bsls::Types::Uint64  timestamp)
+{
+    BSLS_ASSERT(bytes);
+    BSLS_ASSERT(end);
+    BSLS_ASSERT(bytes <= end);
+    BSLS_ASSERT(0 == (end - bytes) % Guid::k_GUID_NUM_BYTES);
+    BSLS_ASSERT(timestamp < (1ULL << 48));
+
+    // Each GUID is laid out as RFC 9562 section 5.7 requires, with `bytes`
+    // already holding random bits on entry:
+    //
+    // ```
+    //  byte | bits | field       | written here as
+    //  -----+------+-------------+-----------------------------------------
+    //   0-5 |   48 | unix_ts_ms  | `timestamp`, big-endian
+    //     6 |    4 | ver         | `0111`, in the high nibble
+    //     6 |    4 | rand_a high | kept from the incoming random bits
+    //     7 |    8 | rand_a low  | kept from the incoming random bits
+    //     8 |    2 | var         | `10`, in the two high bits
+    //     8 |    6 | rand_b high | kept from the incoming random bits
+    //  9-15 |   56 | rand_b low  | kept from the incoming random bits
+    // ```
+
+    typedef unsigned char Uchar;
+    while (bytes < end) {
+        bytes[0] = Uchar((timestamp >> 40) & 0xFF);
+        bytes[1] = Uchar((timestamp >> 32) & 0xFF);
+        bytes[2] = Uchar((timestamp >> 24) & 0xFF);
+        bytes[3] = Uchar((timestamp >> 16) & 0xFF);
+        bytes[4] = Uchar((timestamp >>  8) & 0xFF);
+        bytes[5] = Uchar(timestamp & 0xFF);
+        bytes[6] = Uchar(0x70 | (bytes[6] & 0x0F));
+        bytes[8] = Uchar(0x80 | (bytes[8] & 0x3F));
+        bytes += Guid::k_GUID_NUM_BYTES;
+    }
+}
+
 /// A functor suitable for passing into `bsl::string::resize_and_overwrite`
 /// which formats a `bdlb::Guid` into a string buffer.
 struct GuidUtil_GuidToStringFormatter
@@ -258,6 +343,51 @@ void reseed(GuidState_Imp *guidStatePtr)
     guidStatePtr->seed(state);
 }
 
+/// Overwrite the specified `numGuids` `Guid` objects in the array referred
+/// to by the specified `result` with high-quality (but not
+/// cryptographically secure) pseudo-random bits.  The behavior is undefined
+/// unless `result` refers to a contiguous sequence of at least `numGuids`
+/// `Guid` objects.  Note that the resulting bits carry neither the "version"
+/// nor the "variant" bits required of a UUID.
+void generateNonSecureRandomBits(Guid *result, bsl::size_t numGuids)
+{
+    BSLS_ASSERT(result);
+
+    static GuidState_Imp *guidStatePtr;
+    static bslmt::Mutex  *pcgMutexPtr;
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!s_pid.loadAcquire())) {
+        BSLMT_ONCE_DO
+        {
+            registerForkCallback();
+
+            static GuidState_Imp guidState;
+            guidStatePtr = &guidState;
+
+            static bslmt::Mutex pcgMutex;
+            pcgMutexPtr = &pcgMutex;
+        }
+
+        bslmt::LockGuard<bslmt::Mutex> guard(pcgMutexPtr);
+
+        if (!s_pid.load()) {
+            s_pid = getPid();
+            reseed(guidStatePtr);
+        }
+    }
+
+    BSLS_ASSERT(pcgMutexPtr);
+    BSLS_ASSERT(guidStatePtr);
+
+    bslmt::LockGuard<bslmt::Mutex> guard(pcgMutexPtr);
+
+    for (bsl::size_t i = 0; i < numGuids; i++) {
+        bsl::uint32_t temp[Guid::k_GUID_NUM_32BITS];
+        guidStatePtr->generateRandomBits(&temp);
+        result[i] = temp;
+    }
+}
+
 }  // close unnamed namespace
 
                               // ===================
@@ -313,38 +443,7 @@ void GuidUtil::generateNonSecure(Guid *result, bsl::size_t numGuids)
 {
     BSLS_ASSERT(result);
 
-    static GuidState_Imp *guidStatePtr;
-    static bslmt::Mutex  *pcgMutexPtr;
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!s_pid.loadAcquire())) {
-        BSLMT_ONCE_DO
-        {
-            registerForkCallback();
-
-            static GuidState_Imp guidState;
-            guidStatePtr = &guidState;
-
-            static bslmt::Mutex pcgMutex;
-            pcgMutexPtr = &pcgMutex;
-        }
-
-        bslmt::LockGuard<bslmt::Mutex> guard(pcgMutexPtr);
-
-        if (!s_pid.load()) {
-            s_pid = getPid();
-            reseed(guidStatePtr);
-        }
-    }
-
-    {
-        bslmt::LockGuard<bslmt::Mutex> guard(pcgMutexPtr);
-
-        for (bsl::size_t i = 0; i < numGuids; i++) {
-            bsl::uint32_t temp[Guid::k_GUID_NUM_32BITS];
-            guidStatePtr->generateRandomBits(&temp);
-            result[i] = temp;
-        }
-    }
+    generateNonSecureRandomBits(result, numGuids);
 
     unsigned char *bytes = reinterpret_cast<unsigned char *>(result);
     unsigned char *end   = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
@@ -356,6 +455,51 @@ Guid GuidUtil::generateNonSecure()
 {
     Guid result;
     generateNonSecure(&result);
+    return result;
+}
+
+void GuidUtil::generateVersion7(Guid *result, bsl::size_t numGuids)
+{
+    BSLS_ASSERT(result);
+
+    unsigned char *bytes = reinterpret_cast<unsigned char *>(result);
+    unsigned char *end   = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
+
+    // Note that, on a correctly installed system, the `RandomDevice` call
+    // would be expected to never fail.
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                  0 == RandomDevice::getRandomBytesNonBlocking(bytes,
+                                                               end - bytes))) {
+        makeRfc9562Version7Compliant(bytes, end, unixTimestampMs48Bits());
+    }
+    else {
+        generateNonSecureVersion7(result, numGuids);
+    }
+}
+
+Guid GuidUtil::generateVersion7()
+{
+    Guid result;
+    generateVersion7(&result);
+    return result;
+}
+
+void GuidUtil::generateNonSecureVersion7(Guid *result, bsl::size_t numGuids)
+{
+    BSLS_ASSERT(result);
+
+    generateNonSecureRandomBits(result, numGuids);
+
+    unsigned char *bytes = reinterpret_cast<unsigned char *>(result);
+    unsigned char *end   = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
+
+    makeRfc9562Version7Compliant(bytes, end, unixTimestampMs48Bits());
+}
+
+Guid GuidUtil::generateNonSecureVersion7()
+{
+    Guid result;
+    generateNonSecureVersion7(&result);
     return result;
 }
 
