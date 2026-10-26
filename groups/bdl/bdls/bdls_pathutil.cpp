@@ -290,7 +290,7 @@ void u_appendRaw(STR_TYPE *path, const char *filename, int length, int rootEnd)
                                       path->c_str(),
                                       static_cast<int>(path->length()));
         }
-        if (PathUtil::hasLeaf(path->c_str(), rootEnd)
+        if (PathUtil::hasLeaf(*path, rootEnd)
          || (rootEnd > 0 && !isSeparator((*path)[rootEnd-1]))) {
             path->push_back(k_separators[0]);
         }
@@ -309,7 +309,7 @@ int u_popLeaf(STR_TYPE *path, int rootEnd)
                                   static_cast<int>(path->length()));
     }
 
-    if (!PathUtil::hasLeaf(path->c_str(), rootEnd)) {
+    if (!PathUtil::hasLeaf(*path, rootEnd)) {
         return -1;                                                    // RETURN
     }
 
