@@ -1038,20 +1038,15 @@ int main(int argc, char *argv[])
             }
             TestAllocator a;
             {
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
-
                 typedef bslma::AutoRawDeleter<my_Class, TestAllocator> T;
-                T mX(myClassArray + 100, &a, 12);    // configured for disaster
+
+                // Configured for disaster: the range extends past the end of
+                // `myClassArray`.  Note that the origin is the past-the-end
+                // address, the furthest address that may be validly formed.
+                T mX(myClassArray + NUM_ELEM, &a, 12);
                 mX.reset(myClassArray + ORIGIN);
                 mX.setLength(LENGTH);
                 LOOP_ASSERT(LINE, LENGTH == mX.length());
-
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
             }
 
             if (veryVerbose) {

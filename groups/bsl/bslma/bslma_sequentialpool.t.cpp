@@ -1281,10 +1281,10 @@ int main(int argc, char *argv[])
 
             typedef bslma::BufferAllocator::AlignmentStrategy
                                                              AlignmentStrategy;
-            AlignmentStrategy strategy;
-            for (strategy = bslma::BufferAllocator::MAXIMUM_ALIGNMENT;
-                 strategy <= bslma::BufferAllocator::NATURAL_ALIGNMENT;
-                 strategy = (AlignmentStrategy) (strategy + 1)) {
+            for (int si = bslma::BufferAllocator::MAXIMUM_ALIGNMENT;
+                 si <= bslma::BufferAllocator::NATURAL_ALIGNMENT;
+                 ++si) {
+                const AlignmentStrategy strategy = (AlignmentStrategy) si;
 
                 // Keep track of the sequence of allocations from the test
                 // allocator.
