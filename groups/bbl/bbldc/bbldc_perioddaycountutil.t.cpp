@@ -791,7 +791,10 @@ int main(int argc, char *argv[])
                           << "TESTING `isSupported`" << endl
                           << "=====================" << endl;
 
-        for (int i = 0; i < 1000; ++i) {
+        // Values outside `[0 .. 15]` are not valid for `Enum` (its enumerators
+        // fit in 4 bits), and loading such a value is undefined behavior.
+
+        for (int i = 0; i < 16; ++i) {
             const Enum convention = static_cast<Enum>(i);
             ASSERT((PERIOD_ICMA_ACTUAL_ACTUAL == convention)
                    == Util::isSupported(convention));
