@@ -21,6 +21,7 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>   // min
+#include <bsl_cctype.h>      // isalnum()
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
@@ -1126,6 +1127,9 @@ void writeStringToFile(const char         *fileName,
 
         bsl::ofstream of(fileName, bsl::ios_base::out | bsl::ios_base::binary);
         of << str << bsl::flush;
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+        ASSERTV(fileName, of.good());
+#endif
         of.close();
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -1278,6 +1282,17 @@ int main(int argc, char *argv[])
                                                     &osVersion,
                                                     &osPatch));
                 osName += '.' + osVersion + '.' + osPatch;
+
+                // The `os*` strings can contain characters, such as `/` on Darwin,
+                // that are not valid in a file name.
+
+                for (bsl::size_t ii = 0; ii < osName.length(); ++ii) {
+                    const unsigned char c = osName[ii];
+                    if (!bsl::isalnum(c) && '.' != c && '-' != c) {
+                        osName[ii] = '_';
+                    }
+                }
+
                 hostName = osName.c_str();
             }
 
