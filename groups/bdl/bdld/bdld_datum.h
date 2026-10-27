@@ -1198,7 +1198,8 @@ class Datum {
         e_INTERNAL_INT_MAP           = 24,  // map of datums keyed by 32-bit
                                             // integer values
 
-        e_INTERNAL_LONGEST_SHORTSTRING = 25   // Short string of length 15 characters
+        e_INTERNAL_LONGEST_SHORTSTRING
+                                     = 25   // Short string of length 15 chars
     };
 
     /// Define `k_NUM_INTERNAL_TYPES` to be the number of consecutively
@@ -4192,8 +4193,9 @@ inline
 bool Datum::isNull() const
 {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    return d_exp.d_value == (((k_DOUBLE_MASK | Datum::e_INTERNAL_EXTENDED) << k_TYPE_MASK_BITS)
-                            | e_EXTENDED_INTERNAL_NIL);
+    return d_exp.d_value == (((k_DOUBLE_MASK | Datum::e_INTERNAL_EXTENDED)
+                              << k_TYPE_MASK_BITS) |
+                             e_EXTENDED_INTERNAL_NIL);
 #else   // end - 32 bit / begin - 64 bit
     return (e_NIL == type());
 #endif  // end - 64 bit
@@ -4549,32 +4551,32 @@ Datum::DataType Datum::type() const
     return convert[type];
 #else   // end - 32 bit / begin - 64 bit
     static const DataType convert[] = {
-        e_ERROR                            // e_INTERNAL_UNINITIALIZED; invalid
-      , e_DOUBLE                           // e_INTERNAL_INF                 = 1
-      , e_NIL                              // e_INTERNAL_NIL                 = 2
-      , e_BOOLEAN                          // e_INTERNAL_BOOLEAN             = 3
-      , e_STRING                           // e_INTERNAL_SHORTSTRING         = 4
-      , e_STRING                           // e_INTERNAL_STRING              = 5
-      , e_DATE                             // e_INTERNAL_DATE                = 6
-      , e_TIME                             // e_INTERNAL_TIME                = 7
-      , e_DATETIME                         // e_INTERNAL_DATETIME            = 8
-      , e_DATETIME_INTERVAL                // e_INTERNAL_DATETIME_INTERVAL   = 9
-      , e_INTEGER                          // e_INTERNAL_INTEGER             = 10
-      , e_INTEGER64                        // e_INTERNAL_INTEGER64           = 11
-      , e_USERDEFINED                      // e_INTERNAL_USERDEFINED         = 12
-      , e_ARRAY                            // e_INTERNAL_ARRAY               = 13
-      , e_STRING                           // e_INTERNAL_STRING_REFERENCE    = 14
-      , e_ARRAY                            // e_INTERNAL_ARRAY_REFERENCE     = 15
-      , e_DOUBLE                           // e_INTERNAL_DOUBLE              = 16
-      , e_MAP                              // e_INTERNAL_MAP                 = 17
-      , e_MAP                              // e_INTERNAL_OWNED_MAP           = 18
-      , e_ERROR                            // e_INTERNAL_ERROR               = 19
-      , e_ERROR                            // e_INTERNAL_ERROR_ALLOC         = 20
-      , e_BINARY                           // e_INTERNAL_BINARY              = 21
-      , e_BINARY                           // e_INTERNAL_BINARY_ALLOC        = 22
-      , e_DECIMAL64                        // e_INTERNAL_DECIMAL64           = 23
-      , e_INT_MAP                          // e_INTERNAL_INT_MAP             = 24
-      , e_STRING                           // e_INTERNAL_LONGEST_SHORTSTRING = 25
+        e_ERROR                     // e_INTERNAL_UNINITIALIZED; invalid
+      , e_DOUBLE                    // e_INTERNAL_INF                 = 1
+      , e_NIL                       // e_INTERNAL_NIL                 = 2
+      , e_BOOLEAN                   // e_INTERNAL_BOOLEAN             = 3
+      , e_STRING                    // e_INTERNAL_SHORTSTRING         = 4
+      , e_STRING                    // e_INTERNAL_STRING              = 5
+      , e_DATE                      // e_INTERNAL_DATE                = 6
+      , e_TIME                      // e_INTERNAL_TIME                = 7
+      , e_DATETIME                  // e_INTERNAL_DATETIME            = 8
+      , e_DATETIME_INTERVAL         // e_INTERNAL_DATETIME_INTERVAL   = 9
+      , e_INTEGER                   // e_INTERNAL_INTEGER             = 10
+      , e_INTEGER64                 // e_INTERNAL_INTEGER64           = 11
+      , e_USERDEFINED               // e_INTERNAL_USERDEFINED         = 12
+      , e_ARRAY                     // e_INTERNAL_ARRAY               = 13
+      , e_STRING                    // e_INTERNAL_STRING_REFERENCE    = 14
+      , e_ARRAY                     // e_INTERNAL_ARRAY_REFERENCE     = 15
+      , e_DOUBLE                    // e_INTERNAL_DOUBLE              = 16
+      , e_MAP                       // e_INTERNAL_MAP                 = 17
+      , e_MAP                       // e_INTERNAL_OWNED_MAP           = 18
+      , e_ERROR                     // e_INTERNAL_ERROR               = 19
+      , e_ERROR                     // e_INTERNAL_ERROR_ALLOC         = 20
+      , e_BINARY                    // e_INTERNAL_BINARY              = 21
+      , e_BINARY                    // e_INTERNAL_BINARY_ALLOC        = 22
+      , e_DECIMAL64                 // e_INTERNAL_DECIMAL64           = 23
+      , e_INT_MAP                   // e_INTERNAL_INT_MAP             = 24
+      , e_STRING                    // e_INTERNAL_LONGEST_SHORTSTRING = 25
     };
 
     const InternalDataType type = internalType();
