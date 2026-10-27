@@ -2128,34 +2128,22 @@ template <class VALUE_TYPE>
 typename Deque_Base<VALUE_TYPE>::size_type
 Deque_Base<VALUE_TYPE>::capacity() const BSLS_KEYWORD_NOEXCEPT
 {
-    // 'allocateBlockPtrs', which creates the 'd_blocks_p' array,
-    // does not, in its contract, guarantee to initialize the array to 0.
-    // Since we read these values, we have to make sure they're initialized to
-    // avoid purify 'read before write' errors.  Note that we initialize them
-    // to null in which case they are not valid pointers, but we never
-    // dereference them, and the pointer arithmetic we do on them will still
-    // work.
+    // Compute the room in front of 'd_finish' and behind 'd_start' from the
+    // block-pointer offsets rather than by forming iterators to the first and
+    // last slots of 'd_blocks_p', since those slots may not refer to
+    // allocated blocks (and may be uninitialized), so that pointer arithmetic
+    // on them would have undefined behavior.
 
-    if (d_start.blockPtr() > d_blocks_p) {
-        d_blocks_p[0] = 0;
-    }
-    if (d_finish.blockPtr() < d_blocks_p + d_blocksLength - 1) {
-        d_blocks_p[d_blocksLength - 1] = 0;
-    }
+    BSLS_ASSERT_SAFE(d_blocks_p <= d_start.blockPtr());
+    BSLS_ASSERT_SAFE(d_finish.blockPtr() <= d_blocks_p + d_blocksLength - 1);
 
-    const IteratorImp first(d_blocks_p);
-
-    // 'last' points to the empty slot at the end of the last block in
-    // 'd_blocks_p', which might not actually be there.
-
-    IteratorImp last(d_blocks_p + d_blocksLength - 1);
-    last += BLOCK_LENGTH - 1;
-
-    BSLS_ASSERT_SAFE(!(d_start < first));          // 'IteratorImp' has no '>='
-    BSLS_ASSERT_SAFE(!(last    < d_finish));
-
-    const size_type frontCapacity = d_finish - first;
-    const size_type backCapacity  = last - d_start;
+    const size_type frontCapacity =
+                           (d_finish.blockPtr() - d_blocks_p) * BLOCK_LENGTH
+                         + d_finish.offsetInBlock();
+    const size_type backCapacity  =
+              (d_blocks_p + d_blocksLength - 1 - d_start.blockPtr())
+                                                                * BLOCK_LENGTH
+            + (BLOCK_LENGTH - 1 - d_start.offsetInBlock());
 
     // Return the min (we are below 'bsl_algorithm.h', so we have to do it by
     // hand).
@@ -3366,26 +3354,19 @@ void deque<VALUE_TYPE, ALLOCATOR>::reserve(size_type numElements)
                                       "deque<...>::reserve(n): deque too big");
     }
 
-    // 'allocateBlockPtrs', which creates the 'd_blocks_p' array, does
-    // not, in its contract, guarantee to initialize the array to 0.  Since we
-    // read these values, we have to make sure they're initialized to avoid
-    // purify 'read before write' errors.  Note that we initialize them to 0,
-    // making them invalid pointers, but we never dereference them, and the
-    // pointer arithmetic we do on them will still work.
+    // Compute the room in front of 'd_start' and behind 'd_finish' from the
+    // block-pointer offsets rather than by forming iterators to the first and
+    // last slots of 'd_blocks_p', since those slots may not refer to
+    // allocated blocks (and may be uninitialized), so that pointer arithmetic
+    // on them would have undefined behavior.
 
-    if (this->d_start.blockPtr() > this->d_blocks_p) {
-        this->d_blocks_p[0] = 0;
-    }
-    if (this->d_finish.blockPtr() < this->d_blocks_p + this->d_blocksLength-1){
-        this->d_blocks_p[this->d_blocksLength - 1] = 0;
-    }
-
-    const IteratorImp first(this->d_blocks_p);
-    IteratorImp       last( this->d_blocks_p + this->d_blocksLength - 1);
-    last += BLOCK_LENGTH - 1;
-
-    const size_type frontRoom = this->d_start - first;
-    const size_type backRoom  = last - this->d_finish;
+    const size_type frontRoom =
+                 (this->d_start.blockPtr() - this->d_blocks_p) * BLOCK_LENGTH
+               + this->d_start.offsetInBlock();
+    const size_type backRoom  =
+                 (this->d_blocks_p + this->d_blocksLength - 1
+                                    - this->d_finish.blockPtr()) * BLOCK_LENGTH
+               + (BLOCK_LENGTH - 1 - this->d_finish.offsetInBlock());
 
     size_type numFrontBlocks = numElements > frontRoom
                              ? (numElements - frontRoom + BLOCK_LENGTH - 1) /
@@ -3402,7 +3383,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::reserve(size_type numElements)
 
     // Make sure that if we throw, it's before we modify the deque.
 
-    size_type existingSpace = last - first;
+    size_type existingSpace = this->d_blocksLength * BLOCK_LENGTH - 1;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numFrontBlocks >
                                (max_size() - existingSpace) / BLOCK_LENGTH
        || (existingSpace += numFrontBlocks * BLOCK_LENGTH,

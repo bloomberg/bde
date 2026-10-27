@@ -4241,6 +4241,11 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
             // 0.  We will always have one of the two, and since they differ by
             // ph->p_vaddr, we can always calculate the one we don't have.
 
+            // Note that 'p_vaddr' may exceed the address it is being
+            // subtracted from or added to (e.g., the vDSO on Linux), so the
+            // arithmetic, which is intended to wrap, is done on integers
+            // rather than on pointers.
+
             void *localTextSegPtr  = textSegPtr;
             void *localBaseAddress = baseAddress;
 
@@ -4249,14 +4254,16 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
                 // calculating baseAddress from textSegPtr
 
-                localBaseAddress =
-                                 static_cast<char *>(textSegPtr) - ph->p_vaddr;
+                localBaseAddress = reinterpret_cast<void *>(
+                                     reinterpret_cast<u::UintPtr>(textSegPtr) -
+                                                                 ph->p_vaddr);
             }
             else {
                 // or the other way around
 
-                localTextSegPtr =
-                                static_cast<char *>(baseAddress) + ph->p_vaddr;
+                localTextSegPtr = reinterpret_cast<void *>(
+                                    reinterpret_cast<u::UintPtr>(baseAddress) +
+                                                                 ph->p_vaddr);
             }
 
             // 'resolveSegment' trashes scratch buffers A and B, and if DWARF

@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nVerify the toAscii function." << endl;
 
-        for (i = -1; i < DATA_LENGTH + 1; ++i) {  // also check UNKNOWN_FMT
+        for (i = 0; i < DATA_LENGTH + 1; ++i) {  // also check UNKNOWN_FMT
             const char *const FMT = 0 <= i && i < DATA_LENGTH
                                     ? DATA[i].d_ascii : UNKNOWN_FMT;
 
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
         char mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
         const char *CTRL_BUF = mCtrlBuf; // Used to check for extra characters.
 
-        for (i = -1; i < DATA_LENGTH + 1; ++i) {  // also check UNKNOWN_FMT
+        for (i = 0; i < DATA_LENGTH + 1; ++i) {  // also check UNKNOWN_FMT
             char buf[SIZE];
             memcpy(buf, CTRL_BUF, SIZE);  // Preset buf to `unset` char values.
 

@@ -206,6 +206,11 @@ int main(int argc, char *argv[])
 
         const char *const UNKNOWN_FMT = "(* UNKNOWN *)";
 
+        // A value within the range of `Enum` that is not an enumerator.  Note
+        // that a value outside the range (e.g., -1) has undefined behavior.
+
+        const int k_UNKNOWN = 255;
+
         int i; // loop index variable -- keeps MS compiler from complaining
 
         if (verbose) cout << "\nVerify table length is correct." << endl;
@@ -225,7 +230,7 @@ int main(int argc, char *argv[])
             const char *const FMT = 0 <= i && i < DATA_LENGTH
                                     ? DATA[i].d_ascii : UNKNOWN_FMT;
             const int       VALUE = 0 <= i && i < DATA_LENGTH
-                                    ? DATA[i].d_value : -1;
+                                    ? DATA[i].d_value : k_UNKNOWN;
 
             if (veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
             const char *const ACT = Class::toAscii(Enum(VALUE));
@@ -285,7 +290,7 @@ int main(int argc, char *argv[])
             const char *const FMT = 0 <= i && i < DATA_LENGTH
                                     ? DATA[i].d_ascii : UNKNOWN_FMT;
             const int       VALUE = 0 <= i && i < DATA_LENGTH
-                                    ? DATA[i].d_value : -1;
+                                    ? DATA[i].d_value : k_UNKNOWN;
 
             if (veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
             bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);

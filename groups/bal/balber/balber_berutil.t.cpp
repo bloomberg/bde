@@ -3342,7 +3342,8 @@ Md5BlockInputIterator& Md5BlockInputIterator::operator=(
 
 Md5BlockInputIterator& Md5BlockInputIterator::operator++()
 {
-    d_iterator_p += Md5Block::k_CAPACITY;
+    d_iterator_p += bsl::min(static_cast<bsl::ptrdiff_t>(Md5Block::k_CAPACITY),
+                             d_end_p - d_iterator_p);
 
     if (d_iterator_p < d_end_p) {
         const bsl::size_t blockSize =
@@ -3400,8 +3401,7 @@ bool operator!=(const Md5BlockInputIterator& lhs,
 Md5BlockInputRange::Md5BlockInputRange(const unsigned char *begin,
                                        const unsigned char *end)
 : d_begin(begin, end)
-, d_end(end + (Md5Block::k_CAPACITY - ((end - begin) % Md5Block::k_CAPACITY)),
-        end)
+, d_end(end, end)
 {
     BSLS_ASSERT(begin <= end);
 }

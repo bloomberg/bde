@@ -37,6 +37,8 @@
 #include <bsl_iostream.h>
 #include <bsl_optional.h>
 
+#include <bsl_c_signal.h>
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -50,8 +52,6 @@
 #include <winerror.h>
 #else
 #include <bdlde_utf8util.h>
-
-#include <bsl_c_signal.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -1412,18 +1412,7 @@ int main(int argc, char *argv[])
         }
         cout << "A\n" << flush;
 #ifndef BSLS_PLATFORM_OS_DARWIN
-
-#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
-
-        *(int*)10 = 10;
-
-#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
-#pragma GCC diagnostic pop
-#endif
-
+        raise(SIGSEGV);
 #else
         _exit(1);
 #endif
