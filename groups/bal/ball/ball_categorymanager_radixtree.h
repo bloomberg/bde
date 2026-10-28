@@ -1125,7 +1125,15 @@ void CategoryManager_RadixTree<t_VALUE>::cleanupChildAfterErase(
 
         // Create merged node (may throw - but original tree unchanged)
         Node mergedNode(mergedPrefix, get_allocator());
-        mergedNode.value() = bslmf::MovableRefUtil::move(grandchild.value());
+
+        // Emplace into the empty `mergedNode` rather than move-assigning the
+        // `optional`, which triggers a spurious gcc `-Wmaybe-uninitialized`
+        // warning.
+
+        if (grandchild.value().has_value()) {
+            mergedNode.value().emplace(
+                             bslmf::MovableRefUtil::move(*grandchild.value()));
+        }
         mergedNode.children() =
                             bslmf::MovableRefUtil::move(grandchild.children());
 

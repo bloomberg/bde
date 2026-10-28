@@ -948,7 +948,8 @@ struct Functor {
     , d_numAllocations(0)
     , d_allocator_p(traceAllocator)
     {
-        bdlb::Random::generate15(&d_randNum, static_cast<int>(++s_threadRand * 987654321));
+        bdlb::Random::generate15(&d_randNum,
+                                 static_cast<int>(++s_threadRand * 987654321));
     }
 
     Functor(const Functor& original)
@@ -958,7 +959,7 @@ struct Functor {
     , d_allocator_p(original.d_allocator_p)
     {
         bdlb::Random::generate15(&d_randNum,
-                                original.d_randNum + static_cast<int>(++s_threadRand * 9876543));
+              original.d_randNum + static_cast<int>(++s_threadRand * 9876543));
     }
 
   private:
@@ -1694,9 +1695,12 @@ int main(int argc, char *argv[])
                 ++pos;
             }
 
-            LOOP4_ASSERT(report, numRecurserInTrace, RECORDED_FRAMES,
-                                                                narcissictStack,
-                   numRecurserInTrace + 1 + narcissictStack == RECORDED_FRAMES);
+            LOOP4_ASSERT(report,
+                         numRecurserInTrace,
+                         RECORDED_FRAMES,
+                         narcissictStack,
+                         numRecurserInTrace + 1 + narcissictStack ==
+                                                              RECORDED_FRAMES);
             ss.str("");
         }
       }  break;
@@ -2077,10 +2081,6 @@ int main(int argc, char *argv[])
 
         const unsigned char fillChars[] = { 0, 1, 0xff };
 
-        // `volatile` avoids clobbered warning
-        volatile const unsigned char * volatile end =
-                                                 fillChars + sizeof(fillChars);
-
         Obj ta;
         ta.setName("alpha");
         ta.setOstream(&ss);
@@ -2092,10 +2092,16 @@ int main(int argc, char *argv[])
                 const bool ABORT = a;
 
                 for (bsls::AtomicUint u = 1; u <= 4 * sizeof(void *); ++u) {
-                    for (const unsigned char *pu = fillChars; pu < end; ++pu) {
+                    // atomic avoids clobbered warning
+
+                    for (bsls::AtomicUint puOffset = 0;
+                         puOffset < sizeof(fillChars);
+                         ++puOffset) {
+                        const unsigned char FILL = fillChars[puOffset];
+
                         if (veryVerbose) {
                             cout << "Continuous:   ";
-                            P_(ABORT);   P_(u);    P((int) *pu);
+                            P_(ABORT);   P_(u);    P((int) FILL);
                         }
 
                         ASSERT(ss.str().empty());
@@ -2107,7 +2113,7 @@ int main(int argc, char *argv[])
 
                         char saveBuffer[4 * sizeof(void *)];
                         memcpy(saveBuffer, ptr - u, u);
-                        memset(ptr - u, *pu, u);
+                        memset(ptr - u, FILL, u);
 
                         if (setjmp(my_setJmpBuf)) {
                             ASSERT(ABORT);
@@ -3465,10 +3471,18 @@ int main(int argc, char *argv[])
 
         if (verbose) Q("Loop to exercise all c'tors");
 
+        // `CLEAN_DESTROY` and `FAILURE_LONGJMP` are declared outside the loop
+        // because, under gcc's ASan at `-O2`, reading them after the `setjmp`
+        // below was reported as `stack-use-after-scope` when declared inside
+        // the loop body.
+
+        bsls::AtomicBool CLEAN_DESTROY;
+        bsls::AtomicBool FAILURE_LONGJMP;
+
         // atomic and `volatile` avoids clobbered warning
         for (bsls::AtomicInt i(0); i < 2 * ABORT_LIMIT; ++i) {
-            const bool CLEAN_DESTROY   = i %  2;
-            const bool FAILURE_LONGJMP = i >= 2;
+            CLEAN_DESTROY   = i %  2;
+            FAILURE_LONGJMP = i >= 2;
 
             volatile bool done = false;
             for (bsls::AtomicInt c('a'); !done; ++c) {

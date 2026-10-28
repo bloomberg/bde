@@ -6180,6 +6180,13 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { cout << "mXC: "; mXC.print(cout, -1); }
 
+        // `cat4Holder` must outlive `mX`, whose destructor resets all
+        // registered category holders.
+
+        ball::CategoryHolder cat4Holder =
+                  { { ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },
+                                                                { 0 }, { 0 } };
+
         Obj        mX(mXC);
         const Obj& X = mX;
 
@@ -6207,9 +6214,6 @@ int main(int argc, char *argv[])
         ASSERT(0    == bsl::strcmp("sink1234567890?<>,.{}[]$%^&*()",
                                    cat3->categoryName()));
 
-        ball::CategoryHolder cat4Holder =
-                        { { ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },
-                                                                { 0 }, { 0 } };
         const Cat *cat4 = mX.setCategory(&cat4Holder, "sImPle");
         ASSERT(cat4);
         ASSERT(cat4 == X.lookupCategory("simple"));
@@ -6256,6 +6260,13 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { cout << "mXC: "; mXC.print(cout, -1); }
 
+        // `cat3Holder` must outlive `mX`, whose destructor resets all
+        // registered category holders.
+
+        ball::CategoryHolder cat3Holder =
+                  { { ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },
+                                                                { 0 }, { 0 } };
+
         Obj        mX(mXC);
         const Obj& X = mX;
 
@@ -6281,9 +6292,6 @@ int main(int argc, char *argv[])
         ASSERT(13   == cat2->triggerLevel());
         ASSERT(11   == cat2->triggerAllLevel());
 
-        ball::CategoryHolder cat3Holder =
-                  { { ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },
-                                                                { 0 }, { 0 } };
         const Cat *cat3 = mX.setCategory(&cat3Holder, "third");
         ASSERT(cat3);
         ASSERT(cat3 == X.lookupCategory("third"));

@@ -1646,8 +1646,12 @@ DatumParser::make(const bslstl::StringRef& v)
                                         d_timezoneDefault);
     }
     else if (k_KEY_PROCESS_ID == v) {
-        formatter = AllocUtil::newObject<ProcessIdFormatter>(d_allocator,
-                                                             bsl::nullopt);
+        // Passing the default name explicitly (rather than `bsl::nullopt`)
+        // avoids a spurious gcc `-Wmaybe-uninitialized` warning.
+
+        formatter = AllocUtil::newObject<ProcessIdFormatter>(
+                         d_allocator,
+                         bsl::string_view(ProcessIdFormatter::k_DEFAULT_NAME));
     }
     else if (k_KEY_THREAD_ID  == v) {
         formatter = AllocUtil::newObject<ThreadIdFormatter>(

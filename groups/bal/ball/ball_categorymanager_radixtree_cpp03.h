@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Sep 07 16:11:15 2026
+// Generated on Wed Oct 28 09:43:05 2026
 // Command line: sim_cpp11_features ball_categorymanager_radixtree.h
 
 #ifdef COMPILING_BALL_CATEGORYMANAGER_RADIXTREE_H
@@ -2600,7 +2600,15 @@ void CategoryManager_RadixTree<t_VALUE>::cleanupChildAfterErase(
 
         // Create merged node (may throw - but original tree unchanged)
         Node mergedNode(mergedPrefix, get_allocator());
-        mergedNode.value() = bslmf::MovableRefUtil::move(grandchild.value());
+
+        // Emplace into the empty `mergedNode` rather than move-assigning the
+        // `optional`, which triggers a spurious gcc `-Wmaybe-uninitialized`
+        // warning.
+
+        if (grandchild.value().has_value()) {
+            mergedNode.value().emplace(
+                             bslmf::MovableRefUtil::move(*grandchild.value()));
+        }
         mergedNode.children() =
                             bslmf::MovableRefUtil::move(grandchild.children());
 

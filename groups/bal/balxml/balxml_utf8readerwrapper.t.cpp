@@ -1283,8 +1283,8 @@ int main(int argc, char *argv[])
                                                     &osPatch));
                 osName += '.' + osVersion + '.' + osPatch;
 
-                // The `os*` strings can contain characters, such as `/` on Darwin,
-                // that are not valid in a file name.
+                // The `os*` strings can contain characters, such as `/` on
+                // Darwin, that are not valid in a file name.
 
                 for (bsl::size_t ii = 0; ii < osName.length(); ++ii) {
                     const unsigned char c = osName[ii];

@@ -45,6 +45,13 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
+
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;
