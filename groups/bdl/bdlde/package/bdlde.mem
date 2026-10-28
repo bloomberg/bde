@@ -15,8 +15,6 @@ bdlde_crc64
 bdlde_hexdecoder
 bdlde_hexencoder
 bdlde_md5
-bdlde_quotedprintabledecoder
-bdlde_quotedprintableencoder
 bdlde_sha1
 bdlde_sha2
 bdlde_utf8checkinginstreambufwrapper
