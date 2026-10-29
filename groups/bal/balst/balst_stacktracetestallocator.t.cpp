@@ -2085,11 +2085,17 @@ int main(int argc, char *argv[])
         ta.setName("alpha");
         ta.setOstream(&ss);
 
+        // `ABORT` is declared outside the loops because, under gcc's ASan at
+        // `-O2`, reading it after the `setjmp` calls below was reported as
+        // `stack-use-after-scope` when declared inside the loop bodies.
+
+        bsls::AtomicBool ABORT;
+
         if (verbose) Q(Coninuous Underruns);
         {
             // atomic avoids clobbered warning
             for (bsls::AtomicInt a(0); a < ABORT_LIMIT; ++a) {
-                const bool ABORT = a;
+                ABORT = a;
 
                 for (bsls::AtomicUint u = 1; u <= 4 * sizeof(void *); ++u) {
                     // atomic avoids clobbered warning
@@ -2161,7 +2167,7 @@ int main(int argc, char *argv[])
         {
             // atomic and `volatile` avoid clobbered warning
             for (bsls::AtomicInt a(0); a < ABORT_LIMIT; ++a) {
-                const bool ABORT = a;
+                ABORT = a;
 
                 for (bsls::AtomicInt i(1); i <= (int) sizeof(void *); ++i) {
                     for (bsls::AtomicUint puOffset = 0;
@@ -2301,9 +2307,15 @@ int main(int argc, char *argv[])
         Obj ta2;
         ta2.setOstream(&oss2);
 
+        // `ABORT` is declared outside the loop because, under gcc's ASan at
+        // `-O2`, reading it after the `setjmp` calls below was reported as
+        // `stack-use-after-scope` when declared inside the loop body.
+
+        bsls::AtomicBool ABORT;
+
         // atomic avoids clobbered warning
         for (bsls::AtomicInt i(0); i < ABORT_LIMIT; ++i) {
-            const bool ABORT = i;
+            ABORT = i;
 
             ASSERT(oss.str().empty());
 

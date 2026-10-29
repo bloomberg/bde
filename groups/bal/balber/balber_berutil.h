@@ -5979,7 +5979,10 @@ int BerUtil_DatetimeImpUtil::putDatetimeValue(
     const bdlt::Time& time = value.time();
     bdlt::Date        date = value.date();
 
-    if (0 != date.addDaysIfValid(0) ||
+    // The comparison with the minimum valid date ensures the call to
+    // 'addDaysIfValid' does not overflow on a negative serial date.
+
+    if (date < bdlt::Date() || 0 != date.addDaysIfValid(0) ||
         !bdlt::Time::isValid(
             time.hour(), time.minute(), time.second(), time.millisecond())) {
         return -1;                                                    // RETURN
@@ -6072,11 +6075,14 @@ int BerUtil_DatetimeImpUtil::putDatetimeTzValue(
     // possible to encode an invalid 'bdlt::DatetimeTz' without returning an
     // error.  Decoding the corresponding output can result in hard-to-trace
     // decoding errors.  So to identify such errors early, we return an error
-    // if 'value' is not valid.
+    // if 'value' is not valid.  The comparison with the minimum valid date
+    // ensures the call to 'addDaysIfValid' does not overflow on a negative
+    // serial date.
 
     const bdlt::DateTz& dateTz = value.dateTz();
     const bdlt::TimeTz& timeTz = value.timeTz();
-    if (0 != dateTz.localDate().addDaysIfValid(0) ||
+    if (dateTz.localDate() < bdlt::Date() ||
+        0 != dateTz.localDate().addDaysIfValid(0) ||
         !bdlt::DateTz::isValid(dateTz.localDate(), dateTz.offset()) ||
         !bdlt::TimeTz::isValid(timeTz.utcTime(), timeTz.offset())) {
         return -1;                                                    // RETURN

@@ -1666,8 +1666,9 @@ DatumParser::make(const bslstl::StringRef& v)
                                                     ThreadIdFormatter::e_KTID);
     }
     else if (k_KEY_SEVERITY   == v) {
-        formatter = AllocUtil::newObject<SeverityFormatter>(d_allocator,
-                                                            bsl::nullopt);
+        formatter = AllocUtil::newObject<SeverityFormatter>(
+                          d_allocator,
+                          bsl::string_view(SeverityFormatter::k_DEFAULT_NAME));
     }
     else if (k_KEY_FILE       == v) {
         formatter = AllocUtil::newObject<FileFormatter>(d_allocator,
@@ -1675,16 +1676,19 @@ DatumParser::make(const bslstl::StringRef& v)
                                                         FileFormatter::e_FULL);
     }
     else if (k_KEY_LINE       == v) {
-        formatter = AllocUtil::newObject<LineFormatter>(d_allocator,
-                                                        bsl::nullopt);
+        formatter = AllocUtil::newObject<LineFormatter>(
+                              d_allocator,
+                              bsl::string_view(LineFormatter::k_DEFAULT_NAME));
     }
     else if (k_KEY_CATEGORY   == v) {
-        formatter = AllocUtil::newObject<CategoryFormatter>(d_allocator,
-                                                            bsl::nullopt);
+        formatter = AllocUtil::newObject<CategoryFormatter>(
+                          d_allocator,
+                          bsl::string_view(CategoryFormatter::k_DEFAULT_NAME));
     }
     else if (k_KEY_MESSAGE    == v) {
-        formatter = AllocUtil::newObject<MessageFormatter>(d_allocator,
-                                                           bsl::nullopt);
+        formatter = AllocUtil::newObject<MessageFormatter>(
+                           d_allocator,
+                           bsl::string_view(MessageFormatter::k_DEFAULT_NAME));
     }
     else if (k_KEY_ATTRIBUTES == v) {
         if (!d_skipAttributes_sp) {

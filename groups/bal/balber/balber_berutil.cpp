@@ -1571,10 +1571,11 @@ int BerUtil_DateImpUtil::putDateValue(bsl::streambuf          *streamBuf,
     // to encode an invalid 'bdlt::Date' without returning an error.  Decoding
     // the corresponding output can result in hard-to-trace decoding errors.
     // So to identify such errors early, we return an error if 'value' is not
-    // valid.
+    // valid.  The comparison with the minimum valid date ensures the call to
+    // 'addDaysIfValid' does not overflow on a negative serial date.
 
     bdlt::Date valueCopy(value);
-    if (0 != valueCopy.addDaysIfValid(0)) {
+    if (value < bdlt::Date() || 0 != valueCopy.addDaysIfValid(0)) {
         return -1;                                                    // RETURN
     }
 
@@ -1645,9 +1646,11 @@ int BerUtil_DateImpUtil::putDateTzValue(bsl::streambuf          *streamBuf,
     // possible to encode an invalid 'bdlt::DateTz' without returning an error.
     // Decoding the corresponding output can result in hard-to-trace decoding
     // errors.  So to identify such errors early, we return an error if 'value'
-    // is not valid.
+    // is not valid.  The comparison with the minimum valid date ensures the
+    // call to 'addDaysIfValid' does not overflow on a negative serial date.
 
-    if (0 != value.localDate().addDaysIfValid(0) ||
+    if (value.localDate() < bdlt::Date() ||
+        0 != value.localDate().addDaysIfValid(0) ||
         !bdlt::DateTz::isValid(value.localDate(), value.offset())) {
         return -1;                                                    // RETURN
     }
