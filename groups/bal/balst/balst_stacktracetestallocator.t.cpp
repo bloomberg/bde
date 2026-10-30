@@ -2879,6 +2879,13 @@ int main(int argc, char *argv[])
         {
             bsl::stringstream ss;
 
+            // `staBlocks` is declared outside the loop because, under gcc's
+            // ASan at `-O2`, accessing it after the `setjmp`
+            // below was reported as `stack-use-after-scope` when declared
+            // inside the loop body.
+
+            bsls::AtomicUint staBlocks;
+
             // atomic avoids clobbered warning
             for (bsls::AtomicUint numAllocs = 1;
                  numAllocs <= 100;
@@ -2893,7 +2900,7 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(numAllocs == pta->numBlocksInUse());
 
-                unsigned int staBlocks = (unsigned int) sta.numBlocksInUse();
+                staBlocks = (unsigned int) sta.numBlocksInUse();
                 LOOP2_ASSERT(staBlocks, numAllocs,
                                                   staBlocks < numAllocs + 100);
                 if (veryVerbose) { P_(numAllocs);    P(staBlocks) }

@@ -808,9 +808,13 @@ extern "C" void *case4RuleThread(void *args)
         }
     }
 
-    ASSERT(ball::RuleSet::e_MAX_NUM_RULES == numRulesLocked(manager));
-
     barrier.wait();
+
+    // The rule set is guaranteed to be full only after all "rule" threads have
+    // exited the loop above: another "rule" thread may still remove a rule
+    // after this thread observes a full rule set.
+
+    ASSERT(ball::RuleSet::e_MAX_NUM_RULES == numRulesLocked(manager));
 
     if (veryVerbose) {
         MTCOUT << "\n\tPhase 2: Wait for \"context\" threads." << MTENDL;
@@ -842,13 +846,16 @@ extern "C" void *case4RuleThread(void *args)
         }
     }
 
-    ASSERT(0 == numRulesLocked(manager));
-
     if (veryVerbose) {
         MTCOUT << "\n\tPhase 4: Wait for \"context\" threads." << MTENDL;
     }
 
     barrier.wait();
+
+    // The rule set is guaranteed to be empty only after all "rule" threads
+    // have exited the loop above.
+
+    ASSERT(0 == numRulesLocked(manager));
 
     return 0;
 }
