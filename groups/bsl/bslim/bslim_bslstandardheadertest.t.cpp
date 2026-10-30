@@ -213,6 +213,12 @@
     #define __DEPRECATED
 #endif  // BSLIM_BSLSTANDARDHEADERTEST_GNU_DEPRECATED_WAS_SET
 
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
+
 using namespace BloombergLP;
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -1881,64 +1887,64 @@ int main(int argc, char *argv[])
 #endif
       } break;
       case 50: {
-            // --------------------------------------------------------------------
-            // C++23 `bsl_stdfloat.h`
-            //
-            // Concerns:
-            // 1. The definitions from `<stdfloat>` defined by the C++23 Standard
-            //    are available in C++23 mode in the `bsl` namespace to users who
-            //    include `bsl_stdfloat.h`.
-            //
-            // 2. The typedefs corresponding to the C++23 feature macro for each
-            //    fixed representation floating point type are availabe if that
-            //    macro is defined. (Untested until we have reflection to test
-            //    for type names without forcing a compile error.)
-            //
-            // Plan:
-            // 1. For each type that is conditionally supported, declare an `auto`
-            //    local variable initalized with a literal of that type.
-            //
-            // 2. Verify that the deduced type of the local variable is that of
-            //    corresponding type alias using the `is_same_v` type trait.
-            //
-            // Testing
-            //   C++23 `bsl_stdfloat.h`
-            // --------------------------------------------------------------------
-            if (verbose) puts("\nC++23 `bsl_stdfloat.h`"
-                              "\n======================");
+        // --------------------------------------------------------------------
+        // C++23 `bsl_stdfloat.h`
+        //
+        // Concerns:
+        // 1. The definitions from `<stdfloat>` defined by the C++23 Standard
+        //    are available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_stdfloat.h`.
+        //
+        // 2. The typedefs corresponding to the C++23 feature macro for each
+        //    fixed representation floating point type are availabe if that
+        //    macro is defined. (Untested until we have reflection to test
+        //    for type names without forcing a compile error.)
+        //
+        // Plan:
+        // 1. For each type that is conditionally supported, declare an `auto`
+        //    local variable initalized with a literal of that type.
+        //
+        // 2. Verify that the deduced type of the local variable is that of
+        //    corresponding type alias using the `is_same_v` type trait.
+        //
+        // Testing
+        //   C++23 `bsl_stdfloat.h`
+        // --------------------------------------------------------------------
+        if (verbose) puts("\nC++23 `bsl_stdfloat.h`"
+                          "\n======================");
 
-            // Note that there is no library-specific feature macro for this
-            // header in either BDE or the C++ Standard.
+        // Note that there is no library-specific feature macro for this
+        // header in either BDE or the C++ Standard.
 
 #if defined(__STDCPP_FLOAT16_T__)
-            {
-                auto float16 = 0.F16;
-                ASSERT(( bsl::is_same_v<bsl::float16_t, decltype(float16)>));
-            }
+        {
+            auto float16 = 0.F16;
+            ASSERT(( bsl::is_same_v<bsl::float16_t, decltype(float16)>));
+        }
 #endif
 #if defined(__STDCPP_FLOAT32_T__)
-            {
-                auto float32 = 0.F32;
-                ASSERT(( bsl::is_same_v<bsl::float32_t, decltype(float32)>));
-            }
+        {
+            auto float32 = 0.F32;
+            ASSERT(( bsl::is_same_v<bsl::float32_t, decltype(float32)>));
+        }
 #endif
 #if defined(__STDCPP_FLOAT64_T__)
-            {
-                auto float64 = 0.F64;
-                ASSERT(( bsl::is_same_v<bsl::float64_t, decltype(float64)>));
-            }
+        {
+            auto float64 = 0.F64;
+            ASSERT(( bsl::is_same_v<bsl::float64_t, decltype(float64)>));
+        }
 #endif
 #if defined(__STDCPP_FLOAT128_T__)
-            {
-                auto float128 = 0.F128;
-                ASSERT(( bsl::is_same_v<bsl::float128_t, decltype(float128)>));
-            }
+        {
+            auto float128 = 0.F128;
+            ASSERT(( bsl::is_same_v<bsl::float128_t, decltype(float128)>));
+        }
 #endif
 #if defined(__STDCPP_BFLOAT16_T__)
-            {
-                auto bfloat16 = 0.BF16;
-                ASSERT(( bsl::is_same_v<bsl::bfloat16_t, decltype(bfloat16)>));
-            }
+        {
+            auto bfloat16 = 0.BF16;
+            ASSERT(( bsl::is_same_v<bsl::bfloat16_t, decltype(bfloat16)>));
+        }
 #endif
       } break;
       case 49: {

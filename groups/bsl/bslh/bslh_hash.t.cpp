@@ -2019,10 +2019,20 @@ int main(int argc, char *argv[])
             newSize = findNumberOfBytesBeforePadding(&d0, &d9);
             size = newSize < size ? newSize : size;
 
+            // Note that the optimizer may elide the `memset` calls above, or
+            // store the constant (along with zeroed padding) as a full
+            // `sizeof(long double)` bytes, in which case no garbage is
+            // observed and `size` is `sizeof(long double)`.  `hashAppend` must
+            // not hash any garbage, but may hash fewer bytes than `size`.
+            // Since `long double` has at least the precision of `double`, at
+            // least `sizeof(double)` bytes must be hashed.
+
             MockHashingAlgorithm alg;
             const long double input = 34532453453247347.45343274578458l;
             hashAppend(alg, input);
-            ASSERTV(L_, alg.getLength(), size, alg.getLength() == size);
+            ASSERTV(L_, alg.getLength(), size, alg.getLength() <= size);
+            ASSERTV(L_, alg.getLength(), sizeof(double),
+                    sizeof(double) <= alg.getLength());
         }
 
         if (verbose) printf("Copy a known bitsequence into each fundamental"

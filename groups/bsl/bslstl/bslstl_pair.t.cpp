@@ -67,6 +67,12 @@
 # include <type_traits>  // No `bslmf` support for `is_constructible`
 #endif
 
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
+
 using namespace BloombergLP;
 using bsls::NameOf;
 
@@ -9880,10 +9886,10 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             printf("Testing components (first/second) constructibility\n");
 
-# define ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(TYPE)                                \
+# define ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(TYPE)                               \
         ASSERT(false == std::is_default_constructible<TYPE>::value)
 
-# define ASSERT_DEFAULT_CONSTRUCTIBLE(TYPE)                                    \
+# define ASSERT_DEFAULT_CONSTRUCTIBLE(TYPE)                                   \
         ASSERT(true == std::is_default_constructible<TYPE>::value)
 
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault);

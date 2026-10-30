@@ -1,4 +1,12 @@
 // bslh_hashoptional.t.cpp                                            -*-C++-*-
+
+#include <bsls_platform.h>
+
+// the following suppresses warnings from `#include` inlined functions
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 #include <bslh_hashoptional.h>
 
 #include <bsls_alignmentfromtype.h>

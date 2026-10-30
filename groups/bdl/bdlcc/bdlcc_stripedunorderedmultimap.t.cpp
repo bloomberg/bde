@@ -66,6 +66,12 @@
 #include <bsl_vector.h>
 #include <bsl_unordered_map.h>
 
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 

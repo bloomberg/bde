@@ -2,6 +2,7 @@
 #include <bdlma_deleter.h>
 
 #include <bslim_testutil.h>
+#include <bslma_deleterhelper.h>
 
 #include <bslma_newdeleteallocator.h>
 
@@ -80,9 +81,10 @@ class my_Obj {
 class my_Deleter : public bdlma::Deleter<my_Obj>
 {
 
-    int *d_destructorFlag_p;
-    int  d_fun;  // holds code describing function:
-                 //   + 1 delete
+    int              *d_destructorFlag_p;
+    int               d_fun;          // holds code describing function:
+                                      //   + 1 delete
+    bslma::Allocator *d_allocator_p;  // if non-null, used to delete objects
 
   private:
     my_Deleter(const my_Deleter&);
@@ -90,14 +92,14 @@ class my_Deleter : public bdlma::Deleter<my_Obj>
   public:
     my_Deleter(bslma::Allocator *basicAllocator)
     : d_destructorFlag_p(0)
+    , d_allocator_p(basicAllocator)
     {
-        (void)basicAllocator;
     }
 
     my_Deleter(int *destructorFlag, bslma::Allocator *basicAllocator = 0)
     : d_destructorFlag_p(destructorFlag)
+    , d_allocator_p(basicAllocator)
     {
-        (void)basicAllocator;
     }
 
     ~my_Deleter() BSLS_KEYWORD_OVERRIDE
@@ -109,7 +111,9 @@ class my_Deleter : public bdlma::Deleter<my_Obj>
 
     void deleteObject(my_Obj *X) BSLS_KEYWORD_OVERRIDE
     {
-        (void)X;
+        if (d_allocator_p) {
+            bslma::DeleterHelper::deleteObject(X, d_allocator_p);
+        }
         d_fun = 1;
     }
 

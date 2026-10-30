@@ -885,6 +885,8 @@ int main(int argc, char *argv[])
                     }
                 }
             }
+
+            delete [] buffer;
         }
 
         if (verbose) cout << "\tTesting `endConvert`" << endl;
