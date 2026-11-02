@@ -1964,6 +1964,9 @@ int main(int argc, char *argv[])
         // TESTING sequence constraints
         // ---------------------------------------------------------
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         if (verbose) cout << endl
                           << "sequence constraint test" << endl
                           << "========================" << endl;
@@ -2112,6 +2115,9 @@ int main(int argc, char *argv[])
         //   * Re-run the last test with fewer threads and a much larger queue
         //     so that it is *not* full at any point during the test.
         // ---------------------------------------------------------
+
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
 
         if (verbose) cout << endl
                           << "enable/disable test" << endl

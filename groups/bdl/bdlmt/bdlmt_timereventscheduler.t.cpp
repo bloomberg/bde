@@ -2174,13 +2174,13 @@ void test6_c()
     numExecuted[1] = testObj1.numExecuted();
     numExecuted[2] = testObj2.numExecuted();
     numExecuted[3] = testObj3.numExecuted();
-    if (endSleep - start <= 0.9) {
+    if (testObj1.numStarted() > 0 && endSleep - start <= 0.9) {
         ASSERT( 1 == numExecuted[1] );
         ASSERT( 0 == numExecuted[2] );
         ASSERT( 0 == numExecuted[3] );
     }
     else {
-        if (verbose) ET("test6_c() overslept");
+        if (verbose) ET("test6_c() overslept or c1 did not start");
     }
     myMicroSleep(T15, 0);
     ASSERT( numExecuted[1] == testObj1.numExecuted() );

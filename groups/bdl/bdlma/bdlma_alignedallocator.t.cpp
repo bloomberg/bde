@@ -242,7 +242,7 @@ struct AlignedAllocatorTestImp :
         if (0 == address) {
             return;                                                   // RETURN
         }
-    #ifdef BSLS_PLATFORM_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
         _aligned_free(address);
     #else
         ::free(address);

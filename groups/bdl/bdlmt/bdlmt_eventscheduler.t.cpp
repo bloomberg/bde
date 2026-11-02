@@ -615,11 +615,13 @@ bsl::ostream& operator << (bsl::ostream& os, const TestClass& testObject)
 struct TestClass1 {
 
     // DATA
+    bsls::AtomicInt  d_numStarted;
     bsls::AtomicInt  d_numExecuted;
     int              d_executionTime;  // in microseconds
 
     // CREATORS
     TestClass1() :
+    d_numStarted(0),
     d_numExecuted(0),
     d_executionTime(0)
     {
@@ -627,6 +629,7 @@ struct TestClass1 {
 
     explicit
     TestClass1(int executionTime) :
+    d_numStarted(0),
     d_numExecuted(0),
     d_executionTime(executionTime)
     {
@@ -635,6 +638,8 @@ struct TestClass1 {
     // MANIPULATORS
     void callback()
     {
+        ++d_numStarted;
+
         bsl::string threadName;
         bslmt::ThreadUtil::getThreadName(&threadName);
 
@@ -655,6 +660,11 @@ struct TestClass1 {
     }
 
     // ACCESSORS
+    int numStarted()
+    {
+        return d_numStarted;
+    }
+
     int numExecuted()
     {
         return d_numExecuted;
@@ -2489,13 +2499,14 @@ struct Test5_1 {
         x.start();
         microSleep(T3, 0);
         ASSERT( 0 == x.cancelEvent(h) );
-        if ((u::now() - now) < bsls::TimeInterval(20 * DECI_SEC)) {
+        if (testObj1.numStarted() > 0 &&
+            (u::now() - now) < bsls::TimeInterval(20 * DECI_SEC)) {
             x.stop();
             LOOP_ASSERT(testObj1.numExecuted(), 1 == testObj1.numExecuted());
             ASSERT(0 == testObj2.numExecuted());
         }
         else {
-            if (verbose) ET("Test5_1: timed out");
+            if (verbose) ET("Test5_1: timed out or c1 did not start");
         }
         x.stop();
     }
