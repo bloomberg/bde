@@ -2234,8 +2234,10 @@ int main(int argc, char *argv[])
         bslmt::Barrier   barrier(2);
         BarrierPublisher barrierPublisher(&barrier, WAIT_COUNT);
         manager.addSpecificPublisher(
-                                "wait",
-                                PubPtr(&barrierPublisher, bslstl::SharedPtrNilDeleter(), Z));
+                                 "wait",
+                                 PubPtr(&barrierPublisher,
+                                        bslstl::SharedPtrNilDeleter(),
+                                        Z));
 
         bsls::TimeInterval intvl_wait(0, 2000 * NANOSECS_PER_MILLISEC);
         bsls::TimeInterval intvl_A(0, 1900 * NANOSECS_PER_MILLISEC);
@@ -3211,9 +3213,12 @@ int main(int argc, char *argv[])
             int WAIT_COUNT = 2;
             bslmt::Barrier barrier(2);
             BarrierPublisher barrierPublisher(&barrier, WAIT_COUNT);
-            PubPtr barrierPublisherSPtr(&barrierPublisher, bslstl::SharedPtrNilDeleter(), Z);
+            PubPtr barrierPublisherSPtr(&barrierPublisher,
+                                        bslstl::SharedPtrNilDeleter(),
+                                        Z);
 
-            int rc = manager.addSpecificPublisher("wait", barrierPublisherSPtr);
+            int rc = manager.addSpecificPublisher("wait",
+                                                  barrierPublisherSPtr);
             manager.collectorRepository().getDefaultCollector("wait", "wait");
             ASSERT(0 == rc);
 
@@ -3246,6 +3251,18 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < WAIT_COUNT; ++i) {
                 barrier.wait();
+            }
+
+            // The dispatcher invokes each clock at most once per iteration,
+            // so if the dispatcher falls behind (e.g., on a heavily loaded
+            // machine) the clocks for "B" and "wait" may be invoked before
+            // the clock for "A" has caught up.  Give "A" time to catch up
+            // before stopping the timer.
+            for (int numTry = 0;
+                 numTry < 500 &&
+                       tp1.invocations() < ratioBtoA * tp2.invocations() - 1;
+                 ++numTry) {
+                bslmt::ThreadUtil::microSleep(10 * 1000);
             }
 
             timer.stop();
