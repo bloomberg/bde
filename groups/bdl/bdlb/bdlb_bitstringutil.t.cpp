@@ -4147,7 +4147,15 @@ int main(int argc, char *argv[])
         const int NUM_BITS = 2 * SET_UP_ARRAY_DIM * k_BITS_PER_UINT64;
 
         uint64_t control[2 * SET_UP_ARRAY_DIM] = { 0 };
-        uint64_t bits[   2 * SET_UP_ARRAY_DIM] = { 0 };
+
+        // The shifted pointers formed below are up to `k_MAX_SHIFT` words
+        // before `bits`, so `bits` is preceded by that many words within
+        // `buffer` so that forming those pointers has defined behavior.
+
+        const int k_MAX_SHIFT = 40;
+
+        uint64_t        buffer[k_MAX_SHIFT + 2 * SET_UP_ARRAY_DIM] = { 0 };
+        uint64_t *const bits = buffer + k_MAX_SHIFT;
 
         for (int ii = 0; ii < 20; ++ii) {
             // To test this code properly it was necessary to have a long array
@@ -4194,7 +4202,7 @@ int main(int argc, char *argv[])
                                                     shiftB * k_BITS_PER_UINT64;
 
                         if (idxA + numBits <= idxB || idxB + numBits <= idxA) {
-                            wordCpy(bits, control, sizeof(bits));
+                            wordCpy(bits, control, sizeof(control));
 
                             Util::swapRaw(bitsShiftA,
                                          idxShiftA,
@@ -4652,7 +4660,15 @@ int main(int argc, char *argv[])
         const int NUM_BITS = SET_UP_ARRAY_DIM * k_BITS_PER_UINT64;
 
         uint64_t control[SET_UP_ARRAY_DIM];
-        uint64_t bits[   SET_UP_ARRAY_DIM] = { 0 };
+
+        // The shifted pointers formed below are up to `k_MAX_SHIFT` words
+        // before `bits`, so `bits` is preceded by that many words within
+        // `buffer` so that forming those pointers has defined behavior.
+
+        const int k_MAX_SHIFT = 40;
+
+        uint64_t        buffer[k_MAX_SHIFT + SET_UP_ARRAY_DIM] = { 0 };
+        uint64_t *const bits = buffer + k_MAX_SHIFT;
 
         for (int ii = 0; ii < 150; ) {
             setUpArray(control, &ii);
@@ -4700,7 +4716,7 @@ int main(int argc, char *argv[])
 
                         // copy
 
-                        wordCpy(bits, control, sizeof(bits));
+                        wordCpy(bits, control, sizeof(control));
                         Util::copy(shiftDst,
                                   shiftDstIdx,
                                   shiftSrc,
@@ -4717,7 +4733,7 @@ int main(int argc, char *argv[])
                         if (dstIdx <= srcIdx) {
                             // A left copy should work, try `copyRaw`.
 
-                            wordCpy(bits, control, sizeof(bits));
+                            wordCpy(bits, control, sizeof(control));
                             Util::copyRaw(shiftDst,
                                          shiftDstIdx,
                                          shiftSrc,
@@ -4735,7 +4751,7 @@ int main(int argc, char *argv[])
                             {
                                 bsls::AssertTestHandlerGuard guard;
 
-                                wordCpy(bits, control, sizeof(bits));
+                                wordCpy(bits, control, sizeof(control));
                                 ASSERT_SAFE_FAIL(Util::copyRaw(shiftDst,
                                                               shiftDstIdx,
                                                               shiftSrc,

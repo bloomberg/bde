@@ -9040,10 +9040,10 @@ int main(int argc, char *argv[])
             DatumMapRef   obj(data, 3, false, false);
 
             ASSERT(&data[obj.size() - 1] == obj.rbegin().operator->());
-            ASSERT(data - 1 == obj.rend().operator->());
+            ASSERT(data == obj.rend().base());
 
             ASSERT(&data[2] == obj.crbegin().operator->());
-            ASSERT(data - 1 == obj.crend().operator->());
+            ASSERT(data == obj.crend().base());
         }
 
         if (verbose) cout << "\nTesting const `front()`, `back()`.\n";
@@ -9701,10 +9701,10 @@ int main(int argc, char *argv[])
             DatumIntMapRef   obj(data, 3, false);
 
             ASSERT(&data[obj.size() - 1] == obj.rbegin().operator->());
-            ASSERT(data - 1 == obj.rend().operator->());
+            ASSERT(data == obj.rend().base());
 
             ASSERT(&data[2] == obj.crbegin().operator->());
-            ASSERT(data - 1 == obj.crend().operator->());
+            ASSERT(data == obj.crend().base());
         }
 
         if (verbose) cout << "\nTesting const `front()`, `back()`.\n";
@@ -10366,10 +10366,10 @@ int main(int argc, char *argv[])
             DatumArrayRef obj(data, 3);
 
             ASSERT(&data[obj.size() - 1] == obj.rbegin().operator->());
-            ASSERT(data - 1 == obj.rend().operator->());
+            ASSERT(data == obj.rend().base());
 
             ASSERT(&data[2] == obj.crbegin().operator->());
-            ASSERT(data - 1 == obj.crend().operator->());
+            ASSERT(data == obj.crend().base());
         }
 
         if (verbose) cout << "\nTesting const `front()`, `back()`.\n";

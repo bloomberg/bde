@@ -760,8 +760,11 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::right(
     srcBitString       +=     endSrcBit  / k_BITS_PER_UINT64;
     unsigned srcPos    =  u32(endSrcBit) % k_BITS_PER_UINT64;
 
-    dstIndex = 0;
-    srcIndex = 0;
+    // The word offsets relative to 'dstBitString' and 'srcBitString' only
+    // decrease from here, so they are signed (an unsigned offset would wrap).
+
+    IntPtr dstWord = 0;
+    IntPtr srcWord = 0;
 
     // Note that in fact the function 'left' is always called instead of this
     // one whenever the source and destination ranges do not overlap, so this
@@ -774,12 +777,12 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::right(
 
             if (dstPos < nb) {
                 dstPos += k_BITS_PER_UINT64;
-                --dstIndex;
+                --dstWord;
             }
             dstPos -= nb;
             srcPos -= nb;
 
-            doPartialWord(&dstBitString[dstIndex],
+            doPartialWord(&dstBitString[dstWord],
                           dstPos,
                           srcBitString[        0] >> srcPos,
                           nb);
@@ -788,11 +791,11 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::right(
 
         if (dstPos < srcPos) {
             dstPos += k_BITS_PER_UINT64;
-            --dstIndex;
+            --dstWord;
         }
         dstPos -= srcPos;
 
-        doPartialWord(&dstBitString[dstIndex],
+        doPartialWord(&dstBitString[dstWord],
                       dstPos,
                       srcBitString[        0],
                       srcPos);
@@ -808,17 +811,17 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::right(
         // Normal case of the destination location being unaligned.
 
         for (; numBits >= k_BITS_PER_UINT64; numBits -= k_BITS_PER_UINT64) {
-            doFullNonAlignedWord(&dstBitString[--dstIndex],
+            doFullNonAlignedWord(&dstBitString[--dstWord],
                                  dstPos,
-                                 srcBitString[ --srcIndex]);
+                                 srcBitString[ --srcWord]);
         }
     }
     else {
         // The source and destination locations are both aligned.
 
         for (; numBits >= k_BITS_PER_UINT64; numBits -= k_BITS_PER_UINT64) {
-            OPER_DO_ALIGNED_WORD(&dstBitString[--dstIndex],
-                                 srcBitString[ --srcIndex]);
+            OPER_DO_ALIGNED_WORD(&dstBitString[--dstWord],
+                                 srcBitString[ --srcWord]);
         }
     }
     BSLS_ASSERT(numBits < k_BITS_PER_UINT64);
@@ -829,17 +832,17 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::right(
     }
 
     // Move the residual high-order 'numBits' bits of
-    // 'srcBitString[srcIndex - 1]'.
+    // 'srcBitString[srcWord - 1]'.
 
     if (dstPos < nb) {
         dstPos += k_BITS_PER_UINT64;
-        --dstIndex;
+        --dstWord;
     }
     dstPos -= nb;
 
-    doPartialWord(&dstBitString[dstIndex],
+    doPartialWord(&dstBitString[dstWord],
                   dstPos,
-                  srcBitString[srcIndex - 1] >> (k_BITS_PER_UINT64 - nb),
+                  srcBitString[srcWord - 1] >> (k_BITS_PER_UINT64 - nb),
                   nb);
 }
 

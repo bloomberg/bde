@@ -1992,7 +1992,9 @@ int main(int argc, char *argv[])
                       { L_,   1,                1                  },
                       { L_,   INIT_BUFSIZE,     INIT_BUFSIZE       },
                       { L_,   LARGE_CAPACITY,   LARGE_CAPACITY     },
+#ifndef BDE_BUILD_TARGET_UBSAN
                       { L_,   MAX_CAPACITY,     MAX_CAPACITY       }
+#endif
                 };   // end table DATA
 
                 const size_t DATA_LEN = sizeof DATA / sizeof *DATA;

@@ -266,9 +266,11 @@ int main(int argc, char *argv[])
             { L_,    0,   4, Obj::k_OUT_OF_SPACE_BIT,  "OUT_OF_SPACE_BIT\n" },
 
             { L_,    0,   4, NUM_ENUMERATORS + 1,         UNKNOWN_FORMAT NL },
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,    0,   4, -1,                          UNKNOWN_FORMAT NL },
             { L_,    0,   4, -5,                          UNKNOWN_FORMAT NL },
             { L_,    0,   4, 99,                          UNKNOWN_FORMAT NL },
+#endif
 
             { L_,    0,  -1, Obj::k_INVALID_INPUT_BIT,    ICM },
             { L_,    0,   0, Obj::k_INVALID_INPUT_BIT,    ICM NL },
@@ -416,9 +418,11 @@ int main(int argc, char *argv[])
             { L_,     Obj::k_OUT_OF_SPACE_BIT,        "OUT_OF_SPACE_BIT"  },
 
             { L_,     NUM_ENUMERATORS + 1,            UNKNOWN_FORMAT      },
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,     -1,                             UNKNOWN_FORMAT      },
             { L_,     -5,                             UNKNOWN_FORMAT      },
             { L_,     99,                             UNKNOWN_FORMAT      },
+#endif
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -526,9 +530,11 @@ int main(int argc, char *argv[])
             {  L_,     Obj::k_OUT_OF_SPACE_BIT,        "OUT_OF_SPACE_BIT"  },
 
             {  L_,     NUM_ENUMERATORS + 1,            UNKNOWN_FORMAT     },
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     -1,                             UNKNOWN_FORMAT     },
             {  L_,     -5,                             UNKNOWN_FORMAT     },
             {  L_,     99,                             UNKNOWN_FORMAT     }
+#endif
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 

@@ -1318,8 +1318,10 @@ if (verbose) {  // added in test driver
             {  L_,     Obj::e_SAT,           1, "SAT"                      },
 #if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
             {  L_,     0,                    0, "(* Unknown Enumerator *)" },
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     Obj::e_SAT + 1,       0, "(* Unknown Enumerator *)" },
             {  L_,     19,                   0, "(* Unknown Enumerator *)" },
+#endif
 #endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
