@@ -139,7 +139,6 @@ using bsl::ostream;
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
-// [13] int validateAndSetYearDay(int year, int dayOfYear);
 // [13] int validateAndSetYearMonthDay(int year, int month, int day);
 // [ 5] bsl::ostream& streamOut(bsl::ostream& stream) const;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
@@ -2233,7 +2232,6 @@ if (verbose)
         //   static bool isValid(int year, int month, int day);
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-        //   int validateAndSetYearDay(int year, int dayOfYear);
         //   int validateAndSetYearMonthDay(int year, int month, int day);
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
@@ -2346,33 +2344,10 @@ if (verbose)
                     if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                 }
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
-                // `[isValid|validateAndSetYearDay](year, dayOfYear)`
+                // `isValid(year, dayOfYear)`
 
                 {
                     LOOP_ASSERT(LINE, !!EXP == Obj::isValid(YEAR, DAY));
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-
-                    Obj mX(1133, 275);  const Obj& X = mX;
-
-                    const Obj W(X);  // control
-
-                    if (1 == EXP) {
-                        const Obj V(YEAR, DAY);
-
-                        LOOP_ASSERT(LINE, 0 == mX.validateAndSetYearDay(YEAR,
-                                                                        DAY));
-                        LOOP_ASSERT(LINE, V == X);
-
-                        if (veryVeryVerbose) { T_ T_ P_(V) P(X) }
-                    }
-                    else {
-                        LOOP_ASSERT(LINE, 0 != mX.validateAndSetYearDay(YEAR,
-                                                                        DAY));
-                        LOOP_ASSERT(LINE, W == X);
-
-                        if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
-                    }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
                 }
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
             }

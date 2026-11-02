@@ -301,15 +301,6 @@ class TimeTz {
     /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedBdexVersion();
 
-    /// Set the local time and the time zone offset of this object to the
-    /// specified `localTime` and `offset` values respectively if
-    /// `localTime` and `offset` represent a valid `TimeTz` value.  Return 0
-    /// on success, and a non-zero value with no effect on this object
-    /// otherwise.
-    ///
-    /// @DEPRECATED: replaced by `setTimeTzIfValid`.
-    int validateAndSetTimeTz(const Time& localTime, int offset);
-
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 };
 
@@ -527,12 +518,6 @@ inline
 int TimeTz::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
-}
-
-inline
-int TimeTz::validateAndSetTimeTz(const Time& localTime, int offset)
-{
-    return setTimeTzIfValid(localTime, offset);
 }
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 

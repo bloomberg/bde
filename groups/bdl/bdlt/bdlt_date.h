@@ -295,7 +295,8 @@ class Date {
     /// `Date` is using a proleptic Gregorian representation and
     /// `serialDate` has a year-month-day representation earlier than
     /// 1752/09/14 that is not 0001/01/01.  Note that
-    /// [](#BDEX Compatibility with Legacy POSIX-Based Date) has further details.
+    /// [](#BDEX Compatibility with Legacy POSIX-Based Date) has further
+    /// details.
     static int convertPosixDateToProleptic(int serialDate);
 #endif
 
@@ -551,14 +552,6 @@ class Date {
     ///
     /// @DEPRECATED: Use `print` instead.
     bsl::ostream& streamOut(bsl::ostream& stream) const;
-
-    /// Set this object to have the value represented by the specified
-    /// `year` and `dayOfYear` if they comprise a valid `Date` value (see
-    /// `isValidYearDay`).  Return 0 on success, and a non-zero value (with
-    /// no effect) otherwise.
-    ///
-    /// @DEPRECATED: Use `setYearDayIfValid` instead.
-    int validateAndSetYearDay(int year, int dayOfYear);
 
     /// Set this object to have the value represented by the specified
     /// `year`, `month`, and `day` if they comprise a valid `Date` value
@@ -991,12 +984,6 @@ inline
 bsl::ostream& Date::streamOut(bsl::ostream& stream) const
 {
     return print(stream, 0, -1);
-}
-
-inline
-int Date::validateAndSetYearDay(int year, int dayOfYear)
-{
-    return setYearDayIfValid(year, dayOfYear);
 }
 
 inline

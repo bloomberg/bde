@@ -80,16 +80,15 @@ using bsl::wstring;
 // [ 6] bool operator==(const TimeTz& lhs, const TimeTz& rhs);
 // [ 6] bool operator!=(const TimeTz& lhs, const TimeTz& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream& stream, const TimeTz& rhs);
-// [18] void hashAppend(HASHALG&, const TimeTz&);
+// [17] void hashAppend(HASHALG&, const TimeTz&);
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [10] static int maxSupportedBdexVersion();
-// [17] int validateAndSetTimeTz(const Time& localTime, int offset);
 // [16] Time gmtTime() const;
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [19] USAGE EXAMPLE
+// [18] USAGE EXAMPLE
 // [ *] CONCERN: no use of global or default allocators
 // [ 8] Reserved for `swap` testing.
 
@@ -186,7 +185,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 19: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -253,7 +252,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == delta.milliseconds());
 // ```
       } break;
-      case 18: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING: hashAppend
         //
@@ -350,153 +349,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-      } break;
-      case 17: {
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
-        // --------------------------------------------------------------------
-        // MANIPULATOR `validateAndSetTimeTz`
-        //
-        // Concerns:
-        // 1. `validateAndSetDateTz` sets the date and offset of a `TimeTz`
-        //    object to the specified values only if they are valid.
-        //
-        // Plan:
-        // 1. Using the table-driven technique, specify a set of valid and
-        //    invalid object values.  For each value verify that
-        //    `validateAndSetDateTz` behaves correctly.  (C-1..2)
-        //
-        // Testing:
-        //   int validateAndSetTimeTz(const Time& localTime, int offset);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "MANIPULATOR `validateAndSetTimeTz`" << endl
-                          << "==================================" << endl;
-
-        if (verbose) cout << "\nUse a table of distinct inputs." << endl;
-        {
-            enum { MAX_TIMEZONE = 24 * 60 - 1,
-                   MTZ = MAX_TIMEZONE };
-
-            struct {
-                int d_line;
-                int d_hour;
-                int d_minute;
-                int d_second;
-                int d_millisecond;
-                int d_offset;
-                int d_isValid;
-            } DATA[] = {
-                //LN   HOUR  MINUTE  SECOND  MILLISECOND    OFFSET  VALID
-                //--   ----  ------  ------  -----------    ------  -----
-                { L_,     2,      0,      0,           0,    -4*60,     1 },
-                { L_,     0,      2,      0,           0,    -4*60,     1 },
-                { L_,     0,      0,      2,           0,    -4*60,     1 },
-                { L_,     0,      0,      0,           0,    -4*60,     1 },
-                { L_,     2,      0,      0,           0,     -MTZ,     1 },
-                { L_,     2,      0,      0,           0,      MTZ,     1 },
-                { L_,    24,      0,      0,           0,        0,     1 },
-                { L_,    24,      0,      0,           0,        1,     0 },
-                { L_,    24,      0,      0,           0,     4*60,     0 },
-                { L_,    24,      0,      0,           0,    -4*60,     0 },
-                { L_,     2,      0,      0,           0,    24*60,     0 },
-                { L_,     2,      0,      0,           0,   -24*60,     0 },
-                { L_,     2,      0,      0,           0,    99*60,     0 },
-                { L_,     2,      0,      0,           0,   -99*60,     0 },
-            };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
-
-            // default initial value
-
-            for (int di = 0; di < NUM_DATA; ++di) {
-                const int LINE        = DATA[di].d_line;
-                const int HOUR        = DATA[di].d_hour;
-                const int MINUTE      = DATA[di].d_minute;
-                const int SECOND      = DATA[di].d_second;
-                const int MILLISECOND = DATA[di].d_millisecond;
-                const int OFFSET      = DATA[di].d_offset;
-                const int IS_VALID    = DATA[di].d_isValid;
-
-                if (veryVerbose) {
-                    T_
-                    P_(LINE)
-                    P_(HOUR)
-                    P_(MINUTE)
-                    P_(SECOND)
-                    P_(MILLISECOND)
-                    P_(OFFSET)
-                    P (IS_VALID)
-                }
-
-                const bdlt::Time TIME(HOUR, MINUTE, SECOND, MILLISECOND);
-
-                bdlt::TimeTz timeTz;
-                ASSERTV(LINE,
-                       IS_VALID == !timeTz.validateAndSetTimeTz(TIME, OFFSET));
-
-                if (!IS_VALID) {
-                    const bdlt::TimeTz NULL_TIME_TZ;
-                    ASSERTV(LINE, NULL_TIME_TZ == timeTz);
-                }
-                else {
-                    const bdlt::Time RESULT_TIME = timeTz.localTime();
-
-                    ASSERTV(LINE, TIME, RESULT_TIME, TIME == RESULT_TIME);
-
-                    ASSERTV(LINE, OFFSET == timeTz.offset());
-                }
-            }
-
-            // non-default initial value
-
-            for (int di = 0; di < NUM_DATA; ++di) {
-                const int LINE        = DATA[di].d_line;
-                const int HOUR        = DATA[di].d_hour;
-                const int MINUTE      = DATA[di].d_minute;
-                const int SECOND      = DATA[di].d_second;
-                const int MILLISECOND = DATA[di].d_millisecond;
-                const int OFFSET      = DATA[di].d_offset;
-                const int IS_VALID    = DATA[di].d_isValid;
-
-                if (veryVerbose) {
-                    T_
-                    P_(LINE)
-                    P_(HOUR)
-                    P_(MINUTE)
-                    P_(SECOND)
-                    P_(MILLISECOND)
-                    P_(OFFSET)
-                    P (IS_VALID)
-                }
-
-                const bdlt::Time TIME(HOUR, MINUTE, SECOND, MILLISECOND);
-
-                const bdlt::Time INITIAL_TIME(1, 1, 1, 1);
-                const int INITIAL_OFFSET = -12;
-
-                bdlt::TimeTz timeTz(INITIAL_TIME, INITIAL_OFFSET);
-
-                ASSERTV(LINE,
-                       IS_VALID == !timeTz.validateAndSetTimeTz(TIME, OFFSET));
-
-                if (!IS_VALID) {
-                    const bdlt::TimeTz INIT_TIME_TZ(INITIAL_TIME,
-                                                    INITIAL_OFFSET);
-
-                    ASSERTV(LINE, INIT_TIME_TZ == timeTz);
-                }
-                else {
-                    const bdlt::Time RESULT_TIME = timeTz.localTime();
-
-                    ASSERTV(LINE, TIME, RESULT_TIME, TIME == RESULT_TIME);
-
-                    ASSERTV(LINE, OFFSET == timeTz.offset());
-                }
-            }
-        }
-#else
-        // Deprecated test case.  Do not remove.
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
       } break;
       case 16: {
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
