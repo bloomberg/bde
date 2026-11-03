@@ -1768,9 +1768,20 @@ int main(int argc, char *argv[])
                      << endl;
             }
 
-            ASSERTV(userCpu,   userCpu   < 10);
-            ASSERTV(systemCpu, systemCpu < 10);
-            ASSERTV(totalCpu,  totalCpu  < 10);
+            // On Windows, PDH has reported over 15% system CPU utilization for
+            // an idle process (20%-25% three times in three months, and once
+            // an outlier above 35%).  25% is still far below the utilization
+            // during `controlledCpuBurn` (close to 100%).
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+            const double MAX_CPU = 25;
+#else
+            const double MAX_CPU = 10;
+#endif
+
+            ASSERTV(userCpu,   userCpu   < MAX_CPU);
+            ASSERTV(systemCpu, systemCpu < MAX_CPU);
+            ASSERTV(totalCpu,  totalCpu  < MAX_CPU);
         }
       } break;
       case 4: {

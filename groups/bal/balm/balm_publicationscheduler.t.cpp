@@ -3222,10 +3222,15 @@ int main(int argc, char *argv[])
             manager.collectorRepository().getDefaultCollector("wait", "wait");
             ASSERT(0 == rc);
 
-            const int ratioBtoA = 200;
+            // Note that `intvl_A` must be long enough that publication of "A"
+            // keeps up with its schedule (on some platforms each publication
+            // takes more than 1ms), otherwise the invocations of "A" fall
+            // further behind those of "B" and never catch up.
 
-            bsls::TimeInterval intvl_A(0, 1 * NANOSECS_PER_MILLISEC);
-            bsls::TimeInterval intvl_B(0, 200 * intvl_A.nanoseconds());
+            const int ratioBtoA = 20;
+
+            bsls::TimeInterval intvl_A(0, 10 * NANOSECS_PER_MILLISEC);
+            bsls::TimeInterval intvl_B(0, ratioBtoA * intvl_A.nanoseconds());
             bsls::TimeInterval intvl_wait(0, 250 * NANOSECS_PER_MILLISEC);
 
             const bsls::TimeInterval& INTVL_A = intvl_A;
