@@ -856,6 +856,13 @@ int main(int argc, char *argv[])
             }
 
             consumeUserAndSystemTime();
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+            // On Windows, the elapsed time used to compute the rates comes
+            // from PDH, which may not advance between two quick calls to
+            // `collect`, in which case no rate sample is taken.
+
+            bslmt::ThreadUtil::microSleep(0, 1);
+#endif
             perfmon.collect();
 
             if (veryVerbose) cout << "\tcollect() called twice\n";
@@ -893,6 +900,9 @@ int main(int argc, char *argv[])
             }
 
             consumeUserAndSystemTime();
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+            bslmt::ThreadUtil::microSleep(0, 1);
+#endif
             perfmon.collect();
 
             if (veryVerbose) cout << "\tcollect() called once after reset\n";

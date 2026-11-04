@@ -313,15 +313,15 @@ int main(int argc, char *argv[])
             createFile(baseName + "3");
             createFile(baseName + "4");
 
-            changeModificationTime(baseName + "1", -10);
-            changeModificationTime(baseName + "2", -20);
-            changeModificationTime(baseName + "3", -30);
-            changeModificationTime(baseName + "4", -40);
+            changeModificationTime(baseName + "1", -100);
+            changeModificationTime(baseName + "2", -200);
+            changeModificationTime(baseName + "3", -300);
+            changeModificationTime(baseName + "4", -400);
 
             ObjConfig config((baseName + "*").c_str(),
-                             bsls::TimeInterval(25),
+                             bsls::TimeInterval(250),
                              0);
-            // Remove all logs older than 25 seconds.
+            // Remove all logs older than 250 seconds.
             Obj::removeFiles(config);
 
             ASSERT(true  == bdls::FilesystemUtil::exists(baseName + "1"));
@@ -329,8 +329,8 @@ int main(int argc, char *argv[])
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "3"));
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "4"));
 
-            // Remove all logs older than 15 seconds.
-            config.setMaxFileAge(bsls::TimeInterval(15));
+            // Remove all logs older than 150 seconds.
+            config.setMaxFileAge(bsls::TimeInterval(150));
             Obj::removeFiles(config);
 
             ASSERT(true  == bdls::FilesystemUtil::exists(baseName + "1"));
@@ -338,8 +338,8 @@ int main(int argc, char *argv[])
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "3"));
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "4"));
 
-            // Remove all logs older than 5 seconds.
-            config.setMaxFileAge(bsls::TimeInterval(5));
+            // Remove all logs older than 50 seconds.
+            config.setMaxFileAge(bsls::TimeInterval(50));
             Obj::removeFiles(config);
 
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "1"));
@@ -359,14 +359,14 @@ int main(int argc, char *argv[])
             createFile(baseName + "3");
             createFile(baseName + "4");
 
-            changeModificationTime(baseName + "1", -10);
-            changeModificationTime(baseName + "2", -20);
-            changeModificationTime(baseName + "3", -30);
-            changeModificationTime(baseName + "4", -40);
+            changeModificationTime(baseName + "1", -100);
+            changeModificationTime(baseName + "2", -200);
+            changeModificationTime(baseName + "3", -300);
+            changeModificationTime(baseName + "4", -400);
 
-            // Remove all but 4 logs older than 25 seconds.
+            // Remove all but 4 logs older than 250 seconds.
             ObjConfig config((baseName + "*").c_str(),
-                             bsls::TimeInterval(25),
+                             bsls::TimeInterval(250),
                              4);
             Obj::removeFiles(config);
 
@@ -375,8 +375,8 @@ int main(int argc, char *argv[])
             ASSERT(true == bdls::FilesystemUtil::exists(baseName + "3"));
             ASSERT(true == bdls::FilesystemUtil::exists(baseName + "4"));
 
-            // Remove all but 4 logs older than 15 seconds.
-            config.setMaxFileAge(bsls::TimeInterval(15));
+            // Remove all but 4 logs older than 150 seconds.
+            config.setMaxFileAge(bsls::TimeInterval(150));
             Obj::removeFiles(config);
 
             ASSERT(true == bdls::FilesystemUtil::exists(baseName + "1"));
@@ -384,8 +384,8 @@ int main(int argc, char *argv[])
             ASSERT(true == bdls::FilesystemUtil::exists(baseName + "3"));
             ASSERT(true == bdls::FilesystemUtil::exists(baseName + "4"));
 
-            // Remove all but 4 logs older than 5 seconds.
-            config.setMaxFileAge(bsls::TimeInterval(5));
+            // Remove all but 4 logs older than 50 seconds.
+            config.setMaxFileAge(bsls::TimeInterval(50));
             Obj::removeFiles(config);
 
             ASSERT(true == bdls::FilesystemUtil::exists(baseName + "1"));
@@ -393,8 +393,8 @@ int main(int argc, char *argv[])
             ASSERT(true == bdls::FilesystemUtil::exists(baseName + "3"));
             ASSERT(true == bdls::FilesystemUtil::exists(baseName + "4"));
 
-            // Remove all but 3 logs older than 5 seconds.
-            config.setMaxFileAge(bsls::TimeInterval(5));
+            // Remove all but 3 logs older than 50 seconds.
+            config.setMaxFileAge(bsls::TimeInterval(50));
             config.setMinNumFiles(3);
             Obj::removeFiles(config);
 
@@ -403,8 +403,8 @@ int main(int argc, char *argv[])
             ASSERT(true  == bdls::FilesystemUtil::exists(baseName + "3"));
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "4"));
 
-            // Remove all but 1 log older than 5 seconds.
-            config.setMaxFileAge(bsls::TimeInterval(5));
+            // Remove all but 1 log older than 50 seconds.
+            config.setMaxFileAge(bsls::TimeInterval(50));
             config.setMinNumFiles(1);
             Obj::removeFiles(config);
 
@@ -427,19 +427,19 @@ int main(int argc, char *argv[])
                 int d_max;
                 int d_expRemaining;
             } LOCAL_DATA[] = {
-                { L_,  50, 0, INT_MAX, 4 },
-                { L_,  50, 0, 1,       1 },
-                { L_,  50, 0, 2,       2 },
-                { L_,  50, 0, 3,       3 },
-                { L_,  50, 0, 4,       4 },
-                { L_,  50, 0, 1,       1 },
-                { L_,  50, 1, 2,       2 },
-                { L_,  50, 2, 3,       3 },
-                { L_,  50, 3, 4,       4 },
-                { L_,  50, 1, 1,       1 },
-                { L_,  50, 2, 2,       2 },
-                { L_,  50, 3, 3,       3 },
-                { L_,  50, 4, 4,       4 },
+                { L_, 500, 0, INT_MAX, 4 },
+                { L_, 500, 0, 1,       1 },
+                { L_, 500, 0, 2,       2 },
+                { L_, 500, 0, 3,       3 },
+                { L_, 500, 0, 4,       4 },
+                { L_, 500, 0, 1,       1 },
+                { L_, 500, 1, 2,       2 },
+                { L_, 500, 2, 3,       3 },
+                { L_, 500, 3, 4,       4 },
+                { L_, 500, 1, 1,       1 },
+                { L_, 500, 2, 2,       2 },
+                { L_, 500, 3, 3,       3 },
+                { L_, 500, 4, 4,       4 },
                 { L_,   0, 0, INT_MAX, 0 },
                 { L_,   0, 1, INT_MAX, 1 },
                 { L_,   0, 2, INT_MAX, 2 },
@@ -455,9 +455,9 @@ int main(int argc, char *argv[])
                 { L_,   0, 2, 3,       2 },
                 { L_,   0, 3, 4,       3 },
                 { L_,   0, 4, 5,       4 },
-                { L_,  25, 0, INT_MAX, 2 },
-                { L_,  25, 3, INT_MAX, 3 },
-                { L_,  15, 0, INT_MAX, 1 },
+                { L_, 250, 0, INT_MAX, 2 },
+                { L_, 250, 3, INT_MAX, 3 },
+                { L_, 150, 0, INT_MAX, 1 },
             };
             enum { k_NUM_LOCAL_DATA = sizeof LOCAL_DATA / sizeof *LOCAL_DATA };
 
@@ -479,7 +479,7 @@ int main(int argc, char *argv[])
 
                     bdls::FilesystemUtil::remove(fn);
                     createFile(fn);
-                    changeModificationTime(fn, -10 * ii);
+                    changeModificationTime(fn, -100 * ii);
                 }
 
                 const ObjConfig config((baseName + "*").c_str(),
@@ -514,10 +514,10 @@ int main(int argc, char *argv[])
             createFile(baseName + "3");
             createFile(baseName + "4");
 
-            changeModificationTime(baseName + "1", 10);
-            changeModificationTime(baseName + "2", 20);
-            changeModificationTime(baseName + "3", 30);
-            changeModificationTime(baseName + "4", 40);
+            changeModificationTime(baseName + "1", 100);
+            changeModificationTime(baseName + "2", 200);
+            changeModificationTime(baseName + "3", 300);
+            changeModificationTime(baseName + "4", 400);
 
             // Remove all but 4 logs older than 0 seconds.
             ObjConfig config((baseName + "*").c_str(),
@@ -567,14 +567,14 @@ int main(int argc, char *argv[])
             createFile(baseName + "3");
             createFile(baseName + "4");
 
-            changeModificationTime(baseName + "1", -10);
-            changeModificationTime(baseName + "2", -20);
-            changeModificationTime(baseName + "3", -30);
-            changeModificationTime(baseName + "4", -40);
+            changeModificationTime(baseName + "1", -100);
+            changeModificationTime(baseName + "2", -200);
+            changeModificationTime(baseName + "3", -300);
+            changeModificationTime(baseName + "4", -400);
 
-            // Remove all logs older than 35 seconds.
+            // Remove all logs older than 350 seconds.
             ObjConfig config((baseName + "*").c_str(),
-                             bsls::TimeInterval(35),
+                             bsls::TimeInterval(350),
                              0);
             Obj::removeFiles(config);
 
@@ -583,8 +583,8 @@ int main(int argc, char *argv[])
             ASSERT(true  == bdls::FilesystemUtil::exists(baseName + "3"));
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "4"));
 
-            // Remove all logs older than 15 seconds.
-            config.setMaxFileAge(bsls::TimeInterval(15));
+            // Remove all logs older than 150 seconds.
+            config.setMaxFileAge(bsls::TimeInterval(150));
             Obj::removeFiles(config);
 
             ASSERT(true  == bdls::FilesystemUtil::exists(baseName + "1"));
