@@ -625,7 +625,11 @@ double ThreadPool::resetPercentBusy()
     double interval = static_cast<double>(now - lastResetTime);
     interval = 0 != interval ? interval : 1;
 
-    double percentBusy = 100.0 / d_maxThreads * callbackTime / interval;
+    // Note that the order of operations must match that in 'percentBusy' so
+    // that, given the same interval, both methods return the same value.
+
+    double ratio = callbackTime / interval;
+    double percentBusy = 100.0 / d_maxThreads * ratio;
     return percentBusy;
 }
 
