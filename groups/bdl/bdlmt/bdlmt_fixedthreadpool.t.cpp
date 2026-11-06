@@ -2156,6 +2156,9 @@ int main(int argc, char *argv[])
         //   void shutdown();
         // --------------------------------------------------------------------
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         static const struct {
             int d_lineNum;
             int d_numThreads;

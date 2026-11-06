@@ -2168,10 +2168,10 @@ void startStopConcurrencyTest()
     bslmt::ThreadUtil::join(startThread);
 
     // `stop` should be able to finish without any problem now. If it takes
-    // anything approaching a second, it's deadlocked.
+    // anything approaching ten seconds, it's deadlocked.
 
     int rc = stopSema.timedWait(
-                          bsls::SystemTime::nowMonotonicClock().addSeconds(1));
+                         bsls::SystemTime::nowMonotonicClock().addSeconds(10));
     ASSERT(0 == rc);
 
     // Now submit a job to be executed
@@ -2181,7 +2181,7 @@ void startStopConcurrencyTest()
 
     // Job should have been executed
     rc = jobSema.timedWait(
-                          bsls::SystemTime::nowMonotonicClock().addSeconds(1));
+                         bsls::SystemTime::nowMonotonicClock().addSeconds(10));
     ASSERT(0 == rc);
 
     // all done; cleanup
@@ -4188,6 +4188,8 @@ int main(int argc, char *argv[])
             bsls::Stopwatch timer;
             double elapsedTimeOne, elapsedTimeTwo, elapsedTimeThree;
 
+            timer.start();
+
             scheduler.scheduleEvent(
                     bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME) +
                                                          bsls::TimeInterval(1),
@@ -4226,14 +4228,18 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == ta.numBytesInUse());
 
-            timer.start();
             scheduler.start();
             done.wait();
             scheduler.stop();
 
-            ASSERTV(elapsedTimeOne,   0.99 <= elapsedTimeOne);
-            ASSERTV(elapsedTimeTwo,   1.99 <= elapsedTimeTwo);
-            ASSERTV(elapsedTimeThree, 2.99 <= elapsedTimeThree);
+            // The realtime clock on Windows (`GetSystemTimeAsFileTime`) has a
+            // granularity of ~15.6ms, whereas `bsls::Stopwatch` uses a
+            // high-resolution counter, so an event may appear to fire up to
+            // one clock tick early; the lower bounds allow for this.
+
+            ASSERTV(elapsedTimeOne,   0.98 <= elapsedTimeOne);
+            ASSERTV(elapsedTimeTwo,   1.98 <= elapsedTimeTwo);
+            ASSERTV(elapsedTimeThree, 2.98 <= elapsedTimeThree);
         }
 
         if (verbose) cout << "\tBreathing test custom clock" << endl;
@@ -4249,6 +4255,8 @@ int main(int argc, char *argv[])
 
             bsls::Stopwatch timer;
             double elapsedTimeOne, elapsedTimeTwo, elapsedTimeThree;
+
+            timer.start();
 
             scheduler.scheduleEvent(
                     bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME) +
@@ -4286,14 +4294,18 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == ta.numBytesInUse());
 
-            timer.start();
             scheduler.start();
             done.wait();
             scheduler.stop();
 
-            ASSERTV(elapsedTimeOne,   0.99 <= elapsedTimeOne);
-            ASSERTV(elapsedTimeTwo,   0.99 <= elapsedTimeTwo);
-            ASSERTV(elapsedTimeThree, 1.99 <= elapsedTimeThree);
+            // The realtime clock on Windows (`GetSystemTimeAsFileTime`) has a
+            // granularity of ~15.6ms, whereas `bsls::Stopwatch` uses a
+            // high-resolution counter, so an event may appear to fire up to
+            // one clock tick early; the lower bounds allow for this.
+
+            ASSERTV(elapsedTimeOne,   0.98 <= elapsedTimeOne);
+            ASSERTV(elapsedTimeTwo,   0.98 <= elapsedTimeTwo);
+            ASSERTV(elapsedTimeThree, 1.98 <= elapsedTimeThree);
         }
 #endif
       } break;

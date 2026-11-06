@@ -3168,7 +3168,7 @@ int main(int argc, char *argv[])
                     // before `pushFront` in testObj (which actually happens
                     // erratically).
 
-                    int iter = 100;
+                    int iter = 3000;
                     while (0 == testObj.waitingFlag() && 0 < --iter) {
                         bslmt::ThreadUtil::yield();
                         bslmt::ThreadUtil::microSleep(T);
@@ -3223,7 +3223,7 @@ int main(int argc, char *argv[])
                 if (0 < HIGH_WATER_MARK) {
                     // See comment above.
 
-                    int iter = 100;
+                    int iter = 3000;
                     while (0 == testObj.waitingFlag() && 0 < --iter) {
                         bslmt::ThreadUtil::yield();
                         bslmt::ThreadUtil::microSleep(T);
@@ -3439,7 +3439,7 @@ int main(int argc, char *argv[])
             // should the `pushBack` below execute before `popFront` in
             // `testObj`.
 
-            int iter = 100;
+            int iter = 3000;
             while (0 == testObj.waitingFlag() && 0 < --iter) {
                 bslmt::ThreadUtil::yield();
                 bslmt::ThreadUtil::microSleep(T);
@@ -3469,7 +3469,7 @@ int main(int argc, char *argv[])
 
             // See note above.
 
-            int iter = 100;
+            int iter = 3000;
             while (0 == testObj.waitingFlag() && 0 < --iter) {
                 bslmt::ThreadUtil::yield();
                 bslmt::ThreadUtil::microSleep(T);

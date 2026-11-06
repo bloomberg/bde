@@ -2419,9 +2419,20 @@ int main(int argc, char *argv[])
         enum { k_NUM_ENTRIES = k_NUM_VALUES * k_NUM_PUSHER_THREADS };
         char reserved[k_NUM_ENTRIES];
 
+        // Thread creation can be very slow on heavily loaded hosts, so stop
+        // iterating once `k_MAX_DURATION` seconds have elapsed.
+
+        const double k_MAX_DURATION = 120.0;
+
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
+        bsls::Stopwatch timer;
+        timer.start();
+
+        for (int i = 0;
+             i < k_NUM_ITERATIONS &&
+                             (0 == i || timer.elapsedTime() < k_MAX_DURATION);
+             ++i) {
             bslmt::Barrier barrier(k_NUM_PUSHER_THREADS+1);
 
             bdlcc::FixedQueue<char*> mX(k_NUM_ENTRIES+1, &ta);

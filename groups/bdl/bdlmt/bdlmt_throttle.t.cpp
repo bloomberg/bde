@@ -1145,6 +1145,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "MULTITHREADED TEST -- HIGH CONTENTION, IF\n"
                              "=========================================\n";
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         namespace TC = Case_Throttle_MULTITHREADED;
 
         TC::multiThreadedMain(TC::e_IF_HIGH);
@@ -1167,6 +1170,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "MULTITHREADED TEST -- LOW CONTENTION, IF\n"
                              "========================================\n";
+
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
 
         namespace TC = Case_Throttle_MULTITHREADED;
 
@@ -1193,6 +1199,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "MULTITHREADED TEST -- HIGH CONTENTION, INIT\n"
                              "===========================================\n";
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         namespace TC = Case_Throttle_MULTITHREADED;
 
         TC::multiThreadedMain(TC::e_INIT_HIGH);
@@ -1215,6 +1224,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "MULTITHREADED TEST -- LOW CONTENTION, INIT\n"
                              "==========================================\n";
+
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
 
         namespace TC = Case_Throttle_MULTITHREADED;
 

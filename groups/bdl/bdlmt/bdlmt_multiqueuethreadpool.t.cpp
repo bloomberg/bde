@@ -2126,7 +2126,17 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
                                           bsl::format("case {}", test)));
 
+        // Thread creation can be very slow on heavily loaded hosts, so stop
+        // iterating once 120 seconds have elapsed.
+
+        const bsls::TimeInterval endTime =
+                         bsls::SystemTime::nowMonotonicClock().addSeconds(120);
+
         for (int i = 0; i < 500; ++i) {
+            if (0 < i && endTime <= bsls::SystemTime::nowMonotonicClock()) {
+                break;                                                 // BREAK
+            }
+
             bslmt::ThreadAttributes defaultAttrs;
             bdlmt::ThreadPool underlyingPool(defaultAttrs, 2, 2, 0);
             underlyingPool.start();

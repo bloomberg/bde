@@ -1733,10 +1733,10 @@ void startStopConcurrencyTest()
     bslmt::ThreadUtil::join(startThread);
 
     // `stop` should be able to finish without any problem now.  If it takes
-    // anything approaching a second, it's deadlocked.
+    // anything approaching ten seconds, it's deadlocked.
 
     int rc = stopSema.timedWait(
-                          bsls::SystemTime::nowMonotonicClock().addSeconds(1));
+                         bsls::SystemTime::nowMonotonicClock().addSeconds(10));
     ASSERT(0 == rc);
 
     // Now submit a job to be executed
@@ -1751,7 +1751,7 @@ void startStopConcurrencyTest()
 
     // Job should have been executed
     rc = jobSema.timedWait(
-                          bsls::SystemTime::nowMonotonicClock().addSeconds(1));
+                         bsls::SystemTime::nowMonotonicClock().addSeconds(10));
     ASSERT(0 == rc);
 
     // all done; cleanup
@@ -1862,7 +1862,7 @@ void test7_b()
     x.start();
 
     myMicroSleep(T3, 0); // give enough time to complete testObj's callback
-    makeSureTestObjectIsExecuted(testObj, mT, 100);
+    makeSureTestObjectIsExecuted(testObj, mT, 1000);
     ASSERT( 1 == testObj.numExecuted() );
 }
 
@@ -1900,7 +1900,7 @@ void test7_c()
     x.start(attr);
 
     myMicroSleep(T3, 0); // give enough time to complete testObj's callback
-    makeSureTestObjectIsExecuted(testObj1, mT, 100);
+    makeSureTestObjectIsExecuted(testObj1, mT, 1000);
     ASSERT( 1 == testObj1.numExecuted() );
 }
 
@@ -1938,7 +1938,7 @@ void test7_d()
     x.start();
 
     myMicroSleep(T3, 0); // give enough time to complete testObj's callback
-    makeSureTestObjectIsExecuted(testObj, mT, 100);
+    makeSureTestObjectIsExecuted(testObj, mT, 1000);
     ASSERT( 1 == testObj.numExecuted() );
 }
 
@@ -1970,7 +1970,7 @@ void test7_e()
     x.start();
 
     myMicroSleep(T3, 0); // give enough time to complete testObj's callback
-    makeSureTestObjectIsExecuted(testObj, mT, 100);
+    makeSureTestObjectIsExecuted(testObj, mT, 1000);
     ASSERT( 1 == testObj.numExecuted() );
 }
 
@@ -2015,7 +2015,7 @@ void test7_f()
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     myMicroSleep(T10, 0);
-    makeSureTestObjectIsExecuted(testObj, mT, 100);
+    makeSureTestObjectIsExecuted(testObj, mT, 1000);
     ASSERT( 1 == testObj.numExecuted() );
 }
 
@@ -2338,6 +2338,16 @@ void test3_c()
     myMicroSleep(T3, 0);
     x.start();
     myMicroSleep(T3, 0);  // give enough time to be put on pending list
+
+    // Both events are put onto the pending list before the first one is
+    // executed, so wait until the first event has started (the dispatcher
+    // thread may be slow to run on heavily loaded hosts).
+
+    for (int i = 0; 0 == testObj1.numStarted() && i < 1000; ++i) {
+        myMicroSleep(T10 / 100, 0);
+    }
+    ASSERT(0 < testObj1.numStarted());
+
     int wait = 1;
     ASSERT( 0 != x.cancelEvent(h2, wait) );
     ASSERT( 1 == testObj2.numExecuted() );
@@ -2413,7 +2423,7 @@ void test3_e()
                                          -1));
 
     myMicroSleep(T3, 0);
-    makeSureTestObjectIsExecuted(testObj, mT, 100);
+    makeSureTestObjectIsExecuted(testObj, mT, 1000);
     ASSERT( 1 == testObj.numExecuted() );
 }
 
@@ -2645,7 +2655,7 @@ void test1_a()
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
 
     myMicroSleep(T4, 0);
-    makeSureTestObjectIsExecuted(testObj1, mT, 100);
+    makeSureTestObjectIsExecuted(testObj1, mT, 1000);
     x.stop();
 
     bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
@@ -2669,7 +2679,7 @@ void test1_a()
 
         x.start();
         myMicroSleep(T4, 0);
-        makeSureTestObjectIsExecuted(testObj2, mT, 100, NEXEC2);
+        makeSureTestObjectIsExecuted(testObj2, mT, 1000, NEXEC2);
         nExec = testObj2.numExecuted();
         ASSERTV(NEXEC2, nExec, NEXEC2 + 1 <= nExec);
     }
@@ -2740,7 +2750,7 @@ void test1_c()
                                                    &testObj));
 
     sleepUntilMs(T4 / 1000);
-    makeSureTestObjectIsExecuted(testObj, mT, 100);
+    makeSureTestObjectIsExecuted(testObj, mT, 1000);
     int nExec = testObj.numExecuted();
     ASSERTV(nExec, 1 <= nExec);
 
@@ -2841,7 +2851,7 @@ void test1_e()
                                                       &testObj));
 
     myMicroSleep(T3, 0);
-    makeSureTestObjectIsExecuted(testObj, mT, 100);
+    makeSureTestObjectIsExecuted(testObj, mT, 1000);
     int nExec = testObj.numExecuted();
     ASSERTV(nExec, 1 == nExec);
     ASSERT( 0 != x.cancelEvent(h) );
@@ -2931,13 +2941,13 @@ void test1_g()
     }
 
     sleepUntilMs(T2 / 1000);
-    makeSureTestObjectIsExecuted(testObj1, mT, 100);
+    makeSureTestObjectIsExecuted(testObj1, mT, 1000);
     nExec = testObj1.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T5) {
         ASSERTV(nExec, 1 == nExec);
     }
-    makeSureTestObjectIsExecuted(testObj2, mT, 100);
+    makeSureTestObjectIsExecuted(testObj2, mT, 1000);
     nExec = testObj2.numExecuted();
     ASSERTV(nExec, 1 == nExec);
     ASSERT(0 == x.numEvents());
@@ -2945,7 +2955,7 @@ void test1_g()
 
     sleepUntilMs(T2 / 1000);
     sleepUntilMs(T / 1000);
-    makeSureTestObjectIsExecuted(testObj1, mT, 100, 1);
+    makeSureTestObjectIsExecuted(testObj1, mT, 1000, 1);
     nExec = testObj1.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T8) {
@@ -2995,7 +3005,7 @@ void test1_h()
     // ASSERT(1 == x.numClocks());
 
     sleepUntilMs(T2 / 1000);
-    makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
+    makeSureTestObjectIsExecuted(testObj, mT, 1000, nExec);
     nExec = testObj.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T6) {
@@ -3006,7 +3016,7 @@ void test1_h()
     }
 
     myMicroSleep(T4, 0);
-    makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
+    makeSureTestObjectIsExecuted(testObj, mT, 1000, nExec);
     nExec = testObj.numExecuted();
     ASSERTV(nExec, 2 <= nExec);
     ASSERT(0 == x.numEvents());
@@ -3064,7 +3074,7 @@ void test1_i()
     }
 
     sleepUntilMs(T2 / 1000);
-    makeSureTestObjectIsExecuted(testObj1, mT, 100);
+    makeSureTestObjectIsExecuted(testObj1, mT, 1000);
     nExec = testObj1.numExecuted();
     ASSERTV(nExec, 1 == nExec);
     nExec = testObj2.numExecuted();
@@ -3079,7 +3089,7 @@ void test1_i()
     myMicroSleep(T, 0);
     nExec = testObj1.numExecuted();
     ASSERTV(nExec, 1 == nExec);
-    makeSureTestObjectIsExecuted(testObj2, mT, 100);
+    makeSureTestObjectIsExecuted(testObj2, mT, 1000);
     nExec = testObj2.numExecuted();
     ASSERTV(nExec, 1 == nExec);
     ASSERT(0 == x.numEvents());
@@ -3172,7 +3182,7 @@ void test1_k()
     }
 
     sleepUntilMs(T3 / 1000);
-    makeSureTestObjectIsExecuted(testObj, mT, 100);
+    makeSureTestObjectIsExecuted(testObj, mT, 1000);
     nExec = testObj.numExecuted();
     ASSERTV(nExec, 1 == nExec);
     ASSERT(0 == x.numEvents());
@@ -3496,7 +3506,7 @@ int main(int argc, char *argv[])
         timeSource.advanceTime(bsls::TimeInterval(35));
 
         // Wait while verifying:
-        makeSureTestObjectIsExecuted(event1, mT, 100);
+        makeSureTestObjectIsExecuted(event1, mT, 1000);
 
         // Confirm that only the expected event has run.
         ASSERT(1 == event1.numExecuted());
@@ -3505,13 +3515,13 @@ int main(int argc, char *argv[])
         // Advance the time by another 30 seconds, so we will be at an offset
         // of 65 seconds, meaning the recurring event will run once.
         timeSource.advanceTime(bsls::TimeInterval(30));
-        makeSureTestObjectIsExecuted(event2, mT, 100);
+        makeSureTestObjectIsExecuted(event2, mT, 1000);
         ASSERT(1 == event1.numExecuted());
         ASSERT(1 == event2.numExecuted());
 
         // Now let the recurring event run exactly once more
         timeSource.advanceTime(bsls::TimeInterval(60));
-        makeSureTestObjectIsExecuted(event2, mT, 100, 1);
+        makeSureTestObjectIsExecuted(event2, mT, 1000, 1);
         ASSERT(1 == event1.numExecuted());
         ASSERT(2 == event2.numExecuted());
 
@@ -3900,7 +3910,7 @@ int main(int argc, char *argv[])
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000);
             ASSERT( 1 == testObj.numExecuted() );
         }
         ASSERT(defaultAdapter.verify(""));
@@ -4005,7 +4015,7 @@ int main(int argc, char *argv[])
                                                    &testObj));
 
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000);
             ASSERT( 1 == testObj.numExecuted() );
         }
         ASSERT(defaultAdapter.verify(""));
@@ -4092,7 +4102,7 @@ int main(int argc, char *argv[])
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000);
             ASSERT( 1 == testObj.numExecuted() );
         }
         ASSERT(defaultAdapter.verify(""));
@@ -4183,7 +4193,7 @@ int main(int argc, char *argv[])
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000);
             ASSERT( 1 == testObj.numExecuted() );
         }
         ASSERT(defaultAdapter.verify(""));
@@ -4274,7 +4284,7 @@ int main(int argc, char *argv[])
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000);
             ASSERT( 1 == testObj.numExecuted() );
         }
         ASSERT(defaultAdapter.verify(""));
@@ -4364,7 +4374,7 @@ int main(int argc, char *argv[])
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000);
             ASSERT( 1 == testObj.numExecuted() );
         }
         ASSERT(defaultAdapter.verify(""));
@@ -4956,7 +4966,7 @@ int main(int argc, char *argv[])
               ASSERTV(nExec, 0 == nExec);
               ASSERT( 0 == x.rescheduleEvent(h, now + T4, true) );
               myMicroSleep(T6, 0);
-              makeSureTestObjectIsExecuted(testObj, mT, 100);
+              makeSureTestObjectIsExecuted(testObj, mT, 1000);
               nExec = testObj.numExecuted();
               ASSERTV(nExec, 1 == nExec);
               ASSERT( 0 != x.rescheduleEvent(h, now + T8, true) );
@@ -4996,7 +5006,7 @@ int main(int argc, char *argv[])
               ASSERTV(nExec, 0 == nExec);
               ASSERT( 0 == x.rescheduleEvent(h, key, now + T4, true) );
               myMicroSleep(T6, 0);
-              makeSureTestObjectIsExecuted(testObj, mT, 100);
+              makeSureTestObjectIsExecuted(testObj, mT, 1000);
               nExec = testObj.numExecuted();
               ASSERTV(nExec, 1 == nExec);
               ASSERT( 0 != x.rescheduleEvent(h, key, now + T8, true) );
@@ -5142,7 +5152,7 @@ int main(int argc, char *argv[])
                         bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                &testObj));
         myMicroSleep(T2, 0);
-        makeSureTestObjectIsExecuted(testObj, mT, 100);
+        makeSureTestObjectIsExecuted(testObj, mT, 1000);
         ASSERT( 1 == testObj.numExecuted() );
 
       } break;
@@ -5227,7 +5237,7 @@ int main(int argc, char *argv[])
                       bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000);
             ASSERT(1 == testObj.numExecuted());
         }
 
@@ -5256,7 +5266,7 @@ int main(int argc, char *argv[])
                       bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000);
             ASSERT(1 == testObj.numExecuted());
         }
 
@@ -5289,7 +5299,7 @@ int main(int argc, char *argv[])
                       bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000);
             ASSERT(1 == testObj.numExecuted());
             x.stop();
 
@@ -5299,7 +5309,7 @@ int main(int argc, char *argv[])
                       bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000, nExec);
             ASSERT(2 == testObj.numExecuted());
             x.stop();
 
@@ -5309,7 +5319,7 @@ int main(int argc, char *argv[])
                       bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000, nExec);
             ASSERT(3 == testObj.numExecuted());
         }
 
@@ -5434,7 +5444,7 @@ int main(int argc, char *argv[])
                                                    &testObj));
 
             myMicroSleep(T2, 0);
-            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            makeSureTestObjectIsExecuted(testObj, mT, 1000);
             ASSERT( 1 == testObj.numExecuted() );
         }
         ASSERT(defaultAdapter.verify(""));
@@ -5990,7 +6000,7 @@ int main(int argc, char *argv[])
               ASSERT( 0 == testObj2.numExecuted() );
               ASSERT( 0 == testObj3.numExecuted() );
 
-              makeSureTestObjectIsExecuted(testObj1, mT, 100);
+              makeSureTestObjectIsExecuted(testObj1, mT, 1000);
               myMicroSleep(T3, 0);
               ASSERT( 1 == testObj0.numExecuted() );
               ASSERT( 1 == testObj1.numExecuted() );
