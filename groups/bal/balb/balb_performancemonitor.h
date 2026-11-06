@@ -45,11 +45,15 @@ BSLS_IDENT("$Id: $")
 // Resident Size     e_RESIDENT_SIZE      Number of mega-bytes of physical
 //                                        memory used by the process.
 //
-// Virtual Size      e_VIRTUAL_SIZE       The size of the heap, in
-//                                        mega-bytes. This value does not
-//                                        include the size of the address
-//                                        space mapped to files (anonymous or
-//                                        otherwise.)
+// Virtual Size      e_VIRTUAL_SIZE       Number of mega-bytes of virtual
+//                                        memory used by the process.  On
+//                                        Solaris and AIX, this is the size of
+//                                        the heap, and does not include the
+//                                        address space mapped to files
+//                                        (anonymous or otherwise).  On other
+//                                        platforms, this is the size of the
+//                                        entire virtual address space of the
+//                                        process.
 //
 // Thread Count      e_NUM_THREADS        Number of threads executing in the
 //                                        process.
@@ -58,11 +62,23 @@ BSLS_IDENT("$Id: $")
 //                                        throughout the lifetime of the
 //                                        process.
 // ```
+// The minimum, maximum, and average values are maintained only for the
+// measures that are not cumulative.  The cumulative measures are
+// `e_CPU_TIME`, `e_CPU_TIME_USER`, `e_CPU_TIME_SYSTEM`, and
+// `e_NUM_PAGEFAULTS`; for these, only the latest value is available.
+//
+// Not all measures are supported on all platforms; an unsupported measure is
+// reported as zero.  On FreeBSD, `e_RESIDENT_SIZE`, `e_VIRTUAL_SIZE`,
+// `e_NUM_THREADS`, and `e_NUM_PAGEFAULTS` are not supported.  On AIX,
+// `e_NUM_PAGEFAULTS` is not supported.  On Windows, `e_NUM_THREADS` and
+// `e_VIRTUAL_SIZE` come from performance counters that a collection can fail
+// to read (e.g., when they are disabled); such a collection repeats the latest
+// values read, or zero if none has been read.
 //
 ///OS-Specific Permissions
 ///-----------------------
-// Various OSs might require specific permissions in order to inspect processes
-// other than the current process.  For example, on Darwin, users other than
+// Some OSs require specific permissions in order to inspect processes other
+// than the current process.  For example, on Darwin, users other than
 // root can only inspect processes running under the user with which the
 // current process is running.  This error condition will be indicated by a
 // non-zero return value from `registerPid`.
@@ -183,6 +199,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmt_mutex.h>
 #include <bslmt_readlockguard.h>
 #include <bslmt_rwmutex.h>
 #include <bsls_assert.h>
@@ -228,7 +245,7 @@ class PerformanceMonitor {
         e_RESIDENT_SIZE,     // number of MBs of physical memory
         e_NUM_THREADS,       // number of threads
         e_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
-        e_VIRTUAL_SIZE,      // number of MBs in the heap
+        e_VIRTUAL_SIZE,      // number of MBs of virtual memory
         e_NUM_MEASURES
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEA_CPU_TIME        BSLA_DEPRECATED = e_CPU_TIME
@@ -342,6 +359,13 @@ class PerformanceMonitor {
     bdlmt::TimerEventScheduler::Handle  d_clock;        // handle to collection
                                                         // timer
 
+    bsls::Types::Uint64                 d_clockGeneration;
+                                                        // latest interval
+                                                        // request
+
+    bslmt::Mutex                        d_clockGuard;   // serializes clock
+                                                        // state
+
     mutable bslmt::RWMutex              d_mapGuard;     // serializes write
                                                         // access to 'd_pidMap'
 
@@ -440,15 +464,18 @@ class PerformanceMonitor {
         double latestValue(Measure measure) const;
 
         /// Return the minimum collected value for the specified `measure`, or
-        /// a large positive value if no values have been collected.
+        /// a large positive value if no values have been collected or if
+        /// `measure` is cumulative (see {Description}).
         double minValue(Measure measure) const;
 
         /// Return the maximum collected value for the specified `measure`, or
-        /// a large negative value if no values have been collected.
+        /// a large negative value if no values have been collected or if
+        /// `measure` is cumulative (see {Description}).
         double maxValue(Measure measure) const;
 
         /// Return the average of the collected values for the specified
-        /// `metric`, or an unspecified value if no values have been collected.
+        /// `measure`, 0 if `measure` is cumulative (see {Description}), or an
+        /// unspecified value if no values have been collected.
         double avgValue(Measure measure) const;
 
         /// Return the pid for which these statistics were collected.
@@ -458,9 +485,10 @@ class PerformanceMonitor {
         /// by the result of the `pid()` function.
         const bsl::string& description() const;
 
-        /// Return the number of seconds (in wall time) that have elapsed
-        /// since the startup the process identified by the result of the
-        /// `pid()` function.
+        /// Return the number of seconds (in wall time) that had elapsed since
+        /// the startup of the process identified by the result of the `pid()`
+        /// function as of the most recent collection of statistics, or 0 if
+        /// no statistics have been collected.
         double elapsedTime() const;
 
         /// Return the startup time in Coordinated Universal Time.
@@ -473,9 +501,10 @@ class PerformanceMonitor {
         void print(bsl::ostream& os, Measure measure) const;
 
         /// Print the specified `measureIdentifier` to the specified `os`
-        /// stream.  The value of `measureIdentifier` should be a string
-        /// literal corresponding to the desired measure enumerator, e.g.,
-        /// `e_CPU_TIME`.
+        /// stream.  The value of `measureIdentifier` should be the name of
+        /// the desired measure enumerator without its `e_` prefix, e.g.,
+        /// "CPU_TIME" for `e_CPU_TIME`.  If `measureIdentifier` matches no
+        /// measure, print nothing.
         void print(bsl::ostream& os, const char *measureIdentifier) const;
     };
 
@@ -604,6 +633,8 @@ class PerformanceMonitor {
     /// performance statistics will be collected for the `pid` upon invocation
     /// of the `collect` function.  A `pid` value of zero is translated to the
     /// current process id.  Return 0 on success or a non-zero value otherwise.
+    /// If `pid` is already registered, return 0 and leave the existing
+    /// registration, including its description, unchanged.
     int registerPid(int pid, const bsl::string& description);
 
     /// Unregister the specified process `pid` from the performance monitor.
@@ -626,10 +657,12 @@ class PerformanceMonitor {
     /// Collect performance statistics for each registered pid.
     void collect();
 
-    /// Reset the collected min, max, and average values collected for each
-    /// measure for each monitored process.  Note that this method will call
-    /// `collect` once for each monitored process, so the statistics after this
-    /// method returns will be based on the values collected thereby.
+    /// Reset the collected statistics for each monitored process to the state
+    /// in which no samples have been collected (including the latest, min,
+    /// max, and average values of each measure), and then call `collect`.
+    /// Note that the statistics after this method returns will be based on
+    /// the values collected thereby.  Another thread can observe the reset
+    /// statistics before they are collected.
     void resetStatistics();
 
     // ACCESSORS
@@ -747,6 +780,7 @@ struct PerformanceMonitor_LinuxProcStatistics {
 inline
 PerformanceMonitor::ConstIterator::ConstIterator()
 : d_it()
+, d_mapGuard_p(0)
 {
 }
 

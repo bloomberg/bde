@@ -13,6 +13,8 @@ BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 #include <bdlt_datetime.h>
 #include <bdlt_epochutil.h>
 
+#include <bslmt_lockguard.h>
+#include <bslmt_once.h>
 #include <bslmt_writelockguard.h>
 
 #include <bslma_allocator.h>
@@ -58,6 +60,7 @@ BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 #include <libproc.h>
+#include <mach/mach_time.h>
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 #include <dirent.h>
 #include <sys/procfs.h>
@@ -226,16 +229,14 @@ int PerformanceMonitor_LinuxProcStatistics::parseProcStatString(
     // There are 22 fields following 'comm', the first of which is '%c'
     // guaranteed not to contain parens, and the rest of which are integral.
     // All of these fields are at least 1 char wide (in practice most of them
-    // are just 0), plus spaces is a minimum width of those fields of 44.  More
-    // fields may be appended to the 'stat' file in future versions of Linux,
-    // and they may be '%s' or '%c' fields containing parens, so we want to be
-    // sure not to search over them.
+    // are just 0), plus spaces is a minimum width of those fields of 44.
+    // Linux appends fields to the 'stat' file over time, and an appended '%s'
+    // or '%c' field can contain parens, so the search must not reach them.
 
     // The 'comm' field, according to current documentation, is up to 16 chars
     // long, and enclosed in parens, but will often be shorter.  The shortest
-    // 'comm' field would be the empty string contained in parens.  It is
-    // conceivable but very unlikely that the length limitation on the 'comm'
-    // field may grow a bit.  So let's search backward for the terminating ')'
+    // 'comm' field would be the empty string contained in parens.  To allow
+    // for growth of the 16-char limit, search backward for the terminating ')'
     // starting at 'commIdx + 2 + 40'.
 
     if (procStatString.length() < commIdx + 2 + 40) {
@@ -348,6 +349,11 @@ class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
     /// success or a non-zero value otherwise.
     static int readProcStat(ProcStatistics *stats, int pid);
 
+    /// Return the time at which the system booted, in seconds since the
+    /// Unix epoch, as read from `/proc/stat`, or a negative value if it
+    /// cannot be read.
+    static bsls::Types::Int64 readBootTime();
+
   public:
     // CREATORS
 
@@ -392,6 +398,33 @@ int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
     return 0;
 }
 
+bsls::Types::Int64 PerformanceMonitor::Collector<bsls::Platform::OsLinux>
+::readBootTime()
+{
+    bsl::string line;
+
+    bsl::ifstream bootFile("/proc/stat");
+
+    while (getline(bootFile, line)) {
+        if (line.length() > 0) {
+            bsl::stringstream ss(line);
+            bsl::string s;
+            ss >> s;
+            if ("btime" == s) {
+                bsls::Types::Int64 bootTime;
+                if (ss >> bootTime) {
+                    return bootTime;                                  // RETURN
+                }
+                return -1;                                            // RETURN
+            }
+        }
+    }
+
+    // 'btime' not found
+
+    return -1;
+}
+
 PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 ::Collector(bslma::Allocator *)
 {
@@ -413,43 +446,30 @@ int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
         return -1;                                                    // RETURN
     }
 
+    // Cache only a successful read, and allow later registrations to retry
+    // after a transient failure.
+
     static bsls::Types::Int64 bootTime = -1;
-    if (bootTime < 0) {
-        bsl::string line;
-
-        bsl::ifstream bootFile("/proc/stat");
-
-        while (getline(bootFile, line)) {
-            if (line.length() > 0) {
-                bsl::stringstream ss(line);
-                bsl::string s;
-                ss >> s;
-                if ("btime" == s) {
-                    if (ss >> bootTime) {
-                        break;
-                    }
-                    else {
-                        return -1;                                    // RETURN
-                    }
-                }
-            }
-        }
-
-        if (-1 == bootTime) {
-            // 'btime' not found
-
+    BSLMT_ONCE_DO {
+        const bsls::Types::Int64 value = readBootTime();
+        if (value < 0) {
+            BSLMT_ONCE_CANCEL();
             return -1;                                                // RETURN
         }
+        bootTime = value;
     }
 
-    long jiffiesPerSec = sysconf(_SC_CLK_TCK);
-    bsls::Types::Int64 procStartTime =
-                              bootTime + procStats.d_starttime / jiffiesPerSec;
-                                                      // seconds since 1970 UTC
+    const bsls::Types::Int64 jiffiesPerSec = sysconf(_SC_CLK_TCK);
+    const bsls::Types::Int64 startJiffies  = procStats.d_starttime;
 
-    stats->d_startTime = bsls::TimeInterval(procStartTime, 0);
-    stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
-    stats->d_startTimeUtc.addSeconds(procStartTime);
+    // seconds since 1970 UTC
+
+    stats->d_startTime = bsls::TimeInterval(
+                bootTime + startJiffies / jiffiesPerSec,
+                static_cast<int>(startJiffies % jiffiesPerSec * 1000000000
+                                                            / jiffiesPerSec));
+    stats->d_startTimeUtc = bdlt::EpochUtil::convertFromTimeInterval(
+                                                          stats->d_startTime);
 
     BSLS_LOG_DEBUG("PID %d started approximately %lld secs from Unix epoch",
                    stats->d_pid, stats->d_startTime.seconds());
@@ -496,7 +516,17 @@ int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
     }
     bsl::free(entry);
 
+    if (numNodes < 0) {
+        // The task directory could not be read; use the thread count reported
+        // in '/proc/<pid>/stat'.
+
+        numThreads = static_cast<int>(procStats.d_numThreads);
+    }
+
     stats->d_lstData[e_NUM_THREADS] = numThreads;
+
+    stats->d_lstData[e_NUM_PAGEFAULTS] =
+               static_cast<double>(procStats.d_minflt + procStats.d_majflt);
 
     static const long pageSize = sysconf(_SC_PAGESIZE);
 
@@ -657,7 +687,7 @@ int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 
     bsl::ifstream ifs(filename.str().c_str());
     if (!ifs) {
-        BSLS_LOG_DEBUG("Failed to open '%s'", filename.str());
+        BSLS_LOG_DEBUG("Failed to open '%s'", filename.str().c_str());
         return -1;
     }
 
@@ -683,6 +713,18 @@ int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
     ss >> sep;
     ss >> stats->d_sysTimeMSecs;
 
+    if (!ss) {
+        BSLS_LOG_DEBUG("Failed to parse '%s'", filename.str().c_str());
+        return -1;
+    }
+
+    if (pid != stats->d_pid) {
+        BSLS_LOG_DEBUG("Unexpected pid %d in '%s'",
+                       stats->d_pid,
+                       filename.str().c_str());
+        return -1;
+    }
+
     return 0;
 }
 
@@ -707,12 +749,11 @@ int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
         return -1;                                                    // RETURN
     }
 
-    //  bsls::TimeInterval startTime(procStats.d_processStartSecs,
-    //                               procStats.d_processStartMSecs * 1000);
-
-    stats->d_startTime = bsls::TimeInterval(procStats.d_processStartSecs, 0);
-    stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
-    stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
+    stats->d_startTime = bsls::TimeInterval(
+               static_cast<bsls::Types::Int64>(procStats.d_processStartSecs),
+               static_cast<int>(procStats.d_processStartMSecs * 1000));
+    stats->d_startTimeUtc = bdlt::EpochUtil::convertFromTimeInterval(
+                                                          stats->d_startTime);
 
     BSLS_LOG_DEBUG("PID %d started approximately %lld secs from Unix epoch",
                    stats->d_pid, stats->d_startTime.seconds());
@@ -752,10 +793,8 @@ int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
     double deltaCpuTimeU = cpuTimeU - stats->d_lstData[e_CPU_TIME_USER];
     double deltaCpuTimeS = cpuTimeS - stats->d_lstData[e_CPU_TIME_SYSTEM];
 
-    // Inaccurate for the first sample but this doesn't affect our results,
-    // as the CPU utilization is not calculated until the second sample is
-    // taken.
-    double elapsedTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
+    double elapsedTime = (bdlt::CurrentTime::now() - stats->d_startTime).
+                                                        totalSecondsAsDouble();
 
     double dt = elapsedTime - stats->d_elapsedTime;
 
@@ -806,6 +845,11 @@ class PerformanceMonitor::Collector<bsls::Platform::OsDarwin> {
     // Provide a specialization of the 'Collector' class template for the
     // Darwin platform.
 
+    // DATA
+    double d_secondsPerTick;  // seconds per unit of the CPU times reported by
+                              // 'proc_pidinfo', which are in mach absolute
+                              // time units (nanoseconds only on x86)
+
   public:
     // CREATORS
     Collector(bslma::Allocator *basicAllocator = 0);
@@ -831,6 +875,16 @@ class PerformanceMonitor::Collector<bsls::Platform::OsDarwin> {
 PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
 ::Collector(bslma::Allocator *)
 {
+    mach_timebase_info_data_t timebase;
+    if (KERN_SUCCESS != mach_timebase_info(&timebase)) {
+        BSLS_LOG_WARN("Failed to call mach_timebase_info");
+        timebase.numer = 1;
+        timebase.denom = 1;
+    }
+
+    d_secondsPerTick = static_cast<double>(timebase.numer)
+                     / static_cast<double>(timebase.denom)
+                     / 1e9;
 }
 
 // MANIPULATORS
@@ -856,10 +910,8 @@ int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
     stats->d_startTime = bsls::TimeInterval(bi.pbi_start_tvsec,
                                             bi.pbi_start_tvusec * 1000);
 
-    stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
-    stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
-    stats->d_startTimeUtc.addMilliseconds(
-                                   stats->d_startTime.nanoseconds() / 1000000);
+    stats->d_startTimeUtc = bdlt::EpochUtil::convertFromTimeInterval(
+                                                          stats->d_startTime);
 
     BSLS_LOG_DEBUG("PID %d started approximately %lld secs from Unix epoch",
                    stats->d_pid, stats->d_startTime.seconds());
@@ -886,12 +938,13 @@ int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
         return -1;                                                    // RETURN
     }
 
-    stats->d_lstData[e_NUM_THREADS]   = ti.pti_threadnum;
-    stats->d_lstData[e_RESIDENT_SIZE] = ti.pti_resident_size / 1048576.0;
-    stats->d_lstData[e_VIRTUAL_SIZE]  = ti.pti_virtual_size  / 1048576.0;
+    stats->d_lstData[e_NUM_THREADS]    = ti.pti_threadnum;
+    stats->d_lstData[e_RESIDENT_SIZE]  = ti.pti_resident_size / 1048576.0;
+    stats->d_lstData[e_VIRTUAL_SIZE]   = ti.pti_virtual_size  / 1048576.0;
+    stats->d_lstData[e_NUM_PAGEFAULTS] = ti.pti_faults;
 
-    const double cpuTimeU = ti.pti_total_user   / 1e9;
-    const double cpuTimeS = ti.pti_total_system / 1e9;
+    const double cpuTimeU = ti.pti_total_user   * d_secondsPerTick;
+    const double cpuTimeS = ti.pti_total_system * d_secondsPerTick;
     const double cpuTime  = cpuTimeU + cpuTimeS;
 
     const double deltaCpuTimeU =
@@ -900,9 +953,8 @@ int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
                              cpuTimeS - stats->d_lstData[e_CPU_TIME_SYSTEM];
     const double deltaCpuTime  = deltaCpuTimeU + deltaCpuTimeS;
 
-    // Inaccurate for the first sample, but this doesn't affect our results as
-    // the CPU utilization is not calculated until the second sample is taken.
-    const double elapsedTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
+    const double elapsedTime = (bdlt::CurrentTime::now() - stats->d_startTime)
+                                                      .totalSecondsAsDouble();
     const double dt          = elapsedTime - stats->d_elapsedTime;
 
     if ((stats->d_numSamples[e_NON_RATE_MEASURE] != 0) && (dt > 0)) {
@@ -1053,6 +1105,7 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     if (sizeof info != read(fd, &info, sizeof info)) {
         BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)",
                        stats->d_pid, stats->d_description.c_str());
+        close(fd);
         return -1;
     }
 
@@ -1061,8 +1114,32 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 
     close(fd);
 
-    stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
-    stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
+    // 'collect' also reads '/proc/<pid>/status' (and, on Solaris,
+    // '/proc/<pid>/usage'), which, unlike 'psinfo', are readable only by the
+    // owner of the process.
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+    const char *const ownerOnlyFiles[] = { "status", "usage" };
+#else
+    const char *const ownerOnlyFiles[] = { "status" };
+#endif
+    for (bsl::size_t i = 0;
+         i < sizeof ownerOnlyFiles / sizeof *ownerOnlyFiles;
+         ++i) {
+        bsl::stringstream procfsFile;
+        procfsFile << "/proc/" << pid << "/" << ownerOnlyFiles[i];
+
+        fd = open(procfsFile.str().c_str(), O_RDONLY);
+        if (fd == -1) {
+            BSLS_LOG_DEBUG("Failed to open /proc filesystem for pid %d (%s)",
+                           stats->d_pid, stats->d_description.c_str());
+            return -1;                                                // RETURN
+        }
+        close(fd);
+    }
+
+    stats->d_startTimeUtc = bdlt::EpochUtil::convertFromTimeInterval(
+                                                          stats->d_startTime);
 
     BSLS_LOG_DEBUG("PID %d started approximately %lld secs from Unix epoch",
                    stats->d_pid, stats->d_startTime.seconds());
@@ -1097,6 +1174,7 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     if (sizeof info != read(fd, &info, sizeof info)) {
         BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)",
                        stats->d_pid, stats->d_description.c_str());
+        close(fd);
         return -1;
     }
 
@@ -1122,6 +1200,7 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     if (sizeof status != read(fd, &status, sizeof status)) {
         BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)",
                        stats->d_pid, stats->d_description.c_str());
+        close(fd);
         return -1;
     }
 
@@ -1137,6 +1216,31 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
                    .totalSecondsAsDouble();
 
     close(fd);
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+    bsl::stringstream procfsUsage;
+    procfsUsage << "/proc/" << stats->d_pid << "/usage";
+
+    fd = open(procfsUsage.str().c_str(), O_RDONLY);
+    if (fd == -1) {
+        BSLS_LOG_DEBUG("Failed to open /proc filesystem for pid %d (%s)",
+                       stats->d_pid, stats->d_description.c_str());
+        return -1;                                                    // RETURN
+    }
+
+    prusage_t usage;
+    if (sizeof usage != read(fd, &usage, sizeof usage)) {
+        BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)",
+                       stats->d_pid, stats->d_description.c_str());
+        close(fd);
+        return -1;                                                    // RETURN
+    }
+
+    close(fd);
+
+    stats->d_lstData[e_NUM_PAGEFAULTS] =
+                       static_cast<double>(usage.pr_minf + usage.pr_majf);
+#endif
 
     // Calculate CPU utilization
 
@@ -1207,14 +1311,25 @@ struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
     enum {
         // Enumerates the counters collected from the Windows PDH API.
 
-        PROCESSOR_TIME,
-        USER_PROCESSOR_TIME,
         THREAD_COUNT,
-        WORKING_SET,
         VIRTUAL_SIZE,
-        PAGEFAULTS_PER_SEC,
-        ELAPSED_TIME,
+        ID_PROCESS,
         COUNTER_MAX
+    };
+
+    enum {
+        // Bounds the number of attempts to read the counters of a process
+        // whose instance index moves while it is being read.
+
+        MAX_QUERY_ATTEMPTS = 5
+    };
+
+    enum {
+        // Returned by 'findInstanceIndexFromPid' and 'queryCounters' when the
+        // instance index of the process moved, so that another attempt can
+        // succeed.
+
+        INSTANCE_MOVED = 1
     };
 
     // INSTANCE DATA
@@ -1223,6 +1338,8 @@ struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
     PDH_HQUERY                d_measureQuery;  // query to collect measures
     int                       d_instanceIndex; // process instance index
     bsl::vector<PDH_HCOUNTER> d_counters;      // array of collected measures
+    double                    d_threadCount;   // latest thread count read
+    double                    d_virtualSize;   // latest virtual bytes read
 
     // not implemented
     Collector(const Collector& other);
@@ -1230,9 +1347,22 @@ struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
 
     // PRIVATE CLASS METHODS
 
-    static bsl::string findModuleName(int pid);
-        // Return the module name of the process with the specified 'pid',
-        // without any trailing file extension.
+    struct ProcessInfo {
+        // Describe the properties of a process obtained by 'queryProcess'.
+
+        bsl::string        d_moduleName;  // executable name, without extension
+        FILETIME           d_creationTime;  // process creation time
+        FILETIME           d_kernelTime;  // cumulative kernel-mode time
+        FILETIME           d_userTime;    // cumulative user-mode time
+        bsls::TimeInterval d_sampleTime;  // time of the CPU sample
+        double             d_pageFaultCount;  // total number of page faults
+        double             d_workingSetSize;  // working set, in bytes
+    };
+
+    static int queryProcess(ProcessInfo *info, int pid);
+        // Load into the specified 'info' the properties of the process with
+        // the specified 'pid', using a single process handle.  Return 0 on
+        // success, and a non-zero value otherwise.
 
     static int findInstanceIndexFromPid(unsigned int       *instanceIndex,
                                         PDH_HQUERY          query,
@@ -1241,8 +1371,14 @@ struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
         // Load into the specified 'instanceIndex' the performance counter
         // instance index for the "Process" object for the specified 'pid'
         // (having the specified 'moduleName') using the specified 'hQuery'
-        // handle.  If such an instance is found, return 0, otherwise return
-        // -1.
+        // handle.  Return 0 if such an instance is found, 'INSTANCE_MOVED' if
+        // instances having 'moduleName' exist but none is 'pid' (as when a
+        // process having 'moduleName' exits during the search), and -1
+        // otherwise.
+
+    static void removeCounters(bsl::vector<PDH_HCOUNTER> *counters);
+        // Remove each of the specified 'counters' from its query, and clear
+        // 'counters'.
 
     static int rebindCounters(bsl::vector<PDH_HCOUNTER> *counters,
                               PDH_HQUERY                 query,
@@ -1251,6 +1387,20 @@ struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
         // Bind the specified 'counters' to the specified 'query' for the
         // specified process 'name' and 'instanceIndex'.  Return 0 on success
         // or a non-zero value otherwise.
+
+    // PRIVATE MANIPULATORS
+
+    int queryCounters(PDH_FMT_COUNTERVALUE *values,
+                      const bsl::string&    moduleName,
+                      int                   pid);
+        // Load into the specified 'values', indexed by counter, the counters
+        // of the "Process" instance for the specified 'pid' (having the
+        // specified 'moduleName').  Return 0 on success, 'INSTANCE_MOVED' if
+        // the instance index of 'pid' moved during the lookup or before the
+        // counters were read, and -1 if the instance cannot be found or its
+        // counters cannot be read.  Note that PDH names the instances of
+        // processes that share an executable by an index (e.g., "app#2") that
+        // changes as those processes exit.
 
   public:
     // CREATORS
@@ -1277,31 +1427,69 @@ struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
         // non-zero value otherwise.
 };
 
-bsl::string PerformanceMonitor::Collector<bsls::Platform::OsWindows>
-::findModuleName(int pid)
+int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+::queryProcess(ProcessInfo *info, int pid)
 {
-
-    DWORD accessRights = STANDARD_RIGHTS_READ
-                       | PROCESS_QUERY_INFORMATION
-                       | PROCESS_VM_READ;
-
-    HANDLE process = OpenProcess(accessRights, FALSE, pid);
+    HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION
+                                                             | PROCESS_VM_READ,
+                                 FALSE,
+                                 pid);
 
     if (0 == process) {
         BSLS_LOG_ERROR("Failed to open process handle to pid %d", pid);
-        return "";
+        return -1;                                                    // RETURN
     }
 
-    char moduleExeName[MAX_PATH];
-    GetModuleBaseName(process, 0, moduleExeName, MAX_PATH);
+    // Query the executable path without consulting the loader's module list,
+    // which is not initialized when a process has just been created.  Allow
+    // for the maximum length of an extended Windows path.
+
+    char                    imagePath[32768];
+    DWORD                   length = static_cast<DWORD>(sizeof imagePath);
+    FILETIME                exitTime;
+    PROCESS_MEMORY_COUNTERS memoryCounters;
+
+    bool success =
+           QueryFullProcessImageNameA(process, 0, imagePath, &length)
+        && 0 != length
+        && GetProcessTimes(process,
+                           &info->d_creationTime,
+                           &exitTime,
+                           &info->d_kernelTime,
+                           &info->d_userTime);
+
+    if (success) {
+        // Stamp CPU times before the memory and PDH queries.
+
+        info->d_sampleTime = bdlt::CurrentTime::now();
+        success = GetProcessMemoryInfo(process,
+                                       &memoryCounters,
+                                       sizeof memoryCounters);
+    }
 
     CloseHandle(process);
 
-    const char *extension = bsl::strrchr(moduleExeName, '.');
-    if (0 == extension)
-        return bsl::string(moduleExeName);
+    if (!success) {
+        BSLS_LOG_ERROR("Failed to query process information for pid %d",
+                       pid);
+        return -1;                                                    // RETURN
+    }
 
-    return bsl::string((const char*)moduleExeName, extension);
+    const char *moduleExeName = bsl::strrchr(imagePath, '\\');
+    moduleExeName = moduleExeName ? moduleExeName + 1 : imagePath;
+
+    const char *extension = bsl::strrchr(moduleExeName, '.');
+    if (0 == extension) {
+        extension = moduleExeName + bsl::strlen(moduleExeName);
+    }
+
+    info->d_moduleName.assign(moduleExeName, extension);
+    info->d_pageFaultCount = static_cast<double>(
+                                               memoryCounters.PageFaultCount);
+    info->d_workingSetSize = static_cast<double>(
+                                               memoryCounters.WorkingSetSize);
+
+    return 0;
 }
 
 int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
@@ -1343,32 +1531,43 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
             return -1;
         }
 
-        if (ERROR_SUCCESS != (rc= PdhCollectQueryData(query)))
-        {
-            break; // no data for this instance index
-        }
-
         PDH_FMT_COUNTERVALUE value = {0};
-        if (ERROR_SUCCESS != (rc = PdhGetFormattedCounterValue(counter,
-                                                               PDH_FMT_LONG,
-                                                               0,
-                                                               &value)))
-        {
-            if (PDH_INVALID_DATA == rc || PDH_INVALID_HANDLE == rc)
-                break;
 
-            return -1;
+        rc = PdhCollectQueryData(query);
+        if (ERROR_SUCCESS == rc) {
+            rc = PdhGetFormattedCounterValue(counter,
+                                             PDH_FMT_LONG,
+                                             0,
+                                             &value);
         }
+
+        // Remove the counter on every path, so that the query does not
+        // accumulate counters.
 
         PdhRemoveCounter(counter);
 
+        if (ERROR_SUCCESS != rc) {
+            // There is no data for this instance index, so the process was
+            // not found.
+
+            return 0 == index ? -1 : INSTANCE_MOVED;                  // RETURN
+        }
+
         if (pid == (int) value.longValue) {
             *instanceIndex = index;
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
+}
 
-    return -1;
+void PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+::removeCounters(bsl::vector<PDH_HCOUNTER> *counters)
+{
+    for (bsl::size_t i = 0; i < counters->size(); ++i) {
+        PdhRemoveCounter((*counters)[i]);
+    }
+
+    counters->clear();
 }
 
 int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
@@ -1379,24 +1578,15 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 {
     BSLS_LOG_DEBUG("Rebinding counters for new instance index %d",
                    instanceIndex);
-    if (!counters->empty()) {
-        for (int i = 0; i < counters->size(); ++i) {
-            PdhRemoveCounter((*counters)[i]);
-        }
-    }
 
-    counters->resize(COUNTER_MAX);
+    removeCounters(counters);
 
 #undef  CP
 #define CP(E) { 0, (LPSTR)"Process", (char *)name, 0, instanceIndex, (LPSTR)E }
     PDH_COUNTER_PATH_ELEMENTS counterPathElements[COUNTER_MAX] = {
-        CP("% Processor Time"),
-        CP("% User Time"     ),
         CP("Thread Count"    ),
-        CP("Working Set"     ),
         CP("Virtual Bytes"   ),
-        CP("Page Faults/sec" ),
-        CP("Elapsed Time"    )
+        CP("ID Process"      )
     };
 #undef  CP
 
@@ -1406,22 +1596,30 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
         char  fullPath[MAX_PATH];
         DWORD pathSize = sizeof(fullPath);
 
+        PDH_HCOUNTER counter;
+
         if (ERROR_SUCCESS != (rc = PdhMakeCounterPath(&counterPathElements[i],
                                                       fullPath,
                                                       &pathSize, 0)))
         {
             BSLS_LOG_DEBUG("Failed to make performance counter path");
-            return -1;
         }
-
-        if (ERROR_SUCCESS != (rc = PdhAddCounter(query,
-                                                 fullPath,
-                                                 0,
-                                                 &(*counters)[i])))
+        else if (ERROR_SUCCESS != (rc = PdhAddCounter(query,
+                                                      fullPath,
+                                                      0,
+                                                      &counter)))
         {
             BSLS_LOG_DEBUG("Failed to add performance counter to query");
-            return -1;
         }
+
+        if (ERROR_SUCCESS != rc) {
+            // Leave no partially bound counters behind.
+
+            removeCounters(counters);
+            return -1;                                                // RETURN
+        }
+
+        counters->push_back(counter);
     }
 
     return 0;
@@ -1433,6 +1631,8 @@ PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 , d_measureQuery(0)
 , d_instanceIndex(bsl::numeric_limits<int>::max())
 , d_counters(basicAllocator)
+, d_threadCount(0.0)
+, d_virtualSize(0.0)
 {
     PDH_STATUS rc;
 
@@ -1457,15 +1657,21 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
     stats->d_pid         = pid;
     stats->d_description = description;
 
-    FILETIME creationFileTime, exitFileTime, kernelFileTime, userFileTime;
-    GetProcessTimes(GetCurrentProcess(),
-                    &creationFileTime,
-                    &exitFileTime,
-                    &kernelFileTime,
-                    &userFileTime);
+    if (0 == d_instanceQuery || 0 == d_measureQuery) {
+        return -1;                                                    // RETURN
+    }
+
+    // Query the process handle, CPU times, and memory counters that 'collect'
+    // uses, so that 'registerPid' fails for a process that cannot be opened.
+    // Note that the PDH instance lookup is deferred to 'collect'.
+
+    ProcessInfo info;
+    if (0 != queryProcess(&info, pid)) {
+        return -1;                                                    // RETURN
+    }
 
     SYSTEMTIME creationSystemTime;
-    FileTimeToSystemTime(&creationFileTime, &creationSystemTime);
+    FileTimeToSystemTime(&info.d_creationTime, &creationSystemTime);
 
     stats->d_startTimeUtc = bdlt::Datetime(creationSystemTime.wYear,
                                            creationSystemTime.wMonth,
@@ -1487,96 +1693,137 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 }
 
 int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+::queryCounters(PDH_FMT_COUNTERVALUE *values,
+                const bsl::string&    moduleName,
+                int                   pid)
+{
+    unsigned int instanceIndex;
+    const int    rc = findInstanceIndexFromPid(&instanceIndex,
+                                               d_instanceQuery,
+                                               moduleName,
+                                               pid);
+    if (0 != rc) {
+        BSLS_LOG_DEBUG("Failed to find instance index for pid %d", pid);
+        return rc;                                                    // RETURN
+    }
+
+    BSLS_LOG_TRACE("Found instance index %d for process '%s', pid = %d",
+                   instanceIndex, moduleName.c_str(), pid);
+
+    if (instanceIndex != d_instanceIndex) {
+        if (0 != rebindCounters(&d_counters,
+                                d_measureQuery,
+                                moduleName.c_str(),
+                                instanceIndex))
+        {
+            d_instanceIndex = bsl::numeric_limits<int>::max();
+            return -1;                                                // RETURN
+        }
+
+        d_instanceIndex = instanceIndex;
+    }
+
+    if (ERROR_SUCCESS != PdhCollectQueryData(d_measureQuery)) {
+        return -1;                                                    // RETURN
+    }
+
+    for (int i = 0; i < COUNTER_MAX; ++i) {
+        if (ERROR_SUCCESS != PdhGetFormattedCounterValue(d_counters[i],
+                                                         PDH_FMT_DOUBLE,
+                                                         0,
+                                                         &values[i])) {
+            return -1;                                                // RETURN
+        }
+    }
+
+    // Another process takes over this instance index if a process with a
+    // lower index and the same executable exits after the lookup.
+
+    if (pid != static_cast<int>(values[ID_PROCESS].doubleValue)) {
+        BSLS_LOG_DEBUG("Instance index %d no longer identifies pid %d",
+                       instanceIndex, pid);
+        return INSTANCE_MOVED;                                        // RETURN
+    }
+
+    return 0;
+}
+
+int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 ::collect(Statistics *stats)
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
     int samplesCollected[e_NUM_MEASURE_TYPES] = {1, 0};
 
-    bsl::string name  = findModuleName(stats->d_pid);
-    unsigned int instanceIndex;
-    findInstanceIndexFromPid(&instanceIndex,
-                             d_instanceQuery,
-                             name,
-                             stats->d_pid);
-
-    BSLS_LOG_TRACE("Found instance index %d for process '%s', pid = %d",
-                   instanceIndex, name.c_str(), stats->d_pid);
-
-    PDH_STATUS rc;
-
-    if (instanceIndex != d_instanceIndex) {
-        if (0 != rebindCounters(&d_counters,
-                                d_measureQuery,
-                                name.c_str(),
-                                instanceIndex))
-        {
-            return -1;
-        }
-
-        d_instanceIndex = instanceIndex;
+    ProcessInfo info;
+    if (0 != queryProcess(&info, stats->d_pid)) {
+        return -1;                                                    // RETURN
     }
 
-    if (ERROR_SUCCESS != (rc = PdhCollectQueryData(d_measureQuery))) {
-        BSLS_LOG_DEBUG("Failed to collect performance measures");
-        return -1;
-    }
+    // Retry only when another process with the same executable exits while
+    // the counters are read, which moves the instance index of this one.
+    // Other failures persist, and each attempt runs a PDH collection per
+    // instance index.
 
     PDH_FMT_COUNTERVALUE values[COUNTER_MAX];
-    for (int i = 0; i < COUNTER_MAX; ++i) {
-        if (ERROR_SUCCESS != (rc = PdhGetFormattedCounterValue(d_counters[i],
-                                                               PDH_FMT_DOUBLE,
-                                                               0,
-                                                               &values[i])))
-        {
-            BSLS_LOG_DEBUG("Failed to collect performance measures");
-        }
+    int                  rc = INSTANCE_MOVED;
+    for (int attempt = 0; INSTANCE_MOVED == rc && attempt < MAX_QUERY_ATTEMPTS;
+                                                                  ++attempt) {
+        rc = queryCounters(values, info.d_moduleName, stats->d_pid);
     }
 
-    double elapsedTime = values[ELAPSED_TIME].doubleValue;
-    double dt          = elapsedTime - stats->d_elapsedTime;
+    // The CPU times, page faults, and working set come from the process
+    // handle, so record them even if the PDH counters cannot be read.  The
+    // thread count and virtual size then repeat the latest values read.
+
+    if (0 == rc) {
+        d_threadCount = values[THREAD_COUNT].doubleValue;
+        d_virtualSize = values[VIRTUAL_SIZE].doubleValue;
+    }
+    else {
+        BSLS_LOG_DEBUG("Failed to read the PDH counters for pid %d",
+                       stats->d_pid);
+    }
+
+    ULARGE_INTEGER kernelTime = { info.d_kernelTime.dwLowDateTime,
+                                  info.d_kernelTime.dwHighDateTime };
+    ULARGE_INTEGER userTime   = { info.d_userTime.dwLowDateTime,
+                                  info.d_userTime.dwHighDateTime };
+
+    const double cpuTimeS = double(kernelTime.QuadPart) / 10000000.0;
+    const double cpuTimeU = double(userTime.QuadPart)   / 10000000.0;
+    const double deltaCpuTimeS =
+                             cpuTimeS - stats->d_lstData[e_CPU_TIME_SYSTEM];
+    const double deltaCpuTimeU =
+                             cpuTimeU - stats->d_lstData[e_CPU_TIME_USER];
+    const double elapsedTime = (info.d_sampleTime - stats->d_startTime)
+                                                      .totalSecondsAsDouble();
+    const double dt = elapsedTime - stats->d_elapsedTime;
+
+    // Use cumulative CPU times so a PDH instance rebind does not discard the
+    // baseline for a rate sample or cap utilization at one CPU.
 
     if ((stats->d_numSamples[e_NON_RATE_MEASURE] != 0) && (dt > 0)) {
-        stats->d_lstData[e_CPU_UTIL]        = values[PROCESSOR_TIME]
-                                           .doubleValue;
-        stats->d_lstData[e_CPU_UTIL_USER]   = values[USER_PROCESSOR_TIME]
-                                           .doubleValue;
-        stats->d_lstData[e_CPU_UTIL_SYSTEM] = stats->d_lstData[e_CPU_UTIL] -
-                                             stats->d_lstData[e_CPU_UTIL_USER];
+        stats->d_lstData[e_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL]        =
+                                  (deltaCpuTimeU + deltaCpuTimeS) / dt * 100.0;
         ++stats->d_numSamples[e_RATE_MEASURE];
         ++samplesCollected[e_RATE_MEASURE];
     }
 
-    stats->d_lstData[e_NUM_THREADS]     = values[THREAD_COUNT].doubleValue;
+    stats->d_lstData[e_NUM_THREADS]     = d_threadCount;
 
-    stats->d_lstData[e_RESIDENT_SIZE]   = values[WORKING_SET].doubleValue
+    stats->d_lstData[e_RESIDENT_SIZE]   = info.d_workingSetSize
                                              / (1024 * 1024);
 
-    stats->d_lstData[e_VIRTUAL_SIZE]    = values[VIRTUAL_SIZE].doubleValue
-                                             / (1024 * 1024);
+    stats->d_lstData[e_VIRTUAL_SIZE]    = d_virtualSize / (1024 * 1024);
 
-    FILETIME creationFileTime, exitFileTime, kernelFileTime, userFileTime;
-    GetProcessTimes(GetCurrentProcess(),
-                    &creationFileTime,
-                    &exitFileTime,
-                    &kernelFileTime,
-                    &userFileTime);
+    stats->d_lstData[e_CPU_TIME_SYSTEM] = cpuTimeS;
+    stats->d_lstData[e_CPU_TIME_USER]   = cpuTimeU;
+    stats->d_lstData[e_CPU_TIME]        = cpuTimeU + cpuTimeS;
 
-    ULARGE_INTEGER userTime   = { userFileTime.dwLowDateTime,
-                                  userFileTime.dwHighDateTime };
-
-    stats->d_lstData[e_CPU_TIME_SYSTEM] = double(userTime.QuadPart)
-                                      / 10000000.0;
-
-    stats->d_lstData[e_CPU_TIME_USER]   = double(userTime.QuadPart)
-                                      / 10000000.0;
-
-    stats->d_lstData[e_CPU_TIME]        =
-                                        stats->d_lstData[e_CPU_TIME_USER]
-                                      + stats->d_lstData[e_CPU_TIME_SYSTEM];
-
-    stats->d_lstData[e_NUM_PAGEFAULTS] +=
-        values[PAGEFAULTS_PER_SEC].doubleValue * dt;
+    stats->d_lstData[e_NUM_PAGEFAULTS]  = info.d_pageFaultCount;
 
     stats->d_elapsedTime = elapsedTime;
 
@@ -1724,6 +1971,8 @@ void PerformanceMonitor::Statistics::reset()
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_guard);
 
+    d_elapsedTime = 0.0;
+
     bsl::memset(d_numSamples, 0, sizeof d_numSamples);
     bsl::memset(d_lstData,    0, sizeof d_lstData);
     bsl::memset(d_totData,    0, sizeof d_totData);
@@ -1753,6 +2002,8 @@ PerformanceMonitor::PerformanceMonitor(bslma::Allocator *basicAllocator)
 , d_interval(0)
 , d_scheduler_p(0)
 , d_clock(bdlmt::TimerEventScheduler::Handle(INVALID_TIMER_HANDLE))
+, d_clockGeneration(0)
+, d_clockGuard()
 , d_mapGuard()
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -1766,6 +2017,8 @@ PerformanceMonitor::PerformanceMonitor(
 , d_interval(interval)
 , d_scheduler_p(scheduler)
 , d_clock(bdlmt::TimerEventScheduler::Handle(INVALID_TIMER_HANDLE))
+, d_clockGeneration(0)
+, d_clockGuard()
 , d_mapGuard()
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -1775,7 +2028,7 @@ PerformanceMonitor::PerformanceMonitor(
         d_clock = d_scheduler_p->startClock(
                       bsls::TimeInterval(interval),
                       bdlf::BindUtil::bind(&PerformanceMonitor::collect, this),
-                      bdlt::CurrentTime::now() + bsls::TimeInterval(interval));
+                      d_scheduler_p->now() + bsls::TimeInterval(interval));
     }
 }
 
@@ -1803,6 +2056,13 @@ int PerformanceMonitor::registerPid(int pid, const bsl::string& description)
         pid = bdls::ProcessUtil::getProcessId();
     }
 
+    {
+        bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
+        if (d_pidMap.find(pid) != d_pidMap.end()) {
+            return 0;                                                 // RETURN
+        }
+    }
+
     StatisticsPtr stats;
     stats.createInplace(d_allocator_p, d_allocator_p);
 
@@ -1810,7 +2070,8 @@ int PerformanceMonitor::registerPid(int pid, const bsl::string& description)
     collector.createInplace(d_allocator_p, d_allocator_p);
 
     if (0 != collector->initialize(stats.get(), pid, description)) {
-        return -1;                                                    // RETURN
+        bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
+        return d_pidMap.count(pid) ? 0 : -1;                          // RETURN
     }
 
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
@@ -1833,22 +2094,36 @@ void PerformanceMonitor::setCollectionInterval(double interval)
 {
     BSLS_ASSERT(d_scheduler_p);
 
-    if ((interval <= 0.0) && (d_clock != INVALID_TIMER_HANDLE)) {
-        d_scheduler_p->cancelClock(d_clock, false);
-        d_clock = INVALID_TIMER_HANDLE;
-    }
-    else {
-        if (d_clock != INVALID_TIMER_HANDLE) {
-            d_scheduler_p->cancelClock(d_clock, false);
-        }
+    bdlmt::TimerEventScheduler::Handle previousClock;
+    bsls::Types::Uint64 generation;
+    {
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_clockGuard);
 
-        d_clock = d_scheduler_p->startClock(
+        previousClock = d_clock;
+        d_clock = INVALID_TIMER_HANDLE;
+        d_interval = interval;
+        generation = ++d_clockGeneration;
+    }
+
+    // Release the old clock's slot before starting its replacement.  Wait
+    // without 'd_clockGuard' so dispatcher callbacks can change the interval.
+
+    if (previousClock != INVALID_TIMER_HANDLE) {
+        d_scheduler_p->cancelClock(previousClock, true);
+    }
+
+    if (interval > 0.0) {
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_clockGuard);
+
+        // A newer interval request supersedes this one.
+
+        if (generation == d_clockGeneration) {
+            d_clock = d_scheduler_p->startClock(
                       bsls::TimeInterval(interval),
                       bdlf::BindUtil::bind(&PerformanceMonitor::collect, this),
-                      bdlt::CurrentTime::now() + bsls::TimeInterval(interval));
+                      d_scheduler_p->now() + bsls::TimeInterval(interval));
+        }
     }
-
-    d_interval = interval;
 }
 
 void PerformanceMonitor::collect()
