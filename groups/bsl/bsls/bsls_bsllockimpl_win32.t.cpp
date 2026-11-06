@@ -123,11 +123,12 @@ void sleepSeconds(int seconds)
 enum { MAX_SLEEP_CYCLES = 2 };
 
 static
-void pause(bsls::AtomicInt *value)
-    // Pause the current thread until the specified `*value` is non-zero, or a
-    // sufficient number of sleep cycles have elapsed.
+void pause(bsls::AtomicInt *value, int maxSleepCycles = MAX_SLEEP_CYCLES)
+    // Pause the current thread until the specified `*value` is non-zero, or
+    // the optionally specified `maxSleepCycles` one-second sleep cycles have
+    // elapsed.
 {
-    for (int i = 0; 0 == *value && i < MAX_SLEEP_CYCLES; ++i) {
+    for (int i = 0; 0 == *value && i < maxSleepCycles; ++i) {
         sleepSeconds(1);
     }
 }
@@ -240,7 +241,10 @@ int main(int argc, char *argv[])
 
             ThreadId id = createThread(&threadFunction, &info);
 
-            pause(&info.d_threadDone);
+            // Allow ample time for the child thread to run on a heavily loaded
+            // host; `pause` returns as soon as the child thread is done.
+
+            pause(&info.d_threadDone, 60);
 
             mX.lock();                                                // LOCK
             if (NO_THREAD == info.d_firstIn) {

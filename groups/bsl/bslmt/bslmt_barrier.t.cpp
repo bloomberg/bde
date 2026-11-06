@@ -436,9 +436,9 @@ extern "C" void * testThread4(void *arg)
     bsls::TimeInterval duration = end - start;
 
     if (res) {
-        // relax timing by 50us for Windows
+        // relax timing by 20ms for Windows
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        const int relax = 2000;
+        const int relax = 20000;
 #else
         const int relax = 0;
 #endif

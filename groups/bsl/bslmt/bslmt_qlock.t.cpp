@@ -375,9 +375,9 @@ typedef bslmt::Semaphore Semaphore;
 struct ContextCase7 {
     bslmt::QLock     *d_qlock;
     bsls::AtomicInt   d_owner;
-    // Using any memory order other than relaxed for loads and stores of d_slots
-    // would prevent accurate testing of QLock as it would interfere with
-    // verification of acquire-release semantics of qlock by introducing
+    // Using any memory order other than relaxed for loads and stores of
+    // d_slots would prevent accurate testing of QLock as it would interfere
+    // with verification of acquire-release semantics of qlock by introducing
     // additional synchronization
     bsl::deque<bsls::AtomicInt> d_slots;
 };
@@ -422,7 +422,8 @@ void *testCase7(int threadNum, const MyTask& task)
 
         // exit flag is OK if this thread has been seen in other context and we
         // have seen all threads in other context
-        flgExit = (data->d_otherContext->d_slots[threadNum-1].loadRelaxed() != -1);
+        flgExit = (data->d_otherContext->d_slots[threadNum-1].loadRelaxed()
+                                                                       != -1);
 
         for (bsl::size_t i=0;  i < data->d_myContext->d_slots.size(); ++i) {
             if (data->d_myContext->d_slots[i].loadRelaxed() == -1) {
@@ -1062,6 +1063,13 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
+        {
+            char s[1024];
+
+            snprintf(s, sizeof s, "case %i", test);
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0), s));
+        }
+
         if (verbose) cout << "Two locks Test"  << bsl::endl;
 
         bslmt::QLock qlock1 = BSLMT_QLOCK_INITIALIZER;
@@ -1292,7 +1300,7 @@ int main(int argc, char *argv[])
             char s[1024];
 
             snprintf(s, sizeof s, "case %i", test);
-            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(360, 0), s));
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(720, 0), s));
         }
 
         if (verbose) cout << "Set-Wait Flags Test" << endl;

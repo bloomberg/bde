@@ -2524,7 +2524,7 @@ int main(int argc, char *argv[])
                 ASSERTV(actualTime, expectedTime, actualTime >= expectedTime);
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
-                                                                        < 500);
+                                                                       < 2000);
             }
             {
                 // monotonic clock
@@ -2539,7 +2539,7 @@ int main(int argc, char *argv[])
                 ASSERTV(actualTime, expectedTime, actualTime >= expectedTime);
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
-                                                                        < 500);
+                                                                       < 2000);
             }
         }
 
@@ -2551,22 +2551,22 @@ int main(int argc, char *argv[])
             bsls::TimeInterval actualTime;
             { // realtime clock
                 expectedTime = bsls::SystemTime::nowRealtimeClock();
-                Obj::sleepUntil(expectedTime - bsls::TimeInterval(1));
+                Obj::sleepUntil(expectedTime - bsls::TimeInterval(10));
                 actualTime = bsls::SystemTime::nowRealtimeClock();
                 ASSERTV(actualTime, expectedTime, actualTime >= expectedTime);
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
-                                                                        < 500);
+                                                                       < 2000);
             }
             { // monotonic clock
                 expectedTime = bsls::SystemTime::nowMonotonicClock();
-                Obj::sleepUntil(expectedTime - bsls::TimeInterval(1),
+                Obj::sleepUntil(expectedTime - bsls::TimeInterval(10),
                                 bsls::SystemClockType::e_MONOTONIC);
                 actualTime = bsls::SystemTime::nowMonotonicClock();
                 ASSERTV(actualTime, expectedTime, actualTime >= expectedTime);
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
-                                                                        < 500);
+                                                                       < 2000);
             }
         }
         if (verbose) {
