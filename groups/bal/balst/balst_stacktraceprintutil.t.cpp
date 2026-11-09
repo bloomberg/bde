@@ -691,17 +691,37 @@ int phonyCompare(const void *, const void *)
         { L_, true,  e_FORMAT_DLADDR ? "/libsystem_c" : "/libc." },
         { L_, false, "main" } };
 
-    enum { NUM_STRIPPED_STRINGS = sizeof strippedStrings /
-                                                       sizeof *strippedStrings,
-           NUM_DEBUG_STRINGS    = sizeof debugStrings / sizeof *debugStrings };
+    // Sanitizers (e.g., TSan) intercept `qsort`, and the interceptor may
+    // call the comparator itself (to check the array) before calling the
+    // `qsort` in the C library, so the frame that calls `phonyCompare` need
+    // not be in the C library, and the C library need not be on the stack at
+    // all.  Interceptor frames are named `__interceptor_qsort` (or
+    // `___interceptor_qsort`) on Linux, and `wrap_qsort` on Darwin.
 
-    const bool stripped = NPOS != dump.find("--unknown--");
+    Data interceptedStrings[] = {
+        { L_, false, "phonyCompare" },
+        { L_, false, "qsort" },
+        { L_, false, "main" } };
+
+    enum { NUM_STRIPPED_STRINGS    = sizeof strippedStrings /
+                                                       sizeof *strippedStrings,
+           NUM_DEBUG_STRINGS       = sizeof debugStrings /
+                                                          sizeof *debugStrings,
+           NUM_INTERCEPTED_STRINGS = sizeof interceptedStrings /
+                                                  sizeof *interceptedStrings };
+
+    const bool stripped    = NPOS != dump.find("--unknown--");
+    const bool intercepted = NPOS != dump.find("_interceptor_qsort")
+                          || NPOS != dump.find("wrap_qsort");
 
     if (stripped) cout << "System libs stripped, unable to find `qsort`\n";
 
-    struct Data *STRINGS    = stripped ? strippedStrings : debugStrings;
-    const int    numStrings = stripped ? NUM_STRIPPED_STRINGS
-                                       : NUM_DEBUG_STRINGS;
+    struct Data *STRINGS    = stripped    ? strippedStrings
+                            : intercepted ? interceptedStrings
+                            :               debugStrings;
+    const int    numStrings = stripped    ? NUM_STRIPPED_STRINGS
+                            : intercepted ? NUM_INTERCEPTED_STRINGS
+                            :               NUM_DEBUG_STRINGS;
 
     bsl::size_t pos = 0;
     for (int i = 0; i < numStrings; ++i) {

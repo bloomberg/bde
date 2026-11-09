@@ -1884,7 +1884,12 @@ int main(int argc, char *argv[])
                              "=======================================\n";
 
         // On Linux, the start time is derived from the boot time, which is
-        // reported in whole seconds.
+        // reported in whole seconds.  Note that a `collect` samples the time
+        // at some moment within the call, and its remaining work (on Windows,
+        // a PDH instance lookup that enumerates every process on the host)
+        // can take several seconds on a loaded test host.  So the elapsed
+        // time is compared with the times before and after the `collect`,
+        // rather than with the time after it.
 
         const double TOLERANCE = 3.0;
 
@@ -1901,18 +1906,26 @@ int main(int argc, char *argv[])
             ASSERTV(S.elapsedTime(), 0.0 == S.elapsedTime());
 
             consumeCpu(1.1);
+
+            const bdlt::Datetime COLLECT_BEGIN = bdlt::CurrentTime::utc();
             mX.collect();
+            const bdlt::Datetime COLLECT_END   = bdlt::CurrentTime::utc();
 
-            const double EXPECTED =
-                        (bdlt::CurrentTime::utc() - S.startupTime())
+            const double MIN_EXPECTED = (COLLECT_BEGIN - S.startupTime())
                                                       .totalSecondsAsDouble();
-            const double ELAPSED  = S.elapsedTime();
+            const double MAX_EXPECTED = (COLLECT_END   - S.startupTime())
+                                                      .totalSecondsAsDouble();
+            const double ELAPSED      = S.elapsedTime();
 
-            if (veryVerbose) { T_ P_(ELAPSED) P(EXPECTED) }
+            if (veryVerbose) {
+                T_ P_(MIN_EXPECTED) P_(ELAPSED) P(MAX_EXPECTED)
+            }
 
             ASSERTV(ELAPSED, 0.0 < ELAPSED);
-            ASSERTV(ELAPSED, EXPECTED,
-                    bsl::fabs(ELAPSED - EXPECTED) <= TOLERANCE);
+            ASSERTV(ELAPSED, MIN_EXPECTED,
+                    MIN_EXPECTED - TOLERANCE <= ELAPSED);
+            ASSERTV(ELAPSED, MAX_EXPECTED,
+                    ELAPSED <= MAX_EXPECTED + TOLERANCE);
 
             if (verbose) cout << "\tTesting a child process.\n";
 
@@ -1927,22 +1940,31 @@ int main(int argc, char *argv[])
             ASSERTV(CHILD, 0 == mX.registerPid(CHILD, "child"));
 
             bslmt::ThreadUtil::microSleep(0, 1);
+
+            const bdlt::Datetime CHILD_COLLECT_BEGIN =
+                                                     bdlt::CurrentTime::utc();
             mX.collect();
+            const bdlt::Datetime CHILD_COLLECT_END   =
+                                                     bdlt::CurrentTime::utc();
 
             {
                 ObjIterator it = X.find(CHILD);
                 ASSERT(X.end() != it);
 
                 if (X.end() != it) {
-                    const bdlt::Datetime START   = it->startupTime();
+                    const bdlt::Datetime START         = it->startupTime();
                     const double         CHILD_ELAPSED = it->elapsedTime();
-                    const double         CHILD_EXPECTED =
-                                    (bdlt::CurrentTime::utc() - START)
+                    const double         CHILD_MIN_EXPECTED =
+                                    (CHILD_COLLECT_BEGIN - START)
+                                                      .totalSecondsAsDouble();
+                    const double         CHILD_MAX_EXPECTED =
+                                    (CHILD_COLLECT_END   - START)
                                                       .totalSecondsAsDouble();
 
                     if (veryVerbose) {
                         T_ P_(BEFORE) P_(START) P(AFTER)
-                        T_ P_(CHILD_ELAPSED) P(CHILD_EXPECTED)
+                        T_ P_(CHILD_MIN_EXPECTED) P_(CHILD_ELAPSED)
+                                                       P(CHILD_MAX_EXPECTED)
                     }
 
                     ASSERTV(BEFORE, START,
@@ -1951,9 +1973,10 @@ int main(int argc, char *argv[])
                     ASSERTV(AFTER, START,
                             (START - AFTER).totalSecondsAsDouble() <=
                                                                    TOLERANCE);
-                    ASSERTV(CHILD_ELAPSED, CHILD_EXPECTED,
-                            bsl::fabs(CHILD_ELAPSED - CHILD_EXPECTED) <=
-                                                                   TOLERANCE);
+                    ASSERTV(CHILD_ELAPSED, CHILD_MIN_EXPECTED,
+                            CHILD_MIN_EXPECTED - TOLERANCE <= CHILD_ELAPSED);
+                    ASSERTV(CHILD_ELAPSED, CHILD_MAX_EXPECTED,
+                            CHILD_ELAPSED <= CHILD_MAX_EXPECTED + TOLERANCE);
                 }
             }
 
@@ -3459,17 +3482,38 @@ int main(int argc, char *argv[])
                      << endl;
             }
 
-            // Reset our statistics
+            // Reset our statistics.  Note that `resetStatistics` collects a
+            // new baseline.
+
+            const bsls::TimeInterval wallBefore = bdlt::CurrentTime::now();
+            const CpuSample          outerBefore;
             perfmon.resetStatistics();
+            const double             START = perfmonIter->elapsedTime();
 
             // At this point, the average CPU utilizations should be zero
 
             // Sleep for 4 seconds (without consuming too much CPU)
             bslmt::ThreadUtil::microSleep(0, 4);
             perfmon.collect();
+            const CpuSample          outerAfter;
+            const bsls::TimeInterval wallAfter  = bdlt::CurrentTime::now();
 
-            // We called collect almost a second after restting statistics, so
-            // our CPU utilization should be really low
+            // The interval over which the utilization is computed starts
+            // after the reset begins, and ends after the 4 second sleep and
+            // before the final `collect` returns.  Note that the monitor
+            // computes `elapsedTime` from `bdlt::CurrentTime::now()`, so the
+            // same (realtime) clock is used here; a step of the system clock
+            // during this test would invalidate these bounds.  `SLACK` allows
+            // for clock resolution.
+
+            const double SLACK = 0.05;
+
+            const double INTERVAL     = perfmonIter->elapsedTime() - START;
+            const double MAX_INTERVAL = (wallAfter - wallBefore)
+                                                      .totalSecondsAsDouble()
+                                      + SLACK;
+            ASSERTV(INTERVAL, 4.0 - SLACK <= INTERVAL);
+            ASSERTV(INTERVAL, MAX_INTERVAL, INTERVAL <= MAX_INTERVAL);
 
             userCpu   = perfmonIter->avgValue(Obj::e_CPU_UTIL_USER);
             systemCpu = perfmonIter->avgValue(Obj::e_CPU_UTIL_SYSTEM);
@@ -3482,20 +3526,43 @@ int main(int argc, char *argv[])
                      << endl;
             }
 
-            // On Windows, PDH has reported over 15% system CPU utilization for
-            // an idle process (20%-25% three times in three months, and once
-            // an outlier above 35%).  25% is still far below the utilization
-            // during `controlledCpuBurn` (close to 100%).
+            // The only CPU time this process uses after the reset is the
+            // work of the `collect` calls themselves.  On Windows, that work
+            // (a PDH instance lookup that enumerates every process on the
+            // host) uses an amount of system CPU time that depends on the load
+            // on the test host, and has been over 35% of the interval.  So
+            // rather than compare the utilization with a fixed threshold,
+            // bound the CPU time it implies (over the interval verified above)
+            // by the native CPU time around the reset and the final
+            // `collect`.  A reset that does not discard the CPU time used by
+            // `controlledCpuBurn` exceeds this bound.  `SLACK` also allows for
+            // clock-tick rounding of the monitor's CPU times (e.g., 10 ms on
+            // Linux).
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-            const double MAX_CPU = 25;
-#else
-            const double MAX_CPU = 10;
-#endif
+            const double USER_TIME   = userCpu   / 100.0 * INTERVAL;
+            const double SYSTEM_TIME = systemCpu / 100.0 * INTERVAL;
+            const double CPU_TIME    = totalCpu  / 100.0 * INTERVAL;
 
-            ASSERTV(userCpu,   userCpu   < MAX_CPU);
-            ASSERTV(systemCpu, systemCpu < MAX_CPU);
-            ASSERTV(totalCpu,  totalCpu  < MAX_CPU);
+            const double MAX_USER   = outerAfter.d_user - outerBefore.d_user
+                                    + SLACK;
+            const double MAX_SYSTEM = outerAfter.d_system
+                                    - outerBefore.d_system
+                                    + SLACK;
+            const double MAX_CPU    = cpuTime(outerBefore, outerAfter)
+                                    + SLACK;
+
+            if (veryVerbose) {
+                T_ P_(INTERVAL) P_(USER_TIME) P_(SYSTEM_TIME) P(CPU_TIME)
+                T_ P_(MAX_USER) P_(MAX_SYSTEM) P(MAX_CPU)
+            }
+
+            ASSERTV(userCpu,   0.0 <= userCpu);
+            ASSERTV(systemCpu, 0.0 <= systemCpu);
+            ASSERTV(totalCpu,  0.0 <= totalCpu);
+
+            ASSERTV(USER_TIME,   MAX_USER,   USER_TIME   <= MAX_USER);
+            ASSERTV(SYSTEM_TIME, MAX_SYSTEM, SYSTEM_TIME <= MAX_SYSTEM);
+            ASSERTV(CPU_TIME,    MAX_CPU,    CPU_TIME    <= MAX_CPU);
         }
       } break;
       case 4: {

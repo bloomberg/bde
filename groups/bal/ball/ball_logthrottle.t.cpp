@@ -559,44 +559,75 @@ void testMain(
         // rate of 1 message per milliseond, and run the test for 1/4 of a
         // second.  This should yield 250 messages.  We allow a margin of error
         // on the lower bound, and a tighter margin of error on the upper bound
-        // (since heavy load should not effect the maximum number of messages written).
+        // (since heavy load should not effect the maximum number of messages
+        // written).
+        //
+        // The lower bound can be violated if this process is starved of CPU
+        // (e.g., when many tests are run concurrently on a loaded machine),
+        // so the measurement is retried a few times, and the lower bound is
+        // only asserted on the final attempt.  The upper bound is asserted on
+        // every attempt.
         enum {
             k_NS_PER_MSG = 1 *
-                           bdlt::TimeUnitRatio::k_NANOSECONDS_PER_MILLISECOND
+                           bdlt::TimeUnitRatio::k_NANOSECONDS_PER_MILLISECOND,
+            k_MAX_ATTEMPTS = 5
         };
 
-        double startTime = u::doubleClock();
-        double endTime   = startTime + k_TEST_TIME_SECONDS;
+        for (int attempt = 1; attempt <= k_MAX_ATTEMPTS; ++attempt) {
+            double startTime = u::doubleClock();
+            double endTime   = startTime + k_TEST_TIME_SECONDS;
 
-        bsls::Types::Uint64 numStartPublished = TO->numPublishedRecords();
+            bsls::Types::Uint64 numStartPublished = TO->numPublishedRecords();
 
-        bsls::Types::Uint64 idx = 0;
-        while (u::doubleClock() < endTime) {
-            if (testType == u::e_PRINTF_STYLE) {
-                LOG_VA(1, k_NS_PER_MSG, "Message: %lld", idx);
+            bsls::Types::Uint64 idx = 0;
+            while (u::doubleClock() < endTime) {
+                if (testType == u::e_PRINTF_STYLE) {
+                    LOG_VA(1, k_NS_PER_MSG, "Message: %lld", idx);
+                }
+                else {
+                    LOG(1, k_NS_PER_MSG) << "Message" << idx;
+                }
+                ++idx;
             }
-            else {
-                LOG(1, k_NS_PER_MSG) << "Message" << idx;
-            }
-            ++idx;
-        }
-        double actualTime = u::doubleClock() - startTime;
-        double maxExpectedMessages =
+            double actualTime = u::doubleClock() - startTime;
+            double maxExpectedMessages =
                   actualTime *
                       ((double)bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND /
                       (double)k_NS_PER_MSG);
 
-        double actualNumPublished = (double)TO->numPublishedRecords() -
-                                    (double)numStartPublished;
+            double actualNumPublished = (double)TO->numPublishedRecords() -
+                                        (double)numStartPublished;
 
-        ASSERTV(actualTime,
-                maxExpectedMessages,
-                actualNumPublished,
-                    actualNumPublished <= maxExpectedMessages * 1.1);
-        ASSERTV(actualTime,
-                maxExpectedMessages,
-                actualNumPublished,
-                actualNumPublished > maxExpectedMessages * .25);
+            // On a retry, allow one extra message, which may have accumulated
+            // in the throttle since the previous attempt.
+
+            const double maxAllowedMessages = maxExpectedMessages * 1.1
+                                            + (1 < attempt ? 1 : 0);
+
+            ASSERTV(attempt,
+                    actualTime,
+                    maxExpectedMessages,
+                    actualNumPublished,
+                    actualNumPublished <= maxAllowedMessages);
+
+            const bool lowerBoundOk =
+                               actualNumPublished > maxExpectedMessages * .25;
+
+            if (lowerBoundOk) {
+                break;                                                 // BREAK
+            }
+
+            if (verbose) {
+                P_(attempt) P_(actualTime) P_(maxExpectedMessages)
+                                                         P(actualNumPublished);
+            }
+
+            ASSERTV(attempt,
+                    actualTime,
+                    maxExpectedMessages,
+                    actualNumPublished,
+                    attempt < k_MAX_ATTEMPTS);
+        }
     }
 
     if (verbose) {
@@ -860,7 +891,8 @@ int main(int argc, char *argv[])
                      bsl::make_shared<BloombergLP::ball::StreamObserver>(&oss);
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
-        lmc.setDefaultThresholdLevelsIfValid(BloombergLP::ball::Severity::e_INFO);
+        lmc.setDefaultThresholdLevelsIfValid(
+                                          BloombergLP::ball::Severity::e_INFO);
 
         BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
         BloombergLP::ball::LoggerManager::singleton().registerObserver(sobs,
@@ -898,10 +930,10 @@ int main(int argc, char *argv[])
         //    Validate the actual number of messages published is within a
         //    reasonable range of the expected number.
         //
-        // 2. Using a very low rate of messages per millisecond, and burst of 10,
-        //    write throttled log messages for several milliseconds.  Validate the
-        //    actual number of messages published is within a reasonable range of
-        //    the expected number.
+        // 2. Using a very low rate of messages per millisecond, and burst of
+        //    10, write throttled log messages for several milliseconds.
+        //    Validate the actual number of messages published is within a
+        //    reasonable range of the expected number.
         //
         // Testing:
         //   MULTI PERIOD STREAM TEST
@@ -930,10 +962,10 @@ int main(int argc, char *argv[])
         //    Validate the actual number of messages published is within a
         //    reasonable range of the expected number.
         //
-        // 2. Using a very low rate of messages per millisecond, and burst of 10,
-        //    write throttled log messages for several milliseconds.  Validate the
-        //    actual number of messages published is within a reasonable range of
-        //    the expected number.
+        // 2. Using a very low rate of messages per millisecond, and burst of
+        //    10, write throttled log messages for several milliseconds.
+        //    Validate the actual number of messages published is within a
+        //    reasonable range of the expected number.
         //
         // Testing:
         //   MULTI PERIOD PRINTF TEST

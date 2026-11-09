@@ -482,12 +482,47 @@ void publishRecord(Obj *observer, const char *message)
                                 message);
 
     bsl::shared_ptr<ball::Record> record;
-    record.createInplace(bslma::Default::allocator(), attr, ball::UserFields());
+    record.createInplace(bslma::Default::allocator(),
+                         attr,
+                         ball::UserFields());
     ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
 
     observer->publish(record, context);
 }
 
+
+/// Sleep until the specified `offset` seconds after the specified `t0`, then
+/// publish the specified `message` to the specified `observer` object.
+/// Return `true` if the record was published (i.e., its timestamp was taken)
+/// no later than the specified `slack` seconds after `t0 + offset`, and
+/// `false` otherwise (e.g., if this thread was not scheduled in time on a
+/// loaded test host).  Note that the time taken by any resulting rotation
+/// (e.g., to rename and open files) does not affect the result.
+bool publishRecordAt(Obj                   *observer,
+                     const bdlt::Datetime&  t0,
+                     double                 offset,
+                     double                 slack,
+                     const char            *message)
+{
+    const bdlt::Datetime target   = t0 + bsls::TimeInterval(offset);
+    const bdlt::Datetime deadline = target + bsls::TimeInterval(slack);
+
+    bdlt::Datetime now = bdlt::CurrentTime::utc();
+    while (now < target) {
+        const bsls::Types::Int64 remainingUs =
+                                         (target - now).totalMicroseconds();
+        bslmt::ThreadUtil::microSleep(static_cast<int>(remainingUs), 0);
+        now = bdlt::CurrentTime::utc();
+    }
+
+    // `publishRecord` takes the timestamp of the record immediately.
+
+    const bool onTime = now <= deadline;
+
+    publishRecord(observer, message);
+
+    return onTime;
+}
 
 /// Return the number of lines in the file with the specified `fileName`.
 int getNumLines(const char *fileName)
@@ -1643,65 +1678,102 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Test delayed logging" << endl;
         {
-            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+            // Rotate every 1s, starting (approximately) at `t0`.  Publish a
+            // record only after both the 1st and 2nd scheduled rotation times,
+            // which delays the rotation until 2.6s, and verify that only one
+            // rotation occurs.  Then verify that the next rotation is at 3s
+            // (as scheduled), and not 1s after the delayed rotation (3.6s).
+            //
+            // `t0` is taken before `rotateOnTimeInterval`, so the rotation
+            // reference time (and the time the log file is opened) is between
+            // `t0` and `t0 + k_MAX_SETUP`.  Each record is published at least
+            // 0.05s before, or 0.2s after, a scheduled rotation, so that the
+            // expected rotations do not depend on that difference.  If the
+            // setup takes longer than `k_MAX_SETUP` seconds, or a record is
+            // not published within `k_SLACK` seconds of its target time (e.g.,
+            // on a loaded test host), the outcome is not determined, so the
+            // test is restarted.
 
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver2_");
-            bsl::string              fileName(tempDirGuard.getTempDirName());
-            bdls::PathUtil::appendRaw(&fileName, "test8_2");
+            const double k_MAX_SETUP    = 0.1;
+            const double k_SLACK        = 0.2;
+            const int    k_MAX_ATTEMPTS = 5;
 
-            // Rotate every 1s.
+            const struct {
+                int         d_line;
+                double      d_offset;          // seconds after `t0`
+                int         d_expRotations;    // after the publication
+            } DATA[] = {
+                //LINE  OFFSET  EXP_ROTATIONS
+                //----  ------  -------------
+                { L_,     2.6,  1             },    // delayed rotation
+                { L_,     2.75, 1             },
+                { L_,     3.3,  2             },    // scheduled at 3s
+                { L_,     3.7,  2             },
+                { L_,     4.3,  3             },    // scheduled at 4s
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-            Obj mX(&ta);
+            for (int attempt = 1; attempt <= k_MAX_ATTEMPTS; ++attempt) {
+                bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            RotCb cb(&ta);
-            mX.setOnFileRotationCallback(cb);
-            mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 1));
+                bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver2_");
+                bsl::string              fileName(
+                                                tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "test8_2");
 
-            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
+                Obj mX(&ta);
 
-            bdlt::Datetime t0 = bdlt::CurrentTime::utc();
+                RotCb cb(&ta);
+                mX.setOnFileRotationCallback(cb);
 
-            bdlt::Datetime tEnd = t0 + bsls::TimeInterval(6);
-            int expectedRotations = 0;
+                const bdlt::Datetime t0 = bdlt::CurrentTime::utc();
 
-            while (bdlt::CurrentTime::utc() < tEnd ) {
-                bdlt::Datetime tNow = bdlt::CurrentTime::utc();
+                mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 1));
 
-                publishRecord(&mX, "test message");
+                ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
 
-                int elapsedSeconds = (tNow - t0).seconds();
+                const double setupTime = (bdlt::CurrentTime::utc() - t0)
+                                                      .totalSecondsAsDouble();
 
-                double rotationWindow =
-                        (t0 + bsls::TimeInterval(expectedRotations + 1) - tNow)
-                            .totalSecondsAsDouble();
-                // Poor man abs(double);
-                if (rotationWindow < 0) {
-                    rotationWindow = -rotationWindow;
+                bool onTime = setupTime <= k_MAX_SETUP;
+
+                if (!onTime && veryVerbose) {
+                    cout << "\tAttempt " << attempt << ": the setup took "
+                         << setupTime << "s; retrying." << endl;
                 }
+                for (int ti = 0; onTime && ti < NUM_DATA; ++ti) {
+                    const int    LINE          = DATA[ti].d_line;
+                    const double OFFSET        = DATA[ti].d_offset;
+                    const int    EXP_ROTATIONS = DATA[ti].d_expRotations;
 
-                // If we are within the epsilon of the next rotation, we
-                // should expect a rotation.
-                if (rotationWindow < 0.05) {
-                    // Inside rotation "window" - observing and registering the
-                    // rotation.
-                    if (expectedRotations + 1 == cb.numInvocations()) {
-                        ++expectedRotations;
+                    onTime = publishRecordAt(&mX,
+                                             t0,
+                                             OFFSET,
+                                             k_SLACK,
+                                             "test message");
+
+                    if (onTime) {
+                        ASSERTV(attempt,
+                                LINE,
+                                OFFSET,
+                                EXP_ROTATIONS,
+                                cb.numInvocations(),
+                                EXP_ROTATIONS == cb.numInvocations());
                     }
-                } else {
-                    // Outside rotation "window" - no new rotations expected.
-                    expectedRotations = elapsedSeconds;
+                    else if (veryVerbose) {
+                        cout << "\tAttempt " << attempt << ": the record at "
+                             << OFFSET << "s was late; retrying." << endl;
+                    }
                 }
 
-                ASSERTV(expectedRotations,
-                        cb.numInvocations(),
-                        expectedRotations == cb.numInvocations());
+                mX.disableFileLogging();
 
-                // Keep the sleep time small to hit both code inside and
-                // outside the rotation window.
-                bslmt::ThreadUtil::microSleep(100000, 0);  // .1s
+                if (onTime) {
+                    break;                                             // BREAK
+                }
+
+                ASSERTV(attempt, attempt < k_MAX_ATTEMPTS);
             }
-
-            mX.disableFileLogging();
         }
 
         if (veryVerbose)
@@ -3918,7 +3990,8 @@ int main(int argc, char *argv[])
                               << endl;
             {
                 bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver2_");
-                bsl::string              baseName(tempDirGuard.getTempDirName());
+                bsl::string              baseName(
+                                                tempDirGuard.getTempDirName());
                 bdls::PathUtil::appendRaw(&baseName, "test1_6");
 
                 // Create observers.
