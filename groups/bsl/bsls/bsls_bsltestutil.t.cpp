@@ -2,6 +2,8 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <bsls_testtempdirectory.h>
+
 #include <fcntl.h>
 #include <float.h>     // FLT_MAX, etc.
 #include <limits.h>    // PATH_MAX on linux, CHAR_BIT
@@ -781,20 +783,34 @@ int printDatum(FILE        *outStream,
                    suffix);
 }
 
-/// Create a temporary file using the specified 'testCase' value and store its
-/// name in the user-supplied buffer at the address pointed to by the specified
-/// `result`.  Return `true` if the temporary file was successfully created,
-/// and `false` otherwise.  The behavior is undefined unless the buffer pointed
-/// to by the specified `result` is at least `PATH_BUFFER_SIZE` bytes long.
+/// The number of the test case being run.
+int g_testCase = 0;
+
+/// Return the temporary directory of the current test case, creating it the
+/// first time this function is called, so that a test case that writes no
+/// files creates no directory.  The directory is removed when the program
+/// exits normally.  The behavior is undefined unless `g_testCase` is set.
+const BloombergLP::bsls::TestTempDirectory& testTempDirectory()
+{
+    static BloombergLP::bsls::TestTempDirectory tempDir("bsls_bsltestutil",
+                                                        g_testCase);
+    return tempDir;
+}
+
+/// Create a temporary file in the temporary directory of the current test
+/// case, using the specified `testCase` value, and store its name in the
+/// user-supplied buffer at the address pointed to by the specified `result`.
+/// Return `true` if the temporary file was successfully created, and `false`
+/// otherwise.  The behavior is undefined unless `g_testCase` is set, and the
+/// buffer pointed to by the specified `result` is at least
+/// `PATH_BUFFER_SIZE` bytes long.
 
 bool tempFileName(char *result, int testCase)
 {
     ASSERT(result);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    char tmpPathBuf[MAX_PATH];
-    if (! GetTempPathA(MAX_PATH, tmpPathBuf) ||
-        ! GetTempFileNameA(tmpPathBuf, "bsls", 0, result)) {
+    if (! GetTempFileNameA(testTempDirectory().path(), "bsls", 0, result)) {
         return false;                                                 // RETURN
     }
 #else
@@ -807,9 +823,10 @@ bool tempFileName(char *result, int testCase)
 #endif
 #endif
 
-    ::snprintf(result,
-               PATH_BUFFER_SIZE,
-               "./tmp.bsls_bsltestutil.%d.txt.XXXXXX",
+    char leaf[64];
+    ::snprintf(leaf,
+               sizeof leaf,
+               "tmp.bsls_bsltestutil.%d.txt.XXXXXX",
                testCase);
 
 #ifdef BDE_BUILD_TARGET_UBSAN
@@ -818,7 +835,7 @@ bool tempFileName(char *result, int testCase)
 #endif
 #endif
 
-    if (::strnlen(result, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
+    if (0 != testTempDirectory().makePath(result, PATH_BUFFER_SIZE, leaf)) {
         printf("tempFileName: buffer overflow\n");
         return false;
     }
@@ -2197,6 +2214,11 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
 
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
+
+    // The temporary directory, created on first use by `output`, is a
+    // function-local static, so it is removed after `output` removes its
+    // file.
+    g_testCase = test;
 
     // Capture `stdout`, and send `stderr` to `stdout`, unless we are running
     // the usage example.

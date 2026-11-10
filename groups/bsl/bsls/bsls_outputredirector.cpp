@@ -96,12 +96,33 @@ bool OutputRedirector::generateTempFileName()
         return false;                                                 // RETURN
     }
 #else
-    // Copy in the pattern.
+    // Build the pattern in the directory named by `TMPDIR`, or in `/tmp` if
+    // `TMPDIR` is unset or empty.
 
-    ::strncpy(d_fileName,
-              "/tmp/bsls_outputredirector_XXXXXX",
-              sizeof(d_fileName));
-    if ('\0' != d_fileName[sizeof(d_fileName) - 1]) {
+    const char *tmpDir = ::getenv("TMPDIR");
+    if (!tmpDir || '\0' == *tmpDir) {
+        tmpDir = "/tmp";
+    }
+
+    // Drop trailing separators, so the format below adds exactly one.
+
+    int tmpDirLength = static_cast<int>(::strlen(tmpDir));
+    while (0 < tmpDirLength && '/' == tmpDir[tmpDirLength - 1]) {
+        --tmpDirLength;
+    }
+
+    const int length = ::snprintf(d_fileName,
+                                  sizeof(d_fileName),
+                                  "%.*s/bsls_outputredirector_XXXXXX",
+                                  tmpDirLength,
+                                  tmpDir);
+    if (length < 0 || static_cast<int>(sizeof(d_fileName)) <= length) {
+        fprintf(nonRedirectedStream(),
+                "Error " __FILE__ "(%d): TMPDIR is too long for a temporary"
+                " file name: \"%s\"\n",
+                __LINE__,
+                tmpDir);
+        d_fileName[0] = '\0';
         return false;                                                 // RETURN
     }
 

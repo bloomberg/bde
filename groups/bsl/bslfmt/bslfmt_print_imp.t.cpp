@@ -4,6 +4,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_outputredirector.h>
+#include <bsls_testtempdirectory.h>
 
 #include <stdio.h>
 #include <string.h>  // `strcmp`
@@ -103,6 +104,24 @@ static bool veryVeryVeryVerbose;
 
 namespace {
 
+/// Return a new file, opened for update, in the specified `tempDir`, or 0 on
+/// failure.
+FILE *openTempFile(const bsls::TestTempDirectory& tempDir)
+{
+    static int count = 0;
+
+    char name[32];
+    snprintf(name, sizeof name, "file%d.txt", ++count);
+
+    char path[bsls::TestTempDirectory::k_PATH_BUFFER_SIZE];
+    if (0 != tempDir.makePath(path, sizeof path, name)) {
+        return 0;                                                     // RETURN
+    }
+    // Binary mode, as `tmpfile` used, so the test sees the bytes written.
+
+    return fopen(path, "w+b");
+}
+
 bool isEqual(FILE *fp, const char *text)
 {
     char         buf[129];
@@ -155,6 +174,8 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         const char *helloWorld = "Hello, world!\n";
+        bsls::TestTempDirectory tempDir("bslfmt_print_imp", test);
+
         {
             bsls::OutputRedirector out(bsls::OutputRedirector::e_STDOUT_STREAM,
                                        verbose,
@@ -206,7 +227,7 @@ int main(int argc, char *argv[])
             ASSERT(out.compare(helloWorld) == 0);
         }
         {
-            FILE *fp = tmpfile();
+            FILE *fp = openTempFile(tempDir);
             ASSERT(fp);
 
             bslfmt::print(fp, "{}, {}!\n", "Hello", "world");
@@ -215,7 +236,7 @@ int main(int argc, char *argv[])
             fclose(fp);
         }
         {
-            FILE *fp = tmpfile();
+            FILE *fp = openTempFile(tempDir);
             ASSERT(fp);
 
             bslfmt::println(fp, "{}, {}!", "Hello", "world");
@@ -224,7 +245,7 @@ int main(int argc, char *argv[])
             fclose(fp);
         }
         {
-            FILE *fp = tmpfile();
+            FILE *fp = openTempFile(tempDir);
             ASSERT(fp);
 
             bslfmt::println(fp);
@@ -233,7 +254,7 @@ int main(int argc, char *argv[])
             fclose(fp);
         }
         {
-            FILE *fp = tmpfile();
+            FILE *fp = openTempFile(tempDir);
             ASSERT(fp);
 
             bslfmt::vprint_nonunicode(fp,
@@ -244,7 +265,7 @@ int main(int argc, char *argv[])
             fclose(fp);
         }
         {
-            FILE *fp = tmpfile();
+            FILE *fp = openTempFile(tempDir);
             ASSERT(fp);
 
             bslfmt::vprint_nonunicode_buffered(
@@ -257,7 +278,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            FILE *fp = tmpfile();
+            FILE *fp = openTempFile(tempDir);
             ASSERT(fp);
 
             bslfmt::vprint_unicode(fp,
@@ -268,7 +289,7 @@ int main(int argc, char *argv[])
             fclose(fp);
         }
         {
-            FILE *fp = tmpfile();
+            FILE *fp = openTempFile(tempDir);
             ASSERT(fp);
 
             bslfmt::vprint_unicode_buffered(

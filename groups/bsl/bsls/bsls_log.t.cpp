@@ -3,6 +3,7 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
+#include <bsls_testtempdirectory.h>
 
 #include <fcntl.h>
 #include <limits.h>    // PATH_MAX on linux, INT_MAX
@@ -189,6 +190,16 @@ static bool             verbose;
 static bool         veryVerbose;
 static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
+
+/// Return the temporary directory of the current test case, creating it the
+/// first time this function is called, so that a test case that writes no
+/// files creates no directory.  The directory is removed when the program
+/// exits normally.  The behavior is undefined unless `test` is set.
+static const bsls::TestTempDirectory& testTempDirectory()
+{
+    static bsls::TestTempDirectory tempDir("bsls_log", test);
+    return tempDir;
+}
 
 // ============================================================================
 //                             GLOBAL TEST DATA
@@ -1146,15 +1157,18 @@ void OutputRedirector::cleanupFiles()
 bool OutputRedirector::generateTempFileName()
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    char tmpPathBuf[PATH_BUFFER_SIZE];
-    if (! GetTempPathA(PATH_BUFFER_SIZE, tmpPathBuf) ||
-        ! GetTempFileNameA(tmpPathBuf, "bsls", 0, d_fileName)) {
+    if (! GetTempFileNameA(testTempDirectory().path(),
+                           "bsls",
+                           0,
+                           d_fileName)) {
         return false;                                                 // RETURN
     }
 #else
-    ::snprintf(d_fileName, PATH_BUFFER_SIZE,
-                                         "./tmp.bsls_log.%d.txt.XXXXXX", test);
-    if (::strnlen(d_fileName, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
+    char leaf[64];
+    ::snprintf(leaf, sizeof leaf, "tmp.bsls_log.%d.txt.XXXXXX", test);
+    if (0 != testTempDirectory().makePath(d_fileName,
+                                          PATH_BUFFER_SIZE,
+                                          leaf)) {
         printf("generateTempFileName: buffer overflow\n");
         return false;
     }

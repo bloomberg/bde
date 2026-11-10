@@ -77,6 +77,7 @@ bsls_stackaddressutil_plinktimestamp
 bsls_stopwatch
 bsls_systemclocktype
 bsls_systemtime
+bsls_testtempdirectory
 bsls_timeinterval
 bsls_timeutil
 bsls_types

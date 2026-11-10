@@ -168,9 +168,12 @@ class OutputRedirector {
     /// construction was `e_STDERR_STREAM`, redirect `stderr` to a temporary
     /// file.  The temporary file to which the stream is redirected will be
     /// created the first time `enable` is called, and will be deleted when
-    /// this object is destroyed.  If `enable` fails to redirect either
-    /// `stdout` or `stderr` it will end the program by calling
-    /// `std::abort`.
+    /// this object is destroyed.  On Unix, the temporary file is created in
+    /// the directory named by the `TMPDIR` environment variable, or in
+    /// `/tmp` if `TMPDIR` is unset or empty.  On Windows, it is created in
+    /// the directory returned by `GetTempPath`.  If `enable` fails to
+    /// redirect either `stdout` or `stderr` it will end the program by
+    /// calling `std::abort`.
     void enable();
 
     /// Read captured output into the scratch buffer.  Return `true` if all

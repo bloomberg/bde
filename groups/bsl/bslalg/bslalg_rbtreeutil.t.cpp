@@ -14,6 +14,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
+#include <bsls_testtempdirectory.h>
 
 #include <bsltf_alloctesttype.h>
 
@@ -30,14 +31,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>
-#endif
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
 #pragma error_messages(off, arrowrtn)
@@ -815,39 +808,6 @@ RbTreeNode *nodeAtOffset(RbTreeAnchor *tree, int offset)
     return node;
 }
 
-
-const char *tempFileName(bool verboseFlag)
-   // Return the potential name for a temporary file.  The returned C-string
-   // refers to a static memory buffer (so this method is not thread safe).
-{
-    enum { MAX_LENGTH = 4096 };
-    static char result[MAX_LENGTH];
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    BSLMF_ASSERT(MAX_LENGTH > MAX_PATH);
-
-    char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
-    GetTempPath(MAX_PATH, tmpPathBuf);
-    GetTempFileName(tmpPathBuf, "bael", 0, result);
-#else
-    snprintf(result, sizeof result, "baelXXXXXX");
-    close(mkstemp(result));
-#endif
-
-    if (verboseFlag) printf("\tUse %s as a base filename.\n", result);
-
-    return result;
-}
-
-/// Remove the file having the specified `fileName` from the file-system.
-void removeFile(const char *fileName)
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    DeleteFile(fileName);
-#else
-    unlink(fileName);
-#endif
-}
 
 //=============================================================================
 //                           TEMPLATE TEST FACILITIES
@@ -5876,7 +5836,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nCLASS METHODS: printTreeStructure"
                             "\n=================================\n");
 
-        const char *fileName = tempFileName(veryVerbose);
+        bsls::TestTempDirectory tempDir("bslalg_rbtreeutil", test);
+
+        char fileName[bsls::TestTempDirectory::k_PATH_BUFFER_SIZE];
+        ASSERT(0 == tempDir.makePath(fileName,
+                                     sizeof fileName,
+                                     "printTreeStructure.txt"));
+        if (veryVerbose) printf("\tUse %s as the file name.\n", fileName);
 
         enum {
             BUFFER_SIZE = 4096,
@@ -5973,7 +5939,6 @@ int main(int argc, char *argv[])
                                                 0,
                                                 0));
         }
-        removeFile(fileName);
 
       } break;
       case 23: {

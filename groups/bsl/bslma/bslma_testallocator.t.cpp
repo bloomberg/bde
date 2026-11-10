@@ -11,6 +11,7 @@
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_testtempdirectory.h>
 #include <bsls_types.h>
 
 #include <new>          // `std::bad_alloc`
@@ -824,20 +825,32 @@ void debugprint(const my_ShortArray& array)
 // ```
 
 /// Call the `print` method on the specified `ta` test allocator and capture
-/// its output to the specified `buf` of size `sz`.  If the output is
-/// truncated (if necessary) to `sz - 1` bytes, and is always nul
-/// terminated within `buf`.
-void printToBuffer(char *buf, size_t sz, const bslma::TestAllocator& ta)
+/// its output to the specified `buf` of size `sz`, using a file in the
+/// specified `tempDir`.  If the output is truncated (if necessary) to
+/// `sz - 1` bytes, and is always nul terminated within `buf`.  If the file
+/// cannot be created, report a test failure and load the empty string.
+void printToBuffer(char                           *buf,
+                   size_t                          sz,
+                   const bslma::TestAllocator&     ta,
+                   const bsls::TestTempDirectory&  tempDir)
 {
     // Create a temporary file
-    FILE* tmpf = 0;
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    errno_t e = tmpfile_s(&tmpf);
-    BSLS_ASSERT(0 == e);
-#else
-    tmpf = tmpfile();
-#endif
-    BSLS_ASSERT(tmpf);
+    buf[0] = '\0';
+
+    char path[bsls::TestTempDirectory::k_PATH_BUFFER_SIZE];
+    const int rc = tempDir.makePath(path, sizeof path, "print.txt");
+    ASSERTV(rc, 0 == rc);
+    if (0 != rc) {
+        return;                                                       // RETURN
+    }
+
+    // Binary mode, as `tmpfile` used, so the test sees the bytes written.
+
+    FILE *tmpf = fopen(path, "w+b");
+    ASSERTV(path, tmpf);
+    if (!tmpf) {
+        return;                                                       // RETURN
+    }
 
     // Print to temporary file
     ta.print(tmpf);
@@ -1147,7 +1160,8 @@ int main(int argc, char *argv[])
             // Test allocation smaller than sizeof(Uint64) (4 bytes)
             {
                 const std::size_t SIZE = 4;
-                unsigned char *p = static_cast<unsigned char*>(ta.allocate(SIZE));
+                unsigned char *p = static_cast<unsigned char *>(
+                                                          ta.allocate(SIZE));
                 ASSERT(p);
 
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -1165,7 +1179,8 @@ int main(int argc, char *argv[])
             // Test allocation equal to sizeof(Uint64) (8 bytes)
             {
                 const std::size_t SIZE = 8;
-                unsigned char *p = static_cast<unsigned char*>(ta.allocate(SIZE));
+                unsigned char *p = static_cast<unsigned char *>(
+                                                          ta.allocate(SIZE));
                 ASSERT(p);
 
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -1187,20 +1202,21 @@ int main(int argc, char *argv[])
             // Test allocation larger than sizeof(Uint64) (20 bytes)
             {
                 const std::size_t SIZE = 20;
-                unsigned char *p = static_cast<unsigned char*>(ta.allocate(SIZE));
+                unsigned char *p = static_cast<unsigned char *>(
+                                                          ta.allocate(SIZE));
                 ASSERT(p);
 
                 // Pattern should repeat: 8 bytes + 8 bytes + 4 bytes
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
                 const unsigned char EXPECTED[] = {
-                    0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01,  // 1st copy
-                    0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01,  // 2nd copy
+                    0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01,  // 1st
+                    0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01,  // 2nd
                     0xEF, 0xCD, 0xAB, 0x89                           // partial
                 };
 #else
                 const unsigned char EXPECTED[] = {
-                    0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,  // 1st copy
-                    0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,  // 2nd copy
+                    0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,  // 1st
+                    0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,  // 2nd
                     0x01, 0x23, 0x45, 0x67                           // partial
                 };
 #endif
@@ -1892,6 +1908,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTEST PRINTING AND STREAMING"
                             "\n===========================\n");
 
+        bsls::TestTempDirectory tempDir("bslma_testallocator", test);
+
         static const char *TEMPLATE_WITH_NAME =
                         "\n"
                         "==================================================\n"
@@ -2155,7 +2173,7 @@ int main(int argc, char *argv[])
 
             {
                 char buffer[BUF_SIZE];
-                printToBuffer(buffer, BUF_SIZE, X);
+                printToBuffer(buffer, BUF_SIZE, X, tempDir);
                 if (veryVerbose) printf("\n'print' OUTPUT:\n[%s]\n", buffer);
                 ASSERT(0 == strcmp(buffer, expBuffer));
             }

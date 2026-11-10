@@ -4,6 +4,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
+#include <bsls_testtempdirectory.h>
 
 #include <bsl_sstream.h>
 
@@ -361,23 +362,39 @@ void *testFunctionSub(void *arg)
 
 namespace {
 
-/// Create a temporary file and load its name into the user-supplied buffer
-/// at the address pointed to by the specified `result`.  Return `true` if
-/// the temporary file was successfully created, and `false` otherwise.  The
-/// behavior is undefined unless the buffer pointed to by `result` is at
-/// least `PATH_BUFFER_SIZE` bytes long.
+/// The number of the test case being run.
+int g_testCase = 0;
+
+/// Return the temporary directory of the current test case, creating it the
+/// first time this function is called, so that a test case that writes no
+/// files creates no directory.  The directory is removed when the program
+/// exits normally.  The behavior is undefined unless `g_testCase` is set.
+const bsls::TestTempDirectory& testTempDirectory()
+{
+    static bsls::TestTempDirectory tempDir("bslim_testutil", g_testCase);
+    return tempDir;
+}
+
+/// Create a temporary file in the temporary directory of the current test
+/// case and load its name into the user-supplied buffer at the address
+/// pointed to by the specified `result`.  Return `true` if the temporary
+/// file was successfully created, and `false` otherwise.  The behavior is
+/// undefined unless `g_testCase` is set, and the buffer pointed to by
+/// `result` is at least `PATH_BUFFER_SIZE` bytes long.
 bool tempFileName(char *result)
 {
     ASSERT(result);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    char tmpPathBuf[MAX_PATH];
-    if (!GetTempPathA(MAX_PATH, tmpPathBuf)
-     || !GetTempFileNameA(tmpPathBuf, "bslim", 0, result)) {
+    if (!GetTempFileNameA(testTempDirectory().path(), "bslim", 0, result)) {
         return false;                                                 // RETURN
     }
 #else
-    snprintf(result, PATH_BUFFER_SIZE, "bslimXXXXXX");
+    if (0 != testTempDirectory().makePath(result,
+                                          PATH_BUFFER_SIZE,
+                                          "bslimXXXXXX")) {
+        return false;                                                 // RETURN
+    }
     int fd = mkstemp(result);
     if (-1 != fd) {
         close(fd);
@@ -829,6 +846,11 @@ int main(int argc, char *argv[])
     verbose         = argc > 2;
     veryVerbose     = argc > 3;
     veryVeryVerbose = argc > 4;
+
+    // The temporary directory, created on first use by `output`, is a
+    // function-local static, so it is removed after `output` removes its
+    // file.
+    g_testCase = test;
 
     // Capture `stdout`, and send `stderr` to `stdout`, unless we are running
     // the usage example.
@@ -1586,7 +1608,8 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d    (context)\nError %s(%d):"
+                         "I: %d\tJ: %d\tK: %d\tL: %d    (context)\n"
+                         "Error %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L,
                          __FILE__,
@@ -1615,7 +1638,8 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d    (context)\nError %s(%d):"
+                         "I: %d\tJ: %d\tK: %d\tL: %d    (context)\n"
+                         "Error %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L,
                          __FILE__,
@@ -1783,7 +1807,8 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d    (context)\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d"
+                         "    (context)\n"
                          "Error %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N,
@@ -1815,7 +1840,8 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d    (context)\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d"
+                         "    (context)\n"
                          "Error %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N,
