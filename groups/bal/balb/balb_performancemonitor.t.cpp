@@ -2,7 +2,9 @@
 #include <balb_performancemonitor.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
 #include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlt_datetimeinterval.h>
@@ -228,6 +230,26 @@ const char *const LONG_STRING    = "a_"   SUFFICIENTLY_LONG_STRING;
 //                       HELPER FUNCTIONS AND CLASSES
 // ----------------------------------------------------------------------------
 namespace {
+
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-balb_performancemonitor-<test>-<pid>-`, where
+/// `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown` if it
+/// is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-balb_performancemonitor-"
+        << test << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
 
 /// The structure to store values accessible via public interfaces of
 /// `balb::PerformanceMonitor::Statistics` class.
@@ -621,13 +643,17 @@ ObjIterator advanceIt(const ObjIterator& begin, int n)
 
 /// Force both the user and system time counters to advance by performing I/O
 /// and an expensive computation that can't be optimized.  (This isn't
-/// guaranteed to work, so don't rely on it.)
-void consumeUserAndSystemTime()
+/// guaranteed to work, so don't rely on it.)  Create the temporary file used
+/// for I/O in the specified `directory`.
+void consumeUserAndSystemTime(const bsl::string& directory)
 {
+    bsl::string tmpFilePrefix(directory);
+    bdls::PathUtil::appendRaw(&tmpFilePrefix, "consume");
+
     bsl::string tmpFileName;
 
     bdls::FilesystemUtil::FileDescriptor tmpFile =
-                  bdls::FilesystemUtil::createTemporaryFile(&tmpFileName, ".");
+        bdls::FilesystemUtil::createTemporaryFile(&tmpFileName, tmpFilePrefix);
 
     unsigned int x = bdls::ProcessUtil::getProcessId();
 
@@ -2529,6 +2555,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING INITIAL VALUES\n"
                              "======================\n";
 
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
+
         const double maxDouble = std::numeric_limits<double>::max();
 
         Obj perfmon;
@@ -2570,7 +2598,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            consumeUserAndSystemTime();
+            consumeUserAndSystemTime(tempDirGuard.getTempDirName());
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
             // On Windows, the elapsed time used to compute the rates comes
             // from PDH, which may not advance between two quick calls to
@@ -2614,7 +2642,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            consumeUserAndSystemTime();
+            consumeUserAndSystemTime(tempDirGuard.getTempDirName());
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
             bslmt::ThreadUtil::microSleep(0, 1);
 #endif

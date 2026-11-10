@@ -1,7 +1,12 @@
 // bdls_testutil.t.cpp                                                -*-C++-*-
 #include <bdls_testutil.h>
 
+#include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
+
+#include <bsl_cstdlib.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
@@ -334,23 +339,49 @@ int fstatFunc(int fd, StatType *buf)
 #endif
 }
 
-/// Create a temporary file and store its name in the user-supplied buffer
-/// at the address pointed to by the specified `result`.  Return `true` if
-/// the temporary file was successfully created, and `false` otherwise.  The
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-bdls_testutil-<test>-<pid>-`, where `<user>`
+/// is the value of `USER` (`USERNAME` on Windows), or `unknown` if it is
+/// unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-bdls_testutil-" << test
+        << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
+
+/// Create a temporary file in the directory having the specified
+/// `tempDirName` and store its name in the user-supplied buffer at the
+/// address pointed to by the specified `result`.  Return `true` if the
+/// temporary file was successfully created, and `false` otherwise.  The
 /// behavior is undefined unless the buffer pointed to by `result` is at
 /// least `k_PATH_BUFFER_SIZE` bytes long.
-bool tempFileName(char *result)
+bool tempFileName(char *result, const char *tempDirName)
 {
     ASSERT(result);
+    ASSERT(tempDirName);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    char tmpPathBuf[MAX_PATH];
-    if (! GetTempPath(MAX_PATH, tmpPathBuf) ||
-        ! GetTempFileName(tmpPathBuf, "bsls", 0, result)) {
+    if (! GetTempFileName(tempDirName, "bsls", 0, result)) {
         return false;                                                 // RETURN
     }
 #else
-    snprintf(result, k_PATH_BUFFER_SIZE, "bslsXXXXXX");
+    const int len = snprintf(result,
+                             k_PATH_BUFFER_SIZE,
+                             "%s/bslsXXXXXX",
+                             tempDirName);
+    if (len < 0 || k_PATH_BUFFER_SIZE <= len) {
+        return false;                                                 // RETURN
+    }
     int fd = mkstemp(result);
     if (-1 != fd) {
         close(fd);
@@ -389,6 +420,10 @@ class OutputRedirector {
 
   private:
     // DATA
+    const char *d_tempDirName;                 // Name of directory in which
+                                               // to create the temporary
+                                               // capture file
+
     char d_fileName[k_PATH_BUFFER_SIZE];       // Name of temporary capture
                                                // file
 
@@ -426,8 +461,11 @@ class OutputRedirector {
     // CREATORS
 
     /// Create an `OutputRedirector` in an un-redirected state, and an empty
-    /// scratch buffer.
-    explicit OutputRedirector();
+    /// scratch buffer, that creates its temporary capture file in the
+    /// directory having the specified `tempDirName`.  The behavior is
+    /// undefined unless `tempDirName` remains valid, and the directory
+    /// exists, for the lifetime of this object.
+    explicit OutputRedirector(const char *tempDirName);
 
     /// Destroy this `OutputRedirector` object.  If the object is in a
     /// redirected state, `stdout` will be closed and the temporary file to
@@ -500,8 +538,9 @@ class OutputRedirector {
     const StatType& originalStdoutStat();
 };
 
-OutputRedirector::OutputRedirector()
-: d_isRedirectedFlag(false)
+OutputRedirector::OutputRedirector(const char *tempDirName)
+: d_tempDirName(tempDirName)
+, d_isRedirectedFlag(false)
 , d_isFileCreatedFlag(false)
 , d_isOutputReadyFlag(false)
 , d_outputSize(0L)
@@ -586,7 +625,7 @@ void OutputRedirector::redirect()
         std::abort();
     }
 
-    if (! tempFileName(d_fileName)) {
+    if (! tempFileName(d_fileName, d_tempDirName)) {
 
         // Get temp file name
 
@@ -799,9 +838,14 @@ int main(int argc, char *argv[])
     veryVerbose     = argc > 3;
     veryVeryVerbose = argc > 4;
 
+    // The guard must outlive `output`, which holds an open file in the
+    // temporary directory.
+
+    bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
+
     // Capture `stdout`, and send `stderr` to `stdout`, unless we are running
     // the usage example.
-    OutputRedirector output;
+    OutputRedirector output(tempDirGuard.getTempDirName().c_str());
     if (test != 8 && test != 0) {
         output.redirect();
     }

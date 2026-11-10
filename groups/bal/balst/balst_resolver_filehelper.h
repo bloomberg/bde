@@ -30,10 +30,17 @@ BSLS_IDENT("$Id: $")
 // ```
 //  bslma::TestAllocator ta;
 //
-//  char fileNameBuffer[100];
-//  sprintf(fileNameBuffer,
-//          "/tmp/balst_Resolver_FileHelper.usage.%d.txt",
-//          getProcessId());
+//  const char *tmpDir = bsl::getenv("TMPDIR");
+//  if (!tmpDir || !*tmpDir) {
+//      tmpDir = "/tmp";
+//  }
+//
+//  char fileNameBuffer[256];
+//  snprintf(fileNameBuffer,
+//           sizeof fileNameBuffer,
+//           "%s/balst_Resolver_FileHelper.usage.%d.txt",
+//           tmpDir,
+//           getProcessId());
 // ```
 // Make sure file does not already exist.
 // ```

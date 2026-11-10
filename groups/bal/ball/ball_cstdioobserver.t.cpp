@@ -9,6 +9,8 @@
 #include <ball_userfields.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
+#include <bdls_processutil.h>
 #include <bdls_tempdirectoryguard.h>
 
 #include <bdlt_datetime.h>
@@ -138,6 +140,26 @@ typedef bdls::FilesystemUtil FsUtil;
 //=============================================================================
 //                  HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-ball_cstdioobserver-<test>-<pid>-`, where
+/// `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown` if it
+/// is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-ball_cstdioobserver-"
+        << test << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
 
 bsl::string readPartialFile(bsl::string&   fileName,
                             FsUtil::Offset startOffset)
@@ -274,8 +296,9 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
         // Open the temporary file we will be writing into
-        bdls::TempDirectoryGuard tempDirGuard("ball_cstdioobserver_");
-        bsl::string fileName = tempDirGuard.getTempDirName() + "/test3.log";
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
+        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "test3.log");
         FILE *const file_p = fopen(fileName.c_str(), "w");
 
         FsUtil::Offset fileOffset = FsUtil::getFileSize(fileName);
@@ -565,8 +588,9 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         // Open the temporary file we will be writing into
-        bdls::TempDirectoryGuard tempDirGuard("ball_cstdioobserver_");
-        bsl::string fileName = tempDirGuard.getTempDirName() + "/test2.log";
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
+        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "test2.log");
         FILE *const file_p = fopen(fileName.c_str(), "w");
 
         FsUtil::Offset fileOffset = FsUtil::getFileSize(fileName);
@@ -690,8 +714,9 @@ int main(int argc, char *argv[])
                           << "==============\n";
 
         // Open the temporary file we will be writing into
-        bdls::TempDirectoryGuard tempDirGuard("ball_cstdioobserver_");
-        bsl::string fileName = tempDirGuard.getTempDirName() + "/test1.log";
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
+        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "test1.log");
         FILE *const file_p = fopen(fileName.c_str(), "w");
 
         if (verbose) cout << "Publish a single message." << endl;

@@ -6,11 +6,10 @@
 #include <baltzo_testloader.h>
 #include <baltzo_zoneinfo.h>
 
-#include <bdlsb_fixedmemoutstreambuf.h>
-
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
 #include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -39,21 +38,15 @@
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
+#include <bsl_sstream.h>
 
 #include <bsl_c_stdlib.h>   // `putenv`
-
-#if BSLS_PLATFORM_OS_UNIX
-# include <unistd.h>        // sleep
-#else
-# include <windows.h>       // Sleep
-#endif
 
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
-using bsl::ends;
 
 //=============================================================================
 //                              TEST PLAN
@@ -592,14 +585,25 @@ void writeData(const char *fileName, const char *data, int numBytes)
 namespace {
 namespace u {
 
-inline
-void sleep(int seconds)
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-baltzo_defaultzoneinfocache-<test>-<pid>-`,
+/// where `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown`
+/// if it is unset.
+bsl::string tempDirPrefix(int test)
 {
-#ifdef BSLS_PLATFORM_OS_UNIX
-    ::sleep(seconds);
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
 #else
-    ::Sleep(seconds * 1000);
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
 #endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown")
+        << "-baltzo_defaultzoneinfocache-" << test << '-'
+        << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
 }
 
 }  // close namespace u
@@ -696,6 +700,14 @@ int main(int argc, char *argv[])
     veryVeryVerbose     = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
+    // All test files are created in a temporary directory, which is the
+    // working directory while the test case runs, and which is removed, with
+    // its contents, at the end of `main`.  The guard is created before the
+    // default allocator is installed, so that it does not use it.
+
+    bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
+    const bsl::string&       tmpWorkingDir = tempDirGuard.getTempDirName();
+
     bslma::TestAllocator        allocator;
     static bslma::TestAllocator defaultAllocator("dta", veryVeryVerbose);
     static bslma::TestAllocator globalAllocator( "gta", veryVeryVerbose);;
@@ -711,36 +723,8 @@ int main(int argc, char *argv[])
     bsl::string origWorkingDirectory(&globalAllocator);
     ASSERT(0 == FUtil::getWorkingDirectory(&origWorkingDirectory));
 
-    char tmpWorkingDir[256];
-    {
-#ifdef BSLS_PLATFORM_OS_UNIX
-        char host[80];
-        ASSERT(0 == ::gethostname(host, sizeof(host)));
-#else
-        const char *host = "win";     // `gethostname` is difficult on
-                                      // Windows, and we usually aren't using
-                                      // nfs there anyway.
-#endif
-
-        bdlsb::FixedMemOutStreamBuf sb(tmpWorkingDir, sizeof(tmpWorkingDir));
-        bsl::ostream                os(&sb);
-
-        os << "tmp.workingDir.baltzo_defaultzoneinfocache." << test << '.' <<
-               host << '.' << bdls::ProcessUtil::getProcessId() << ends;
-    }
     if (veryVerbose) P(tmpWorkingDir);
 
-    if (FUtil::exists(tmpWorkingDir)) {
-        // Sometimes the cleanup at the end of this program is unable to clean
-        // up files, so we might encounter leftovers from a previous run, but
-        // these can usually be deleted if sufficient time has elapsed.  If
-        // we're not able to clean it up now, old files may prevent the test
-        // case we're running this time from working.  So we want this assert
-        // to fail to give the tester a `heads-up` as to what went wrong.
-
-        ASSERTV(tmpWorkingDir, 0 == FUtil::remove(tmpWorkingDir, true));
-    }
-    ASSERT(0 == FUtil::createDirectories(  tmpWorkingDir, true));
     ASSERT(0 == FUtil::setWorkingDirectory(tmpWorkingDir));
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -1340,38 +1324,9 @@ int main(int argc, char *argv[])
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
+    // Leave `tmpWorkingDir` before `tempDirGuard` removes it.
+
     ASSERT(0 == FUtil::setWorkingDirectory(origWorkingDirectory));
-    LOOP_ASSERT(tmpWorkingDir, FUtil::exists(tmpWorkingDir));
-
-    // Sometimes this delete won't work because of `.nfs*` gremlin files that
-    // mysteriously get created in the directory.  Seems to especially happen
-    // in TC 5 for some reason.  Leave the directory behind and move on.  Also
-    // remove twice, because sometimes the first `remove` `sorta` fails -- it
-    // returns a negative status after successfully killing the gremlin file.
-    // Worst case, leave the file there to be cleaned up in a sweep later.
-
-    int ii;
-    for (ii = 1; ii < 12; ++ii) {
-        if (veryVerbose) {
-            cout << "Cleaning up " << tmpWorkingDir << " (attempt " << ii <<
-                     ")" << endl;
-        }
-
-        FUtil::remove(tmpWorkingDir, true);
-
-        if (!FUtil::exists(tmpWorkingDir)) {
-            if (veryVerbose) {
-                cout << "Clean up of " << tmpWorkingDir << " succeeded"
-                     << endl;
-            }
-
-            break;
-        }
-
-        u::sleep(10);
-    }
-    ASSERTV(tmpWorkingDir, !FUtil::exists(tmpWorkingDir) &&
-                                            "unable to clean `tmpWorkingDir`");
 
     return testStatus;
 }

@@ -4,6 +4,8 @@
 #include <bslim_testutil.h>
 
 #include <bdls_pathutil.h>
+#include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>    // atoi
@@ -95,19 +97,24 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdls::FileDescriptorGuard Obj;
 typedef bdls::FilesystemUtil      Util;
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-enum { PLAT_WINDOWS = 1 };
-#else
-enum { PLAT_WINDOWS = 0 };
-#endif
-
-int localGetPId()
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-bdls_filedescriptorguard-<test>-<pid>-`,
+/// where `<user>` is the value of `USER` (`USERNAME` on Windows), or
+/// `unknown` if it is unset.
+bsl::string tempDirPrefix(int test)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    return static_cast<int>(GetCurrentProcessId());
+    const char *user = bsl::getenv("USERNAME");
 #else
-    return static_cast<int>(getpid());
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
 #endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-bdls_filedescriptorguard-"
+        << test << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
 }
 
 // ============================================================================
@@ -124,23 +131,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bsl::string rootPath;
-    {
-#ifdef BSLS_PLATFORM_OS_UNIX
-        char host[80];
-        ASSERT(0 ==::gethostname(host, sizeof(host)));
-#else
-        const char *host = "win";     // `gethostname` is very difficult on
-                                      // Windows, and we usually aren't using
-                                      // nfs there anyway.
-#endif
-        bsl::ostringstream oss;
-        oss << (PLAT_WINDOWS ? "temp." : "tmp.");
-        oss << "bdls_filedescriptorguard.";
-        oss << test << '.' << host << '.' << localGetPId();
-        rootPath = oss.str();
-    }
-    Util::remove(rootPath, true);
+    bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
+    const bsl::string&       rootPath = tempDirGuard.getTempDirName();
+
     bsl::string logPath = rootPath;
     bdls::PathUtil::appendRaw(&logPath, "log");
     ASSERT(0 == Util::createDirectories(logPath, true));
@@ -427,13 +420,6 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
-
-    // Sometimes the first remove fails but succeeds at removing leaf files,
-    // then the second remove will succeed.  Sometimes both fail, but the test
-    // directories will be cleaned up in a sweep anyway.
-
-    Util::remove(rootPath, true);
-    Util::remove(rootPath, true);
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."

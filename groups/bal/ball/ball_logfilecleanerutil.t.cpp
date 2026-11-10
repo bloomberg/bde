@@ -6,6 +6,7 @@
 
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
+#include <bdls_processutil.h>
 #include <bdls_tempdirectoryguard.h>
 
 #include <bdlt_datetime.h>
@@ -29,6 +30,7 @@
 #include <bsl_ctime.h>
 #include <bsl_iostream.h>
 #include <bsl_fstream.h>
+#include <bsl_sstream.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #ifndef WIN32_LEAN_AND_MEAN
@@ -126,6 +128,26 @@ typedef ball::LogFileCleanerUtil Obj;
 // ----------------------------------------------------------------------------
 
 namespace {
+
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-ball_logfilecleanerutil-<test>-<pid>-`, where
+/// `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown` if it
+/// is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-ball_logfilecleanerutil-"
+        << test << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
 
 /// Change the modification time of the file with the specified `fileName`
 /// by the specified `delta` seconds.  Return `0` if the file exists and
@@ -254,7 +276,7 @@ int main(int argc, char *argv[])
 // The following snippets of code illustrate how the application can implement
 // automatic log file cleanup from the observer's file rotation callback.
 // ```
-    bdls::TempDirectoryGuard tempDirGuard("ball_logfilecleanerutil_");
+    bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
     bsl::string              baseName(tempDirGuard.getTempDirName());
     bdls::PathUtil::appendRaw(&baseName, "test5_logFile%T");
 // ```
@@ -355,7 +377,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
-            bdls::TempDirectoryGuard tempDirGuard("ball_logfilecleanerutil_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              baseName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&baseName, "test3_1_logFile");
 
@@ -394,7 +416,7 @@ int main(int argc, char *argv[])
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "4"));
         }
         {
-            bdls::TempDirectoryGuard tempDirGuard("ball_logfilecleanerutil_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              baseName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&baseName, "test3_2_logFile");
 

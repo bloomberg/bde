@@ -8,6 +8,9 @@
 #include <balst_resolver_filehelper.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
+#include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
@@ -45,16 +48,13 @@ using bsl::flush;
 //
 // Most of these tests involve writing data to a file, either with
 // `bdls_FilesystemUtil::write`, or with `write*` methods defined in this file,
-// and then reading them out again.  The test files are created within a test
-// directory.  The test directory lives in the local directory the test driver
-// is run in, and it's name includes the number of the test case and the
-// process id of the task, eliminating the likelihood that the test directory
-// name will match that of another test case and reducing the likelihood that
-// it will match that of a previous test run.  At the end of the test, the test
-// directory is recursively destroyed.  After the test directory is created,
-// the current context is changed to within the test directory, and then the
-// names of plain test files used within the tests can be simple since the test
-// directory name guards against the chance of collision.
+// and then reading them out again.  The test files are created within a
+// temporary test directory, created by a `bdls::TempDirectoryGuard` in
+// `$TMPDIR` (or in the current directory, if `TMPDIR` is unset).  The
+// directory name includes the user name, the number of the test case, the
+// process id, and a unique suffix, so the names of the plain test files used
+// within the tests can be simple.  At the end of the test, the test directory
+// is recursively destroyed.
 //
 // The only test case that doesn't involve creating a file and reading from it
 // again is TC 10, which translates forms to their string names.
@@ -319,6 +319,27 @@ Offset getOffset(FD fd)
     return FU::seek(fd, 0, FU::e_SEEK_FROM_CURRENT);
 }
 
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-balst_resolver_dwarfreader-<test>-<pid>-`,
+/// where `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown`
+/// if it is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown")
+        << "-balst_resolver_dwarfreader-" << test << '-'
+        << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -345,49 +366,12 @@ int main(int argc, char *argv[])
     // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
-    if (1 == test) {
-        // Remove any leftover temporary directories created by this test
-        // driver over 24 hours ago.  Note that we try to clean up the
-        // temporary directory at the end of this test driver, but about 10% of
-        // the time we can't, due to stubborn nfs `gremlin` files that appear
-        // in the directory.
+    // All test files are created in a temporary directory that is removed,
+    // with its contents, at the end of `main`.
 
-        int systemRc = bsl::system("rm -rf `find . -mtime +1 -a"
-                      " -name 'tmp.resolver_dwarfreader.case_*' 2>/dev/null`");
-        ASSERT(0 == systemRc);
-    }
-
-    bsl::string origWorkingDirectory;
-    ASSERT(0 == FU::getWorkingDirectory(&origWorkingDirectory));
-
-    bsl::string tmpWorkingDir;
-    {
-        // Must not call `tempFileName` here, because `tempFileName` would
-        // create a plain file with the result name, and the attempt to create
-        // the directory would fail.
-
-        char host[80];
-        ASSERT(0 == ::gethostname(host, sizeof(host)));
-
-        bsl::ostringstream oss;
-        oss << "tmp.resolver_dwarfreader.case_" << test << '.' <<
-                                                     host << '.' << ::getpid();
-        tmpWorkingDir = oss.str();
-    }
-    if (veryVerbose) P(tmpWorkingDir);
-
-    if (FU::exists(tmpWorkingDir)) {
-        // Sometimes the cleanup at the end of this program is unable to clean
-        // up files, so we might encounter leftovers from a previous run, but
-        // these can usually be deleted if sufficient time has elapsed.  If
-        // we're not able to clean it up now, old files may prevent the test
-        // case we're running this time from working.  So we want this assert
-        // to fail to give the tester a `heads-up` as to what went wrong.
-
-        LOOP_ASSERT(tmpWorkingDir, 0 == FU::remove(tmpWorkingDir, true));
-    }
-    ASSERT(0 == FU::createDirectories(  tmpWorkingDir, true));
-    ASSERT(0 == FU::setWorkingDirectory(tmpWorkingDir));
+    bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
+    const bsl::string&       tempDirName = tempDirGuard.getTempDirName();
+    if (veryVerbose) P(tempDirName);
 
     switch (test) { case 0:
       case 10: {
@@ -773,7 +757,9 @@ int main(int argc, char *argv[])
 
         bsl::vector<Offset> offsets;
 
-        const char *fn = "skipForm_test.bin";
+        bsl::string fnPath(tempDirName);
+        bdls::PathUtil::appendRaw(&fnPath, "skipForm_test.bin");
+        const char *fn = fnPath.c_str();
 
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
@@ -987,7 +973,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING VARIOUS READOFFSET\n"
                              "==========================\n";
 
-        const char fn[] = { "readOffset_test.bin" };
+        bsl::string fnPath(tempDirName);
+        bdls::PathUtil::appendRaw(&fnPath, "readOffset_test.bin");
+        const char *fn = fnPath.c_str();
 
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
@@ -1738,7 +1726,9 @@ int main(int argc, char *argv[])
         };
         enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        const char *fn = "readULEB128.bin";
+        bsl::string fnPath(tempDirName);
+        bdls::PathUtil::appendRaw(&fnPath, "readULEB128.bin");
+        const char *fn = fnPath.c_str();
 
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
@@ -1885,7 +1875,9 @@ int main(int argc, char *argv[])
         };
         enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        const char *fn = "readULEB128.bin";
+        bsl::string fnPath(tempDirName);
+        bdls::PathUtil::appendRaw(&fnPath, "readULEB128.bin");
+        const char *fn = fnPath.c_str();
 
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
@@ -2042,7 +2034,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST STRING FUNCTIONS\n"
                              "=====================\n";
 
-        const char *fn = "readstring.bin";
+        bsl::string fnPath(tempDirName);
+        bdls::PathUtil::appendRaw(&fnPath, "readstring.bin");
+        const char *fn = fnPath.c_str();
         const char str[] = { "Always debate to the best interpretation of"
                                                 " your opponent's argument." };
         const char lineStr[] =
@@ -2347,7 +2341,9 @@ int main(int argc, char *argv[])
                           "TEST `readInitialLength` and `readSectionOffset`\n"
                           "================================================\n";
 
-        const char * const fn = "readAddress.bin";
+        bsl::string fnPath(tempDirName);
+        bdls::PathUtil::appendRaw(&fnPath, "readAddress.bin");
+        const char *fn = fnPath.c_str();
 
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
@@ -2497,7 +2493,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "First, test form-based address read\n";
 
-        const char * const fn = "readAddress.bin";
+        bsl::string fnPath(tempDirName);
+        bdls::PathUtil::appendRaw(&fnPath, "readAddress.bin");
+        const char *fn = fnPath.c_str();
 
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
@@ -2688,7 +2686,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST `readValue`\n"
                              "================\n";
 
-        const char fn[] = { "readValue_test.bin" };
+        bsl::string fnPath(tempDirName);
+        bdls::PathUtil::appendRaw(&fnPath, "readValue_test.bin");
+        const char *fn = fnPath.c_str();
 
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
@@ -2902,7 +2902,9 @@ int main(int argc, char *argv[])
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        const char *fn = "testInit.bin";
+        bsl::string fnPath(tempDirName);
+        bdls::PathUtil::appendRaw(&fnPath, "testInit.bin");
+        const char *fn = fnPath.c_str();
 
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
@@ -3010,19 +3012,6 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
-
-    ASSERT(0 == FU::setWorkingDirectory(origWorkingDirectory));
-    LOOP_ASSERT(tmpWorkingDir, FU::exists(tmpWorkingDir));
-
-    // Sometimes this delete won't work because of `.nfs*` gremlin files that
-    // mysteriously get created in the directory.  Leave the directory behind
-    // and move on.  Also remove twice, because sometimes the first `remove`
-    // `sorta` fails -- it returns a negative status after successfully killing
-    // the gremlin file.  Worst case, leave the file there to be cleaned up in
-    // a sweep later.
-
-    FU::remove(tmpWorkingDir, true);
-    FU::remove(tmpWorkingDir, true);
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."

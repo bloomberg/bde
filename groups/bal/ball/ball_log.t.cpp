@@ -20,6 +20,7 @@
 
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
+#include <bdls_processutil.h>
 #include <bdls_tempdirectoryguard.h>
 
 #include <bdlf_bind.h>
@@ -282,6 +283,25 @@ static const bool k_HAS_MULTILINE_OFFSET =
 
 namespace {
 namespace u {
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-ball_log-<test>-<pid>-`, where `<user>` is the
+/// value of `USER`, or of `LOGNAME` if `USER` is unset or empty, or `unknown`
+/// if neither is set.  Note that only the Unix-only tests use temporary
+/// directories.
+bsl::string tempDirPrefix(int test)
+{
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-ball_log-" << test << '-'
+        << BloombergLP::bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
+#endif
 
 TestAllocator ta("u::ta");
 
@@ -2121,19 +2141,23 @@ namespace BALL_LOG_TEST_CASE_17 {
 
 /// Invoke each of the callback macros and verify the expected logging
 /// behavior based on the specified `loggerManagerExistsFlag`,
-/// `testObserver`, and `numPublishedSoFar`.
+/// `testObserver`, and `numPublishedSoFar`.  Name the temporary directory
+/// after the specified `test` case.
 static
-void macrosTest(bool                                   loggerManagerExistsFlag,
+void macrosTest(int                                    test,
+                bool                                   loggerManagerExistsFlag,
                 const BloombergLP::ball::TestObserver& testObserver,
                 int                                    numPublishedSoFar)
 {
     ASSERT(loggerManagerExistsFlag ==
                             BloombergLP::ball::LoggerManager::isInitialized());
 
+    (void)test;  // used on Unix only
+
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Temporarily redirect `stderr` to a temp file.
 
-    TempDirectoryGuard tempDirGuard("ball_log_");
+    TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
 
     bsl::string filename(tempDirGuard.getTempDirName());
     BloombergLP::bdls::PathUtil::appendRaw(&filename,
@@ -2691,19 +2715,23 @@ namespace BALL_LOG_TEST_CASE_5 {
 
 /// Invoke each of the callback macros and verify the expected logging
 /// behavior based on the specified `loggerManagerExistsFlag`,
-/// `testObserver`, and `numPublishedSoFar`.
+/// `testObserver`, and `numPublishedSoFar`.  Name the temporary directory
+/// after the specified `test` case.
 static
-void macrosTest(bool                                   loggerManagerExistsFlag,
+void macrosTest(int                                    test,
+                bool                                   loggerManagerExistsFlag,
                 const BloombergLP::ball::TestObserver& testObserver,
                 int                                    numPublishedSoFar)
 {
     ASSERT(loggerManagerExistsFlag ==
                             BloombergLP::ball::LoggerManager::isInitialized());
 
+    (void)test;  // used on Unix only
+
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Temporarily redirect `stderr` to a temp file.
 
-    TempDirectoryGuard tempDirGuard("ball_log_");
+    TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
 
     bsl::string filename(tempDirGuard.getTempDirName());
     BloombergLP::bdls::PathUtil::appendRaw(&filename, "test5_stderr");
@@ -3112,9 +3140,9 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 // `ball::Severity::e_TRACE` (i.e., enabling verbose logging) if the thread's
 // context contains an attribute with name "mylibrary.uuid" with value 3938908.
 // Note that we use the wild-card value '*' for the category so that the
-// `ball::Rule` rule will apply to all categories. Also note that the computation of
-// effective threshold levels for **every** category matching the pattern has
-// considerable performance implications.
+// `ball::Rule` rule will apply to all categories.  Also note that the
+// computation of effective threshold levels for **every** category matching
+// the pattern has considerable performance implications.
 // ```
     ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
     rule.addAttribute(ball::ManagedAttribute("mylibrary.uuid", 3938908));
@@ -7640,7 +7668,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-            TempDirectoryGuard tempDirGuard("ball_log_");
+            TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
 
             bsl::string filename(tempDirGuard.getTempDirName());
             Blp::bdls::PathUtil::appendRaw(&filename,
@@ -7758,7 +7786,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << bsl::endl;
         {
 #ifdef BSLS_PLATFORM_OS_UNIX
-            TempDirectoryGuard tempDirGuard("ball_log_");
+            TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
 
             bsl::string filename(tempDirGuard.getTempDirName());
             Blp::bdls::PathUtil::appendRaw(&filename,
@@ -7848,7 +7876,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         ASSERT(0 == TO->numPublishedRecords());
 
         for (int i = 0; i < 5; ++i) {
-            macrosTest(false, *TO, TO->numPublishedRecords());
+            macrosTest(test, false, *TO, TO->numPublishedRecords());
 
             {
                  BloombergLP::ball::LoggerManagerConfiguration lmc;
@@ -7862,7 +7890,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                  LoggerManager::singleton().registerObserver(observerWrapper,
                                                              "default");
 
-                 macrosTest(true, *TO, TO->numPublishedRecords());
+                 macrosTest(test, true, *TO, TO->numPublishedRecords());
             }
         }
       } break;
@@ -9038,7 +9066,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         ASSERT(0 == TO->numPublishedRecords());
 
         for (int i = 0; i < 5; ++i) {
-            macrosTest(false, *TO, TO->numPublishedRecords());
+            macrosTest(test, false, *TO, TO->numPublishedRecords());
 
             {
                  BloombergLP::ball::LoggerManagerConfiguration lmc;
@@ -9052,7 +9080,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                  LoggerManager::singleton().registerObserver(observerWrapper,
                                                              "default");
 
-                 macrosTest(true, *TO, TO->numPublishedRecords());
+                 macrosTest(test, true, *TO, TO->numPublishedRecords());
             }
         }
       } break;

@@ -10,6 +10,9 @@
 #include <bdlma_bufferedsequentialallocator.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
+#include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bslim_testutil.h>
 
@@ -389,6 +392,27 @@ void doEraseTest(int argc, char **argv)
     int rc = ::system(cmd.c_str());
     ASSERT(0 == rc);
     testStatus += bsl::abs(rc);
+}
+
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-balst_stacktracetestallocator-<test>-<pid>-`,
+/// where `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown`
+/// if it is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown")
+        << "-balst_stacktracetestallocator-" << test << '-'
+        << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
 }
 
 }  // close namespace u
@@ -1251,12 +1275,23 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
+        // The usage example writes its file to a temporary directory.  Note
+        // that `bdls::TempDirectoryGuard` uses the default allocator.
+
+        expectedDefaultAllocations = -1;
+
+        bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
+        bsl::string              crewFilePath(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&crewFilePath, "shipscrew.txt");
+        const char *crewFileName = crewFilePath.c_str();
+
 // ```
-// Next, we create our file `./shipscrew.txt` describing the crew of the ship.
-// Note that the order of crew members is not important:
+// Next, in `main`, we create our file, whose name is `crewFileName`,
+// describing the crew of the ship.  Note that the order of crew members is not
+// important:
 // ```
         {
-            bsl::ofstream outFile("shipscrew.txt");
+            bsl::ofstream outFile(crewFileName);
 
             outFile << "sailor:Mitch Sandler\n"
                     << "sailor:Ben Lampert\n"
@@ -1277,7 +1312,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor tam(&ta);
 
             {
-                ShipsCrew crew("shipscrew.txt", &ta);
+                ShipsCrew crew(crewFileName, &ta);
                 ASSERT(tam.isInUseUp());
                 ASSERT(tam.isTotalUp());
 
@@ -1334,7 +1369,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor tam(&ta);
 
             {
-                ShipsCrew crew("shipscrew.txt", &ta);
+                ShipsCrew crew(crewFileName, &ta);
                 ASSERT(tam.isInUseUp());
                 ASSERT(tam.isTotalUp());
 
@@ -1392,14 +1427,6 @@ int main(int argc, char *argv[])
 // of the code shows that we neglected to free `d_cook` in the destructor and
 // we can now easily fix our leak.
 
-        bdls::FilesystemUtil::remove("shipscrew.txt");
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        // `remove` above uses the default allocator on Windows, so suppress
-        // the default allocator check at the end.
-
-        expectedDefaultAllocations = -1;
-#endif
       }  break;
       case 22: {
         // --------------------------------------------------------------------

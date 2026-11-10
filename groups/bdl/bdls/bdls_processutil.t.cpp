@@ -4,6 +4,7 @@
 #include <bdlma_sequentialallocator.h>
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
@@ -16,6 +17,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
 
 #if defined BSLS_PLATFORM_OS_UNIX
@@ -184,6 +186,26 @@ int resolvePath(bsl::string *result, const bsl::string& origPath)
     return resolvePath(result, origPath.c_str());
 }
 
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-bdls_processutil-<test>-<pid>-`, where
+/// `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown` if it
+/// is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-bdls_processutil-" << test
+        << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -207,18 +229,6 @@ int main(int argc, char *argv[])
     bslma::TestAllocator         ta("test",    veryVeryVeryVerbose);
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard daGuard(&da);
-
-    // `hostName` is used in multiple test cases in combination with process id
-    // to make reliably unique temporary file names.  `$HOSTNAME` is not set in
-    // matrix builds, so we can't access the hostname through `getenv`.
-
-#if BSLS_PLATFORM_OS_WINDOWS
-    const char * const hostName = "windowshost";
-#else
-    enum { k_HOST_NAME_BUF_LEN = 256 };
-    static char hostName[k_HOST_NAME_BUF_LEN];
-    ASSERT(0 == ::gethostname(hostName, k_HOST_NAME_BUF_LEN - 1));
-#endif
 
     bsl::string argv0(argv[0], &ta);
     bsl::string baseArgv0(     &ta);
@@ -296,13 +306,10 @@ int main(int argc, char *argv[])
                              "=============================\n";
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-        char tmpFileName[1024];
-        bsl::snprintf(tmpFileName,
-                      sizeof tmpFileName,
-                      "tmp.bdls_processutil.case4.%s.%d.txt",
-                      hostName,
-                      Obj::getProcessId());
-        FUtil::remove(tmpFileName);
+        bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test), &ta);
+
+        bsl::string tmpFileName(tempDirGuard.getTempDirName(), &ta);
+        PathUtil::appendRaw(&tmpFileName, "tmp.bdls_processutil.case5.txt");
 
         enum { k_ITERATIONS  = 30,
                k_MAX_FILE_ID = k_ITERATIONS / 2 };
@@ -377,21 +384,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << "CONCERN: RELATIVE PATH, SYMLINKS, SPACES\n"
                              "========================================\n";
 
+        bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test), &ta);
+
         int rc;
-        char directoryName[1024];
-        bsl::snprintf(directoryName,
-                      sizeof directoryName,
-                      "tmp.bdls_processutil.t.case%d.%s.%d.dir",
-                      test,
-                      hostName,
-                      Obj::getProcessId());
+        bsl::string directoryName(tempDirGuard.getTempDirName(), &ta);
+        PathUtil::appendRaw(&directoryName, "case4.dir");
 
         {
-            // `FUtil::remove` uses the default allocator on directories, and
             // `FUtil::createDirectories` uses the default allocator.
 
             bslma::DefaultAllocatorGuard guard(&ta);
-            (void) FUtil::remove(directoryName, true);
             ASSERT(!FUtil::exists(directoryName));
             rc = FUtil::createDirectories(directoryName, true);
             ASSERT(0 == rc);
@@ -409,7 +411,9 @@ int main(int argc, char *argv[])
         const char * const linkName       = "case4.link.a  b  c.t";
 #endif
 
-        bsl::string copiedExecutablePath(directoryName, &ta);    // copy destination of exec
+        // copy destination of exec
+
+        bsl::string copiedExecutablePath(directoryName, &ta);
         copiedExecutablePath += u::slash;
         copiedExecutablePath += executableName;
 
@@ -428,7 +432,7 @@ int main(int argc, char *argv[])
         bsl::fprintf(fp, ":\n");
         bsl::fprintf(fp, "cp '%s' '%s'\n", testDriverPath.c_str(), path);
         bsl::fprintf(fp, "chmod a+rwx '%s'\n", path);
-        bsl::fprintf(fp, "cd %s >/dev/null 2>&1\n", directoryName);
+        bsl::fprintf(fp, "cd '%s' >/dev/null 2>&1\n", directoryName.c_str());
         bsl::fprintf(fp, "ln -s '%s' '%s'\n", executableName, linkName);
         bsl::fprintf(fp, "%s", veryVerbose ? "pwd; ls -l\n" : "");
         bsl::fprintf(fp, "exec './%s' -1 %s%s%s%s\n",
@@ -454,7 +458,10 @@ int main(int argc, char *argv[])
         ASSERT(fp);
         bsl::fprintf(fp, "%s", !veryVerbose ?  "@echo off\n" : "");
         bsl::fprintf(fp, "copy \"%s\" \"%s\"\n", testDriverPath.c_str(), path);
-        bsl::fprintf(fp, "cd %s\n", directoryName);
+        // `/d` changes the drive too: `directoryName` is under `%TEMP%`,
+        // which may be on another drive than the working directory.
+
+        bsl::fprintf(fp, "cd /d \"%s\"\n", directoryName.c_str());
         bsl::fprintf(fp, "%s", veryVerbose ? "echo %cd%\ndir /o\n" : "");
         bsl::fprintf(fp, "\".\\%s\" -1 %s%s%s%s\n",
                                               executableName,

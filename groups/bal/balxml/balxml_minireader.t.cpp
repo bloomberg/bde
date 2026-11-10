@@ -5,7 +5,9 @@
 
 #include <bdls_filesystemutil.h>
 #include <bdls_osutil.h>
+#include <bdls_pathutil.h>
 #include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
 
@@ -127,6 +129,26 @@ void aSsErT(bool condition, const char *message, int line)
             ++testStatus;
         }
     }
+}
+
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-balxml_minireader-<test>-<pid>-`, where
+/// `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown` if it
+/// is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-balxml_minireader-" << test
+        << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
 }
 
 }  // close unnamed namespace
@@ -1230,30 +1252,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "UNEXPECTED EOF TEST\n"
                              "===================\n";
 
-        enum { k_BUF_LEN = 1024 };
-        char fileName[k_BUF_LEN];
-        {
-            bsl::string osName, osVersion, osPatch;
-            const char *hostName = bsl::getenv("HOSTNAME");
-            if (!hostName) {
-                ASSERT(0 == bdls::OsUtil::getOsInfo(&osName,
-                                                    &osVersion,
-                                                    &osPatch));
-
-                // Note that the patch information on some platofmrs (e.g.,
-                // MacOS) is a large string containing characters like '/'.
-
-                osName += '.' + osVersion;
-                hostName = osName.c_str();
-            }
-
-            bdlsb::FixedMemOutStreamBuf fileSb(fileName, sizeof(fileName));
-            bsl::ostream                fileStream(&fileSb);
-            fileStream << "tmp.balxml_minireader.15." << hostName << '.' <<
-                      bdls::ProcessUtil::getProcessId() << ".xml" << bsl::ends;
-
-            BSLS_ASSERT(bsl::strlen(fileName) < sizeof(fileName));
-        }
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
+        bsl::string              fileNameStr(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileNameStr, "balxml_minireader.xml");
+        const char *fileName = fileNameStr.c_str();
 
         if (verbose) P(fileName);
 
@@ -1369,7 +1371,6 @@ int main(int argc, char *argv[])
             }
             if (e_FILE == mode) {
                 bdls::FilesystemUtil::close(fd);
-                bdls::FilesystemUtil::remove(fileName);
             }
         }
       } break;

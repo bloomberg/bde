@@ -237,6 +237,26 @@ typedef bdls::FilesystemUtil::Offset Offset;
 
 namespace {
 
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-ball_asyncfileobserver-<test>-<pid>-`, where
+/// `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown` if it
+/// is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-ball_asyncfileobserver-"
+        << test << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
+
 /// Return a newly created `ball::Record` having the specifed `message` and
 /// `severity`, and using the specified `allocator` to allocate memory.  The
 /// created `ball::Record` will have valid but unspecified values for the
@@ -665,7 +685,7 @@ int main(int argc, char *argv[])
 
         // This is standard preamble to create the directory and filename for
         // the test.
-        bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
         bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test15.log");
 
@@ -848,7 +868,7 @@ int main(int argc, char *argv[])
                                  "uniqueness" << endl;
         {
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test14");
 
@@ -907,7 +927,7 @@ int main(int argc, char *argv[])
                  << endl;
 
         bsl::string LONG_MESSAGE(5000, 'x');
-        bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
         bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test13");
 
@@ -969,7 +989,7 @@ int main(int argc, char *argv[])
         // Create an observer with a very small queue size.
         Obj mX(ball::Severity::e_FATAL, false, 2);
 
-        bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
         bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test12");
         mX.enableFileLogging(fileName.c_str());
@@ -1053,7 +1073,7 @@ int main(int argc, char *argv[])
             cout << "\tTesting basic `recordQueueLength` behavior" << endl;
         }
         {
-            bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test11_1");
 
@@ -1106,7 +1126,7 @@ int main(int argc, char *argv[])
                  << endl;
         }
         {
-            bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test11_2");
 
@@ -1180,7 +1200,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY;
 
-        bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
         bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test10");
 
@@ -1304,7 +1324,7 @@ int main(int argc, char *argv[])
 
 
         // Create temporary directory for log files.
-        bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
         bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test9");
 
@@ -1408,7 +1428,7 @@ int main(int argc, char *argv[])
                           << "\n====================================" << endl;
 
         // Create temporary directory for log files.
-        bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
         bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test8");
 
@@ -1465,7 +1485,7 @@ int main(int argc, char *argv[])
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         // Create a temporary directory for a log files.
-        bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
 
         {
             bsl::stringstream os;
@@ -1578,7 +1598,7 @@ int main(int argc, char *argv[])
 
         BALL_LOG_SET_CATEGORY("TestCategory");
         ball::Context context;
-        bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
 
         if (veryVerbose) {
             P(tempDirGuard.getTempDirName())
@@ -1830,7 +1850,7 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing blocking caller thread." << endl;
         {
             // Create a temporary directory for log files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test5_1");
 
@@ -1873,7 +1893,7 @@ int main(int argc, char *argv[])
                           << endl;
         {
             // Create a temporary directory for log files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test5_2");
 
@@ -1948,7 +1968,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta;
 
         // Create a temporary directory for log files.
-        bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
 
         // Redirecting stdout to a file.
         bsl::string stdoutFileName(tempDirGuard.getTempDirName());
@@ -2368,7 +2388,7 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing temp directory guard" << endl;
         bsl::string tempDirectory;
         {
-            bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
 
             tempDirectory.assign(tempDirGuard.getTempDirName());
 
@@ -2388,7 +2408,7 @@ int main(int argc, char *argv[])
         bsl::string line(&ta);
 
         // Create a temporary directory for log files.
-        bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
 
         // Redirecting stdout to a file.
         bsl::string stdoutFileName(tempDirGuard.getTempDirName());
@@ -3167,8 +3187,9 @@ int main(int argc, char *argv[])
             BALL_LOG_FATAL << "log 6";
 
             bsl::vector<bsl::string> matchingFiles;
-            int findRc = FsUtil::findMatchingPaths(&matchingFiles,
-                                                    (fileName + ".2*").c_str());
+            int findRc = FsUtil::findMatchingPaths(
+                                                   &matchingFiles,
+                                                   (fileName + ".2*").c_str());
             ASSERT(0 < findRc);
             ASSERT(1 == matchingFiles.size());
 

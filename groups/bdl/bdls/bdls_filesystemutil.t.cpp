@@ -544,6 +544,83 @@ static bsl::string shrinkFnTemplate(const bsl::string_view& fnTemplate)
 }
 #endif
 
+/// The name of the temporary directory of the current test case, in which
+/// the test driver creates all of its temporary files.  This is set at the
+/// start of `main`.
+static const char *s_tempDirName = 0;
+
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<tmp>/<user>-bdls_filesystemutil-<test>-<pid>-`,
+/// where `<tmp>` is the value of `TMPDIR`, or `/tmp` if it is unset (the
+/// system temporary directory on Windows), and `<user>` is the value of
+/// `USER` (`USERNAME` on Windows), or `unknown` if it is unset.  Note that
+/// this test driver cannot use `bdls::TempDirectoryGuard`, which depends on
+/// the component under test.
+static bsl::string tempDirPrefix(int test)
+{
+    bsl::string result;
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    if (0 != Obj::getSystemTemporaryDirectory(&result)) {
+        result = ".";
+    }
+    const char *user = ::getenv("USERNAME");
+#else
+    const char *tmpDir = ::getenv("TMPDIR");
+    result = tmpDir && *tmpDir ? tmpDir : "/tmp";
+
+    const char *user = ::getenv("USER");
+    if (!user || !*user) {
+        user = ::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-bdls_filesystemutil-"
+        << test << '-' << ::localGetPId() << '-';
+
+    const int rc = bdls::PathUtil::appendIfValid(&result, oss.str());
+    ASSERTV(rc, 0 == rc);
+
+    return result;
+}
+
+/// This class provides a guard that, on destruction, makes a directory,
+/// supplied at construction, the working directory, then recursively removes
+/// another directory, also supplied at construction.
+class TempDirGuard {
+
+    // DATA
+    bsl::string d_tempDir;    // directory to remove
+    bsl::string d_origDir;    // directory to make the working directory
+
+  private:
+    // NOT IMPLEMENTED
+    TempDirGuard(const TempDirGuard&);
+    TempDirGuard& operator=(const TempDirGuard&);
+
+  public:
+    // CREATORS
+
+    /// Create a guard that, on destruction, makes the specified `origDir`
+    /// the working directory and recursively removes the specified
+    /// `tempDir`.
+    TempDirGuard(const bsl::string& tempDir, const bsl::string& origDir)
+    : d_tempDir(tempDir)
+    , d_origDir(origDir)
+    {
+    }
+
+    /// Make the directory supplied at construction the working directory,
+    /// then recursively remove the temporary directory supplied at
+    /// construction, if it still exists.
+    ~TempDirGuard()
+    {
+        (void) Obj::setWorkingDirectory(d_origDir);
+        if (Obj::exists(d_tempDir)) {
+            (void) Obj::remove(d_tempDir, true);
+        }
+    }
+};
+
 /// Return the name for a temporary file or directory, with the specified
 /// `prefix` and `testCase` being part of the name, and with the optionally
 /// specified `fnTemplate`, if present, also being part of the name.  On
@@ -1718,11 +1795,10 @@ bdlt::Datetime TestUtil_UnixImpUtil::getMinFileTime()
 
 int TestUtil_UnixImpUtil::getTemporaryFilePath(bsl::string *path)
 {
-    bsl::string result;
-    int rc = bdls::FilesystemUtil::getSystemTemporaryDirectory(&result);
-    if (0 != rc) {
-        return -1;                                                    // RETURN
-    }
+    // Create the file in the temporary directory of the test case.
+
+    BSLS_ASSERT_OPT(s_tempDirName);
+    bsl::string result(s_tempDirName);
 
     bdlb::Guid guid;
     bdlb::GuidUtil::generate(&guid);
@@ -1730,7 +1806,7 @@ int TestUtil_UnixImpUtil::getTemporaryFilePath(bsl::string *path)
     bsl::string baseName;
     bdlb::GuidUtil::guidToString(&baseName, guid);
 
-    rc = bdls::PathUtil::appendIfValid(&result, baseName);
+    int rc = bdls::PathUtil::appendIfValid(&result, baseName);
     if (0 != rc) {
         return -1;                                                    // RETURN
     }
@@ -1922,11 +1998,10 @@ TestUtil_WindowsImpUtil::createTemporaryFile(bsl::string *path)
 
 int TestUtil_WindowsImpUtil::getTemporaryFilePath(bsl::string *path)
 {
-    bsl::string result;
-    int rc = bdls::FilesystemUtil::getSystemTemporaryDirectory(&result);
-    if (0 != rc) {
-        return -1;                                                    // RETURN
-    }
+    // Create the file in the temporary directory of the test case.
+
+    BSLS_ASSERT_OPT(s_tempDirName);
+    bsl::string result(s_tempDirName);
 
     bdlb::Guid guid;
     bdlb::GuidUtil::generate(&guid);
@@ -1934,7 +2009,7 @@ int TestUtil_WindowsImpUtil::getTemporaryFilePath(bsl::string *path)
     bsl::string baseName;
     bdlb::GuidUtil::guidToString(&baseName, guid);
 
-    rc = bdls::PathUtil::appendIfValid(&result, baseName);
+    int rc = bdls::PathUtil::appendIfValid(&result, baseName);
     if (0 != rc) {
         return -1;                                                    // RETURN
     }
@@ -3630,7 +3705,7 @@ void testCase10_getFileSize(const char         *typeName,
 
         const Obj::Offset EXPECTED = 0;
 #else
-        STRING_TYPE dirName("/tmp/" + buildTempName(test, "getFileSizeDir"));
+        STRING_TYPE dirName(buildTempName(test, "getFileSizeDir"));
 #endif
 
         bsl::string tmpDirName(dirName.data(), dirName.length());
@@ -3733,8 +3808,15 @@ void testCase10_getFileSize(const char         *typeName,
 
         ASSERT(0 == Obj::setWorkingDirectory(".."));
 
+        // `tmpWorkingDir` is absolute; to test a relative path, use its leaf,
+        // relative to its parent, which is now the working directory.
+
+        bsl::string tmpWorkingDirLeaf;
+        ASSERT(0 == bdls::PathUtil::getLeaf(&tmpWorkingDirLeaf,
+                                            tmpWorkingDir));
+
         bsl::string relFileNameStr =
-            tmpWorkingDir + PS + bsl::string(fileName);
+            tmpWorkingDirLeaf + PS + bsl::string(fileName);
         STRING_TYPE relFileName = relFileNameStr;
 
         if (veryVerbose) P(relFileName);
@@ -3977,7 +4059,13 @@ void testCase9_createSystemTemporaryDirectory(
 
     if (veryVerbose) P(tempDirectoryName);
 
-    const bsl::string& leafName = tmpWorkingDir + "." + fileTypeName + ".txt";
+    // `tmpWorkingDir` is a subdirectory of the system temporary directory, so
+    // create the file in it, by way of `tempDirectoryName`.
+
+    bsl::string leafName;
+    ASSERT(0 == bdls::PathUtil::getLeaf(&leafName, tmpWorkingDir));
+    bdls::PathUtil::appendRaw(&leafName, (fileTypeName + ".txt").c_str());
+
     STRING_TYPE absoluteFileName = tempDirectoryName;
     bdls::PathUtil::appendRaw(&absoluteFileName, leafName.c_str());
     if (veryVerbose) P(absoluteFileName);
@@ -4659,48 +4747,29 @@ int main(int argc, char *argv[])
     ASSERTV(origWorkingDirectory, argv[0], taskAbsolutePath,
                                                 Obj::exists(taskAbsolutePath));
 
+    // All temporary files go in `tmpWorkingDir`, a directory unique to this
+    // test case and process, created under `$TMPDIR`.  The working directory
+    // is changed to it, so relative paths refer to files in it.
+    // `tempDirGuard` removes it when `main` returns, including early returns
+    // from child processes.  On nfs, `gremlin` files beginning with `.nfs...`
+    // sometimes appear in the directory, and won't allow themselves to be
+    // removed until some time after creation; see the cleanup at the end of
+    // `main`.
+
     bsl::string tmpWorkingDir;
     {
-        // Must not call `tempFileName` here, because `tempFileName` would
-        // create a plain file with the result name, and the attempt to create
-        // the directory would fail.
-
-        // On nfs, `gremlin` files beginning with `.nfs...` sometimes appear
-        // in the created directory, and they won't allow themselves to be
-        // removed until some period of time after creation.  So it is possible
-        // that there will be leftover directories here with the same hostname
-        // and pid.  For that reason, we include the time of creation in the
-        // paths, including the nanosecond.
-        tmpWorkingDir = buildTempName(test,
-                                      "testglobal");
+        const int rc = Obj::createTemporaryDirectory(&tmpWorkingDir,
+                                                     tempDirPrefix(test));
+        ASSERTV(rc, 0 == rc);
+        BSLS_ASSERT_OPT(0 == rc);
     }
+    const TempDirGuard tempDirGuard(tmpWorkingDir, origWorkingDirectory);
+    s_tempDirName = tmpWorkingDir.c_str();
 
     if (veryVerbose) cout << "Working in "
                           << tmpWorkingDir
                           << endl;
 
-    if (Obj::exists(tmpWorkingDir)) {
-        // Sometimes the cleanup at the end of this program is unable to clean
-        // up files, so we might encounter leftovers from a previous run, but
-        // these can usually be deleted if sufficient time has elapsed.  If
-        // we're not able to clean it up now, old files may prevent the test
-        // case we're running this time from working.  So we want this assert
-        // to fail to give the tester a `heads-up` as to what went wrong.  The
-        // odds of this occurring should be fairly low now that `tmpWorkingDir`
-        // includes a nanosecond component.
-
-        if (verbose) cout << "Cleaning up previous "
-                          << tmpWorkingDir
-                          << endl;
-
-        {
-            u_clearErrno();
-            const int      removeRc    = Obj::remove(tmpWorkingDir, true);
-            const unsigned removeErrno = u_errno();
-            ASSERTV(tmpWorkingDir, removeRc, removeErrno, 0 == removeRc);
-        }
-    }
-    ASSERT(0 == Obj::createDirectories(  tmpWorkingDir, true));
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
@@ -5734,9 +5803,9 @@ int main(int argc, char *argv[])
             // context that will disappear when the process finishes.  If we
             // are in a temp directory, this would preclude our removing the
             // temp directory at the end.  For this reason, do this test in the
-            // original working directory, and use filenames that consist of
-            // the temp dir name + a suffix to ensure uniqueness, and assert
-            // that we successfully clean up our test files.
+            // original working directory, but create the files, by absolute
+            // path, in the temporary directory, and assert that we
+            // successfully clean up our test files.
 
             ASSERT(0 == Obj::setWorkingDirectory(origWorkingDirectory));
         }
@@ -5764,8 +5833,9 @@ int main(int argc, char *argv[])
             int mapMode = bdls::MemoryUtil::k_ACCESS_READ_WRITE;
 
             bsl::string fileName(tmpWorkingDir);
-            fileName += checking ? ".checked" : ".unchecked";
-            fileName += ".bin";
+            bdls::PathUtil::appendRaw(&fileName,
+                                      checking ? "map.checked.bin"
+                                               : "map.unchecked.bin");
 
             if (verbose) {
                 cout << "----------------------------------------------------"
@@ -11003,7 +11073,8 @@ int main(int argc, char *argv[])
         // Concern: Whether `getFileSize` can detect a large file (> 4GB) since
         //          the file size becomes a 64-bit number.
         //
-        // Plan: Create a large file in "/tmp" and check the file size.
+        // Plan: Create a large file in the temporary directory (under
+        //       `$TMPDIR`) and check the file size.
         //       Remove it afterwards.
         //
         // --------------------------------------------------------------------
@@ -11022,7 +11093,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\n3. Large File" << endl;
 
-        const string fileName = "/tmp/" + buildTempName(test, "fiveGBFile");
+        const string fileName = buildTempName(test, "fiveGBFile");
         const string cmd      = "dd if=/dev/zero of=" + fileName +
                                 " bs=1024000 count=5000";
 

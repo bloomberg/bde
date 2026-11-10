@@ -4,6 +4,8 @@
 #include <balst_objectfileformat.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bslim_testutil.h>
 
@@ -18,6 +20,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
 
 // The following is added so that this component does not need a dependency
@@ -119,6 +122,27 @@ int getProcessId()
     return static_cast<int>(getpid());
 }
 
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-balst_resolver_filehelper-<test>-<pid>-`,
+/// where `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown`
+/// if it is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown")
+        << "-balst_resolver_filehelper-" << test << '-' << getProcessId()
+        << '-';
+    return oss.str();
+}
+
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -127,24 +151,6 @@ int getProcessId()
 //-----------------------------------------------------------------------------
 
 enum { e_FILE, e_MAPPED_FILE };
-
-class FileGuard {
-    const char *d_fileName;
-
-  public:
-    /// keep a pointer to the specified string `fileName` so we can delete
-    /// the file upon destruction
-    explicit
-    FileGuard(const char *fileName) : d_fileName(fileName)
-    {
-    }
-
-    /// delete the file named `d_fileName`
-    ~FileGuard()
-    {
-        bdls::FilesystemUtil::remove(d_fileName);
-    }
-};
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -165,17 +171,6 @@ int main(int argc, char *argv[])
 
     // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
-
-    // Note that we only have to create a tmp file on Unix platforms -- this
-    // component is not used and thus is not tested on Windows.
-
-#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
-    const char *tmpDirName       = "/tmp";
-    const char *fileNameTemplate = "/tmp/balst_Resolver_FileHelper.%d.%d.txt";
-
-    ASSERT(FilesystemUtil::exists(tmpDirName) &&
-                                      FilesystemUtil::isDirectory(tmpDirName));
-#endif
 
     bslma::TestAllocator ta;
     bslma::DefaultAllocatorGuard guard(&ta);
@@ -211,10 +206,17 @@ int main(int argc, char *argv[])
 // ```
     bslma::TestAllocator ta;
 
-    char fileNameBuffer[100];
-    sprintf(fileNameBuffer,
-            "/tmp/balst_Resolver_FileHelper.usage.%d.txt",
-            u::getProcessId());
+    const char *tmpDir = bsl::getenv("TMPDIR");
+    if (!tmpDir || !*tmpDir) {
+        tmpDir = "/tmp";
+    }
+
+    char fileNameBuffer[256];
+    snprintf(fileNameBuffer,
+             sizeof fileNameBuffer,
+             "%s/balst_Resolver_FileHelper.usage.%d.txt",
+             tmpDir,
+             u::getProcessId());
 // ```
 // Make sure file does not already exist.
 // ```
@@ -327,12 +329,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "loadString Test\n"
                           << "===============\n";
 
-        char fileNameBuffer[256];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, test,
-                                                            u::getProcessId());
+        bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
+        bsl::string              fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "balst_Resolver_FileHelper.txt");
+        const char *fileNameBuffer = fileName.c_str();
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
-
-        u::FileGuard fg(fileNameBuffer);
 
         // Then, make sure file does not already exist.
 
@@ -492,12 +493,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "readBytes Test\n"
                           << "==============\n";
 
-        char fileNameBuffer[256];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, test,
-                                                            u::getProcessId());
+        bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
+        bsl::string              fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "balst_Resolver_FileHelper.txt");
+        const char *fileNameBuffer = fileName.c_str();
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
-
-        u::FileGuard fg(fileNameBuffer);
 
         // Then, make sure file does not already exist.
 
@@ -645,12 +645,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "CLASS METHOD `readExact`\n"
                           << "========================\n";
 
-        char fileNameBuffer[256];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, test,
-                                                            u::getProcessId());
+        bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
+        bsl::string              fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "balst_Resolver_FileHelper.txt");
+        const char *fileNameBuffer = fileName.c_str();
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
-
-        u::FileGuard fg(fileNameBuffer);
 
         // Then, make sure file does not already exist.
 
@@ -780,12 +779,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "CTOR & DTOR\n"
                           << "===========\n";
 
-        char  fileNameBuffer[256];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, test,
-                                                            u::getProcessId());
+        bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
+        bsl::string              fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "balst_Resolver_FileHelper.txt");
+        const char *fileNameBuffer = fileName.c_str();
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
-
-        u::FileGuard fg(fileNameBuffer);
 
         // Then, make sure file does not already exist.
 
@@ -828,7 +826,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == rc);
                 ASSERT_PASS(rc = mX.openFile(fileNameBuffer));
                 ASSERT(0 == rc);
-                bsl::span<char> sp(fileNameBuffer, size_t(0));
+                bsl::span<char> sp(&fileName[0], size_t(0));
                 ASSERT_PASS(rc = mX.openMappedFile(sp));
                 ASSERT(0 != rc);
             }
@@ -852,12 +850,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Breathing Test\n"
                           << "==============\n";
 
-        char fileNameBuffer[256];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, test,
-                                                            u::getProcessId());
+        bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
+        bsl::string              fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "balst_Resolver_FileHelper.txt");
+        const char *fileNameBuffer = fileName.c_str();
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
-
-        u::FileGuard fg(fileNameBuffer);
 
         // Then, make sure file does not already exist.
 

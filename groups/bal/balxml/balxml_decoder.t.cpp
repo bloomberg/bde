@@ -84,7 +84,9 @@
 
 #include <bdls_filesystemutil.h>
 #include <bdls_osutil.h>
+#include <bdls_pathutil.h>
 #include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
@@ -111,6 +113,7 @@
 #include <bsls_review.h>
 
 #include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
 #include <bsl_fstream.h>
 #include <bsl_iomanip.h>
 #include <bsl_iosfwd.h>
@@ -231,6 +234,26 @@ void aSsErT(bool condition, const char *message, int line)
             ++testStatus;
         }
     }
+}
+
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-balxml_decoder-<test>-<pid>-`, where `<user>`
+/// is the value of `USER` (`USERNAME` on Windows), or `unknown` if it is
+/// unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-balxml_decoder-" << test
+        << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
 }
 
 }  // close unnamed namespace
@@ -2864,7 +2887,7 @@ class TestCase20RowProtocolImp : public TestCase20RowProtocol {
               bslma::Allocator *basicAllocator = 0) const BSLS_KEYWORD_OVERRIDE
     {
         bslma::Allocator *const allocator = bslma::Default::allocator(
-                                                                basicAllocator);
+                                                               basicAllocator);
         return bslma::ManagedPtr<TestCase20RowProtocol>(
 
             new (*allocator)
@@ -3436,27 +3459,10 @@ void validAndInvalidUtf8Test(Mode mode, bool exhaustive = false)
     };
     enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    enum { k_BUF_LEN = 1024 };
-    char fileName[k_BUF_LEN];
-    {
-        bsl::string osName, osVersion, osPatch;
-        const char *hostName = bsl::getenv("HOSTNAME");
-        if (!hostName) {
-            ASSERT(0 == bdls::OsUtil::getOsInfo(&osName,
-                                                &osVersion,
-                                                &osPatch));
-            osName += '.' + osVersion + '.' + osPatch;
-            hostName = osName.c_str();
-        }
-
-        bdlsb::FixedMemOutStreamBuf fileSb(fileName, sizeof(fileName));
-        bsl::ostream                fileStream(&fileSb);
-        fileStream << "tmp.balxml_decoder." << test << '.' << hostName <<
-                      '.' << bdls::ProcessUtil::getProcessId() <<
-                                                       ".xml" << bsl::ends;
-
-        BSLS_ASSERT(bsl::strlen(fileName) < sizeof(fileName));
-    }
+    bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
+    bsl::string              fileNameStr(tempDirGuard.getTempDirName());
+    bdls::PathUtil::appendRaw(&fileNameStr, "balxml_decoder.xml");
+    const char *fileName = fileNameStr.c_str();
 
     // Try to set `mod` so that the tests are done in less that about 7
     // seconds.  Higher values of `mod` result in less of the randomized
@@ -3702,8 +3708,6 @@ void validAndInvalidUtf8Test(Mode mode, bool exhaustive = false)
             }
         }
     }
-
-    bdls::FilesystemUtil::remove(fileName);
 }
 
 }  // close namespace Utf8Test
@@ -15848,11 +15852,11 @@ int main(int argc, char *argv[])
             const int MAX_DEPTH = 5;
 
             for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
-                const Data&             data              = DATA[ti % NUM_DATA];
-                const int               LINE              = data.d_lineNum;
-                const bsl::string_view  INPUT             = data.d_input;
-                const int               EXPECTED_RET_CODE = data.d_retCode;
-                const bool              CHECK_UTF8        = NUM_DATA <= ti;
+                const Data&            data              = DATA[ti % NUM_DATA];
+                const int              LINE              = data.d_lineNum;
+                const bsl::string_view INPUT             = data.d_input;
+                const int              EXPECTED_RET_CODE = data.d_retCode;
+                const bool             CHECK_UTF8        = NUM_DATA <= ti;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -15983,12 +15987,12 @@ int main(int argc, char *argv[])
             const int MAX_DEPTH = 5;
 
             for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
-                const Data&             data              = DATA[ti % NUM_DATA];
-                const int               LINE              = data.d_lineNum;
-                const bsl::string_view  INPUT             = data.d_input;
-                const int               EXPECTED_RET_CODE = data.d_retCode;
-                const TS                EXPECTED_RESULT   = data.d_result;
-                const bool              CHECK_UTF8        = NUM_DATA <= ti;
+                const Data&            data              = DATA[ti % NUM_DATA];
+                const int              LINE              = data.d_lineNum;
+                const bsl::string_view INPUT             = data.d_input;
+                const int              EXPECTED_RET_CODE = data.d_retCode;
+                const TS               EXPECTED_RESULT   = data.d_result;
+                const bool             CHECK_UTF8        = NUM_DATA <= ti;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -16207,12 +16211,12 @@ int main(int argc, char *argv[])
             const int MAX_DEPTH = 5;
 
             for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
-                const Data&             data              = DATA[ti % NUM_DATA];
-                const int               LINE              = data.d_lineNum;
-                const bsl::string_view  INPUT             = data.d_input;
-                const int               EXPECTED_RET_CODE = data.d_retCode;
-                const TS                EXPECTED_RESULT   = data.d_result;
-                const bool              CHECK_UTF8        = NUM_DATA <= ti;
+                const Data&            data              = DATA[ti % NUM_DATA];
+                const int              LINE              = data.d_lineNum;
+                const bsl::string_view INPUT             = data.d_input;
+                const int              EXPECTED_RET_CODE = data.d_retCode;
+                const TS               EXPECTED_RESULT   = data.d_result;
+                const bool             CHECK_UTF8        = NUM_DATA <= ti;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -16405,9 +16409,9 @@ int main(int argc, char *argv[])
             };
 
             for (int ti = 0; ti < 2 * Type::NUM_ATTRIBUTES; ++ti) {
-                const int               i          = ti % Type::NUM_ATTRIBUTES;
-                const bsl::string_view  INPUT      = INPUTS[i];
-                const bool              CHECK_UTF8 = Type::NUM_ATTRIBUTES <= ti;
+                const int              i          = ti % Type::NUM_ATTRIBUTES;
+                const bsl::string_view INPUT      = INPUTS[i];
+                const bool             CHECK_UTF8 = Type::NUM_ATTRIBUTES <= ti;
 
                 Type mX; const Type& X = mX;
                 for (int j = 0; j < Type::NUM_ATTRIBUTES; ++j) {
@@ -17400,12 +17404,14 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
-            const Data&            data                   = DATA[ti % NUM_DATA];
+            const Data&            data                   =
+                                                           DATA[ti % NUM_DATA];
             const int              LINE                   = data.d_lineNum;
             const bsl::string_view INPUT                  = data.d_input;
             const int              MAX_DEPTH              = data.d_maxDepth;
             const bool             EXPECTED_SUCCESS       = data.d_success;
-            const char            *EXPECTED_CALL_SEQUENCE = data.d_callSequence;
+            const char            *EXPECTED_CALL_SEQUENCE =
+                                                           data.d_callSequence;
             const bool             CHECK_UTF8             = NUM_DATA <= ti;
 
             if (veryVerbose) {

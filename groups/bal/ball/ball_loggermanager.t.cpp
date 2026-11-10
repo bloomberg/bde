@@ -17,6 +17,7 @@
 #include <bdlf_placeholder.h>
 
 #include <bdls_pathutil.h>
+#include <bdls_processutil.h>
 #include <bdls_tempdirectoryguard.h>
 
 #include <bdlt_currenttime.h>
@@ -1679,6 +1680,25 @@ class TestObserverVisitor {
 // ----------------------------------------------------------------------------
 
 namespace {
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-ball_loggermanager-<test>-<pid>-`, where
+/// `<user>` is the value of `USER`, or of `LOGNAME` if `USER` is unset or
+/// empty, or `unknown` if neither is set.  Note that only a Unix-only test
+/// uses a temporary directory.
+bsl::string tempDirPrefix(int test)
+{
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-ball_loggermanager-"
+        << test << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
+#endif
 
 void toLower(bsl::string *buffer, const char *s)
 {
@@ -3453,7 +3473,7 @@ int main(int argc, char *argv[])
                                                "No Logger\0 Manager\0 6!", 22);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-        bdls::TempDirectoryGuard tempDirGuard("ball_loggermanager_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
         bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test2_stderr");
 

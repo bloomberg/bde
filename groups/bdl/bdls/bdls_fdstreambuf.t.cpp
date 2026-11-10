@@ -5,7 +5,9 @@
 
 #include <bdls_filesystemutil.h>
 #include <bdls_memoryutil.h>
+#include <bdls_pathutil.h>
 #include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -116,6 +118,8 @@ enum { e_WINDOWS = 1 };
 #else
 enum { e_WINDOWS = 0 };
 #endif
+
+enum { k_FN_BUF_SIZE = 1024 };   // size of buffers holding file names
 
 int accum = 0x73a8f325;
 const int mask17 = 1 << 17;
@@ -321,6 +325,26 @@ int intStrLen(const char *str)
     return static_cast<int>(bsl::strlen(str));
 }
 
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-bdls_fdstreambuf-<test>-<pid>-`, where
+/// `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown` if it
+/// is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-bdls_fdstreambuf-" << test
+        << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -351,32 +375,24 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&ta);
 
 
-    bsl::string origWorkingDirectory;
-    ASSERT(0 == FileUtil::getWorkingDirectory(&origWorkingDirectory));
-
-    bsl::string tmpWorkingDir;
-    {
-        bsl::string systemTmpDir;
-        int systemTmpDirOK = 0 == FileUtil::getSystemTemporaryDirectory(
-                                                                &systemTmpDir);
-        ASSERT(systemTmpDirOK);
-        if (systemTmpDirOK) {
-            systemTmpDirOK = FileUtil::exists(systemTmpDir);
-            ASSERT(systemTmpDirOK);
-        }
-        if (!systemTmpDirOK) {
-            systemTmpDir.clear();
-        }
-        ASSERT(0 == FileUtil::createTemporarySubdirectory(
-                     &tmpWorkingDir,
-                     systemTmpDir,
-                     "tmp.bdls_fdstreambuf_TC_" + bsl::to_string(test) + "_"));
-    }
+    bdls::TempDirectoryGuard tempDirGuard(u::tempDirPrefix(test));
+    const bsl::string&       tmpWorkingDir = tempDirGuard.getTempDirName();
     if (veryVerbose) P(tmpWorkingDir);
     ASSERT(FileUtil::exists(tmpWorkingDir));
-    ASSERT(0 == FileUtil::setWorkingDirectory(tmpWorkingDir));
 
-    const char *fileNameTemplate = "tmp.bdls_FdStreamBuf.%s.%d.txt";
+    // All temporary files are created in `tmpWorkingDir`.  `%` characters in
+    // its name are escaped, as the name becomes part of a format string.
+
+    bsl::string fileNameTemplateStr;
+    for (bsl::size_t ii = 0; ii < tmpWorkingDir.length(); ++ii) {
+        if ('%' == tmpWorkingDir[ii]) {
+            fileNameTemplateStr += '%';
+        }
+        fileNameTemplateStr += tmpWorkingDir[ii];
+    }
+    bdls::PathUtil::appendRaw(&fileNameTemplateStr,
+                              "tmp.bdls_FdStreamBuf.%s.%d.txt");
+    const char *fileNameTemplate = fileNameTemplateStr.c_str();
 
     switch (test) { case 0:
       case 19: {
@@ -415,7 +431,7 @@ int main(int argc, char *argv[])
 
         // We start by selecting a file name for our (temporary) file.
 
-        char fileNameBuffer[100];
+        char fileNameBuffer[u::k_FN_BUF_SIZE];
         bsl::snprintf(fileNameBuffer,
                       sizeof fileNameBuffer,
                       fileNameTemplate,
@@ -569,7 +585,7 @@ int main(int argc, char *argv[])
         // First we create a suitable file name, and make sure that no file of
         // that name already exists:
 
-        char fileNameBuffer[100];
+        char fileNameBuffer[u::k_FN_BUF_SIZE];
         bsl::snprintf(fileNameBuffer,
                       sizeof fileNameBuffer,
                       fileNameTemplate,
@@ -717,7 +733,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "Trying: " << c << endl;
 
             bsl::string fileName;
-            FdType fd = FileUtil::createTemporaryFile(&fileName, "tmp.TC_17.");
+            bsl::string prefix(tmpWorkingDir);
+            bdls::PathUtil::appendRaw(&prefix, "tmp.TC_17.");
+            FdType fd = FileUtil::createTemporaryFile(&fileName, prefix);
             if (verbose) P(fileName);
             ASSERT(u::invalid != fd);
 
@@ -840,7 +858,7 @@ int main(int argc, char *argv[])
 
             // We start by selecting a file name for our (temporary) file.
 
-            char fileNameBuffer[100];
+            char fileNameBuffer[u::k_FN_BUF_SIZE];
             bsl::snprintf(fileNameBuffer,
                           sizeof fileNameBuffer,
                           fileNameTemplate,
@@ -1068,7 +1086,7 @@ int main(int argc, char *argv[])
 
         // We start by selecting a file name for our (temporary) file.
 
-        char fileNameBuffer[100];
+        char fileNameBuffer[u::k_FN_BUF_SIZE];
         bsl::snprintf(fileNameBuffer,
                       sizeof fileNameBuffer,
                       fileNameTemplate,
@@ -1220,7 +1238,7 @@ int main(int argc, char *argv[])
 
         // We start by selecting a file name for our (temporary) file.
 
-        char fileNameBuffer[100];
+        char fileNameBuffer[u::k_FN_BUF_SIZE];
         bsl::snprintf(fileNameBuffer,
                       sizeof fileNameBuffer,
                       fileNameTemplate,
@@ -1436,7 +1454,7 @@ int main(int argc, char *argv[])
 
         // We start by selecting a file name for our (temporary) file.
 
-        char fileNameBuffer[100];
+        char fileNameBuffer[u::k_FN_BUF_SIZE];
         bsl::snprintf(fileNameBuffer,
                       sizeof fileNameBuffer,
                       fileNameTemplate,
@@ -1561,7 +1579,7 @@ int main(int argc, char *argv[])
                   "TESTING TRANSLATION OF \n'S TO \r\n'S WITH 1 BYTE BUFFER\n"
                   "========================================================\n";
 
-        char fnBuf[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate, "12",
@@ -1735,7 +1753,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING TRANSLATION OF \n'S TO \r\n'S\n"
                              "=====================================\n";
 
-        char fnBuf[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -1915,7 +1933,7 @@ int main(int argc, char *argv[])
         ASSERT(mirror);
         bsl::memset(mirror, 0, mFileSize);
 
-        char fnBuf[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -2053,7 +2071,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING UNGETC, PUTBACKC ON INPUT\n"
                              "=================================\n";
 
-        char fnBuf[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -2133,8 +2151,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "RESET, RELEASE, CLEAR ON FDSTREAMBUF TEST\n"
                              "=========================================\n";
 
-        char fnBuf[100];
-        char fnBuf2[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
+        char fnBuf2[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -2295,7 +2313,7 @@ int main(int argc, char *argv[])
 
         FdType fd3;
         {
-            char filename[100];
+            char filename[u::k_FN_BUF_SIZE];
             bsl::snprintf(filename,
                           sizeof filename,
                           fileNameTemplate,
@@ -2341,8 +2359,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "RESET, RELEASE, CLEAR ON FILEHANDLER TEST\n"
                              "=========================================\n";
 
-        char fnBuf[100];
-        char fnBuf2[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
+        char fnBuf2[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -2554,7 +2572,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "ISTREAM AND OSTREAM TEST\n"
                              "========================\n";
 
-        char fnBuf[100], fnBuf2[100];
+        char fnBuf[u::k_FN_BUF_SIZE], fnBuf2[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -2678,7 +2696,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "bdls::FdStreamBuf C'TOR TEST\n"
                              "============================\n";
 
-        char fnBuf[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -2839,7 +2857,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "bdls::FdStreamBuf PUBSETBUF TEST\n"
                              "================================\n";
 
-        char fnBuf[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -2973,7 +2991,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "bdls::FdStreamBuf READ-WRITE TEST\n"
                              "=================================\n";
 
-        char fnBuf[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -3094,7 +3112,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "bdls::FdStreamBuf BREATHING TEST\n"
                              "================================\n";
 
-        char fnBuf[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -3297,7 +3315,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "bdls::FdStreamBuf_FileHandler BREATHING TEST\n"
                              "============================================\n";
 
-        char fnBuf[100];
+        char fnBuf[u::k_FN_BUF_SIZE];
         bsl::snprintf(fnBuf,
                       sizeof fnBuf,
                       fileNameTemplate,
@@ -3878,7 +3896,6 @@ int main(int argc, char *argv[])
       }
     }
 
-    ASSERT(0 == FileUtil::setWorkingDirectory(origWorkingDirectory));
     ASSERTV(tmpWorkingDir, FileUtil::isDirectory(tmpWorkingDir));
 
     // Sometimes this delete won't work because of `.nfs*` gremlin files that

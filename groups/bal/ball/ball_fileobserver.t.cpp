@@ -245,6 +245,26 @@ BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
 
 namespace {
 
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-ball_fileobserver-<test>-<pid>-`, where
+/// `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown` if it
+/// is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-ball_fileobserver-"
+        << test << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
+
 /// Replace the second space character (' ') in the specified `string` with
 /// the specified `value`.  Return the index position of the character that
 /// was replaced on success, and `bsl::string::npos` otherwise.
@@ -659,7 +679,7 @@ int main(int argc, char *argv[])
 
         // This is standard preamble to create the directory and filename for
         // the test.
-        bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
         bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test7.log");
 
@@ -1230,7 +1250,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
         bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test5");
 
@@ -1457,7 +1477,7 @@ int main(int argc, char *argv[])
 
         {
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test4_1");
 
@@ -1472,7 +1492,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tTesting rotation on time interval" << endl;
         {
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test4_2");
 
@@ -1496,7 +1516,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tTesting rotation on time interval" << endl;
         {
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test4_3");
 
@@ -1519,7 +1539,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tTesting rotation with start time" << endl;
         {
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test4_4");
 
@@ -1560,7 +1580,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tTesting forced rotation" << endl;
         {
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test4_5");
 
@@ -1583,7 +1603,7 @@ int main(int argc, char *argv[])
                                  "uniqueness" << endl;
         {
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test4_6");
 
@@ -1611,7 +1631,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tTesting `disableLifetimeRotation`" << endl;
         {
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test4_7");
 
@@ -1632,7 +1652,7 @@ int main(int argc, char *argv[])
             cout << "\tTesting `disableTimeIntervalRotation`" << endl;
         {
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test4_8");
 
@@ -1699,7 +1719,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         // Temporary directory for test files.
-        bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
 
         {
             bsl::string fileName(tempDirGuard.getTempDirName());
@@ -1827,7 +1847,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test2");
 
@@ -2033,7 +2053,7 @@ int main(int argc, char *argv[])
             // Test with no timestamp.
 
             // Temporary directory for test files.
-            bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "test1_1");
 
@@ -2230,7 +2250,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator oa(veryVeryVeryVerbose);
 
         // Temporary directory for test files.
-        bdls::TempDirectoryGuard tempDirGuard("ball_fileobserver_");
+        bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
         bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test1_2");
         {

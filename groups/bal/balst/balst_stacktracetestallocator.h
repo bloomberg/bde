@@ -325,11 +325,12 @@ BSLS_IDENT("$Id: $")
 //      return d_sailors.end() == it ? 0 : *it;
 //  }
 // ```
-// Next, in `main`, we create our file `./shipscrew.txt` describing the crew of
-// the ship.  Note that the order of crew members is not important:
+// Next, in `main`, we create our file, whose name is `crewFileName`,
+// describing the crew of the ship.  Note that the order of crew members is not
+// important:
 // ```
 //     {
-//         bsl::ofstream outFile("shipscrew.txt");
+//         bsl::ofstream outFile(crewFileName);
 //
 //         outFile << "sailor:Mitch Sandler\n"
 //                 << "sailor:Ben Lampert\n"
@@ -349,7 +350,7 @@ BSLS_IDENT("$Id: $")
 //         bslma::TestAllocatorMonitor tam(&ta);
 //
 //         {
-//             ShipsCrew crew("shipscrew.txt", &ta);
+//             ShipsCrew crew(crewFileName, &ta);
 //             assert(tam.isInUseUp());
 //             assert(tam.isTotalUp());
 //
@@ -406,7 +407,7 @@ BSLS_IDENT("$Id: $")
 //         bslma::TestAllocatorMonitor tam(&ta);
 //
 //         {
-//             ShipsCrew crew("shipscrew.txt", &ta);
+//             ShipsCrew crew(crewFileName, &ta);
 //             assert(tam.isInUseUp());
 //             assert(tam.isTotalUp());
 //

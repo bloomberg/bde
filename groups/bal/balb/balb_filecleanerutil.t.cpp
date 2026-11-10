@@ -3,6 +3,7 @@
 
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
+#include <bdls_processutil.h>
 #include <bdls_tempdirectoryguard.h>
 
 #include <bdlt_datetime.h>
@@ -28,6 +29,7 @@
 #include <bsl_ctime.h>
 #include <bsl_iostream.h>
 #include <bsl_fstream.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -123,6 +125,26 @@ typedef balb::FileCleanerConfiguration ObjConfig;
 // ----------------------------------------------------------------------------
 
 namespace {
+
+/// Return the prefix for the temporary directory of the specified `test` case
+/// of this test driver: `<user>-balb_filecleanerutil-<test>-<pid>-`, where
+/// `<user>` is the value of `USER` (`USERNAME` on Windows), or `unknown` if it
+/// is unset.
+bsl::string tempDirPrefix(int test)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char *user = bsl::getenv("USERNAME");
+#else
+    const char *user = bsl::getenv("USER");
+    if (!user || !*user) {
+        user = bsl::getenv("LOGNAME");
+    }
+#endif
+    bsl::ostringstream oss;
+    oss << (user && *user ? user : "unknown") << "-balb_filecleanerutil-"
+        << test << '-' << bdls::ProcessUtil::getProcessId() << '-';
+    return oss.str();
+}
 
 /// Change the modification time of the file with the specified `fileName`
 /// by the specified `delta` seconds.  Return `0` if the file exists and
@@ -304,7 +326,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTesting removal on time only." << endl;
         {
-            bdls::TempDirectoryGuard tempDirGuard("balb_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              baseName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&baseName, "logFile");
 
@@ -350,7 +372,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTesting removal on time and number." << endl;
         {
-            bdls::TempDirectoryGuard tempDirGuard("balb_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              baseName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&baseName, "logFile");
 
@@ -416,7 +438,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTesting removal on time, min & max." << endl;
         {
-            bdls::TempDirectoryGuard tempDirGuard("balb_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              baseName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&baseName, "logFile");
 
@@ -505,7 +527,7 @@ int main(int argc, char *argv[])
             cout << "\tTesting removal of files with mod time in future."
                  << endl;
         {
-            bdls::TempDirectoryGuard tempDirGuard("balb_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              baseName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&baseName, "logFile");
 
@@ -558,7 +580,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdls::TempDirectoryGuard tempDirGuard("balb_");
+            bdls::TempDirectoryGuard tempDirGuard(tempDirPrefix(test));
             bsl::string              baseName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&baseName, "logFile");
 

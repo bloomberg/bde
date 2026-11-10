@@ -4,5 +4,3 @@
 # `bde_branch_check --full-repo-check --generate-exemptions`.
 
 groups/bal/ball/ball_categorymanager_radixtree_cpp03.h: 4
-groups/bal/ball/ball_log.h: 1
-groups/bal/ball/ball_log.t.cpp: 1
