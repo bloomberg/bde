@@ -188,23 +188,33 @@ class WaitTurnAndSleepCallbackJob {
     }
 };
 
+/// Call `waitTurn` on a turnstile and increment a counter until both the
+/// stop time has been reached and the counter has reached a minimum value.
 class WaitTurnCallbackJob {
 
     bslmt::Turnstile   *d_turnstile;
     bsls::AtomicInt    *d_counter;
     bslmt::Barrier     *d_barrier;
     bsls::TimeInterval  d_stopTime;
+    int                 d_minCount;
 
   public:
 
+    /// Create a job that, after waiting on the specified `barrier`,
+    /// repeatedly calls `waitTurn` on the specified `turnstile` and
+    /// increments the specified `counter` until the current time (using the
+    /// realtime clock) is at or after the specified `stopTime` and `counter`
+    /// is at least the specified `minCount`.
     WaitTurnCallbackJob(bslmt::Turnstile          *turnstile,
                         bsls::AtomicInt           *counter,
                         bslmt::Barrier            *barrier,
-                        const bsls::TimeInterval&  stopTime)
+                        const bsls::TimeInterval&  stopTime,
+                        int                        minCount)
     : d_turnstile(turnstile)
     , d_counter(counter)
     , d_barrier(barrier)
     , d_stopTime(stopTime)
+    , d_minCount(minCount)
     {}
 
     void operator()() {
@@ -219,7 +229,8 @@ class WaitTurnCallbackJob {
                 COUT << "wt = " << wt << ", counter = " << value
                      << ENDL;
             }
-        } while (bsls::SystemTime::nowRealtimeClock() < d_stopTime);
+        } while (bsls::SystemTime::nowRealtimeClock() < d_stopTime
+              || *d_counter < d_minCount);
     }
 };
 
@@ -481,11 +492,14 @@ int main(int argc, char *argv[])
         //   - That calling `waitTurn` from multiple threads is thread-safe.
         //
         // Plan:
-        //   Create a `bslmt::Turnstile`, `mX`, with a rate of 50.  Create
+        //   Create a `bslmt::Turnstile`, `mX`, with a rate of 8.  Create
         //   multiple threads bound to a callback that calls `waitTurn`, and
-        //   then increments an atomic counter.  Start the threads.  Join the
-        //   threads, and verify that the value of the counter is at least the
-        //   expected number of turns.
+        //   then increments an atomic counter, until a stop time has passed
+        //   and the counter has reached the expected number of turns (so a
+        //   heavily loaded host does not cause a spurious failure).  Start the
+        //   threads.  Join the threads, and verify that the value of the
+        //   counter is at least the expected number of turns, and does not
+        //   exceed the number of turns the rate allows in the elapsed time.
         //
         // Testing:
         //   Concern: Multi-Threaded Test
@@ -504,6 +518,8 @@ int main(int argc, char *argv[])
         bsls::TimeInterval stopTime(bsls::SystemTime::nowRealtimeClock());
         stopTime.addMilliseconds(2 * OFFSET.totalMilliseconds());
 
+        const bsls::TimeInterval begin = bsls::SystemTime::nowMonotonicClock();
+
         Obj mX(RATE, OFFSET);
 
         bsl::vector<bslmt::ThreadUtil::Handle> handles;
@@ -516,7 +532,8 @@ int main(int argc, char *argv[])
                          WaitTurnCallbackJob(&mX,
                                              &counter,
                                              &barrier,
-                                             stopTime));
+                                             stopTime,
+                                             NUM_TURNS));
             handles.push_back(handle);
         }
 
@@ -527,7 +544,21 @@ int main(int argc, char *argv[])
             ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
 
+        const bsls::TimeInterval end = bsls::SystemTime::nowMonotonicClock();
+
         LOOP_ASSERT(counter, NUM_TURNS <= counter);
+
+        // The first turn is not available before `begin + OFFSET`, and each
+        // subsequent turn is not available until `1 / RATE` seconds after the
+        // previous one, so the number of turns taken by `end` is bounded
+        // regardless of how heavily loaded the host is.  Allow one extra turn
+        // for `waitTurn` returning slightly early (`minTimeToCallSleep`, and
+        // timer granularity on some platforms).
+
+        const int maxTurns = static_cast<int>(
+                     (end - begin - OFFSET).totalSecondsAsDouble() * RATE) + 2;
+
+        ASSERTV(counter, maxTurns, counter <= maxTurns);
       }  break;
       case 4: {
         // --------------------------------------------------------------------

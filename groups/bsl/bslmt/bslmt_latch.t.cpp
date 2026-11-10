@@ -1118,6 +1118,13 @@ int main(int argc, char *argv[])
         //   countDown(int n); wait(); arriveAndWait();
         // --------------------------------------------------------------------
 
+        {
+            char s[1024];
+
+            snprintf(s, sizeof s, "case %i", test);
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0), s));
+        }
+
         if (verbose)
             cout << endl
                  << "PRODUCERS(C-D), CONSUMERS, AND PRODUCERS-CONSUMERS"
@@ -1165,6 +1172,13 @@ int main(int argc, char *argv[])
         // Testing:
         //   arrive();         wait(); arriveAndWait();
         // --------------------------------------------------------------------
+
+        {
+            char s[1024];
+
+            snprintf(s, sizeof s, "case %i", test);
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0), s));
+        }
 
         if (verbose)
             cout << endl

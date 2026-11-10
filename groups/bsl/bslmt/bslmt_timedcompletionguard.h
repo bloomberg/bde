@@ -44,12 +44,12 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 // ```
-// Next, we create and configure `tcg` to allow both parts of the work one
-// second to complete and verify the guard was started successfully:
+// Next, we create and configure `tcg` to allow both parts of the work ten
+// seconds to complete and verify the guard was started successfully:
 // ```
 //  bslmt::TimedCompletionGuard tcg;
 //
-//  assert(0 == tcg.guard(bsls::TimeInterval(1, 0), "first part"));
+//  assert(0 == tcg.guard(bsls::TimeInterval(10, 0), "first part"));
 // ```
 // Then, we create a thread to execute the first part of the work, and join the
 // created thread when the work completes:

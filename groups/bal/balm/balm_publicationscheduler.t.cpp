@@ -3258,14 +3258,21 @@ int main(int argc, char *argv[])
                 barrier.wait();
             }
 
-            // The dispatcher invokes each clock at most once per iteration,
+            // If `tp2` has been invoked N times, those invocations were
+            // scheduled at R, 2R, ..., NR, meaning that the invocations of
+            // `tp1` scheduled at 1, 2, ..., NR - 1 are due and will be made
+            // (regardless of when the invocations actually happen).  However,
+            // the dispatcher invokes each clock at most once per iteration,
             // so if the dispatcher falls behind (e.g., on a heavily loaded
             // machine) the clocks for "B" and "wait" may be invoked before
-            // the clock for "A" has caught up.  Give "A" time to catch up
-            // before stopping the timer.
+            // the clock for "A" has caught up.  Since "B" continues to be
+            // invoked while we wait, record N now and give "A" time to catch
+            // up to this fixed target before stopping the timer.
+
+            const int numB = tp2.invocations();
+
             for (int numTry = 0;
-                 numTry < 500 &&
-                       tp1.invocations() < ratioBtoA * tp2.invocations() - 1;
+                 numTry < 6000 && tp1.invocations() < ratioBtoA * numB - 1;
                  ++numTry) {
                 bslmt::ThreadUtil::microSleep(10 * 1000);
             }
@@ -3278,12 +3285,8 @@ int main(int argc, char *argv[])
             ASSERTV(tp3.invocations(), WAIT_COUNT <= tp3.invocations());
             ASSERTV(tp4.invocations(), 0 == tp4.invocations());
 
-            // If `tp2` has been invoked N times, those invocations were
-            // scheduled at R, 2R, ..., NR, meaning that `tp1` has been
-            // invoked at least for the scheduled times 1, 2, ..., NR - 1
-            // (regardless of when the invocations actually happened).
-            ASSERTV(tp1.invocations(), tp2.invocations(),
-                    tp1.invocations() >= ratioBtoA * tp2.invocations() - 1);
+            ASSERTV(tp1.invocations(), numB,
+                    tp1.invocations() >= ratioBtoA * numB - 1);
 
             // These should be equal because they should be invoked by the same
             // clock.
