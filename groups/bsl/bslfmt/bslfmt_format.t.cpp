@@ -271,15 +271,19 @@ bool doTestWithOracle(string_view                   result,
 
 template <class... t_ARGS>
 bool doTestWithOracle(wstring_view                   result,
-                      std::wformat_string<t_ARGS...> fmtstr,
+                      bsl::wformat_string<t_ARGS...> fmtstr,
                       t_ARGS&&...                    args)
 {
     typedef wstring RT;
 
     RT res_bde = bsl::format(fmtstr, std::forward<t_ARGS>(args)...);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
     RT res_std = std::format(fmtstr, std::forward<t_ARGS>(args)...);
 
     return (result == res_bde && result == res_std);
+#else
+    return result == res_bde;
+#endif
 }
 #  define DOTESTWITHORACLE(...) doTestWithOracle(__VA_ARGS__);
 #else
@@ -465,6 +469,21 @@ struct formatter<FormattableType, t_CHAR> {
     } while (false)
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT) &&                         \
+   !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
+  // `bsl` does not use the native `<format>` for `wchar_t`, so the native
+  // `<format>` is not an oracle for `wchar_t` results.
+  #undef u_TESTUTIL_ORACLE_WTEST
+  #undef u_TESTUTIL_VORACLE_WTEST
+  #define u_TESTUTIL_ORACLE_WTEST(fmtstr, expected, ...)
+  #define u_TESTUTIL_VORACLE_WTEST(fmtstr, expected, ...)
+  #define u_TESTUTIL_ORACLE_WNUMCALLS 0
+  #define u_TESTUTIL_VORACLE_WNUMCALLS 0
+#else
+  #define u_TESTUTIL_ORACLE_WNUMCALLS u_TESTUTIL_ORACLE_NUMCALLS
+  #define u_TESTUTIL_VORACLE_WNUMCALLS u_TESTUTIL_VORACLE_NUMCALLS
+#endif
+
 // TEST CALLS FOR FORMAT
 
 #define u_VERIFY_FORMAT(fmtstr, expected, ...)                                \
@@ -573,7 +592,7 @@ struct formatter<FormattableType, t_CHAR> {
         u_TESTUTIL_ORACLE_WTEST(fmtstr, expected, __VA_ARGS__);               \
     } while (false)
 
-#define u_VERIFY_WFORMAT_NUMCALLS u_VERIFY_FORMAT_NUMCALLS
+#define u_VERIFY_WFORMAT_NUMCALLS (7 + u_TESTUTIL_ORACLE_WNUMCALLS)
 
 #define u_VERIFY_FORMAT_BOTH(fmtstr, expected, ...)                           \
     do {                                                                      \
@@ -669,7 +688,7 @@ struct formatter<FormattableType, t_CHAR> {
         u_TESTUTIL_VORACLE_WTEST(fmtstr, expected, __VA_ARGS__);              \
     } while (false)
 
-#define u_VERIFY_WVFORMAT_NUMCALLS u_VERIFY_VFORMAT_NUMCALLS
+#define u_VERIFY_WVFORMAT_NUMCALLS (4 + u_TESTUTIL_VORACLE_WNUMCALLS)
 
 #define u_VERIFY_VFORMAT_BOTH(fmtstr, expected, ...)                          \
     do {                                                                      \
@@ -910,6 +929,14 @@ struct formatter<FormattableType, t_CHAR> {
         u_VERIFY_VLFORMAT(fmtstr, expected, __VA_ARGS__);                     \
         u_VERIFY_WVLFORMAT(L##fmtstr, L##expected, __VA_ARGS__);              \
     } while (false)
+
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
+// The `wchar_t` overloads taking a locale are not provided.
+#undef u_VERIFY_WLFORMAT
+#undef u_VERIFY_WVLFORMAT
+#define u_VERIFY_WLFORMAT(fmtstr, expected, ...)
+#define u_VERIFY_WVLFORMAT(fmtstr, expected, ...)
+#endif
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 // ============================================================================
@@ -933,7 +960,14 @@ void verifyArgAndArgs(int LINE, const bsl::format_args& fargs)
 void verifyArgAndArgs(int LINE, const bsl::wformat_args& fargs)
 {
     // Here we get to use the `basic_format_arg` name
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT) &&                         \
+   !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
+    // `bsl::basic_format_arg` is `std::basic_format_arg`, which does not take
+    // the `bslfmt` context that `bsl::wformat_context` names here.
+    bslfmt::basic_format_arg<bsl::wformat_context> fa = fargs.get(0);
+#else
     bsl::basic_format_arg<bsl::wformat_context> fa = fargs.get(0);
+#endif
     ASSERTV(LINE, !!fa);
 
     ASSERTV(LINE, !!fargs.get(0)); // The only usable member is `operator bool`
@@ -3717,9 +3751,15 @@ int main(int argc, char **argv)
         ASSERT((bsl::is_same<
                     bsl::format_args,
                     bsl::basic_format_args<bsl::format_context> >::value));
+        // Where `bslfmt` formats `wchar_t` but the native `<format>` formats
+        // `char`, the `basic_*` templates are the native ones and the `w*`
+        // names are not their `wchar_t` specializations.
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT) ||                        \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
         ASSERT((bsl::is_same<
                     bsl::wformat_args,
                     bsl::basic_format_args<bsl::wformat_context> >::value));
+#endif
 
         // `basic_format_args`
         // `basic_format_arg`
@@ -3738,8 +3778,11 @@ int main(int argc, char **argv)
 
         ASSERT((bsl::is_same<bsl::basic_format_parse_context<char>,
                              bsl::format_parse_context>::value));
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT) ||                        \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
         ASSERT((bsl::is_same<bsl::basic_format_parse_context<wchar_t>,
                              bsl::wformat_parse_context>::value));
+#endif
 
         // `bsl::basic_format_string`
         // `bsl::format_string`
@@ -3752,8 +3795,11 @@ int main(int argc, char **argv)
 
         ASSERT((bsl::is_same<bsl::basic_format_string<char, int, int>,
                              bsl::format_string<int, int> >::value));
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT) ||                        \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
         ASSERT((bsl::is_same<bsl::basic_format_string<wchar_t, int, int>,
                              bsl::wformat_string<int, int> >::value));
+#endif
 #endif  // C++11 or above (essentially)
 
         // `bsl::formatter` is once verified by the formattable types we use in
@@ -4065,6 +4111,19 @@ int main(int argc, char **argv)
             *result.out = 0;
             ASSERT(11 == result.size);
             check(bsl::string(temp2), "Hello");
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+            typedef bsl::back_insert_iterator<bsl::string> Inserter;
+
+            bsl::string                        outStr;
+            const format_to_n_result<Inserter> insertResult = bsl::format_to_n(
+                                                    bsl::back_inserter(outStr),
+                                                    5,
+                                                    "{}",
+                                                    "Hello World");
+            ASSERT(11 == insertResult.size);
+            check(outStr, "Hello");
+#endif
         }
 
         // -----------------------------------------------------
@@ -4079,6 +4138,19 @@ int main(int argc, char **argv)
             *result.out = 0;
             ASSERT(11 == result.size);
             check(bsl::wstring(temp2), L"Hello");
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+            typedef bsl::back_insert_iterator<bsl::wstring> Inserter;
+
+            bsl::wstring                       outStr;
+            const format_to_n_result<Inserter> insertResult = bsl::format_to_n(
+                                                    bsl::back_inserter(outStr),
+                                                    5,
+                                                    L"{}",
+                                                    L"Hello World");
+            ASSERT(11 == insertResult.size);
+            check(outStr, L"Hello");
+#endif
         }
 
         // ------------------------------------------

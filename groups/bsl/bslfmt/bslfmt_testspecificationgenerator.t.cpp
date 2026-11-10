@@ -641,14 +641,10 @@ int main(int argc, char **argv)
         }
 
         // wchar_t
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
         {
             WcharObj  generator;
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE < 14 &&      \
-    __GLIBCXX__ < 20240521
-            // The GNU lib has a bug in localized formatting of floating point
-            // numbers till gcc 13.3 (released 2024.05.21)
-            generator.setup("VF^+#0{}f");
-#elif defined(BSLS_PLATFORM_OS_DARWIN) && defined(BSLS_PLATFORM_CMP_CLANG) \
+#if defined(BSLS_PLATFORM_OS_DARWIN) && defined(BSLS_PLATFORM_CMP_CLANG)   \
       && BSLS_PLATFORM_CMP_VERSION < 180000
             // Reduce the test vector complexity since the runtime is
             // unreasonably long.
@@ -698,6 +694,7 @@ int main(int argc, char **argv)
                 T_ T_ P(counter);
             }
         }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT
 #endif
       } break;
       default: {

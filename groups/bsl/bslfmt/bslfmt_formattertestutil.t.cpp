@@ -691,6 +691,20 @@ int main(int argc, char **argv)
                                              : "bslfmt parsing failed to fail";
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT) ||                        \
+   !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+                    bool        WFAILURE_EXPECTED_RESULT =
+                                                       FAILURE_EXPECTED_RESULT;
+                    bsl::string WFAILURE_EXPECTED_MESSAGE =
+                                                      FAILURE_EXPECTED_MESSAGE;
+#else
+                    // The native `<format>` is not an oracle for `wchar_t`.
+                    bool        WFAILURE_EXPECTED_RESULT = ERROR_EXPECTED;
+                    bsl::string WFAILURE_EXPECTED_MESSAGE = ERROR_EXPECTED
+                                             ? ""
+                                             : "bslfmt parsing failed to fail";
+#endif
+
                     bsl::string message;
 
                     // char
@@ -745,14 +759,14 @@ int main(int argc, char **argv)
                         ASSERTV(LINE,
                                 ORACLE_REQUIRED,
                                 ERROR_EXPECTED,
-                                FAILURE_EXPECTED_RESULT,
-                                FAILURE_EXPECTED_RESULT == rv);
+                                WFAILURE_EXPECTED_RESULT,
+                                WFAILURE_EXPECTED_RESULT == rv);
                         ASSERTV(LINE,
                                 ORACLE_REQUIRED,
                                 ERROR_EXPECTED,
-                                FAILURE_EXPECTED_MESSAGE.c_str(),
+                                WFAILURE_EXPECTED_MESSAGE.c_str(),
                                 message.c_str(),
-                                FAILURE_EXPECTED_MESSAGE == message);
+                                WFAILURE_EXPECTED_MESSAGE == message);
 
                         message.clear();
 

@@ -70,6 +70,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY: `to_array` factory function
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE: `<chrono>` subset of TZ features
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION: `<version>`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT: `<format>` for `wchar_t`
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST: C++23 `allocate_at_least`
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY: C++23 base lib provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK: C++23 `bind_back`
@@ -1408,6 +1409,25 @@ BSLS_IDENT("$Id: $")
 //   - clang 7, or clang using at least GCC 9 GNU C++ Library
 //   - Microsoft Visual Studio 2019 16.2 / MSVC 19.22
 //
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT`
+///----------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT` macro is defined if
+// `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined and the native `<format>`
+// formats `wchar_t` strings correctly.  When it is not defined, `bslfmt`
+// formats `wchar_t` strings with its own implementation, even if
+// `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined.
+//
+// This macro is defined first for the following compiler versions:
+//   - GCC 14 (**)
+//   - Clang 17.0 with either:
+//     - libc++ 21.1.0, or
+//     - libstdc++ 14 (**)
+//   - VS 16.11 / MSVC 19.29
+//
+// (**) libstdc++ 13.1 reads out of bounds when parsing integers in
+//      wide-character format strings.  The macro is not defined for any
+//      libstdc++ 13 release, so that all GCC 13 builds agree on it.
+//
 ///`BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST`
 ///--------------------------------------------------
 // The `BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST` is defined if the
@@ -2488,6 +2508,16 @@ BSLS_IDENT("$Id: $")
   /// have a macro to detect?
 # if (defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION < 170000L)
 #   undef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+# endif
+
+  /// libstdc++ 13.1 has an out-of-bounds read when parsing an integer (e.g.,
+  /// a width or precision) in a wide-character format string: up to 32
+  /// characters are read regardless of the length of the string.  Later GCC
+  /// 13 releases fix the bug, but we use `bslfmt` for `wchar_t` with every
+  /// libstdc++ 13 release, so that all GCC 13 builds use the same types.
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT) &&                        \
+     !(defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE == 13)
+#   define BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT                             1
 # endif
 
   /// Per the final sentence of 'P0466R5', the availability of

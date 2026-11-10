@@ -847,6 +847,13 @@ bool FormatterTestUtil_Impl<t_CHAR>::testEvaluateVFormatStdImpl(
                                 t_TYPE&&                        value,
                                 t_ARGS&&...                     args)
 {
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
+    // The native `<format>` is not used for `wchar_t` on this platform.
+    if constexpr (bsl::is_same<t_CHAR, wchar_t>::value) {
+        return true;                                                  // RETURN
+    }
+#endif
+
     bsl::basic_string<t_CHAR> stdResult;
     try {
         FormatterTestUtil_Oracle<t_CHAR>::evaluateOracle(
@@ -982,6 +989,13 @@ FormatterTestUtil_Impl<t_CHAR>::testParseFormatImpl(
     // the way the MSVC library implements nested parameters.
 #   if defined(BSLS_PLATFORM_CMP_MSVC)
     if (std::is_constant_evaluated()) {
+        alsoTestOracle = false;
+    }
+#   endif
+
+    // The native `<format>` is not used for `wchar_t` on this platform.
+#   if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
+    if constexpr (bsl::is_same<t_CHAR, wchar_t>::value) {
         alsoTestOracle = false;
     }
 #   endif

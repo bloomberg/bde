@@ -319,6 +319,7 @@
 // [20] BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT
 // [26] BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST
 // [25] BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
 // [26] BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK
@@ -658,6 +659,14 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY_defined =
 static const
 bool   BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION_defined =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT
                                                                           true;
 #else
                                                                          false;
@@ -1939,6 +1948,13 @@ static void printFlags()
     printf("\tBSLS_LIBRARYFEATURES_HAS_CPP20_VERSION:\t");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
     puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT));
 #else
     puts("UNDEFINED");
 #endif
@@ -3735,6 +3751,9 @@ int main(int argc, char *argv[])
         // 12. `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined only
         //    w hen the native standard library provides it.
         //
+        // 13. `BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT` is defined only when
+        //     `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined.
+        //
         // Plan:
         // 1. When these macros are defined include the appropriate headers and
         //    use the expected names.
@@ -3753,6 +3772,7 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT
         // --------------------------------------------------------------------
 
         if (verbose) puts("\n'BSLS_LIBRARYFEATURES_HAS_CPP20_*' MISCELLANY"
@@ -3776,6 +3796,7 @@ int main(int argc, char *argv[])
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION);
+            PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT);
 #undef PMD
         }
 
@@ -3871,6 +3892,13 @@ int main(int argc, char *argv[])
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
         {
             (void) std::format("{}", 42);
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT
+        ASSERT(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT_defined);
+        {
+            (void) std::format(L"{}", 42);
         }
 #endif
 

@@ -47,6 +47,13 @@ BSLS_IDENT("$Id: $")
 // * Character escaping
 // * Compile-time format string checking
 //
+// Where `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined but
+// `BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT` is not (libstdc++ 13), the native
+// `<format>` is used for `char` only.  `wchar_t` formatting uses the BDE
+// implementation: `wchar_t` format strings are not checked at compile time,
+// and no `wchar_t` overload takes a locale.  The `wformat_*` names alias
+// `bslfmt` types, while the `basic_format_*` templates remain the native ones.
+//
 // This header is not intended to be included directly.  Please include
 // `<bsl_format.h>` to be able to use `bsl::format` functionality.
 //
@@ -421,7 +428,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
   #include <bslfmt_format_arg.h>
   #include <bslfmt_format_args.h>
   #include <bslfmt_format_context.h>
@@ -431,7 +438,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslfmt_formaterror.h>
 
-#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
   #include <bslfmt_formatparsecontext.h>
 #endif
 
@@ -448,6 +455,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_utility.h>
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+  #include <algorithm>
   #include <format>
   #include <iterator>
   #include <locale>
@@ -505,19 +513,30 @@ using std::format_context;
 using std::format_error;
 using std::format_parse_context;
 using std::format_string;
-using std::format_to;
-using std::format_to_n;
 using std::format_to_n_result;
-using std::formatted_size;
 //using std::make_format_args;
 //using std::make_wformat_args;
 //using std::vformat;
 using std::vformat_to;
 using std::visit_format_arg;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
+using std::format_to;
+using std::format_to_n;
+using std::formatted_size;
 using std::wformat_args;
 using std::wformat_context;
 using std::wformat_parse_context;
 using std::wformat_string;
+#else
+// The native `<format>` is used for `char` only.  `wchar_t` formatting uses
+// the `bslfmt` implementation.
+using BloombergLP::bslfmt::visit_format_arg;
+using BloombergLP::bslfmt::wformat_args;
+using BloombergLP::bslfmt::wformat_context;
+using BloombergLP::bslfmt::wformat_parse_context;
+using BloombergLP::bslfmt::wformat_string;
+#endif
 
 // FREE FUNCTIONS
 
@@ -541,6 +560,7 @@ string format(const std::locale&       loc,
               format_string<t_ARGS...> fmtStr,
               t_ARGS&&...              args);
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr` in the locale of the specified `loc` and return the
 /// result.  In the event of an error throw the exception `format_error`.
@@ -548,6 +568,7 @@ template <class... t_ARGS>
 wstring format(const std::locale&        loc,
                wformat_string<t_ARGS...> fmtStr,
                t_ARGS&&...               args);
+#endif
 
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr`, using the specified `alloc` to supply memory (if
@@ -577,6 +598,7 @@ string format(allocator<char>          alloc,
               format_string<t_ARGS...> fmtStr,
               t_ARGS&&...              args);
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr` in the locale of the specified `loc`, using the
 /// specified `allocator` to supply memory (if required), and return the
@@ -586,6 +608,7 @@ wstring format(allocator<wchar_t>        alloc,
                const std::locale&        loc,
                wformat_string<t_ARGS...> fmtStr,
                t_ARGS&&...               args);
+#endif
 
 /// Return an object, whose type is not specified, holding an array of
 /// `format_arg` types constructed from the specified `args`.  The type
@@ -644,6 +667,7 @@ void format_to(t_STRING                 *out,
                format_string<t_ARGS...>  fmtStr,
                t_ARGS&&...               args);
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr` in the locale of the specified `loc`, and write the
 /// result of this operation into the string addressed by the specified `out`
@@ -658,6 +682,7 @@ void format_to(t_STRING                  *out,
                const std::locale&         loc,
                wformat_string<t_ARGS...>  fmtStr,
                t_ARGS&&...                args);
+#endif
 
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr` and return the result.  In the event of an error throw
@@ -676,12 +701,14 @@ string vformat(const std::locale& loc,
                std::string_view   fmtStr,
                format_args        args);
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr` in the locale of the specified `loc` and return the
 /// result.  In the event of an error throw the exception `format_error`.
 wstring vformat(const std::locale& loc,
                 std::wstring_view  fmtStr,
                 wformat_args       args);
+#endif
 
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr`, using the specified `allocator` to supply memory (if
@@ -708,6 +735,7 @@ string vformat(allocator<char>    alloc,
                std::string_view   fmtStr,
                format_args        args);
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr` in the locale of the specified `loc`, using the
 /// specified `allocator` to supply memory (if required), and return the
@@ -716,6 +744,7 @@ wstring vformat(allocator<wchar_t> alloc,
                 const std::locale& loc,
                 std::wstring_view  fmtStr,
                 wformat_args       args);
+#endif
 
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr`, and write the result of this operation into the string
@@ -745,6 +774,7 @@ void vformat_to(string             *out,
                 std::string_view    fmtStr,
                 format_args         args);
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr` in the locale of the specified `loc`, and write the
 /// result of this operation into the string addressed by the specified `out`
@@ -756,6 +786,111 @@ void vformat_to(wstring            *out,
                 const std::locale&  loc,
                 std::wstring_view   fmtStr,
                 wformat_args        args);
+#endif
+
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtStr`, write the result of this operation to the specified
+/// `out` iterator, and return an iterator one past the last character
+/// written.  In the event of an error throw the exception `format_error`.
+template <class t_OUT, class... t_ARGS>
+t_OUT format_to(t_OUT out, format_string<t_ARGS...> fmtStr, t_ARGS&&... args);
+
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtStr`, write the result of this operation to the specified
+/// `out` iterator, and return an iterator one past the last character
+/// written.  In the event of an error throw the exception `format_error`.
+template <class t_OUT, class... t_ARGS>
+t_OUT format_to(t_OUT                     out,
+                wformat_string<t_ARGS...> fmtStr,
+                t_ARGS&&...               args);
+
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtStr` in the locale of the specified `loc`, write the result
+/// of this operation to the specified `out` iterator, and return an iterator
+/// one past the last character written.  In the event of an error throw the
+/// exception `format_error`.
+template <class t_OUT, class... t_ARGS>
+t_OUT format_to(t_OUT                    out,
+                const std::locale&       loc,
+                format_string<t_ARGS...> fmtStr,
+                t_ARGS&&...              args);
+
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtStr`, and write at most the specified `maxNumChars`
+/// characters of the result of this operation to the specified `out`
+/// iterator.  Return a `format_to_n_result` whose `size` member holds the
+/// number of characters that would have been written were the output not
+/// truncated, and whose `out` member holds an iterator one past the last
+/// character written.  In the event of an error throw the exception
+/// `format_error`.
+template <class t_OUT, class... t_ARGS>
+format_to_n_result<t_OUT> format_to_n(
+                                     t_OUT                         out,
+                                     std::iter_difference_t<t_OUT> maxNumChars,
+                                     format_string<t_ARGS...>      fmtStr,
+                                     t_ARGS&&...                   args);
+
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtStr`, and write at most the specified `maxNumChars`
+/// characters of the result of this operation to the specified `out`
+/// iterator.  Return a `format_to_n_result` whose `size` member holds the
+/// number of characters that would have been written were the output not
+/// truncated, and whose `out` member holds an iterator one past the last
+/// character written.  In the event of an error throw the exception
+/// `format_error`.
+template <class t_OUT, class... t_ARGS>
+format_to_n_result<t_OUT> format_to_n(
+                                     t_OUT                         out,
+                                     std::iter_difference_t<t_OUT> maxNumChars,
+                                     wformat_string<t_ARGS...>     fmtStr,
+                                     t_ARGS&&...                   args);
+
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtStr` in the locale of the specified `loc`, and write at most
+/// the specified `maxNumChars` characters of the result of this operation to
+/// the specified `out` iterator.  Return a `format_to_n_result` whose `size`
+/// member holds the number of characters that would have been written were
+/// the output not truncated, and whose `out` member holds an iterator one past
+/// the last character written.  In the event of an error throw the exception
+/// `format_error`.
+template <class t_OUT, class... t_ARGS>
+format_to_n_result<t_OUT> format_to_n(
+                                     t_OUT                         out,
+                                     std::iter_difference_t<t_OUT> maxNumChars,
+                                     const std::locale&            loc,
+                                     format_string<t_ARGS...>      fmtStr,
+                                     t_ARGS&&...                   args);
+
+/// Return the number of characters in the result of formatting the specified
+/// `args` according to the specification given by the specified `fmtStr`.  In
+/// the event of an error throw the exception `format_error`.
+template <class... t_ARGS>
+std::size_t formatted_size(format_string<t_ARGS...> fmtStr, t_ARGS&&... args);
+
+/// Return the number of characters in the result of formatting the specified
+/// `args` according to the specification given by the specified `fmtStr`.  In
+/// the event of an error throw the exception `format_error`.
+template <class... t_ARGS>
+std::size_t formatted_size(wformat_string<t_ARGS...> fmtStr,
+                           t_ARGS&&...               args);
+
+/// Return the number of characters in the result of formatting the specified
+/// `args` according to the specification given by the specified `fmtStr` in
+/// the locale of the specified `loc`.  In the event of an error throw the
+/// exception `format_error`.
+template <class... t_ARGS>
+std::size_t formatted_size(const std::locale&       loc,
+                           format_string<t_ARGS...> fmtStr,
+                           t_ARGS&&...              args);
+
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtStr`, write the result of this operation to the specified
+/// `out` iterator, and return an iterator one past the last character
+/// written.  In the event of an error throw the exception `format_error`.
+template <class t_OUT>
+t_OUT vformat_to(t_OUT out, std::wstring_view fmtStr, wformat_args args);
+#endif
 
 }  // close namespace bsl
 
@@ -779,7 +914,11 @@ auto bsl::make_wformat_args(t_ARGS&... args)
     static_assert(
                  (... && (!std::is_same_v<std::decay_t<t_ARGS>, long double>)),
                  "long double is not supported in bsl::format");
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
     return std::make_wformat_args(args...);
+#else
+    return BloombergLP::bslfmt::make_wformat_args(args...);
+#endif
 }
 
 template <class... t_ARGS>
@@ -806,6 +945,7 @@ bsl::string bsl::format(const std::locale&       loc,
                         bsl::make_format_args(args...));
 }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 template <class... t_ARGS>
 bsl::wstring bsl::format(const std::locale&        loc,
                     wformat_string<t_ARGS...> fmtStr,
@@ -815,6 +955,7 @@ bsl::wstring bsl::format(const std::locale&        loc,
                         fmtStr.get(),
                         bsl::make_wformat_args(args...));
 }
+#endif
 
 template <class... t_ARGS>
 bsl::string bsl::format(allocator<char>          alloc,
@@ -848,6 +989,7 @@ bsl::string bsl::format(allocator<char>          alloc,
                         bsl::make_format_args(args...));
 }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 template <class... t_ARGS>
 bsl::wstring bsl::format(allocator<wchar_t>        alloc,
                     const std::locale&        loc,
@@ -859,6 +1001,7 @@ bsl::wstring bsl::format(allocator<wchar_t>        alloc,
                         fmtStr.get(),
                         bsl::make_wformat_args(args...));
 }
+#endif
 
 inline
 bsl::string bsl::vformat(std::string_view fmt, format_args args)
@@ -886,6 +1029,7 @@ bsl::string bsl::vformat(const std::locale& loc,
     return result;
 }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 inline
 bsl::wstring bsl::vformat(const std::locale& loc,
                      std::wstring_view  fmt,
@@ -895,6 +1039,7 @@ bsl::wstring bsl::vformat(const std::locale& loc,
     bsl::vformat_to(&result, loc, fmt, args);
     return result;
 }
+#endif
 
 inline
 bsl::string bsl::vformat(allocator<char> alloc,
@@ -927,6 +1072,7 @@ bsl::string bsl::vformat(allocator<char>    alloc,
     return result;
 }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 inline
 bsl::wstring bsl::vformat(allocator<wchar_t> alloc,
                      const std::locale& loc,
@@ -937,6 +1083,7 @@ bsl::wstring bsl::vformat(allocator<wchar_t> alloc,
     bsl::vformat_to(&result, loc, fmt, args);
     return result;
 }
+#endif
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
@@ -973,6 +1120,7 @@ void bsl::format_to(t_STRING                 *out,
                     bsl::make_format_args(args...));
 }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
 void bsl::format_to(t_STRING                  *out,
@@ -985,6 +1133,7 @@ void bsl::format_to(t_STRING                  *out,
                     fmtStr.get(),
                     bsl::make_wformat_args(args...));
 }
+#endif
 
 
 inline
@@ -998,7 +1147,11 @@ inline
 void bsl::vformat_to(wstring *out, std::wstring_view fmt, wformat_args args)
 {
     out->clear();
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
     std::vformat_to(std::back_inserter(*out), fmt, args);
+#else
+    BloombergLP::bslfmt::vformat_to(std::back_inserter(*out), fmt, args);
+#endif
 }
 
 inline
@@ -1011,6 +1164,7 @@ void bsl::vformat_to(string             *out,
     std::vformat_to(std::back_inserter(*out), loc, fmt, args);
 }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
 inline
 void bsl::vformat_to(wstring            *out,
                      const std::locale&  loc,
@@ -1020,6 +1174,119 @@ void bsl::vformat_to(wstring            *out,
     out->clear();
     std::vformat_to(std::back_inserter(*out), loc, fmt, args);
 }
+#endif
+
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT)
+template <class t_OUT, class... t_ARGS>
+t_OUT bsl::format_to(t_OUT                    out,
+                     format_string<t_ARGS...> fmtStr,
+                     t_ARGS&&...              args)
+{
+    return std::format_to(std::move(out),
+                          fmtStr,
+                          std::forward<t_ARGS>(args)...);
+}
+
+template <class t_OUT, class... t_ARGS>
+t_OUT bsl::format_to(t_OUT                     out,
+                     wformat_string<t_ARGS...> fmtStr,
+                     t_ARGS&&...               args)
+{
+    return BloombergLP::bslfmt::vformat_to(std::move(out),
+                                           fmtStr.get(),
+                                           bsl::make_wformat_args(args...));
+}
+
+template <class t_OUT, class... t_ARGS>
+t_OUT bsl::format_to(t_OUT                    out,
+                     const std::locale&       loc,
+                     format_string<t_ARGS...> fmtStr,
+                     t_ARGS&&...              args)
+{
+    return std::format_to(std::move(out),
+                          loc,
+                          fmtStr,
+                          std::forward<t_ARGS>(args)...);
+}
+
+template <class t_OUT, class... t_ARGS>
+bsl::format_to_n_result<t_OUT> bsl::format_to_n(
+                                     t_OUT                         out,
+                                     std::iter_difference_t<t_OUT> maxNumChars,
+                                     format_string<t_ARGS...>      fmtStr,
+                                     t_ARGS&&...                   args)
+{
+    return std::format_to_n(std::move(out),
+                            maxNumChars,
+                            fmtStr,
+                            std::forward<t_ARGS>(args)...);
+}
+
+template <class t_OUT, class... t_ARGS>
+bsl::format_to_n_result<t_OUT> bsl::format_to_n(
+                                     t_OUT                         out,
+                                     std::iter_difference_t<t_OUT> maxNumChars,
+                                     wformat_string<t_ARGS...>     fmtStr,
+                                     t_ARGS&&...                   args)
+{
+    const wstring result = bsl::vformat(fmtStr.get(),
+                                        bsl::make_wformat_args(args...));
+
+    const std::iter_difference_t<t_OUT> size = result.size();
+    if (maxNumChars < 0) {
+        maxNumChars = 0;
+    }
+
+    return format_to_n_result<t_OUT>{
+                           std::copy_n(result.begin(),
+                                       maxNumChars < size ? maxNumChars : size,
+                                       std::move(out)),
+                           size};
+}
+
+template <class t_OUT, class... t_ARGS>
+bsl::format_to_n_result<t_OUT> bsl::format_to_n(
+                                     t_OUT                         out,
+                                     std::iter_difference_t<t_OUT> maxNumChars,
+                                     const std::locale&            loc,
+                                     format_string<t_ARGS...>      fmtStr,
+                                     t_ARGS&&...                   args)
+{
+    return std::format_to_n(std::move(out),
+                            maxNumChars,
+                            loc,
+                            fmtStr,
+                            std::forward<t_ARGS>(args)...);
+}
+
+template <class... t_ARGS>
+std::size_t bsl::formatted_size(format_string<t_ARGS...> fmtStr,
+                                t_ARGS&&...              args)
+{
+    return std::formatted_size(fmtStr, std::forward<t_ARGS>(args)...);
+}
+
+template <class... t_ARGS>
+std::size_t bsl::formatted_size(wformat_string<t_ARGS...> fmtStr,
+                                t_ARGS&&...               args)
+{
+    return bsl::vformat(fmtStr.get(), bsl::make_wformat_args(args...)).size();
+}
+
+template <class... t_ARGS>
+std::size_t bsl::formatted_size(const std::locale&       loc,
+                                format_string<t_ARGS...> fmtStr,
+                                t_ARGS&&...              args)
+{
+    return std::formatted_size(loc, fmtStr, std::forward<t_ARGS>(args)...);
+}
+
+template <class t_OUT>
+t_OUT bsl::vformat_to(t_OUT out, std::wstring_view fmt, wformat_args args)
+{
+    return BloombergLP::bslfmt::vformat_to(std::move(out), fmt, args);
+}
+#endif
 
 #endif  // defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
