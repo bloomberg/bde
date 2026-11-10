@@ -151,7 +151,7 @@ namespace test = BloombergLP::s_baltst;
 // [15] ARRAY HAVING NULLABLE COMPLEX ELEMENTS             {DRQS 167908706<GO>}
 // [16] `DecoderOptions` CAN BE CONFIGURED FOR STRICT CONFORMANCE
 // [17] MAXDEPTH IS RESPECTED
-// [18] `allowMissingRequiredAttributes` OPTION
+// [18] `allowMissingRequiredAttributes` OPTION            {DRQS 186904367<GO>}
 // [19] TESTING `Decimal64`
 // [20] USAGE EXAMPLE
 
@@ -3925,6 +3925,14 @@ int main(int argc, char *argv[])
         //
         // 2. Sequence elements with a default value are optional.
         //
+        // 3. A required attribute that is present is not reported as missing
+        //    when the tokenizer reloads its internal buffer between reading
+        //    the attribute's name and finishing its value, or when the value
+        //    is a nested sequence.  (DRQS 186904367)
+        //
+        // 4. When a required attribute is missing, the logged message names
+        //    it, whether it belongs to the top-level or to a nested sequence.
+        //
         // Plan:
         // 1. The `s_baltst::MySequenceWithArray` sequence has 2 non-optional
         //    attributes (`attribute1` and `attribute2`).  Create a JSON that
@@ -3941,6 +3949,22 @@ int main(int argc, char *argv[])
         //    a default value.  Try to decode the same JSON with
         //    `allowMissingRequiredAttributes == false`.  Verify that decoding
         //    was successful.  (C-2)
+        //
+        // 5. Using the table-driven technique, specify JSON templates for
+        //    `s_baltst::Address` (required string `street`) and
+        //    `s_baltst::Employee` (required sequence `homeAddress`), complete
+        //    or lacking one required attribute, with placeholders for leading
+        //    padding and for the value of `street`.  Using a second table of
+        //    padding ranges and `street` lengths that position the values
+        //    across the tokenizer's buffer boundary, decode every template
+        //    with `allowMissingRequiredAttributes == false`.  Verify that
+        //    complete messages decode to the input values, and that the
+        //    others fail and log the name of the missing attribute.
+        //    (C-1, C-3..4)
+        //
+        // 6. Decode a `s_baltst::MySequenceWithArray` whose required array
+        //    spans several tokenizer buffers.  Verify that decoding succeeds.
+        //    (C-3)
         //
         // Testing:
         //   `allowMissingRequiredAttributes` OPTION
@@ -3978,13 +4002,173 @@ int main(int argc, char *argv[])
             ASSERT(options.allowMissingRequiredAttributes() == false);
             ASSERT(decoder.decode(ss, &seq, options) == 0);
         }
+
+        if (verbose) cout << "\nRequired attributes across tokenizer buffer "
+                             "reloads." << endl;
+        {
+            // Size of the internal buffer of `bdljsn::Tokenizer`.
+            const int BUFSIZE = 8 * 1024;
+
+            // In `d_json_p`, `%PAD%` is replaced by spaces and `%STREET%` by
+            // the value of `street`.
+            static const struct {
+                int         d_line;        // source line number
+                bool        d_isEmployee;  // `Employee`, else `Address`
+                const char *d_json_p;      // input template
+                const char *d_missing_p;   // missing attribute, 0 if valid
+            } DATA[] = {
+                { L_, false, "{%PAD%\"street\":\"%STREET%\",\"city\":\"c\","
+                             "\"state\":\"s\"}",                          0 },
+                { L_, false, "{%PAD%\"street\":\"%STREET%\",\"city\":\"c\"}",
+                                                                    "state" },
+                { L_, true,  "{%PAD%\"name\":\"n\",\"homeAddress\":{"
+                             "\"street\":\"%STREET%\",\"city\":\"c\","
+                             "\"state\":\"s\"},\"age\":1}",               0 },
+                { L_, true,  "{%PAD%\"name\":\"n\",\"homeAddress\":{"
+                             "\"street\":\"%STREET%\",\"city\":\"c\"},"
+                             "\"age\":1}",                          "state" },
+                { L_, true,  "{%PAD%\"name\":\"n\",\"homeAddress\":{"
+                             "\"street\":\"%STREET%\",\"city\":\"c\","
+                             "\"state\":\"s\"}}",                     "age" },
+                { L_, true,  "{%PAD%\"name\":\"n\",\"age\":1}",
+                                                              "homeAddress" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            static const struct {
+                int d_line;          // source line number
+                int d_minPadding;    // first padding to test
+                int d_maxPadding;    // last padding to test
+                int d_streetLength;  // length of the value of `street`
+            } SWEEPS[] = {
+                // LINE  MIN PADDING    MAX PADDING  STREET LENGTH
+                // ----  -------------  -----------  -------------
+                { L_,    BUFSIZE - 160, BUFSIZE,     0             },
+                { L_,    BUFSIZE - 160, BUFSIZE,     1             },
+                { L_,    0,             0,           BUFSIZE - 1   },
+                { L_,    BUFSIZE - 24,  BUFSIZE,     BUFSIZE - 1   },
+                { L_,    0,             0,           BUFSIZE       },
+                { L_,    BUFSIZE - 24,  BUFSIZE,     BUFSIZE       },
+                { L_,    0,             0,           BUFSIZE + 1   },
+                { L_,    BUFSIZE - 24,  BUFSIZE,     BUFSIZE + 1   },
+                { L_,    0,             0,           3 * BUFSIZE   },
+                { L_,    BUFSIZE - 24,  BUFSIZE,     3 * BUFSIZE   },
+            };
+            const int NUM_SWEEPS = sizeof SWEEPS / sizeof *SWEEPS;
+
+            const u::Replace replace;
+
+            for (int si = 0; si < NUM_SWEEPS; ++si) {
+                const int         S_LINE  = SWEEPS[si].d_line;
+                const int         MIN_PAD = SWEEPS[si].d_minPadding;
+                const int         MAX_PAD = SWEEPS[si].d_maxPadding;
+                const bsl::string STREET(SWEEPS[si].d_streetLength, 'x');
+
+                if (veryVerbose) {
+                    T_; P_(S_LINE); P_(MIN_PAD); P_(MAX_PAD);
+                    P(STREET.length());
+                }
+
+                for (int pad = MIN_PAD; pad <= MAX_PAD; ++pad) {
+                    const bsl::string PADDING(pad, ' ');
+
+                    for (int ti = 0; ti < NUM_DATA; ++ti) {
+                        const int   LINE        = DATA[ti].d_line;
+                        const bool  IS_EMPLOYEE = DATA[ti].d_isEmployee;
+                        const char *MISSING     = DATA[ti].d_missing_p;
+
+                        bsl::string json = replace(DATA[ti].d_json_p,
+                                                   "%PAD%",
+                                                   PADDING);
+                        json             = replace(json, "%STREET%", STREET);
+
+                        bsl::istringstream ss(json);
+                        int                rc;
+
+                        if (IS_EMPLOYEE) {
+                            test::Employee employee;
+
+                            rc = decoder.decode(ss, &employee, options);
+                            if (!MISSING && 0 == rc) {
+                                ASSERTV(
+                                    S_LINE,
+                                    LINE,
+                                    pad,
+                                    STREET == employee.homeAddress().street());
+                                ASSERTV(S_LINE,
+                                        LINE,
+                                        pad,
+                                        "s" == employee.homeAddress().state());
+                                ASSERTV(S_LINE,
+                                        LINE,
+                                        pad,
+                                        1 == employee.age());
+                            }
+                        }
+                        else {
+                            test::Address address;
+
+                            rc = decoder.decode(ss, &address, options);
+                            if (!MISSING && 0 == rc) {
+                                ASSERTV(S_LINE,
+                                        LINE,
+                                        pad,
+                                        STREET == address.street());
+                                ASSERTV(S_LINE,
+                                        LINE,
+                                        pad,
+                                        "s" == address.state());
+                            }
+                        }
+
+                        const bsl::string LOG = decoder.loggedMessages();
+
+                        if (MISSING) {
+                            const bsl::string EXPECTED =
+                                 bsl::string("missing required attribute \"") +
+                                 MISSING + "\"";
+
+                            ASSERTV(S_LINE, LINE, pad, 0 != rc);
+                            ASSERTV(S_LINE,
+                                    LINE,
+                                    pad,
+                                    LOG,
+                                    bsl::string::npos != LOG.find(EXPECTED));
+                        }
+                        else {
+                            ASSERTV(S_LINE, LINE, pad, LOG, 0 == rc);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (verbose) cout << "\nRequired array spanning several tokenizer "
+                             "buffers." << endl;
+        {
+            const bsl::size_t NUM_ELEMENTS = 5000;
+
+            bsl::string json = "{\"attribute1\":1,\"attribute2\":[\"x\"";
+            for (bsl::size_t i = 1; i < NUM_ELEMENTS; ++i) {
+                json += ",\"x\"";
+            }
+            json += "]}";
+
+            bsl::istringstream        ss(json);
+            test::MySequenceWithArray seq;
+
+            ASSERTV(decoder.loggedMessages(),
+                    0 == decoder.decode(ss, &seq, options));
+            ASSERTV(seq.attribute2().size(),
+                    NUM_ELEMENTS == seq.attribute2().size());
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
         // MAXDEPTH IS RESPECTED
         //
         // Concerns:
-        // 1. The `maxDepth` configuration option is repected.
+        // 1. The `maxDepth` configuration option is respected.
         //
         // Plan:
         // 1. Manually determine the `maxDepth` value required for various

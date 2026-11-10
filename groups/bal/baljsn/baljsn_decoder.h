@@ -618,6 +618,10 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
                                      static_cast<int>(elementName.length()))) {
                 d_elementName = elementName;
 
+                if (!requiredAttributes.empty()) {
+                    requiredAttributes.erase(elementName);
+                }
+
                 rc = d_tokenizer.advanceToNextToken();
                 if (rc) {
                     logTokenizerError("Error") << " reading value for"
@@ -637,17 +641,14 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
                                 << d_elementName << "' \n";
                     return -1;                                        // RETURN
                 }
-
-                if (!requiredAttributes.empty()) {
-                    requiredAttributes.erase(elementName);
-                }
             }
             else {
                 if (d_skipUnknownElements) {
-                    rc = skipUnknownElement(elementName);
+                    d_elementName = elementName;
+                    rc = skipUnknownElement(d_elementName);
                     if (rc) {
                         d_logStream << "Error reading unknown element '"
-                                    << elementName << "' or after it\n";
+                                    << d_elementName << "' or after it\n";
                         return -1;                                    // RETURN
                     }
                 }
@@ -797,10 +798,11 @@ int Decoder::decodeImp(TYPE                       *value,
             }
             else {
                 if (d_skipUnknownElements) {
-                    rc = skipUnknownElement(selectionName);
+                    d_elementName = selectionName;
+                    rc = skipUnknownElement(d_elementName);
                     if (rc) {
                         d_logStream << "Error reading unknown element '"
-                                    << selectionName << "' or after that "
+                                    << d_elementName << "' or after that "
                                     << "element\n";
                         return -1;                                    // RETURN
                     }
