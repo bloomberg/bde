@@ -1464,7 +1464,9 @@ static void printDelimitedIntGlobals()
     puts("}");
     printf("ParseContextContents<wchar_t>[%d]: { ",
            static_cast<int>(ParseContextContents<wchar_t>::s_vector.size()));
-    for (size_t i = 0; i < ParseContextContents<wchar_t>::s_vector.size(); ++i) {
+    for (size_t i = 0;
+         i < ParseContextContents<wchar_t>::s_vector.size();
+         ++i) {
         wprintf(L"\"%s\" ",
                 ParseContextContents<wchar_t>::s_vector[i].c_str());
     }

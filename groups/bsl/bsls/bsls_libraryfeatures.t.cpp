@@ -3239,7 +3239,9 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
-        if (veryVerbose) puts("\tTesting `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT`");
+        if (veryVerbose) {
+            puts("\tTesting `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT`");
+        }
         {
             const int aRange[] = {1, 2, 3, 4};
             (void) std::format("{}", aRange);
@@ -3247,7 +3249,9 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV
-        if (veryVerbose) puts("\tTesting `BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV`");
+        if (veryVerbose) {
+            puts("\tTesting `BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV`");
+        }
         {
             ASSERT(__cpp_lib_constexpr_charconv >= 202207L);
             static_assert([]{
@@ -3782,7 +3786,8 @@ int main(int argc, char *argv[])
 /// Print Macro Defined
 #define PMD(macro_name) P(macro_name##_defined)
 
-            PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS);
+            PMD(
+               BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS);
