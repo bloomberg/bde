@@ -21,8 +21,8 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jun  2 16:00:03 2026
-// Command line: sim_cpp11_features.pl bslma_constructionutil.h
+// Generated on Mon Nov 09 14:44:30 2026
+// Command line: sim_cpp11_features bslma_constructionutil.h
 
 #ifdef COMPILING_BSLMA_CONSTRUCTIONUTIL_H
 
@@ -63,7 +63,7 @@ struct ConstructionUtil {
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslma_constructionutil.h
+// Command line: sim_cpp11_features bslma_constructionutil.h
 #ifndef BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT
 #define BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT 13
 #endif
@@ -663,7 +663,7 @@ struct ConstructionUtil {
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslma_constructionutil.h
+// Command line: sim_cpp11_features bslma_constructionutil.h
 #ifndef BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT
 #define BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT 13
 #endif
@@ -1220,6 +1220,7 @@ struct ConstructionUtil_Imp {
     enum {
 
         e_NIL_TRAITS                 ,
+        e_SCALAR_TRAITS              ,  // Implies BITWISE_MOVABLE
         e_BITWISE_MOVABLE_TRAITS     ,
         e_USES_ALLOCATOR_TRAITS      ,
         e_USES_ALLOCATOR_ARG_T_TRAITS   // Implies USES_ALLOCATOR
@@ -1251,7 +1252,7 @@ struct ConstructionUtil_Imp {
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslma_constructionutil.h
+// Command line: sim_cpp11_features bslma_constructionutil.h
 #ifndef BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT
 #define BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT 13
 #endif
@@ -3082,6 +3083,15 @@ struct ConstructionUtil_Imp {
 // }}} END GENERATED CODE
 #endif
 
+    /// Copy the scalar object of (template parameter) `TARGET_TYPE` at the
+    /// specified `original` address to the specified `address`.
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void destructiveMove(
+                       TARGET_TYPE                                  *address,
+                       const ALLOCATOR&,
+                       bsl::integral_constant<int, e_SCALAR_TRAITS>,
+                       TARGET_TYPE                                  *original);
+
     /// Move the bitwise movable object of (template parameter)
     /// `TARGET_TYPE` at the specified `original` address to the specified
     /// `address`, eliding the call to the move constructor and destructor
@@ -3137,7 +3147,7 @@ struct ConstructionUtil_Imp {
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslma_constructionutil.h
+// Command line: sim_cpp11_features bslma_constructionutil.h
 #ifndef BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT
 #define BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT 13
 #endif
@@ -5055,7 +5065,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslma_constructionutil.h
+// Command line: sim_cpp11_features bslma_constructionutil.h
 #ifndef BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT
 #define BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT 13
 #endif
@@ -6142,10 +6152,17 @@ ConstructionUtil::destructiveMove(TARGET_TYPE      *address,
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(original);
 
+    const bool is_scalar = bsl::is_fundamental<TARGET_TYPE>::value
+                           || bsl::is_enum<TARGET_TYPE>::value
+                           || bsl::is_pointer<TARGET_TYPE>::value
+                           || bsl::is_member_pointer<TARGET_TYPE>::value;
+
     enum {
-        k_VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
-                ? Imp::e_BITWISE_MOVABLE_TRAITS
-                : Imp::e_NIL_TRAITS
+        k_VALUE = is_scalar
+                  ? Imp::e_SCALAR_TRAITS
+                  : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                    ? Imp::e_BITWISE_MOVABLE_TRAITS
+                    : Imp::e_NIL_TRAITS
     };
 
     Imp::destructiveMove(address,
@@ -6172,7 +6189,7 @@ ConstructionUtil::make(const ALLOCATOR&  allocator)
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslma_constructionutil.h
+// Command line: sim_cpp11_features bslma_constructionutil.h
 #ifndef BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT
 #define BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT 13
 #endif
@@ -7267,7 +7284,7 @@ ConstructionUtil_Imp::construct(
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslma_constructionutil.h
+// Command line: sim_cpp11_features bslma_constructionutil.h
 #ifndef BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT
 #define BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT 13
 #endif
@@ -10350,6 +10367,21 @@ ConstructionUtil_Imp::construct(
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
+void ConstructionUtil_Imp::destructiveMove(
+                        TARGET_TYPE                                  *address,
+                        const ALLOCATOR&,
+                        bsl::integral_constant<int, e_SCALAR_TRAITS>,
+                        TARGET_TYPE                                  *original)
+{
+    // Scalar types are a special case of bitwise movable types, for which we
+    // can skip `memcpy`.  It's not clear whether this optimization (introduced
+    // in ancient times) still has value, but it probably shouldn't be removed
+    // without investigation.
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(*original);
+}
+
+template <class TARGET_TYPE, class ALLOCATOR>
+inline
 void
 ConstructionUtil_Imp::destructiveMove(
                TARGET_TYPE                                           *address,
@@ -10357,15 +10389,9 @@ ConstructionUtil_Imp::destructiveMove(
                bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS>  ,
                TARGET_TYPE                                           *original)
 {
-    if (bsl::is_fundamental<TARGET_TYPE>::value ||
-        bsl::is_pointer<TARGET_TYPE>::value) {
-        ::new (PointerUtil::voidify(address)) TARGET_TYPE(*original);
-    }
-    else {
-        // `PointerUtil::voidify(address)` is used here to suppress compiler
-        // warning "-Wclass-memaccess".
-        memcpy(PointerUtil::voidify(address), original, sizeof *original);
-    }
+    // `PointerUtil::voidify(address)` is used here to suppress compiler
+    // warning "-Wclass-memaccess".
+    memcpy(PointerUtil::voidify(address), original, sizeof *original);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -10428,7 +10454,7 @@ ConstructionUtil_Imp::make(
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslma_constructionutil.h
+// Command line: sim_cpp11_features bslma_constructionutil.h
 #ifndef BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT
 #define BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT 13
 #endif

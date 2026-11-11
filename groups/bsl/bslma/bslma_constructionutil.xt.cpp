@@ -1076,6 +1076,14 @@ class BitwiseMovableTestType : public TestType<bslma::Allocator *, false> {
 
     typedef TestType<bslma::Allocator *, false> Base;
 
+  private:
+    // NOT IMPLEMENTED
+
+    BitwiseMovableTestType(const BitwiseMovableTestType&) BSLS_KEYWORD_DELETED;
+
+    BitwiseMovableTestType&
+    operator=(const BitwiseMovableTestType&) BSLS_KEYWORD_DELETED;
+
   public:
     BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMovableTestType,
                                    bslma::UsesBslmaAllocator);
@@ -1083,6 +1091,13 @@ class BitwiseMovableTestType : public TestType<bslma::Allocator *, false> {
                                    bslmf::IsBitwiseMoveable);
 
     BitwiseMovableTestType() : Base(0) { }
+
+    BitwiseMovableTestType(bslmf::MovableRef<BitwiseMovableTestType> other)
+    : Base(bslmf::MovableRefUtil::move(other)) {}
+
+    BitwiseMovableTestType(bslmf::MovableRef<BitwiseMovableTestType>  other,
+                           bslma::Allocator                          *alloc)
+    : Base(bslmf::MovableRefUtil::move(other), alloc) {}
 
     BitwiseMovableTestType(ArgumentType<1>  arg1,
                            ArgumentType<2>  arg2,
@@ -1882,6 +1897,7 @@ int main(int argc, char *argv[])
         usageExample3();
       } break;
       case 7: {
+        // --------------------------------------------------------------------
         // `destructiveMove`
         //   Test calls to `destructiveMove` and verify that the first argument
         //   is move-constructed and the last argument is destroyed.  If the
@@ -1895,7 +1911,7 @@ int main(int argc, char *argv[])
         //
         // 2. If the type being moved is bitwise-movable, the original is
         //    bitwise-copied to the destination; no constructors or destructors
-        //    are invoked.
+        //    are invoked.  The type does not need to be copyable.
         //
         // 3. If the type being moved is allocator-aware, the supplied
         //    allocator is used for the target object.  If the supplied
@@ -1918,11 +1934,11 @@ int main(int argc, char *argv[])
         //    object, and that the total number of objects did not change as a
         //    result of the `destructiveMove`.  (C-1)
         //
-        // 2. Using a bitwise-movable variation of `TestType`, construct an
-        //    object in one buffer than use `destructiveMove` to relocate it to
-        //    another buffer.  Verify that the target object is *not* in a
-        //    moved-from state (because the move constructor was not invoked),
-        //    that no constructors were invoked, that the
+        // 2. Using a bitwise-movable and non-copyable variation of `TestType`,
+        //    construct an object in one buffer than use `destructiveMove` to
+        //    relocate it to another buffer.  Verify that the target object is
+        //    *not* in a moved-from state (because the move constructor was not
+        //    invoked), that no constructors were invoked, that the
         //    most-recently-destroyed object did not change (because no
         //    destructors were invoked) and that the total number of objects
         //    did not change as a result of the `destructiveMove`.  (C-2)
@@ -2072,6 +2088,9 @@ int main(int argc, char *argv[])
             ASSERT(&source == TestTypeStats::lastDestroyed());
             target.~TT();
         }
+
+        // Test with bitwise movable, non-copyable test type
+
       } break;
       case 6: {
         // --------------------------------------------------------------------

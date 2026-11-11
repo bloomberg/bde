@@ -636,7 +636,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isclass.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_isenum.h>
 #include <bslmf_isfundamental.h>
+#include <bslmf_ismemberpointer.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_movableref.h>
 #include <bslmf_usesallocator.h>
@@ -652,7 +654,6 @@ BSLS_IDENT("$Id: $")
 #include <string.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-# include <bslmf_ismemberpointer.h>
 # include <bsls_libraryfeatures.h>
 #endif
 
@@ -825,6 +826,7 @@ struct ConstructionUtil_Imp {
     enum {
 
         e_NIL_TRAITS                 ,
+        e_SCALAR_TRAITS              ,  // Implies BITWISE_MOVABLE
         e_BITWISE_MOVABLE_TRAITS     ,
         e_USES_ALLOCATOR_TRAITS      ,
         e_USES_ALLOCATOR_ARG_T_TRAITS   // Implies USES_ALLOCATOR
@@ -909,6 +911,15 @@ struct ConstructionUtil_Imp {
              BSLS_COMPILERFEATURES_FORWARD_REF(ARG1) argument1,
              ARGS&&...                               arguments);
 #endif
+
+    /// Copy the scalar object of (template parameter) `TARGET_TYPE` at the
+    /// specified `original` address to the specified `address`.
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void destructiveMove(
+                       TARGET_TYPE                                  *address,
+                       const ALLOCATOR&,
+                       bsl::integral_constant<int, e_SCALAR_TRAITS>,
+                       TARGET_TYPE                                  *original);
 
     /// Move the bitwise movable object of (template parameter)
     /// `TARGET_TYPE` at the specified `original` address to the specified
@@ -1237,10 +1248,17 @@ ConstructionUtil::destructiveMove(TARGET_TYPE      *address,
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(original);
 
+    const bool is_scalar = bsl::is_fundamental<TARGET_TYPE>::value
+                           || bsl::is_enum<TARGET_TYPE>::value
+                           || bsl::is_pointer<TARGET_TYPE>::value
+                           || bsl::is_member_pointer<TARGET_TYPE>::value;
+
     enum {
-        k_VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
-                ? Imp::e_BITWISE_MOVABLE_TRAITS
-                : Imp::e_NIL_TRAITS
+        k_VALUE = is_scalar
+                  ? Imp::e_SCALAR_TRAITS
+                  : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                    ? Imp::e_BITWISE_MOVABLE_TRAITS
+                    : Imp::e_NIL_TRAITS
     };
 
     Imp::destructiveMove(address,
@@ -1455,6 +1473,21 @@ ConstructionUtil_Imp::construct(
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
+void ConstructionUtil_Imp::destructiveMove(
+                        TARGET_TYPE                                  *address,
+                        const ALLOCATOR&,
+                        bsl::integral_constant<int, e_SCALAR_TRAITS>,
+                        TARGET_TYPE                                  *original)
+{
+    // Scalar types are a special case of bitwise movable types, for which we
+    // can skip `memcpy`.  It's not clear whether this optimization (introduced
+    // in ancient times) still has value, but it probably shouldn't be removed
+    // without investigation.
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(*original);
+}
+
+template <class TARGET_TYPE, class ALLOCATOR>
+inline
 void
 ConstructionUtil_Imp::destructiveMove(
                TARGET_TYPE                                           *address,
@@ -1462,15 +1495,9 @@ ConstructionUtil_Imp::destructiveMove(
                bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS>  ,
                TARGET_TYPE                                           *original)
 {
-    if (bsl::is_fundamental<TARGET_TYPE>::value ||
-        bsl::is_pointer<TARGET_TYPE>::value) {
-        ::new (PointerUtil::voidify(address)) TARGET_TYPE(*original);
-    }
-    else {
-        // `PointerUtil::voidify(address)` is used here to suppress compiler
-        // warning "-Wclass-memaccess".
-        memcpy(PointerUtil::voidify(address), original, sizeof *original);
-    }
+    // `PointerUtil::voidify(address)` is used here to suppress compiler
+    // warning "-Wclass-memaccess".
+    memcpy(PointerUtil::voidify(address), original, sizeof *original);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
