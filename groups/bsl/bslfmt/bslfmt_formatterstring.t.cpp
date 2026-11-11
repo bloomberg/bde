@@ -24,6 +24,12 @@
 #include <stdlib.h>  // `atoi`
 #include <string.h>
 
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
+
 using namespace BloombergLP;
 using bsls::NameOf;
 
@@ -288,6 +294,19 @@ static bool veryVerbose;
 static const bool k_ORACLE_SUPPORTS_UNICODE = false;
 #else
 static const bool k_ORACLE_SUPPORTS_UNICODE = true;
+#endif
+
+// Exhaustively testing every specification produced by
+// `TestSpecificationGenerator` is slow; in ASan builds (in particular, when
+// unoptimized) it exceeds the test time limit.  In such builds we test only
+// every `k_GENERATOR_STRIDE`-th generated specification.  The stride is prime
+// so that the tested specifications are not correlated with any single option
+// varied by the generator.
+
+#ifdef BDE_BUILD_TARGET_ASAN
+static const int k_GENERATOR_STRIDE = 13;
+#else
+static const int k_GENERATOR_STRIDE = 1;
 #endif
 
 // ============================================================================
@@ -599,6 +618,11 @@ void TestDriver<t_CHAR>::testCase4Comprehensive(
     const size_t                     BUFFER_SIZE = 16;
     t_CHAR                           inputCharPtr[BUFFER_SIZE];
     do {  // loop through format specifications
+        const int specIndex = counter++;
+        if (0 != specIndex % k_GENERATOR_STRIDE) {
+            continue;
+        }
+
         bsl::basic_string<t_CHAR> expectedResult;
         for (size_t i = 0; i <= inputOriginal.size(); ++i) {
             const size_t INPUT_LENGTH = i;
@@ -609,7 +633,7 @@ void TestDriver<t_CHAR>::testCase4Comprehensive(
                 for (size_t k = 0; k < NUM_ARGS; ++k) {
                     const int ARG_2 = args[k];
                     if (veryVerbose) {
-                        T_ P_(counter) P_(INPUT_LENGTH) P_(ARG_1) P_(ARG_2)
+                        T_ P_(specIndex) P_(INPUT_LENGTH) P_(ARG_1) P_(ARG_2)
                     }
 
                     getExpectedResult(&expectedResult,
@@ -718,7 +742,6 @@ void TestDriver<t_CHAR>::testCase4Comprehensive(
                 }
             }
         }
-        ++counter;
     } while (generator.next());
 }
 

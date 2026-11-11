@@ -255,6 +255,12 @@ const char *NameOf_Base::initBuffer(char       *buffer,
 
     u::substitute(buffer, stringName, "std::pmr::string");
 
+    // Also handle the case where the inline namespace '__cxx11' is not
+    // printed, which has been observed with clang.
+
+    u::substitute(stringName, "std::__cxx11::", "std::");
+    u::substitute(buffer, stringName, "std::pmr::string");
+
     U_SAFE_COPY(stringName, "std::basic_string<char,"
                             " std::char_traits<char>, std::allocator<char>>");
 # else

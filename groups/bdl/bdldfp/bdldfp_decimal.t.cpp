@@ -37,7 +37,7 @@
 # include <format>  // Testing only
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 # ifdef BDE_BUILD_TARGET_ASAN
 #   pragma GCC diagnostic ignored "-Wlarger-than="
 # endif
@@ -4899,7 +4899,7 @@ void TestDriver::testCase4()
                 // Test with Decimal128.
                 {
                     const BDEC::Decimal128 VALUE =
-                          BDEC::DecimalImpUtil::parse128(DATA[ti].d_decimalStr);
+                         BDEC::DecimalImpUtil::parse128(DATA[ti].d_decimalStr);
 
                     bsl::ostringstream outdec(pa);
 
@@ -8378,7 +8378,8 @@ void TestDriver::testCase1()
         LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-32.0) == d);
 
         if (veryVeryVerbose)
-            bsl::cout << "Test precision in mixed-mode subtraction" << bsl::endl;
+            bsl::cout << "Test precision in mixed-mode subtraction"
+                      << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "-=(Decimal32)" << bsl::endl;
         {
             BDEC::Decimal32 d32(BDLDFP_DECIMAL_DF(2.0e+0));

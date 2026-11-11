@@ -3787,19 +3787,26 @@ int main(int argc, char *argv[])
             IntTestForwardIterator a; const IntTestForwardIterator& A = a;
             IntTestForwardIterator b; const IntTestForwardIterator& B = b;
 
-            a.d_underlying = 0;
-            b.d_underlying = 0;
+            // Iterate over a real array: incrementing a null pointer, or
+            // computing the distance between unrelated addresses, is
+            // undefined behavior.
+
+            int        array[8] = { 0 };
+            int *const BEGIN    = array;
+
+            a.d_underlying = BEGIN;
+            b.d_underlying = BEGIN;
 
             size_t DIST = Obj::insertDistance(A, B);
             ASSERTV(DIST, 0 == DIST);
-            ASSERTV(A.d_underlying, 0 == A.d_underlying);
-            ASSERTV(B.d_underlying, 0 == B.d_underlying);
+            ASSERTV(A.d_underlying, BEGIN == A.d_underlying);
+            ASSERTV(B.d_underlying, BEGIN == B.d_underlying);
 
             b++;
 
             DIST = Obj::insertDistance(A, B);
             ASSERTV(DIST, 1 == DIST);
-            ASSERTV(A.d_underlying, 0 == A.d_underlying);
+            ASSERTV(A.d_underlying, BEGIN == A.d_underlying);
             ASSERTV(B.d_underlying, A.d_underlying + 1 == B.d_underlying);
 
             a++;
@@ -3809,18 +3816,15 @@ int main(int argc, char *argv[])
             ASSERTV(A.d_underlying, B.d_underlying,
                     B.d_underlying == A.d_underlying);
 
-            // Choose 0xdeadbeec instead of 0xdeadbeef because of alignment.
-
-            IntTestInputIterator::pointer PTR =
-                                    (IntTestInputIterator::pointer) 0x10;
-            a.d_underlying = 0;
-            b.d_underlying = PTR;
-
             const size_t EXP_DIST2 = 4;
+
+            int *const PTR = BEGIN + EXP_DIST2;
+            a.d_underlying = BEGIN;
+            b.d_underlying = PTR;
 
             const size_t DIST2 = Obj::insertDistance(A, B);
             ASSERTV(DIST2,   EXP_DIST2 == DIST2);
-            ASSERTV(A.d_underlying,         0 == A.d_underlying);
+            ASSERTV(A.d_underlying,     BEGIN == A.d_underlying);
             ASSERTV(B.d_underlying,       PTR == B.d_underlying);
         }
       } break;

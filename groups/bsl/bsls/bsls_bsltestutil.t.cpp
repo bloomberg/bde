@@ -817,7 +817,7 @@ bool tempFileName(char *result, int testCase)
 
 // Suppress incorrect warning in UBSAN builds.
 #ifdef BDE_BUILD_TARGET_UBSAN
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-truncation="
 #endif
@@ -830,7 +830,7 @@ bool tempFileName(char *result, int testCase)
                testCase);
 
 #ifdef BDE_BUILD_TARGET_UBSAN
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
 #endif
 #endif

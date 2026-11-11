@@ -182,7 +182,9 @@ BSLMF_ASSERT(sizeof(int) <= sizeof(size_t));
 const size_t LARGE_CAPACITY =
                       static_cast<size_t>(bsl::numeric_limits<int>::max()) + 1;
 
+#ifndef BDE_BUILD_TARGET_UBSAN
 const size_t MAX_CAPACITY   = bsl::numeric_limits<size_t>::max();
+#endif
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING

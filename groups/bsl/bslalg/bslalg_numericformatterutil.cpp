@@ -955,7 +955,7 @@ char *toCharsHexPrecisionImp(char *       first,
 
     const UintType ieeeMantissa = uintValue & Traits::k_DENORM_MANTISSA_MASK;
     const int32_t  ieeeExponent = static_cast<int32_t>(
-                                         uintValue >> Traits::k_EXPONENT_SHIFT);
+                                        uintValue >> Traits::k_EXPONENT_SHIFT);
 
     // Prepare the adjustedMantissa. This is aligned to hex digit boundaries,
     // with the implicit bit restored (0 for zero values and subnormal values,
@@ -1234,7 +1234,15 @@ char *floatingToCharsHexShortestImp(char       *first,
     typedef bslalg::NumericFormatterUtil FmtUtil;
     char buff[FmtUtil::ToCharsMaxLength<t_FLOATING, FmtUtil::e_HEX>::k_VALUE];
     char *savedFirst = first;
-    last = buff + (last - first);
+
+    // Limit the output range to the size of `buff` so that `last` never
+    // points beyond the end of `buff` (which would be undefined behavior).
+    // The result is never longer than `sizeof buff` characters.
+
+    const ptrdiff_t outputLength = last - first;
+    last  = buff + (outputLength < static_cast<ptrdiff_t>(sizeof buff)
+                    ? outputLength
+                    : static_cast<ptrdiff_t>(sizeof buff));
     first = buff;
 
     if (uintValue & Traits::k_SHIFTED_SIGN_MASK) { // Negative value
@@ -2026,7 +2034,10 @@ toCharsScientificPrecisionImp(char *           first,
         return 0;                                                     // RETURN
     }
 
-    const int nChars = blp_d2exp_buffered_n_safe(fpValue, precision, first, last);
+    const int nChars = blp_d2exp_buffered_n_safe(fpValue,
+                                                 precision,
+                                                 first,
+                                                 last);
     if (0 == nChars) {
         return 0;                                                     // RETURN
     }

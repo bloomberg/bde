@@ -169,6 +169,19 @@ typedef StandardFormatSpecification<wchar_t> WcharSpec;
 typedef FormatterSpecificationNumericValue   NumericValue;
 typedef FormatSpecificationParserEnums       Enums;
 
+// Exhaustively testing every specification produced by
+// `TestSpecificationGenerator` is slow; in ASan builds (in particular, when
+// unoptimized) it exceeds the test time limit.  In such builds we test only
+// every `k_GENERATOR_STRIDE`-th generated specification.  The stride is prime
+// so that the tested specifications are not correlated with any single option
+// varied by the generator.
+
+#ifdef BDE_BUILD_TARGET_ASAN
+static const int k_GENERATOR_STRIDE = 13;
+#else
+static const int k_GENERATOR_STRIDE = 1;
+#endif
+
 // ============================================================================
 //                       HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -879,6 +892,10 @@ void TestDriver<t_CHAR>::testCase4(bool veryVerbose)
           const bsl::basic_string<t_CHAR>& spec    = generator.spec();
           int                              counter = 0;
           do {
+              if (0 != counter++ % k_GENERATOR_STRIDE) {
+                  continue;
+              }
+
               Obj                              mX;
               bsl::basic_string_view<t_CHAR>   input(spec.c_str(),
                                                      spec.length());
@@ -903,7 +920,6 @@ void TestDriver<t_CHAR>::testCase4(bool veryVerbose)
                       ASSERTV(CATEGORY, spec.c_str(), err.what(), false);
                   }
               }
-              ++counter;
           } while (generator.next());
 
           if (veryVerbose) {

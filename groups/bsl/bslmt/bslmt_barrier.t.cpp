@@ -1050,11 +1050,8 @@ int main(int argc, char *argv[])
 
         bslmt::Barrier normalBarrier(2);
 
-        bslmt::ThreadAttributes detached;
-        bsls::AtomicInt state(0);
-        bslmt::ThreadUtil::Handle dummy;
-        detached.setDetachedState(
-                               bslmt::ThreadAttributes::e_CREATE_DETACHED);
+        bsls::AtomicInt           state(0);
+        bslmt::ThreadUtil::Handle handle;
 
         if (veryVerbose) {
            cout << "Unencumbered test" << endl;
@@ -1064,7 +1061,10 @@ int main(int argc, char *argv[])
                             &normalBarrier,
                             k_NUM_WAIT_CYCLES);
 
-        ASSERT(0 == bslmt::ThreadUtil::create(&dummy, detached, driver));
+        // The driver thread is joinable (not detached) so that it cannot
+        // touch `state` or `normalBarrier` after they go out of scope.
+
+        ASSERT(0 == bslmt::ThreadUtil::create(&handle, driver));
 
         for (int i = 0; i < k_NUM_WAIT_CYCLES; ++i) {
            if (veryVerbose) {
@@ -1076,6 +1076,7 @@ int main(int argc, char *argv[])
                         (state > 2*i) && (state <= (i+1) * 2));
         }
 
+        ASSERT(0 == bslmt::ThreadUtil::join(handle));
       } break;
       case 6: {
         // ----------------------------------------------------------------

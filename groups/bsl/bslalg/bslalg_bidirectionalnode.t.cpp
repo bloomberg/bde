@@ -455,19 +455,25 @@ int main(int argc, char *argv[])
 
         {
             typedef bslalg::BidirectionalNode<int> Obj;
+            typedef bslalg::BidirectionalLink      Link;
 
-            Obj * const K1 = (Obj *) 0xaddc0c0a;
-            Obj * const K2 = (Obj *) 0xbaddeed5;
-            Obj * const K3 = (Obj *) 0x50fabed5;
-            Obj * const K4 = (Obj *)  0x5eaf00d;
+            // The following (invalid) addresses are deliberately typed as
+            // `Link *` rather than `Obj *`: converting an `Obj *` that does
+            // not point to a suitably aligned object to its base class
+            // `Link *` is undefined behavior (and is reported by UBSan).
+
+            Link * const K1 = (Link *) 0xaddc0c0a;
+            Link * const K2 = (Link *) 0xbaddeed5;
+            Link * const K3 = (Link *) 0x50fabed5;
+            Link * const K4 = (Link *)  0x5eaf00d;
 
             const int KA_INT = 0xa0a0a0a0;
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-            Obj * const KA = (Obj *) KA_INT;
+            Link * const KA = (Link *) KA_INT;
 #else
             bsls::Types::Uint64 KA_UNSIGNED = 0xa0a0a0a0;
-            Obj * const KA = (Obj *) ((KA_UNSIGNED << 32) | KA_UNSIGNED);
+            Link * const KA = (Link *) ((KA_UNSIGNED << 32) | KA_UNSIGNED);
 #endif
 
             Obj *xPtr = (Obj *) oa.allocate(sizeof(Obj));

@@ -5,6 +5,7 @@
 #include <bslmf_movableref.h>
 
 #include <bsls_alignmentfromtype.h>
+#include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -118,9 +119,11 @@ int veryVeryVeryVerbose = 0; // For test allocators
 // not honor the stronger alignment of `std::max_align_t`.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 const std::size_t k_DEFAULT_ALIGNMENT = alignof(std::max_align_t);
+typedef std::max_align_t MaxAlignedType;
 #else
 const std::size_t k_DEFAULT_ALIGNMENT =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+typedef bsls::AlignmentUtil::MaxAlignedType MaxAlignedType;
 #endif
 
 /// This class is used with `bsls::ProtocolTest` to test the
@@ -158,7 +161,7 @@ bool MemoryResourceProtocolTest::do_is_equal(const bsl::memory_resource&) const
 class PassthroughTest : public bsl::memory_resource {
 
     // DATA
-    int                    d_buffer[4];         // buffer to allocate from
+    MaxAlignedType         d_buffer[4];         // buffer to allocate from
     std::size_t            d_lastBytesArg;      // most recent `bytes` argument
     std::size_t            d_lastAlignmentArg;  // most recent `alignment` arg
     void                  *d_lastBlock_p;       // most recent memory block

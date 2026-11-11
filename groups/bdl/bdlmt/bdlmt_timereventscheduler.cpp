@@ -380,8 +380,8 @@ const char TimerEventScheduler::s_defaultThreadName[16] = { "bdl.TimerEvent" };
 
 // PRIVATE MANIPULATORS
 void TimerEventScheduler::initialize(
-                                    bdlm::MetricsRegistry   *metricsRegistry,
-                                    const bsl::string_view&  eventSchedulerName)
+                                   bdlm::MetricsRegistry   *metricsRegistry,
+                                   const bsl::string_view&  eventSchedulerName)
 {
     d_cachedNowMicroseconds = d_currentTimeFunctor().totalMicroseconds();
 
@@ -457,9 +457,9 @@ TimerEventScheduler::TimerEventScheduler(bslma::Allocator* basicAllocator)
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                                    const bsl::string_view&  eventSchedulerName,
-                                    bdlm::MetricsRegistry   *metricsRegistry,
-                                    bslma::Allocator        *basicAllocator)
+                                   const bsl::string_view&  eventSchedulerName,
+                                   bdlm::MetricsRegistry   *metricsRegistry,
+                                   bslma::Allocator        *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
@@ -521,10 +521,10 @@ TimerEventScheduler::TimerEventScheduler(
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                                bsls::SystemClockType::Enum  clockType,
-                                const bsl::string_view&      eventSchedulerName,
-                                bdlm::MetricsRegistry       *metricsRegistry,
-                                bslma::Allocator            *basicAllocator)
+                               bsls::SystemClockType::Enum  clockType,
+                               const bsl::string_view&      eventSchedulerName,
+                               bdlm::MetricsRegistry       *metricsRegistry,
+                               bslma::Allocator            *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
@@ -586,10 +586,10 @@ TimerEventScheduler::TimerEventScheduler(
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                     const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
-                     const bsl::string_view&                 eventSchedulerName,
-                     bdlm::MetricsRegistry                  *metricsRegistry,
-                     bslma::Allocator                       *basicAllocator)
+                    const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
+                    const bsl::string_view&                 eventSchedulerName,
+                    bdlm::MetricsRegistry                  *metricsRegistry,
+                    bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
@@ -651,11 +651,11 @@ TimerEventScheduler::TimerEventScheduler(
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                     const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
-                     bsls::SystemClockType::Enum             clockType,
-                     const bsl::string_view&                 eventSchedulerName,
-                     bdlm::MetricsRegistry                  *metricsRegistry,
-                     bslma::Allocator                       *basicAllocator)
+                    const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
+                    bsls::SystemClockType::Enum             clockType,
+                    const bsl::string_view&                 eventSchedulerName,
+                    bdlm::MetricsRegistry                  *metricsRegistry,
+                    bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
@@ -720,11 +720,11 @@ TimerEventScheduler::TimerEventScheduler(int               numEvents,
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                                    int                      numEvents,
-                                    int                      numClocks,
-                                    const bsl::string_view&  eventSchedulerName,
-                                    bdlm::MetricsRegistry   *metricsRegistry,
-                                    bslma::Allocator        *basicAllocator)
+                                   int                      numEvents,
+                                   int                      numClocks,
+                                   const bsl::string_view&  eventSchedulerName,
+                                   bdlm::MetricsRegistry   *metricsRegistry,
+                                   bslma::Allocator        *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
@@ -800,12 +800,12 @@ TimerEventScheduler::TimerEventScheduler(
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                                int                          numEvents,
-                                int                          numClocks,
-                                bsls::SystemClockType::Enum  clockType,
-                                const bsl::string_view&      eventSchedulerName,
-                                bdlm::MetricsRegistry       *metricsRegistry,
-                                bslma::Allocator            *basicAllocator)
+                               int                          numEvents,
+                               int                          numClocks,
+                               bsls::SystemClockType::Enum  clockType,
+                               const bsl::string_view&      eventSchedulerName,
+                               bdlm::MetricsRegistry       *metricsRegistry,
+                               bslma::Allocator            *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
@@ -882,12 +882,12 @@ TimerEventScheduler::TimerEventScheduler(
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                     int                                     numEvents,
-                     int                                     numClocks,
-                     const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
-                     const bsl::string_view&                 eventSchedulerName,
-                     bdlm::MetricsRegistry                  *metricsRegistry,
-                     bslma::Allocator                       *basicAllocator)
+                    int                                     numEvents,
+                    int                                     numClocks,
+                    const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
+                    const bsl::string_view&                 eventSchedulerName,
+                    bdlm::MetricsRegistry                  *metricsRegistry,
+                    bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
@@ -964,13 +964,13 @@ TimerEventScheduler::TimerEventScheduler(
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                     int                                     numEvents,
-                     int                                     numClocks,
-                     const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
-                     bsls::SystemClockType::Enum             clockType,
-                     const bsl::string_view&                 eventSchedulerName,
-                     bdlm::MetricsRegistry                  *metricsRegistry,
-                     bslma::Allocator                       *basicAllocator)
+                    int                                     numEvents,
+                    int                                     numClocks,
+                    const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
+                    bsls::SystemClockType::Enum             clockType,
+                    const bsl::string_view&                 eventSchedulerName,
+                    bdlm::MetricsRegistry                  *metricsRegistry,
+                    bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
@@ -1276,11 +1276,17 @@ int TimerEventScheduler::cancelClock(Handle handle, bool wait)
         return -1;                                                    // RETURN
     }
 
+    // Mark the clock cancelled before decrementing 'd_numClocks', so that if
+    // a thread observes the decremented 'numClocks()', the dispatcher thread
+    // will see that the clock is cancelled the next time it checks (e.g.,
+    // for a clock that is pending behind a callback that is currently
+    // executing).
+
+    p->d_isCancelled = true;
+
     --d_numClocks;
 
     if (d_clockTimeQueue.remove(p->d_handle)) {
-        p->d_isCancelled = true;
-
         if (!d_running.loadRelaxed()) {
             d_cachedClockMicroseconds =
                                 bsl::numeric_limits<bsls::Types::Int64>::max();
@@ -1304,15 +1310,16 @@ void TimerEventScheduler::cancelAllClocks(bool wait)
     bsl::vector<ClockDataPtr> buffer;
     d_clocks.removeAll(&buffer);
 
-    d_numClocks -= static_cast<int>(buffer.size());
-
     const int length = static_cast<int>(buffer.size());
 
-    // mark them all canceled ASAP
+    // Mark them all canceled ASAP, and before decrementing 'd_numClocks' (see
+    // 'cancelClock').
 
     for (int i = 0; i < length; ++i) {
         buffer[i]->d_isCancelled = true;
     }
+
+    d_numClocks -= length;
 
     bool removeFailed = false;
     for (int i = 0; i < length; ++i) {

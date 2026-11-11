@@ -2739,6 +2739,12 @@ int main(int argc, char *argv[])
 
             const ClockType ctm   = CT::e_MONOTONIC;
             const ClockType ctr   = CT::e_REALTIME;
+
+#ifndef BDE_BUILD_TARGET_UBSAN
+            // `ctMin` and `ctMax` are used only to compute `ctLo` and `ctHi`,
+            // which are outside the range of values of `ClockType`, so loading
+            // them is undefined behavior that UBSan reports.
+
             const ClockType ctMin = (ClockType) bsl::min(ctm, ctr);
             const ClockType ctMax = (ClockType) bsl::max(ctm, ctr);
 
@@ -2752,6 +2758,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
+#endif
 #endif
 
             for (int ti = 0; ti < 2; ++ti) {
@@ -2781,6 +2788,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(mX.initialize( msaLo, nsaBad, ctValid));
                 ASSERT_FAIL(mX.initialize( msaLo,  nsaLo, ctValid));
 
+#ifndef BDE_BUILD_TARGET_UBSAN
                 ASSERT_FAIL(mX.initialize(msaMin,      1, ctLo));
                 ASSERT_FAIL(mX.initialize(msaMin, nsaMax, ctLo));
                 ASSERT_FAIL(mX.initialize(     1, nsaMin, ctLo));
@@ -2795,6 +2803,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_FAIL(mX.initialize( msaLo,  nsaLo, ctHi));
                 ASSERT_FAIL(mX.initialize( msaLo,  nsaLo, ctLo));
+#endif
             }
         }
       } break;

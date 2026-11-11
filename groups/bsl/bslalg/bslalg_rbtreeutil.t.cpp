@@ -8077,7 +8077,7 @@ int main(int argc, char *argv[])
                 Obj::copyTree(&copiedTree, tree, &allocator);
 
                 ASSERT(copiedTree.rootNode() >= copiedNodes &&
-                       copiedTree.rootNode() <= copiedNodes + NUM_VALUES);
+                       copiedTree.rootNode() <= copiedNodes + NUM_VALUES - 1);
                 ASSERT(areTreesEqual(tree.rootNode(),
                                      copiedTree.rootNode(),
                                      nodeComparator));

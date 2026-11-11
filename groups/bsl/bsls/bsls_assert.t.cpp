@@ -1796,13 +1796,13 @@ void test_case_24() {
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE) || defined(BSLS_ASSERT_OPT_IS_REVIEW)
             bool caughtException = false;
             try {
-                badExistingDoAction(static_cast<Action>(-1));
+                badExistingDoAction(static_cast<Action>(3));
             } catch (const bsls::AssertTestException& ex) {
                 caughtException = true;
             }
             ASSERT(caughtException);
 #else
-            badExistingDoAction(static_cast<Action>(-1));
+            badExistingDoAction(static_cast<Action>(3));
 #endif
         }
 #endif
@@ -1831,13 +1831,13 @@ void test_case_24() {
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE) || defined(BSLS_ASSERT_OPT_IS_REVIEW)
             bool caughtException = false;
             try {
-                updatedDoAction(static_cast<Action>(-1));
+                updatedDoAction(static_cast<Action>(3));
             } catch (const bsls::AssertTestException& ex) {
                 caughtException = true;
             }
             ASSERT(caughtException);
 #else
-            updatedDoAction(static_cast<Action>(-1));
+            updatedDoAction(static_cast<Action>(3));
 #endif
         }
 #endif
@@ -1865,7 +1865,7 @@ void test_case_24() {
 
             bool caughtException = false;
             try {
-                newlyWrittenDoAction(static_cast<Action>(-1));
+                newlyWrittenDoAction(static_cast<Action>(3));
             } catch (const bsls::AssertTestException& ex) {
                 caughtException = true;
             }
@@ -1877,7 +1877,7 @@ void test_case_24() {
         ASSERT(0 == strcmp(toAscii(e_RED),   "RED"  ));
         ASSERT(0 == strcmp(toAscii(e_GREEN), "GREEN"));
         ASSERT(0 == strcmp(toAscii(e_BLUE),  "BLUE" ));
-        ASSERT(0 == strcmp(toAscii(static_cast<Color>(-1)),
+        ASSERT(0 == strcmp(toAscii(static_cast<Color>(3)),
                            "(* UNKNOWN COLOR *)"));
 
 #if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
@@ -2341,7 +2341,8 @@ class StringResetter {
 
 void testCase13Handler(const bsls::AssertViolation& violation)
 {
-    ASSERTV(violation.comment(), 0 == strcmp(violation.comment(), "InitValue"));
+    ASSERTV(violation.comment(),
+            0 == strcmp(violation.comment(), "InitValue"));
 
 #ifdef BDE_BUILD_TARGET_EXC
     // Test that throwing will produce an exception that still has the same
