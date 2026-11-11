@@ -21,6 +21,7 @@
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
+#include <bsls_testtempdirectory.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
@@ -41,7 +42,7 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>             // `fork`, `pipe`, `close` and `dup`.
-#include <sys/wait.h>           // `wait`
+#include <sys/wait.h>           // `waitpid`
 #else
 #include <windows.h>
 #include <fileapi.h>
@@ -323,36 +324,6 @@ void simulateRfc4122(
     bytes[6] = static_cast<unsigned char>(0x40 | (bytes[6] & 0x0F));
     bytes[8] = static_cast<unsigned char>(0x80 | (bytes[8] & 0x3F));
 }
-
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-
-/// Return the potential name for a temporary file.  The returned C-string
-/// refers to a static memory buffer (so this method is not thread safe).
-/// Additional output is generated based on the specified `verboseFlag`.
-bsl::string tempFileName(bool verboseFlag)
-{
-    enum { k_MAX_LENGTH = 4096 };
-    static char result[k_MAX_LENGTH];
-
-    snprintf(result, sizeof result, "bdlb_guidutilXXXXXX");
-    close(mkstemp(result));
-
-    if (verboseFlag) printf("\tUse %s as a base filename.\n", result);
-
-    return result;
-}
-
-/// Delete the file with the specified `path`.  Return 0 on success and
-/// non-zero otherwise.
-static inline
-int removeFile(const char *path)
-{
-    BSLS_ASSERT(path);
-
-    return unlink(path);
-}
-
-#endif // BSLS_PLATFORM_OS_WINDOWS
 
 /// A simple bloom filter, limited to taking inputs of k_GENERATOR_COUNT-int
 /// arrays, which treats the values in that array as flatly distributed
@@ -1122,7 +1093,13 @@ int main(int argc, char *argv[])
             k_GUID_COUNT    = 16
         };
 
-        bsl::string fileName = tempFileName(veryVerbose);
+        bsls::TestTempDirectory tempDir("bdlb_guidutil", test);
+
+        char fileNameBuf[bsls::TestTempDirectory::k_PATH_BUFFER_SIZE];
+        ASSERT(0 == tempDir.makePath(fileNameBuf,
+                                     sizeof fileNameBuf,
+                                     "childGuids.txt"));
+        const bsl::string fileName(fileNameBuf);
 
         if (veryVeryVerbose) {
             P(fileName);
@@ -1135,7 +1112,8 @@ int main(int argc, char *argv[])
         bdlb::GuidUtil::generateNonSecure(preForkGuids.data(),
                                           preForkGuids.size());
 
-        if (pid_t childPid = fork()) {
+        const pid_t childPid = fork();
+        if (childPid) {
             // Parent process.
             ASSERT(childPid > 0);
             // Parent creates post-fork guids
@@ -1174,11 +1152,26 @@ int main(int argc, char *argv[])
 
             ASSERTV(fileName, !output.bad());
 
-            // Return from `main` and thus exit the child process.
-            return 0;                                                 // RETURN
+            // `close` flushes the buffered lines, so a write failure, such as
+            // a full `TMPDIR`, may only show up here.
+
+            output.close();
+            ASSERTV(fileName, !output.fail());
+
+            // Exit the child process without unwinding the stack, so that
+            // `tempDir` does not remove the file before the parent reads it.
+            // Pass on whether any of the child's assertions failed.
+            bsl::exit(testStatus ? 1 : 0);
         }
 
-        while(wait(NULL) > 0);
+        // Reap the child, and fail if any of its assertions failed.
+
+        if (0 < childPid) {
+            int childStatus = 0;
+            ASSERT(childPid == waitpid(childPid, &childStatus, 0));
+            ASSERTV(childStatus,
+                    WIFEXITED(childStatus) && 0 == WEXITSTATUS(childStatus));
+        }
 
         bsl::vector<Obj> finalList;
 
@@ -1201,8 +1194,6 @@ int main(int argc, char *argv[])
 
             ASSERTV(fileName, !input.bad());
         }
-
-        ASSERTV(fileName, 0 == removeFile(fileName.c_str()));
 
         ASSERTV(finalList.size(), k_GUID_COUNT == finalList.size());
 

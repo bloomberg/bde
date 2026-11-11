@@ -2,7 +2,6 @@
 #include <bdlde_utf8util.h>
 
 #include <bdlsb_fixedmeminstreambuf.h>
-#include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bslim_testutil.h>
 
@@ -14,6 +13,7 @@
 #include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_systemtime.h>
+#include <bsls_testtempdirectory.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
@@ -29,13 +29,6 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-# include <windows.h>
-#else
-# include <sys/types.h>
-# include <unistd.h>
-#endif
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -2645,68 +2638,6 @@ enum {
         sizeof legalCodepointData / sizeof *legalCodepointData
 };
 
-/// Return the process id.  Having this be separate from `Obj::getProcessId`
-/// allows us to call it inline within the component.
-int getPid()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    return static_cast<int>(GetCurrentProcessId());
-#else
-    return static_cast<int>(::getpid());
-#endif
-}
-
-/// Remove plain file `path`.  Return 0 on success and a non-zero value
-/// otherwise.
-int removeFile(const char *path)
-{
-    BSLS_ASSERT(path);
-
-#if defined(BSLS_PLATFORM_OS_UNIX)
-    return ::unlink(path);
-#else
-    // Windows
-
-    bsl::wstring wide;
-
-    for (; *path; ++path) {
-        BSLS_ASSERT(!(*path & 0x80));    // all ascii
-
-        wide.push_back(*path);
-    }
-
-    return DeleteFileW(wide.c_str()) ? 0 : -1;
-#endif
-}
-
-bsl::string tmpFileName(int test)
-{
-    char ret[1024];
-    const char *hostName = bsl::getenv("HOSTNAME");
-    hostName = hostName ? hostName : "unknown_host";
-
-    static const bsl::size_t npos = bsl::string::npos;
-
-    bsl::string componentName = __FILE__;
-    bsl::size_t pos = componentName.find_last_of("/\\");
-    if (npos != pos) {
-        componentName.erase(bsl::size_t(0), pos + 1);
-    }
-    pos = componentName.find('.');
-    if (npos != pos) {
-        componentName.erase(pos, npos);
-    }
-
-    bdlsb::FixedMemOutStreamBuf fileSb(ret, sizeof(ret));
-    bsl::ostream                fileStream(&fileSb);
-    fileStream << "tmp." << componentName << '.' << test << '.' << hostName <<
-                                     '.' << u::getPid() << ".txt" << bsl::ends;
-
-    BSLS_ASSERT(bsl::strlen(ret) < sizeof(ret));
-
-    return ret;
-}
-
 /// Return `true` if the specified `str` contains any ASCII and `false`
 /// otherwise.
 bool containsAscii(const char *str)
@@ -5155,11 +5086,15 @@ int main(int argc, char *argv[])
         // REPRODUCE WINDOWS `sputbackc` BUG ON EOF.
         // --------------------------------------------------------------------
 
-        const bsl::string& fileName = u::tmpFileName(test);
+        bsls::TestTempDirectory tempDir("bdlde_utf8util", test);
+
+        char fileNameBuf[bsls::TestTempDirectory::k_PATH_BUFFER_SIZE];
+        ASSERT(0 == tempDir.makePath(fileNameBuf,
+                                     sizeof fileNameBuf,
+                                     "sputbackc.txt"));
+        const bsl::string fileName(fileNameBuf);
 
         if (verbose) P(fileName);
-
-        u::removeFile(fileName.c_str());
 
         const bsl::string catStr = bsl::string("cat ") + fileName;
 
@@ -5243,8 +5178,6 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "ifstr was destroyed\n";
-
-        ASSERT(0 == u::removeFile(fileName.c_str()));
       } break;
       case 14: {
         // --------------------------------------------------------------------
