@@ -18,9 +18,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for character types.
 //
-// This header is not intended to be included directly.  Please include
-// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`
-// for character types.
+// This header is not intended to be included directly.
 //
 ///Usage
 ///-----
@@ -51,72 +49,28 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslfmt_debugformatutil.h>
+#include <bslfmt_escapeutil.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formattercharutil.h>
 #include <bslfmt_formatterintegralbase.h>
+#include <bslfmt_padutil.h>
 #include <bslfmt_standardformatspecification.h>
 
 #include <bslalg_numericformatterutil.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
 #include <bslstl_iterator.h>
+#include <bslstl_stringview.h>
+
+#include <cstddef>  // `std::size_t`
 
 namespace BloombergLP {
 namespace bslfmt {
-
-                         // ======================================
-                         // struct FormatterCharacter_MakeUnsigned
-                         // ======================================
-
-/// This `struct` template implements the `make_unsigned` meta-function defined
-/// in the C++11 standard [meta.trans.sign], providing an alias, `type`, that
-/// returns the result.  The `type` is the unsigned analogue of the (template
-/// parameter) `t_TYPE`.
-template <class t_TYPE, int t_SIZE>
-struct FormatterCharacter_MakeUnsigned {
-};
-
-/// Partial specialization of the `FormatterCharacter_MakeUnsigned` template
-/// for the type `char`.
-template <int t_SIZE>
-struct FormatterCharacter_MakeUnsigned<char, t_SIZE> {
-    // TYPES
-    typedef unsigned char type;  // unsigned analogue for `char`
-};
-
-/// This is a specialization of the `FormatterCharacter_MakeUnsigned` template
-/// for the type `wchar_t` having 1-byte length.
-template <>
-struct FormatterCharacter_MakeUnsigned<wchar_t, 1> {
-    // TYPES
-    typedef unsigned char type;  // unsigned analogue for 1-byte `wchar_t`
-};
-
-/// This is a specialization of the `FormatterCharacter_MakeUnsigned` template
-/// for the type `wchar_t` having 2-byte length.
-template <>
-struct FormatterCharacter_MakeUnsigned<wchar_t, 2> {
-    // TYPES
-    typedef unsigned short int type;  // unsigned analogue for 2-byte `wchar_t`
-};
-
-/// This is a specialization of the `FormatterCharacter_MakeUnsigned` template
-/// for the type `wchar_t` having 4-byte length.
-template <>
-struct FormatterCharacter_MakeUnsigned<wchar_t, 4> {
-    // TYPES
-    typedef unsigned long int type;  // unsigned analogue for 4-byte `wchar_t`
-};
-
-/// This is a specialization of the `FormatterCharacter_MakeUnsigned` template
-/// for the type `wchar_t` having 8-byte length.
-template <>
-struct FormatterCharacter_MakeUnsigned<wchar_t, 8> {
-    // TYPES
-    typedef unsigned long long int type;  // unsigned analogue for 8-byte
-                                          // `wchar_t`
-};
 
                 // =========================================
                 // struct FormatterCharacter_CharacterOutput
@@ -191,6 +145,13 @@ struct FormatterCharacter_CharacterOutput<char, wchar_t> {
 template <class t_VALUE, class t_CHAR>
 struct FormatterCharacter_Imp : public FormatterIntegralBase<t_VALUE, t_CHAR> {
   public:
+    // MANIPULATORS
+
+    /// Render subsequently formatted values in the escaped ("debug")
+    /// presentation, as though `?` had been specified.  The behavior is
+    /// undefined unless `parse` has been called on this object.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void set_debug_format();
+
     // ACCESSORS
 
     /// Create string representation of the specified `value`, customized in
@@ -213,6 +174,11 @@ namespace bsl {
 template <>
 struct formatter<char, wchar_t>
 : BloombergLP::bslfmt::FormatterCharacter_Imp<char, wchar_t> {
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
 };
 
 /// This is a specialization of the `bsl::formatter` template for the type
@@ -220,6 +186,11 @@ struct formatter<char, wchar_t>
 template <>
 struct formatter<char, char>
 : BloombergLP::bslfmt::FormatterCharacter_Imp<char, char> {
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
 };
 
 /// This is a specialization of the `bsl::formatter` template for the type
@@ -227,6 +198,11 @@ struct formatter<char, char>
 template <>
 struct formatter<wchar_t, wchar_t>
 : BloombergLP::bslfmt::FormatterCharacter_Imp<wchar_t, wchar_t> {
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
 };
 
 }  // close namespace bsl
@@ -242,6 +218,16 @@ namespace bslfmt {
                          // struct FormatterCharacter_Imp
                          // -----------------------------
 
+// MANIPULATORS
+template <class t_VALUE, class t_CHAR>
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterCharacter_Imp<t_VALUE, t_CHAR>::set_debug_format()
+{
+    this->setEscapedFormatType();
+}
+
+// ACCESSORS
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 inline
@@ -254,6 +240,44 @@ FormatterCharacter_Imp<t_VALUE, t_CHAR>::format(
     typedef bslalg::NumericFormatterUtil        NFUtil;
 
     const Specification& parsedSpec = this->specification();
+
+    if (Specification::e_CHARACTER_ESCAPED == parsedSpec.formatType()) {
+        // The escaped rendering is padded by `PadUtil` rather than through
+        // `outputValue`, because the padding must be computed from the
+        // display width of the escaped text.  `outputValue` measures in code
+        // units, which differs whenever the character is printable and
+        // double-width.  The longest possible rendering is `'\u{10ffff}'`.
+        //
+        // Note that a `char` formatted into a `wchar_t` sink is widened first
+        // and escaped afterwards, so that, for example, `'\x80'` renders as
+        // `'\u{80}'` -- U+0080, which is not printable -- rather than as an
+        // ill-formed byte.
+
+        t_CHAR widened;
+        FormatterCharacter_CharacterOutput<t_VALUE, t_CHAR>::output(value,
+                                                                    &widened);
+
+        t_CHAR  escaped[16];
+        t_CHAR *escapedEnd = EscapeUtil<t_CHAR>::escapeCharacter(escaped,
+                                                                 widened);
+
+        Specification finalSpec(parsedSpec);
+        finalSpec.postprocess(formatContext);
+
+        const bsl::basic_string_view<t_CHAR> filler(
+                                             finalSpec.filler(),
+                                             finalSpec.numFillerCharacters());
+
+        return PadUtil<t_CHAR>::writePadded(
+                   formatContext.out(),
+                   bsl::basic_string_view<t_CHAR>(
+                               escaped,
+                               static_cast<std::size_t>(escapedEnd - escaped)),
+                   finalSpec.postprocessedWidth(),
+                   finalSpec.alignment(),
+                   filler,
+                   Specification::e_ALIGN_LEFT);                      // RETURN
+    }
 
     if (Specification::e_CHARACTER_CHARACTER == parsedSpec.formatType()) {
         char    dummyPrefix = 0;
@@ -271,9 +295,7 @@ FormatterCharacter_Imp<t_VALUE, t_CHAR>::format(
                                  formatContext);                      // RETURN
     }
     else {
-        typedef typename FormatterCharacter_MakeUnsigned<t_VALUE,
-                                                         sizeof(wchar_t)>::type
-            UintType;
+        typedef typename FormatterCharUtil<t_VALUE>::UnsignedType UintType;
 
         const int  maxPrefixSize = 4;
         char       prefixBuf[maxPrefixSize];

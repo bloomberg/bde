@@ -707,6 +707,16 @@ FormatSpecificationParser<t_CHAR>::parseRawWidth(t_ITER *start, t_ITER end)
 
     typedef FormatterSpecificationNumericValue NumericValue;
 
+    // A `width` is a `positive-integer` ([format.string.std]) and so cannot
+    // carry a leading zero.  Specifications that accept the zero-pad flag have
+    // already consumed a leading `0` as that flag before reaching this point;
+    // for those that do not -- the range and tuple specifications -- a leading
+    // `0` is invalid, and must not be silently absorbed into the width.
+
+    if (**start == t_CHAR('0')) {
+        BSLS_THROW(bsl::format_error("Field widths must be > 0"));     // THROW
+    }
+
     d_rawWidth.parse(start, end, false);
     // Non-relative widths must be strictly positive.
     if (d_rawWidth == NumericValue(NumericValue::e_VALUE, 0)) {

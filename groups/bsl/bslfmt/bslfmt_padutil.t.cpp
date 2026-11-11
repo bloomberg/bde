@@ -2,6 +2,8 @@
 
 #include <bslfmt_padutil.h>
 
+#include <bslfmt_formaterror.h>
+
 #include <bslstl_string.h>
 
 #include <bsls_asserttest.h>
@@ -19,10 +21,14 @@ using std::size_t;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// `bslfmt::PadUtil` is a namespace class for the methods `computePadding` and
-// `pad`, useful for padding output from bslfmt.
+// `bslfmt::PadUtil` is a namespace class for the methods `computePadding`,
+// `pad` and `writePadded`, useful for padding output from bslfmt.
 // ----------------------------------------------------------------------------
 // CLASS METHOD
+// [ 6] t_ITERATOR writePadded(t_ITERATOR, string_view, WidthValue, Alignment,
+//                             string_view, Alignment);
+// [ 5] t_ITERATOR writePadded(t_ITERATOR, string_view, ptrdiff_t, WidthValue,
+//                             Alignment, string_view, Alignment);
 // [ 4] t_ITERATOR PadUtil<t_CHAR>::pad(t_ITERATOR, ptrdiff_t, char);
 // [ 4] t_ITERATOR PadUtil<t_CHAR>::pad(t_ITERATOR, ptrdiff_t, wchar_t);
 // [ 3] t_ITERATOR PadUtil<t_CHAR>::pad(t_ITERATOR, ptrdiff_t, string_view);
@@ -30,7 +36,7 @@ using std::size_t;
 // [ 2] computePadding(size_t *, size_t *, WidthValue, size_t, Alignment);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -71,8 +77,10 @@ namespace {
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
 
 // ============================================================================
 //                                USAGE EXAMPLE
@@ -218,6 +226,130 @@ enum FillerType {
     k_NUM_FILLER_TYPES
 };
 
+// ============================================================================
+//                                 TEST CASE 5
+// ----------------------------------------------------------------------------
+
+/// Verify `PadUtil<t_CHAR>::writePadded`, given a content width, writing
+/// both through a pointer, to verify the returned iterator, and through a back
+/// insert iterator.
+template <class t_CHAR>
+void testWritePadded()
+{
+    typedef bsl::basic_string<t_CHAR>      String;
+    typedef bsl::basic_string_view<t_CHAR> StringView;
+    typedef PadUtil<t_CHAR>                Util;
+
+    static const struct {
+        int         d_line;
+        const char *d_content_p;
+        Category    d_category;
+        int         d_width;
+        Alignment   d_alignment;
+        Alignment   d_defaultAlign;
+        const char *d_filler_p;
+        const char *d_expected_p;
+    } DATA[] = {
+        //LINE  CONTENT  CATEGORY     W  ALIGN        DEFAULT   FILL  EXP
+        //----  -------  -----------  -  -----------  --------  ----  ---
+        { L_,   "abc",   e_C_DEFAULT, 0, e_A_DEFAULT, e_LEFT,   "*",
+                                                                  "abc"     },
+        { L_,   "abc",   e_C_DEFAULT, 9, e_RIGHT,     e_LEFT,   "*",
+                                                                  "abc"     },
+        { L_,   "abc",   e_VALUE,     2, e_RIGHT,     e_LEFT,   "*",
+                                                                  "abc"     },
+        { L_,   "abc",   e_VALUE,     3, e_MIDDLE,    e_LEFT,   "*",
+                                                                  "abc"     },
+        { L_,   "abc",   e_VALUE,     6, e_LEFT,      e_RIGHT,  "*",
+                                                                  "abc***"  },
+        { L_,   "abc",   e_VALUE,     6, e_RIGHT,     e_LEFT,   "*",
+                                                                  "***abc"  },
+        { L_,   "abc",   e_VALUE,     6, e_MIDDLE,    e_LEFT,   "*",
+                                                                  "*abc**"  },
+        { L_,   "abc",   e_VALUE,     6, e_A_DEFAULT, e_LEFT,   "*",
+                                                                  "abc***"  },
+        { L_,   "abc",   e_VALUE,     6, e_A_DEFAULT, e_RIGHT,  "*",
+                                                                  "***abc"  },
+        { L_,   "abc",   e_VALUE,     6, e_A_DEFAULT, e_MIDDLE, "*",
+                                                                  "*abc**"  },
+        { L_,   "",      e_VALUE,     3, e_LEFT,      e_LEFT,   "-",
+                                                                  "---"     },
+        { L_,   "",      e_C_DEFAULT, 0, e_A_DEFAULT, e_LEFT,   "-",
+                                                                  ""        },
+
+        // A filler of more than one character is written whole.
+
+        { L_,   "ab",    e_VALUE,     4, e_RIGHT,     e_LEFT,   "xy",
+                                                                  "xyxyab"  },
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int              LINE          = DATA[ti].d_line;
+        const bsl::string_view CONTENT_SV(DATA[ti].d_content_p);
+        const NumericValue     WIDTH(DATA[ti].d_category, DATA[ti].d_width);
+        const Alignment        ALIGNMENT     = DATA[ti].d_alignment;
+        const Alignment        DEFAULT_ALIGN = DATA[ti].d_defaultAlign;
+        const bsl::string_view FILLER_SV(DATA[ti].d_filler_p);
+        const bsl::string_view EXPECTED_SV(DATA[ti].d_expected_p);
+
+        // The content is ASCII, so its width is its number of characters.
+
+        const String         CONTENT(CONTENT_SV.begin(), CONTENT_SV.end());
+        const std::ptrdiff_t CONTENT_WIDTH = CONTENT_SV.size();
+        const String         FILLER(FILLER_SV.begin(), FILLER_SV.end());
+        const String         EXPECTED(EXPECTED_SV.begin(), EXPECTED_SV.end());
+
+        const StringView contentView(CONTENT);
+        const StringView fillerView(FILLER);
+
+        {
+            t_CHAR buffer[32];
+
+            t_CHAR *end = Util::writePadded(buffer,
+                                            contentView,
+                                            CONTENT_WIDTH,
+                                            WIDTH,
+                                            ALIGNMENT,
+                                            fillerView,
+                                            DEFAULT_ALIGN);
+
+            ASSERTV(LINE, EXPECTED.size() ==
+                                         static_cast<size_t>(end - buffer));
+            ASSERTV(LINE, EXPECTED == String(buffer, end));
+        }
+
+        {
+            String result;
+
+            Util::writePadded(bsl::back_inserter(result),
+                              contentView,
+                              CONTENT_WIDTH,
+                              WIDTH,
+                              ALIGNMENT,
+                              fillerView,
+                              DEFAULT_ALIGN);
+
+            ASSERTV(LINE, EXPECTED == result);
+        }
+
+        if (e_LEFT == DEFAULT_ALIGN) {
+            // The default value of `defaultAlign` is `e_ALIGN_LEFT`.
+
+            String result;
+
+            Util::writePadded(bsl::back_inserter(result),
+                              contentView,
+                              CONTENT_WIDTH,
+                              WIDTH,
+                              ALIGNMENT,
+                              fillerView);
+
+            ASSERTV(LINE, EXPECTED == result);
+        }
+    }
+}
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -236,7 +368,7 @@ int main(int argc, char** argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) { case 0:
-      case 5: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -268,6 +400,244 @@ int main(int argc, char** argv)
 // ```
     ASSERT(34 == s.length());
 // ```
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING `writePadded` ON TEXT
+        //
+        // Concerns:
+        // 1. The text is padded to the field width as measured in display
+        //    columns, not in code units.
+        //
+        // 2. `defaultAlign` is used when the alignment is `e_ALIGN_DEFAULT`,
+        //    and defaults to `e_ALIGN_LEFT`.
+        //
+        // 3. Text that is not well-formed Unicode causes `bsl::format_error`
+        //    to be thrown.
+        //
+        // 4. The above holds for `wchar_t` as well as `char`.
+        //
+        // Plan:
+        // 1. Pad ASCII text and text containing a double-width character
+        //    with each alignment, and compare the output with the expected
+        //    output.  (C-1..2)
+        //
+        // 2. Pad ill-formed UTF-8 and verify that `bsl::format_error` is
+        //    thrown.  (C-3)
+        //
+        // 3. Pad `wchar_t` text containing a double-width character.  (C-4)
+        //
+        // Testing:
+        //   t_ITERATOR writePadded(t_ITERATOR, string_view, WidthValue, ...);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING `writePadded` ON TEXT\n"
+                            "=============================\n");
+
+        typedef PadUtil<char>    Util;
+        typedef PadUtil<wchar_t> WUtil;
+
+        const NumericValue WIDTH(e_VALUE, 6);
+
+        static const struct {
+            int         d_line;
+            const char *d_text_p;
+            Alignment   d_alignment;
+            Alignment   d_defaultAlign;
+            const char *d_expected_p;
+        } DATA[] = {
+            //LINE  TEXT     ALIGN        DEFAULT   EXPECTED
+            //----  -------  -----------  --------  ----------
+            { L_,   "abc",   e_LEFT,      e_LEFT,   "abc***"   },
+            { L_,   "abc",   e_RIGHT,     e_LEFT,   "***abc"   },
+            { L_,   "abc",   e_MIDDLE,    e_LEFT,   "*abc**"   },
+            { L_,   "abc",   e_A_DEFAULT, e_RIGHT,  "***abc"   },
+
+            // `a` followed by U+4E2D, which is two columns wide.
+
+            { L_,   "a\xe4\xb8\xad",
+                             e_LEFT,      e_LEFT,   "a\xe4\xb8\xad***" },
+            { L_,   "a\xe4\xb8\xad",
+                             e_RIGHT,     e_LEFT,   "***a\xe4\xb8\xad" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE          = DATA[ti].d_line;
+            const char *const TEXT          = DATA[ti].d_text_p;
+            const Alignment   ALIGNMENT     = DATA[ti].d_alignment;
+            const Alignment   DEFAULT_ALIGN = DATA[ti].d_defaultAlign;
+            const char *const EXPECTED      = DATA[ti].d_expected_p;
+
+            bsl::string result;
+
+            Util::writePadded(bsl::back_inserter(result),
+                              TEXT,
+                              WIDTH,
+                              ALIGNMENT,
+                              "*",
+                              DEFAULT_ALIGN);
+
+            ASSERTV(LINE, result.c_str(), EXPECTED == result);
+
+            if (e_LEFT == DEFAULT_ALIGN) {
+                result.clear();
+
+                Util::writePadded(bsl::back_inserter(result),
+                                  TEXT,
+                                  WIDTH,
+                                  ALIGNMENT,
+                                  "*");
+
+                ASSERTV(LINE, result.c_str(), EXPECTED == result);
+            }
+        }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (veryVerbose) printf("\tIll-formed text\n");
+        {
+            bool caught = false;
+            try {
+                bsl::string result;
+                Util::writePadded(bsl::back_inserter(result),
+                                  "ab\xff",
+                                  WIDTH,
+                                  e_LEFT,
+                                  "*");
+            }
+            catch (const bslfmt::format_error&) {
+                caught = true;
+            }
+            ASSERT(caught);
+        }
+#endif
+
+        if (veryVerbose) printf("\t`wchar_t`\n");
+        {
+            bsl::wstring result;
+
+            WUtil::writePadded(bsl::back_inserter(result),
+                               L"a\x4e2d",
+                               WIDTH,
+                               e_RIGHT,
+                               L"*");
+
+            ASSERT(L"***a\x4e2d" == result);
+        }
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING `writePadded`
+        //
+        // Concerns:
+        // 1. The content is written between the left and the right padding,
+        //    whose amounts are as computed by `computePadding`.
+        //
+        // 2. The content width, not the number of characters, determines the
+        //    amount of padding.
+        //
+        // 3. `defaultAlign` is used when the alignment is `e_ALIGN_DEFAULT`,
+        //    and defaults to `e_ALIGN_LEFT`.
+        //
+        // 4. A filler of more than one character is written whole.
+        //
+        // 5. The returned iterator refers to the end of the output.
+        //
+        // 6. The above holds for both `char` and `wchar_t`.
+        //
+        // 7. QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        // 1. Using the table-driven technique, call `writePadded` for a
+        //    variety of contents, field widths, alignments, default
+        //    alignments and fillers, writing both to a buffer through a
+        //    pointer and to a string through a back insert iterator, and
+        //    compare the output with the expected output.  Also verify the
+        //    returned pointer, and, where the default alignment is
+        //    `e_ALIGN_LEFT`, the result of omitting it.  Do this for both
+        //    `char` and `wchar_t`.  (C-1, 3..6)
+        //
+        // 2. Pad content containing a double-width character, whose width
+        //    differs from its number of characters, for both `char` and
+        //    `wchar_t`.  (C-2, 6)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for a content width that is not the display width of
+        //    the content.  (C-7)
+        //
+        // Testing:
+        //   t_ITERATOR writePadded(t_ITERATOR, string_view, ptrdiff_t, ...);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING `writePadded`\n"
+                            "=====================\n");
+
+        if (veryVerbose) printf("\t`char`\n");
+        u::testWritePadded<char>();
+
+        if (veryVerbose) printf("\t`wchar_t`\n");
+        u::testWritePadded<wchar_t>();
+
+        if (veryVerbose) printf("\tDouble-width content\n");
+        {
+            const NumericValue WIDTH(e_VALUE, 5);
+
+            // `a` followed by U+4E2D, which is two columns wide.
+
+            bsl::string result;
+
+            PadUtil<char>::writePadded(bsl::back_inserter(result),
+                                       "a\xe4\xb8\xad",
+                                       3,
+                                       WIDTH,
+                                       e_RIGHT,
+                                       "*");
+
+            ASSERTV(result.c_str(), "**a\xe4\xb8\xad" == result);
+
+            bsl::wstring wresult;
+
+            PadUtil<wchar_t>::writePadded(bsl::back_inserter(wresult),
+                                          L"a\x4e2d",
+                                          3,
+                                          WIDTH,
+                                          e_RIGHT,
+                                          L"*");
+
+            ASSERT(L"**a\x4e2d" == wresult);
+        }
+
+        if (veryVerbose) printf("\tNegative testing\n");
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const NumericValue WIDTH(e_VALUE, 5);
+
+            char  buffer[16];
+            char *end = 0;
+
+            ASSERT_SAFE_PASS(end = PadUtil<char>::writePadded(buffer,
+                                                              "abc",
+                                                              3,
+                                                              WIDTH,
+                                                              e_RIGHT,
+                                                              "*"));
+            ASSERT_SAFE_FAIL(end = PadUtil<char>::writePadded(buffer,
+                                                              "abc",
+                                                              2,
+                                                              WIDTH,
+                                                              e_RIGHT,
+                                                              "*"));
+            ASSERT_SAFE_FAIL(end = PadUtil<char>::writePadded(
+                                                         buffer,
+                                                         "a\xe4\xb8\xad",
+                                                         4,
+                                                         WIDTH,
+                                                         e_RIGHT,
+                                                         "*"));
+            (void)end;
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------

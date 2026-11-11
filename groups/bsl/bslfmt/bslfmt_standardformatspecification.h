@@ -157,6 +157,13 @@ class StandardFormatSpecification
     template <typename t_FORMAT_CONTEXT>
     void postprocess(const t_FORMAT_CONTEXT& context);
 
+    /// Change the requested format type of this object to the escaped
+    /// ("debug") presentation of the category it was parsed for: a
+    /// `e_STRING_DEFAULT` type becomes `e_STRING_ESCAPED` and a
+    /// `e_CHARACTER_CHARACTER` type becomes `e_CHARACTER_ESCAPED`.  Any other
+    /// type, including one that is already escaped, is left unchanged.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void setEscapedFormatType();
+
     // ACCESSORS
 
     /// Return a pointer to the character array that stores the parsed filler
@@ -611,6 +618,24 @@ void StandardFormatSpecification<t_CHAR>::postprocess(
     }
 
     d_processingState = e_STATE_POSTPROCESSED;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void StandardFormatSpecification<t_CHAR>::setEscapedFormatType()
+{
+    switch (d_formatType) {
+      case e_STRING_DEFAULT: {
+        d_formatType = e_STRING_ESCAPED;
+      } break;
+      case e_CHARACTER_CHARACTER: {
+        d_formatType = e_CHARACTER_ESCAPED;
+      } break;
+      default: {
+        // No other category has an escaped presentation, and a type that is
+        // already escaped needs no change.
+      } break;
+    }
 }
 
 // CREATORS

@@ -1,0 +1,7 @@
+# Branch-check exemptions for `tabs_and_non_ascii`.
+# Each entry is `<source-file>: <allowed-failure-count>`.
+# Lines beginning with `#` are comments; regenerate with
+# `bde_branch_check --full-repo-check --generate-exemptions`.
+
+groups/bsl/bslfmt/bslfmt_padutil.h: 7
+groups/bsl/bslfmt/bslfmt_padutil.t.cpp: 7

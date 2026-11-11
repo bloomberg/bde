@@ -15,8 +15,21 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
+#include <bslstl_array.h>
+#include <bslstl_deque.h>
+#include <bslstl_list.h>
+#include <bslstl_map.h>
+#include <bslstl_multimap.h>
+#include <bslstl_multiset.h>
+#include <bslstl_pair.h>
+#include <bslstl_set.h>
+#include <bslstl_span.h>
 #include <bslstl_string.h>
 #include <bslstl_stringref.h>
+#include <bslstl_unorderedmap.h>
+#include <bslstl_unorderedmultimap.h>
+#include <bslstl_unorderedmultiset.h>
+#include <bslstl_unorderedset.h>
 #include <bslstl_vector.h>
 
 #include <locale>   // for C++20 tests
@@ -139,7 +152,8 @@ using namespace bsl;
 // [11] CONCERN: ARGUMENT PASSING
 // [12] CONCERN: BAD FORMAT STRINGS
 // [13] EXAMPLES IN BDE DOCUMENTATION
-// [14] USAGE EXAMPLES
+// [14] FORMATTING RANGES
+// [15] USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -3287,7 +3301,7 @@ int main(int argc, char **argv)
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) {  case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //   Extracted from component header file.
@@ -3332,6 +3346,256 @@ int main(int argc, char **argv)
     result = bsl::format("{:N}", date);
     ASSERT(bsl::string("1999-10-23") == result);
 // ```
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // FORMATTING RANGES
+        //
+        // Concerns:
+        // 1. `bsl::format` supports formatting of the following range types:
+        //    - C++ arrays,
+        //    - `bsl::array`
+        //    - `bsl::span`
+        //    - `bsl::vector`
+        //    - `bsl::list`
+        //    - `bsl::deque`
+        //    - `bsl::set`
+        //    - `bsl::multiset`
+        //    - `bsl::unordered_set`
+        //    - `bsl::unordered_multiset`
+        //
+        // 2. The behavior in C-1 is the same whether the ranges are formatted
+        //    by the `bslfmt` range formatters or -- where the standard
+        //    library already supplies C++23 range formatting, and
+        //    `bsl::format` therefore forwards to it -- by the standard
+        //    library.
+        //
+        // 3. When using the `n` format modifier, the brackets are omitted.
+        //
+        // 4. A trailing underlying-element sub-spec introduced by `:` is
+        //    forwarded to the element formatter, and can be combined with
+        //    outer fill / align / width for the range as a whole.
+        //
+        // 5. Where `bslfmt` supplies the range formatters, `bsl::format` also
+        //    supports formatting of `bsl::pair` and of the map-like
+        //    containers whose `value_type` is a `bsl::pair`:
+        //    - `bsl::map`
+        //    - `bsl::multimap`
+        //    - `bsl::unordered_map`
+        //    - `bsl::unordered_multimap`
+        //
+        // Plan:
+        // 1. Create an instance of each type, pass it to `bsl::format` and
+        //    verify the result.  (C-1)
+        //
+        // 2. Create an instance of each type, pass it to `bsl::format` with
+        //    the `n` format modifier and verify the result.  (C-3)
+        //
+        // 3. For a representative subset of the container types, format
+        //    values with a trailing `:<underlying-spec>` and verify that
+        //    the sub-spec is applied to every element; also exercise
+        //    combined outer + inner specs.  (C-4)
+        //
+        // 4. Perform steps 1-3 for every range whose elements the standard
+        //    library can itself format, outside of any conditional
+        //    compilation, so that they are exercised in both configurations.
+        //    (C-2)
+        //
+        // 5. Perform steps 1-3 for `bsl::pair` and the map-like containers
+        //    only where the `bslfmt` range formatters are supplied.  (C-5)
+        //
+        // Testing:
+        //   FORMATTING RANGES
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nFORMATTING RANGES"
+                          "\n=================");
+
+        // The following are formatted by the `bslfmt` range formatters or, in
+        // a C++23 library that already provides range formatting, by the
+        // standard library implementation to which `bsl::format` forwards.
+        // Both must produce the same results.
+
+        const int arr[] = {1, 2, 3};
+        ASSERT(bsl::format("{}", arr) == "[1, 2, 3]");
+        ASSERT(bsl::format("{:n}", arr) == "1, 2, 3");
+
+        const bsl::array<int, 3> array = {1, 2, 3};
+        ASSERT(bsl::format("{}", array) == "[1, 2, 3]");
+        ASSERT(bsl::format("{:n}", array) == "1, 2, 3");
+
+        bsl::span<const int> span(arr, bsl::size(arr));
+        ASSERT(bsl::format("{}", span) == "[1, 2, 3]");
+        ASSERT(bsl::format("{:n}", span) == "1, 2, 3");
+
+        bsl::vector<long> vector(bsl::begin(arr), bsl::end(arr));
+        ASSERT(bsl::format("{}", vector) == "[1, 2, 3]");
+        ASSERT(bsl::format("{:n}", vector) == "1, 2, 3");
+
+        bsl::list<int> list(bsl::begin(arr), bsl::end(arr));
+        ASSERT(bsl::format("{}", list) == "[1, 2, 3]");
+        ASSERT(bsl::format("{:n}", list) == "1, 2, 3");
+
+        bsl::deque<int> deque(bsl::begin(arr), bsl::end(arr));
+        ASSERT(bsl::format("{}", deque) == "[1, 2, 3]");
+        ASSERT(bsl::format("{:n}", deque) == "1, 2, 3");
+
+        bsl::set<int> set(bsl::begin(arr), bsl::end(arr));
+        ASSERT(bsl::format("{}", set) == "{1, 2, 3}");
+        ASSERT(bsl::format("{:n}", set) == "1, 2, 3");
+
+        bsl::multiset<int> multiset(bsl::begin(arr), bsl::end(arr));
+        ASSERT(bsl::format("{}", multiset) == "{1, 2, 3}");
+        ASSERT(bsl::format("{:n}", multiset) == "1, 2, 3");
+
+        bsl::unordered_set<int> uset(arr , arr + 1);
+        ASSERT(bsl::format("{}", uset) == "{1}");
+        ASSERT(bsl::format("{:n}", uset) == "1");
+
+        bsl::unordered_multiset<int> umultiset(arr , arr + 1);
+        ASSERT(bsl::format("{}", umultiset) == "{1}");
+        ASSERT(bsl::format("{:n}", umultiset) == "1");
+
+        // Underlying-element (nested) format specifiers, forwarded to the
+        // element formatter via the trailing `:<spec>`.
+
+        // vector<int>: integer sub-specs applied to every element
+        ASSERT(bsl::format("{::x}",   vector) == "[1, 2, 3]");
+        ASSERT(bsl::format("{::#x}",  vector) == "[0x1, 0x2, 0x3]");
+        ASSERT(bsl::format("{::04d}", vector) == "[0001, 0002, 0003]");
+        ASSERT(bsl::format("{::*<3}", vector) == "[1**, 2**, 3**]");
+        ASSERT(bsl::format("{::*>3}", vector) == "[**1, **2, **3]");
+        ASSERT(bsl::format("{:n:#x}", vector) == "0x1, 0x2, 0x3");
+        ASSERT(bsl::format("{:*^19:-^3}", vector) == "**[-1-, -2-, -3-]**");
+
+        // outer fill/align/width + inner spec
+        ASSERT(bsl::format("{:*<20:04d}", vector) ==
+                                                 "[0001, 0002, 0003]**");
+        ASSERT(bsl::format("{:*>20:04d}", vector) ==
+                                                 "**[0001, 0002, 0003]");
+
+        // set<int>: same forwarding through the set-like formatter
+        ASSERT(bsl::format("{::x}",   set) == "{1, 2, 3}");
+        ASSERT(bsl::format("{::#x}",  set) == "{0x1, 0x2, 0x3}");
+        ASSERT(bsl::format("{::03d}", set) == "{001, 002, 003}");
+        ASSERT(bsl::format("{:*<20:03d}", set) ==
+                                                 "{001, 002, 003}*****");
+
+        // The remaining ranges have `bsl::pair` elements, either directly or
+        // (for the map-like containers) as their `value_type`.  A C++23
+        // standard library formats only `std::pair` and `std::tuple`, so when
+        // it supplies range formatting -- and `bslfmt` therefore does not
+        // provide its own pair and range formatters -- these are not
+        // formattable at all.
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+        bsl::pair<int, char> pair(1, 'c');
+        ASSERT(bsl::format("{}", pair) == "(1, 'c')");
+        ASSERT(bsl::format("{:n}", pair) == "1, 'c'");
+        ASSERT(bsl::format("{:m}", pair) == "1: 'c'");
+
+        bsl::map<int, char> map;
+        map[1] = 'a';
+        map[2] = 'b';
+        ASSERT(bsl::format("{}", map) == "{1: 'a', 2: 'b'}");
+        ASSERT(bsl::format("{:m}", map) == "{1: 'a', 2: 'b'}");
+        ASSERT(bsl::format("{:n}", map) == "1: 'a', 2: 'b'");
+        ASSERT(bsl::format("{:nm}", map) == "1: 'a', 2: 'b'");
+
+        bsl::multimap<int, char> multimap;
+        multimap.emplace(1, 'a');
+        multimap.emplace(2, 'b');
+        ASSERT(bsl::format("{}", multimap) == "{1: 'a', 2: 'b'}");
+        ASSERT(bsl::format("{:m}", multimap) == "{1: 'a', 2: 'b'}");
+        ASSERT(bsl::format("{:n}", multimap) == "1: 'a', 2: 'b'");
+        ASSERT(bsl::format("{:nm}", multimap) == "1: 'a', 2: 'b'");
+
+        bsl::unordered_map<int, char> umap;
+        umap[1] = 'a';
+        ASSERT(bsl::format("{}", umap) == "{1: 'a'}");
+        ASSERT(bsl::format("{:m}", umap) == "{1: 'a'}");
+        ASSERT(bsl::format("{:n}", umap) == "1: 'a'");
+        ASSERT(bsl::format("{:nm}", umap) == "1: 'a'");
+
+        bsl::unordered_multimap<int, char> umultimap;
+        umultimap.emplace(1, 'a');
+        ASSERT(bsl::format("{}",    umultimap) == "{1: 'a'}");
+        ASSERT(bsl::format("{:m}",  umultimap) == "{1: 'a'}");
+        ASSERT(bsl::format("{:n}",  umultimap) == "1: 'a'");
+        ASSERT(bsl::format("{:nm}", umultimap) == "1: 'a'");
+
+        // map<int, char>: sub-spec targets the pair element formatter
+        ASSERT(bsl::format("{::<8}",      map) == "{1: 'a'  , 2: 'b'  }");
+        ASSERT(bsl::format("{::*<8}",     map) == "{1: 'a'**, 2: 'b'**}");
+        ASSERT(bsl::format("{::*>8}",     map) == "{**1: 'a', **2: 'b'}");
+        ASSERT(bsl::format("{:*<25:*<8}", map) ==
+                                             "{1: 'a'**, 2: 'b'**}*****");
+
+        // vector<pair<int, char>>: outer + inner pair spec, and `n` / `m`
+        // pair sub-specs.
+        bsl::pair<int, char> pairArr[] = {
+            bsl::pair<int, char>(1, 'a'),
+            bsl::pair<int, char>(2, 'b'),
+        };
+        bsl::vector<bsl::pair<int, char> > vecOfPairs(bsl::begin(pairArr),
+                                                      bsl::end(pairArr));
+        ASSERT(bsl::format("{}",         vecOfPairs) ==
+                                                    "[(1, 'a'), (2, 'b')]");
+        ASSERT(bsl::format("{::n}",      vecOfPairs) == "[1, 'a', 2, 'b']");
+        ASSERT(bsl::format("{::m}",      vecOfPairs) == "[1: 'a', 2: 'b']");
+        ASSERT(bsl::format("{::*<8}",    vecOfPairs) ==
+                                                    "[(1, 'a'), (2, 'b')]");
+        ASSERT(bsl::format("{:*<25:*^8}",vecOfPairs) ==
+                                               "[(1, 'a'), (2, 'b')]*****");
+
+        // Elements of a range or tuple are rendered in the escaped ("debug")
+        // presentation by default, per [format.range.formatter] and
+        // [format.tuple], so that the output round-trips visually: a string
+        // element appears quoted, and one containing a separator or a control
+        // character is not mistakable for several elements.
+
+        bsl::vector<bsl::string> vecOfStrings;
+        vecOfStrings.push_back("a");
+        vecOfStrings.push_back("b");
+        ASSERT(bsl::format("{}", vecOfStrings) == "[\"a\", \"b\"]");
+
+        bsl::vector<bsl::string> ambiguous;
+        ambiguous.push_back("x, y");
+        ambiguous.push_back("z");
+        ASSERT(bsl::format("{}", ambiguous) == "[\"x, y\", \"z\"]");
+
+        bsl::vector<bsl::string> controls;
+        controls.push_back("a\nb");
+        ASSERT(bsl::format("{}", controls) == "[\"a\\nb\"]");
+
+        bsl::map<bsl::string, bsl::string> strMap;
+        strMap["k"] = "v";
+        ASSERT(bsl::format("{}", strMap) == "{\"k\": \"v\"}");
+
+        bsl::vector<char> vecOfChars;
+        vecOfChars.push_back('a');
+        vecOfChars.push_back('b');
+        ASSERT(bsl::format("{}", vecOfChars) == "['a', 'b']");
+
+        // Supplying an element sub-specification says how the elements are to
+        // be rendered, and so suppresses the debug presentation.
+        ASSERT(bsl::format("{::}",  vecOfStrings) == "[a, b]");
+        ASSERT(bsl::format("{::s}", vecOfStrings) == "[a, b]");
+
+        // ... but asking for it explicitly works too.
+        ASSERT(bsl::format("{::?}", vecOfStrings) == "[\"a\", \"b\"]");
+
+        // A range of a type with no debug presentation is unaffected.
+        bsl::vector<int> vecOfInts;
+        vecOfInts.push_back(1);
+        vecOfInts.push_back(2);
+        ASSERT(bsl::format("{}", vecOfInts) == "[1, 2]");
+
+        // Nested ranges: the inner range parses its own empty spec and
+        // requests debug elements of its own.
+        bsl::vector<bsl::vector<bsl::string> > nested;
+        nested.push_back(vecOfStrings);
+        ASSERT(bsl::format("{}", nested) == "[[\"a\", \"b\"]]");
+#endif  // !BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
       } break;
       case 13: {
         // --------------------------------------------------------------------

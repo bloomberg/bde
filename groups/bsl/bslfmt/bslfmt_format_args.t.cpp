@@ -578,29 +578,30 @@ int main(int argc, char **argv)
         // TESTING FREE FUNCTIONS - WORK IN PROGRESS
         //
         // Concerns:
-        //: 1 make_format_args returns an object containing a `basic_format_arg`
-        //    containing the passed value(s) or reference(s) thereto.
-        //:
-        //: 2 Where the contained type is a reference (stored in a `handle`) to
-        //:   a user defined type, calling `handle::format` will construct an
-        //:   appropriate `formatter` and call `format` and `parse` on that
-        //:   formatter.
+        // 1. make_format_args returns an object containing a
+        //    `basic_format_arg` containing the passed value(s) or reference(s)
+        //     thereto.
+        //
+        // 2. Where the contained type is a reference (stored in a `handle`) to
+        //    a user defined type, calling `handle::format` will construct an
+        //    appropriate `formatter` and call `format` and `parse` on that
+        //    formatter.
         //
         // Plan:
-        //: 1 For each constructor not taking a user defined type, construct a
-        //:   `basic_format_arg` containing a known value
-        //:
-        //: 2 For the type object constructed in step 1, use a `TestVisitor` to
-        //:   verify that the visitor mechanism passes the contained value to
-        //:   the passed `TestVisitor`. (C-1)
-        //:
-        //: 3 For the constructor taking a user defined type, construct a
-        //:   `basic_format_arg` containing a `FormattableType` reference.
-        //:
-        //: 4 For the type object constructed in step 1, use a `TestVisitor` to
-        //:   call `handle::format` and verify that this creates an instance of
-        //:   the correct (testing) partial specialization of `formatter` and
-        //:   calls both `parse` and `format` on that instance. (C-2)
+        // 1. For each constructor not taking a user defined type, construct a
+        //    `basic_format_arg` containing a known value
+        //
+        // 2. For the type object constructed in step 1, use a `TestVisitor` to
+        //    verify that the visitor mechanism passes the contained value to
+        //    the passed `TestVisitor`. (C-1)
+        //
+        // 3. For the constructor taking a user defined type, construct a
+        //   `basic_format_arg` containing a `FormattableType` reference.
+        //
+        // 4. For the type object constructed in step 1, use a `TestVisitor` to
+        //    call `handle::format` and verify that this creates an instance of
+        //    the correct (testing) partial specialization of `formatter` and
+        //    calls both `parse` and `format` on that instance. (C-2)
         //
         // Testing:
         //   make_format_args(ARGS&...)
@@ -641,7 +642,9 @@ int main(int argc, char **argv)
 
         typedef bslfmt::Format_ArgsStore<bslfmt::format_context, char, char>
             FAS2;
-        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, wchar_t, wchar_t>
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context,
+                                         wchar_t,
+                                         wchar_t>
             WFAS2;
 
         typedef bslfmt::Format_ArgsStore<bslfmt::format_context,
@@ -655,7 +658,10 @@ int main(int argc, char **argv)
                                          unsigned long long>
             WFAS3I;
 
-        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, float, double, long double>
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context,
+                                         float,
+                                         double,
+                                         long double>
             FAS3F;
         typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, bool>
             WFAS3F;

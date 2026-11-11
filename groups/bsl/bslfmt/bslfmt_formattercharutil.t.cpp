@@ -4,6 +4,8 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_issame.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>    // `printf`
@@ -29,9 +31,12 @@ using namespace bslfmt;
 // [ 3] t_ITER outputFromChar(const char *b, const char *e, t_ITER o);
 // [ 3] t_ITER outputFromChar(const char value, t_ITER out);
 // [ 2] void toUpper(char *begin, const char *end);
+//
+// TYPES
+// [ 4] UnsignedType
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 4] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -354,7 +359,7 @@ int main(int argc, char **argv)
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) {  case 0:
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -426,6 +431,45 @@ int main(int argc, char **argv)
     ASSERT(wDestination + sourceLength == wcharIt.ptr());
     ASSERT(0 == wcscmp(wcharExpected, wDestination));
 // ```
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING `UnsignedType`
+        //
+        // Concern:
+        //: 1 `UnsignedType` is an unsigned integral type having the same size
+        //:   as the character type, for both `char` and `wchar_t`.
+        //:
+        //: 2 Converting a negative character value to `UnsignedType` yields
+        //:   the value of its code unit, without sign extension.
+        //
+        // Plan:
+        //: 1 Verify the size and signedness of `UnsignedType` for both
+        //:   specializations.  (C-1)
+        //:
+        //: 2 Convert the character values having all bits set to
+        //:   `UnsignedType` and verify the result.  (C-2)
+        //
+        // Testing:
+        //   UnsignedType
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING `UnsignedType`"
+                            "\n======================\n");
+
+        typedef FormatterCharUtil<char>::UnsignedType    CharUnsigned;
+        typedef FormatterCharUtil<wchar_t>::UnsignedType WCharUnsigned;
+
+        ASSERT((bsl::is_same<unsigned char, CharUnsigned>::value));
+
+        ASSERT(sizeof(wchar_t) == sizeof(WCharUnsigned));
+        ASSERT(static_cast<WCharUnsigned>(-1) > 0);
+
+        ASSERT(0xff == static_cast<CharUnsigned>(static_cast<char>(-1)));
+
+        const WCharUnsigned allBitsSet = static_cast<WCharUnsigned>(
+                                                   static_cast<wchar_t>(-1));
+        ASSERT(static_cast<WCharUnsigned>(~WCharUnsigned(0)) == allBitsSet);
       } break;
       case 3: {
         // --------------------------------------------------------------------

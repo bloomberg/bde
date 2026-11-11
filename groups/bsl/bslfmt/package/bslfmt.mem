@@ -1,4 +1,8 @@
+bslfmt_bufferformatcontext
+bslfmt_debugformatutil
+bslfmt_displaywidthutil
 bslfmt_enablestreamedformatter
+bslfmt_escapeutil
 bslfmt_format
 bslfmt_format_arg
 bslfmt_format_arg_cpp03
@@ -19,7 +23,9 @@ bslfmt_formattercharutil
 bslfmt_formatterfloating
 bslfmt_formatterintegral
 bslfmt_formatterintegralbase
+bslfmt_formatterpair
 bslfmt_formatterpointer
+bslfmt_formatterrange
 bslfmt_formatterspecificationnumericvalue
 bslfmt_formatterstring
 bslfmt_formattertestutil
@@ -33,8 +39,12 @@ bslfmt_print_imp_cpp03
 bslfmt_print_ostream
 bslfmt_print_ostream_imp
 bslfmt_print_ostream_imp_cpp03
+bslfmt_rangeformatspecification
+bslfmt_rangeformatter
+bslfmt_separators
 bslfmt_standardformatspecification
 bslfmt_streamed
 bslfmt_streamedformatter
 bslfmt_testspecificationgenerator
+bslfmt_tupleformatspecification
 bslfmt_unicodecodepoint

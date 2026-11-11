@@ -16,10 +16,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for integer types.
 //
-// This header is not intended to be included directly.  Please include
-// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`
-// for integral types.
-//
+// This header is not intended to be included directly.
 
 #include <bslscm_version.h>
 
@@ -44,8 +41,8 @@ namespace bslfmt {
                          // struct FormatterIntegral_Category
                          // =================================
 
-/// This struct provides a function that returns a category of the formatter in
-/// accordance with the (template parameter) `t_VALUE_TYPE`.
+/// This struct provides a function that returns a category of the formatter
+/// specified with the (template parameter) `t_VALUE_TYPE`.
 template <class t_VALUE_TYPE>
 struct FormatterIntegral_Category {
     // CLASS METHODS
@@ -124,7 +121,6 @@ struct FormatterIntegral_Category<wchar_t> {
 /// (i.e. `bool`, character and pointer types).  This is a private class and
 /// should not be used directly. The formatting of variables of a certain type
 /// is performed using the corresponding classes inherited from this one.
-/// Accordingly, the auxiliary functions used are declared protected.
 template <class t_VALUE, class t_CHAR>
 struct FormatterIntegralBase {
   private:
@@ -192,6 +188,11 @@ struct FormatterIntegralBase {
 
     /// Return a reference to the specification of this formatter.
     const StandardFormatSpecification<t_CHAR>& specification() const ;
+
+    /// Change the presentation type of this formatter's specification to the
+    /// escaped ("debug") presentation of the category it was parsed for.  The
+    /// behavior is undefined unless `parse` has been called.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void setEscapedFormatType();
 };
 
 // ============================================================================
@@ -298,9 +299,6 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
         BSLS_THROW(
                 bsl::format_error("Formatting L specifier not supported"));
     }
-
-    if (d_spec.formatType() == Specification::e_CHARACTER_ESCAPED)
-        BSLS_THROW(bsl::format_error("Character escaping not supported"));
 
     return parseContext.begin();
 }
@@ -597,6 +595,14 @@ const StandardFormatSpecification<t_CHAR>&
 FormatterIntegralBase<t_VALUE, t_CHAR>::specification() const
 {
     return d_spec;
+}
+
+template <class t_VALUE, class t_CHAR>
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterIntegralBase<t_VALUE, t_CHAR>::setEscapedFormatType()
+{
+    d_spec.setEscapedFormatType();
 }
 
 

@@ -1171,6 +1171,9 @@ int main(int argc, char **argv)
         //:   to the passed `sections` parameter.
         //:
         //: 4 The `parse` method correctly handles unicode fill characters.
+        //:
+        //: 5 A width with a leading zero is rejected when the zero-pad flag
+        //:   section is not requested.
         //
         // Plan:
         //: 1 Use test specification generator to produce a huge amount of
@@ -1183,7 +1186,7 @@ int main(int argc, char **argv)
         //:
         //: 3 Using table-based approach specify a set of invalid
         //:   specifications.  Parse each of them and verify that an exception
-        //:   is thrown and contains the expected error message.  (C-2)
+        //:   is thrown and contains the expected error message.  (C-2, 5)
         //:
         //: 4 Using table-based approach specify a set of unicode fill
         //:   characters.  For each one parse the specification containing it
@@ -1292,6 +1295,8 @@ int main(int argc, char **argv)
                 {L_,    "+^^",      L"+^^",      ALIGN,   INVALID            },
                 {L_,    "{^",       L"{^",       ALIGN,   BRACKET            },
                 {L_,    "0",        L"0",        WIDTH,   NON_POSITIVE_WIDTH },
+                {L_,    "05",       L"05",       WIDTH,   NON_POSITIVE_WIDTH },
+                {L_,    "010",      L"010",      WIDTH,   NON_POSITIVE_WIDTH },
                 {L_,    "#{}.{1}.", L"#{}.{1}.", ALL,     MIX_INDEXING_A_M   },
                 {L_,    "#{1}.{}.", L"#{1}.{}.", ALL,     MIX_INDEXING_M_A   },
             };

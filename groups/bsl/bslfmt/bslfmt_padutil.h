@@ -11,9 +11,10 @@ BSLS_IDENT("$Id: $")
 //  bslfmt::PadUtil: formatter padding utilities
 //
 //@DESCRIPTION: `PadUtil` is a `struct` that serves as a namespace containing
-// functions suitable for padding output.  It consists of 2 functions,
-// `computePadding` which computes the amount of left and right padding, and
-// `pad`, which repeatedly outputs a sequence to an iterator.
+// functions suitable for padding output.  It consists of 3 functions,
+// `computePadding` which computes the amount of left and right padding, `pad`,
+// which repeatedly outputs a sequence to an iterator, and `writePadded`, which
+// outputs content together with the padding needed to align it within a field.
 //
 ///Usage
 ///-----
@@ -83,6 +84,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslfmt_displaywidthutil.h>
 #include <bslfmt_formatspecificationparser.h>
 #include <bslfmt_formatterspecificationnumericvalue.h>
 
@@ -93,6 +95,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
+#include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -180,8 +183,8 @@ struct PadUtil {
     /// specified `leftPadding` and `rightPadding`.  If the category of
     /// `widthValue` is not `e_VALUE` or if the value indicated by `widthValue`
     /// is less than `contentWidth`, the padding is zero.  The behavior is
-    /// undefined if `contentWidth` specifies a negative width, or if
-    /// `defaultAlign` specifies `e_ALIGN_DEFAULT`.
+    /// undefined unless `0 <= contentWidth` and
+    /// `Enums::e_ALIGN_DEFAULT != defaultAlign`.
     static void computePadding(
                       std::ptrdiff_t      *leftPadding,
                       std::ptrdiff_t      *rightPadding,
@@ -214,6 +217,46 @@ struct PadUtil {
     static t_ITERATOR pad(t_ITERATOR               out,
                           std::ptrdiff_t           padWidth,
                           wchar_t                  filler);
+
+    /// Write to the specified `out` the specified `content`, whose display
+    /// width (see `DisplayWidthUtil`) is the specified `contentWidth`, padded
+    /// with the specified `filler` to the width specified by `widthValue`
+    /// using the specified `alignment`, and return the new output iterator.
+    /// Optionally specify a `defaultAlign` used if `alignment` is
+    /// `e_ALIGN_DEFAULT`.  If `defaultAlign` is not specified, `e_ALIGN_LEFT`
+    /// is used.  The behavior is undefined unless `contentWidth` is the
+    /// display width of `content` and
+    /// `Enums::e_ALIGN_DEFAULT != defaultAlign`.  Note that the display width
+    /// of `content` may differ from its number of characters.
+    template <class t_ITERATOR>
+    static t_ITERATOR writePadded(
+                     t_ITERATOR                            out,
+                     const bsl::basic_string_view<t_CHAR>& content,
+                     std::ptrdiff_t                        contentWidth,
+                     const NumericValue&                   widthValue,
+                     Alignment                             alignment,
+                     const bsl::basic_string_view<t_CHAR>& filler,
+                     Alignment                             defaultAlign =
+                                                          Enums::e_ALIGN_LEFT);
+
+    /// Write to the specified `out` the specified `content`, padded with the
+    /// specified `filler` to the width specified by `widthValue` using the
+    /// specified `alignment`, and return the new output iterator.  The width
+    /// of `content` is its display width (see `DisplayWidthUtil`), in
+    /// columns.  Optionally specify a `defaultAlign` used if `alignment` is
+    /// `e_ALIGN_DEFAULT`.  If `defaultAlign` is not specified, `e_ALIGN_LEFT`
+    /// is used.  Throw `bsl::format_error` if `content` is not well-formed
+    /// Unicode.  The behavior is undefined unless
+    /// `Enums::e_ALIGN_DEFAULT != defaultAlign`.
+    template <class t_ITERATOR>
+    static t_ITERATOR writePadded(
+                     t_ITERATOR                            out,
+                     const bsl::basic_string_view<t_CHAR>& content,
+                     const NumericValue&                   widthValue,
+                     Alignment                             alignment,
+                     const bsl::basic_string_view<t_CHAR>& filler,
+                     Alignment                             defaultAlign =
+                                                          Enums::e_ALIGN_LEFT);
 };
 
                                     // -------
@@ -389,6 +432,53 @@ t_ITERATOR PadUtil<t_CHAR>::pad(t_ITERATOR     out,
                                 wchar_t filler)
 {
     return padImpl(out, padWidth, filler);
+}
+
+template <class t_CHAR>
+template <class t_ITERATOR>
+t_ITERATOR PadUtil<t_CHAR>::writePadded(
+                           t_ITERATOR                            out,
+                           const bsl::basic_string_view<t_CHAR>& content,
+                           std::ptrdiff_t                        contentWidth,
+                           const NumericValue&                   widthValue,
+                           Alignment                             alignment,
+                           const bsl::basic_string_view<t_CHAR>& filler,
+                           Alignment                             defaultAlign)
+{
+    BSLS_ASSERT_SAFE(DisplayWidthUtil::displayWidth(content) == contentWidth);
+
+    std::ptrdiff_t leftPadding  = 0;
+    std::ptrdiff_t rightPadding = 0;
+
+    computePadding(&leftPadding,
+                   &rightPadding,
+                   widthValue,
+                   contentWidth,
+                   alignment,
+                   defaultAlign);
+
+    out = pad(out, leftPadding, filler);
+    out = bsl::copy(content.begin(), content.end(), out);
+    return pad(out, rightPadding, filler);
+}
+
+template <class t_CHAR>
+template <class t_ITERATOR>
+t_ITERATOR PadUtil<t_CHAR>::writePadded(
+                           t_ITERATOR                            out,
+                           const bsl::basic_string_view<t_CHAR>& content,
+                           const NumericValue&                   widthValue,
+                           Alignment                             alignment,
+                           const bsl::basic_string_view<t_CHAR>& filler,
+                           Alignment                             defaultAlign)
+{
+    return writePadded(out,
+                       content,
+                       DisplayWidthUtil::displayWidth(content),
+                       widthValue,
+                       alignment,
+                       filler,
+                       defaultAlign);
 }
 
 }  // close package namespace

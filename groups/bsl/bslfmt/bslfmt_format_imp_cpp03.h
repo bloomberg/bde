@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Apr 24 06:19:46 2025
+// Generated on Fri Mar 13 13:49:37 2026
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_IMP_H
@@ -46,8 +46,8 @@ namespace bslfmt {
 
 /// This component-private type provides a stateful output iterator whose
 /// purpose is to count the number of characters written for use by the
-/// `formatted_size` free functions.  It holds an underlying output iterator (to
-/// which writes are delegated), a maximum character count permitted and a
+/// `formatted_size` free functions.  It holds an underlying output iterator
+/// (to which writes are delegated), a maximum character count permitted and a
 /// current character count to keep track of how many characters would be
 /// written if there were no limit.
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>

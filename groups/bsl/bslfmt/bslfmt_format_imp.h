@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ISO C++ Standard, <format>
 //
-//@DESCRIPTION: This component will provide, in the `bslfmt` namespace,
-// compliant implementations of the following free functions exposed by the
-// standard <format> header.  These are available for C++03 and later.
+//@DESCRIPTION: This component provides, in the `bslfmt` namespace, compliant
+// implementations of the following free functions exposed by the standard
+// <format> header.  These are available for C++03 and later.
 //
 // * format
 // * format_to
@@ -29,8 +29,7 @@ BSLS_IDENT("$Id: $")
 // Note 1: The overloads taking a `locale` parameter are *not* provided.
 // Note 2: Compile-time format string checking is *not* performed.
 //
-// This header is not intended to be included directly.  Please include
-// `<bsl_format.h>` to be able to use `bsl::format_to_n_result`.
+// This header is not intended to be included directly.
 //
 ///User-provided formatters
 ///------------------------
@@ -135,7 +134,9 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formattercharacter.h>
 #include <bslfmt_formatterintegral.h>
 #include <bslfmt_formatterfloating.h>
+#include <bslfmt_formatterpair.h>
 #include <bslfmt_formatterpointer.h>
+#include <bslfmt_formatterrange.h>
 #include <bslfmt_formatterstring.h>
 
 #include <iterator>             // 'back_insert_iterator'
@@ -175,8 +176,8 @@ namespace bslfmt {
 
 /// This component-private type provides a stateful output iterator whose
 /// purpose is to count the number of characters written for use by the
-/// `formatted_size` free functions.  It holds an underlying output iterator (to
-/// which writes are delegated), a maximum character count permitted and a
+/// `formatted_size` free functions.  It holds an underlying output iterator
+/// (to which writes are delegated), a maximum character count permitted and a
 /// current character count to keep track of how many characters would be
 /// written if there were no limit.
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>

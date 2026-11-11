@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ISO C++ Standard, <format>
 //
-//@DESCRIPTION: This component will provide, in the `bsl` namespace, wrappers
+//@DESCRIPTION: This component provides, in the `bsl` namespace, wrappers
 // around the functions and types exposed by the standard <format> header,
 // where they are available, otherwise aliases to the `bslfmt` implementation.
 //
@@ -38,14 +38,20 @@ BSLS_IDENT("$Id: $")
 // or when compiling C++17 and earlier, BDE implementation is provided.
 //
 // Where a BDE implementation is provided, functionality is limited to that
-// provided by C++20 and excludes the following features:
+// provided by C++23 and excludes the following features:
 //
 // * Support for locales other than the default ("C") locale
 // * Support for wide strings
 // * Alternative date/time representations
 // * Date/time directives not supported by the standard `strftime` function
-// * Character escaping
 // * Compile-time format string checking
+// * Formatting of ranges other than the `bsl` containers, `bsl::span`, and
+//   built-in arrays (e.g., views and user-defined ranges)
+// * Formatting of `bsl::stack`, `bsl::queue`, `bsl::priority_queue`, and
+//   `bsl::vector<bool>::reference`
+// * Formatting of tuples other than `bsl::pair`
+// * The `format_kind` variable template, the `range_format` enumeration, and
+//   the `range_formatter` class template in the `bsl` namespace
 //
 // Where `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined but
 // `BSLS_LIBRARYFEATURES_HAS_CPP20_WFORMAT` is not (libstdc++ 13), the native
@@ -497,6 +503,11 @@ using BloombergLP::bslfmt::wformat_string;
 }  // close namespace bsl
 
 #else  // !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+# include <bslfmt_formatterpair.h>
+# include <bslfmt_formatterrange.h>
+#endif
 
 namespace bsl {
 

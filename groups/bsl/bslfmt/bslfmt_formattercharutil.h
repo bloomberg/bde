@@ -13,7 +13,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a `FormatterCharUtil` `struct` template
 // that is a namespace for utility functions that convert characters (e.g. from
-// `char` to `wchar_t` or lowercase characters to uppercase).
+// `char` to `wchar_t` or lowercase characters to uppercase).  Each
+// specialization also provides `UnsignedType`, the unsigned integral type
+// having the same size as the character type.
 //
 ///Usage
 ///-----
@@ -72,6 +74,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_conditional.h>
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
@@ -101,6 +104,11 @@ struct FormatterCharUtil {
 /// referred by the corresponding output iterator.
 template <>
 struct FormatterCharUtil<char> {
+    // TYPES
+
+    /// The unsigned integral type having the same size as `char`.
+    typedef unsigned char UnsignedType;
+
     // CLASS METHODS
 
     /// Output to the specified output iterator `out` the character sequence
@@ -129,6 +137,13 @@ struct FormatterCharUtil<char> {
 /// and referred by the corresponding output iterator.
 template <>
 struct FormatterCharUtil<wchar_t> {
+    // TYPES
+
+    /// The unsigned integral type having the same size as `wchar_t`.
+    typedef bsl::conditional<2 == sizeof(wchar_t),
+                             unsigned short int,
+                             unsigned int>::type UnsignedType;
+
     // CLASS METHODS
 
     /// Output to the specified output iterator `out` the character sequence

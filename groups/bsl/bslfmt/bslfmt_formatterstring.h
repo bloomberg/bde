@@ -24,13 +24,10 @@ BSLS_IDENT("$Id: $")
 // `bsl::formatter` type covering the case for string formatting.  Those types
 // meet the requirements as specified in [formatter.requirements] and support
 // all functionality supported by the C++20 `std::formatter` string type
-// specializations with the following exceptions:
-// * No support for escaped strings.
+// specializations with the following exception:
 // * No support for non-`C` locales.
 //
-// This header is not intended to be included directly.  Please include
-// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`
-// for strings.
+// This header is not intended to be included directly.
 //
 ///Usage
 ///-----
@@ -40,10 +37,10 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
 // directly and instead use `bsl::format` or `bsl::vformat`, so this example is
-// necessarily unrealistic.
+// necessarily artificial.
 //
-// Suppose we want to test this formatter's ability to a substring with padding
-// and minimum width.
+// Suppose we want to test this formatter's ability to format a substring with
+// padding and minimum width.
 //
 // ```
 //  bslfmt::MockParseContext<char> mpc("*<5.3s", 1);
@@ -63,6 +60,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslfmt_debugformatutil.h>
+#include <bslfmt_displaywidthutil.h>
+#include <bslfmt_escapeutil.h>
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_padutil.h>
@@ -70,100 +70,24 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_numericformatterutil.h>
 
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <bsls_assert.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
+#include <bslstl_algorithm.h>
+#include <bslstl_iterator.h>
 #include <bslstl_string.h>
 #include <bslstl_stringref.h>
 #include <bslstl_stringview.h>
 
+#include <cstddef>    // `std::size_t`
 #include <limits>     // for 'std::numeric_limits'
 
 namespace BloombergLP {
 namespace bslfmt {
-
-                        // =====================================
-                        // class FormatterString_GraphemeCluster
-                        // =====================================
-
-/// [**PRIVATE**] This private implementation `class` characterizes a grapheme
-/// cluster represented by a set of integral values.  This class is private to
-/// this component and should not be used by clients.
-class FormatterString_GraphemeCluster {
-  private:
-    // DATA
-    bool              d_isValid;              // flag indicating whether this
-                                              // object is successfully
-                                              // initialized (without errors)
-
-    int               d_numSourceBytes;       // number of bytes occupied by
-                                              // this cluster
-
-    int               d_numCodePoints;        // number of code points in this
-                                              // cluster
-
-    unsigned long int d_firstCodePointValue;  // value of the first code point
-                                              // in this cluster
-
-    int               d_firstCodePointWidth;  // width of the first code point
-                                              // in this cluster
-
-  public:
-    // CREATORS
-
-    /// Create an uninitialized cluster object (that is not valid).
-    FormatterString_GraphemeCluster();
-
-    // MANIPULATORS
-
-    /// Extract a grapheme cluster from no more than the specified `maxBytes`
-    /// of the byte stream at the specified `bytes` location in the specified
-    /// `encoding`.  Behavior is undefined if the input bytes are not in the
-    /// specified encoding.  Unicode Byte Order Markers are not supported and
-    /// behavior is undefined if the input data contains an embedded BOM.
-    /// Endianness is assumed to be that of the type pointed to by `bytes`.
-    ///
-    /// For UTF-8, behavior is undefined if `bytes` is not a valid pointer to
-    /// an array of `numBytes` `unsigned char` types in contiguous memory.
-    ///
-    /// For UTF-16, behavior is undefined if `bytes` is not a valid pointer to
-    /// an array of `numBytes/2` `wchar_t` types in contiguous memory.
-    /// Behavior is undefined if `2 != sizeof(wchar_t)`.  Endianness is
-    /// assumed to be the same as for the `wchar_t` type and Byte Order Markers
-    /// are not supported.
-    ///
-    /// For UTF-32, behavior is undefined if `bytes` is not a valid pointer to
-    /// an array of `numBytes/4` `wchar_t` types in contiguous memory.
-    /// Behavior is undefined if `4 != sizeof(wchar_t)`.  Endianness is
-    /// assumed to be the same as for the `wchar_t` type and Byte Order Markers
-    /// are not supported.
-    void extract(UnicodeCodePoint::UtfEncoding  encoding,
-                 const void                    *bytes,
-                 size_t                         maxBytes);
-
-    /// Reset this object to an uninitialized state.
-    void reset();
-
-    // ACCESSORS
-
-    /// Return `true` if this object was successfully extracted and contains
-    /// valid code point data, and `false` otherwise.
-    bool isValid() const;
-
-    /// Return the number of bytes occupied by this cluster.
-    int numSourceBytes() const;
-
-    /// Return the number of code points this cluster contains.
-    int numCodePoints() const;
-
-    /// Return the value of the first code point in this cluster.
-    unsigned long int firstCodePointValue() const;
-
-    /// Return the width of the first code point in this cluster.
-    int firstCodePointWidth() const;
-};
 
                         // ==========================
                         // struct FormatterString_Imp
@@ -183,19 +107,17 @@ struct FormatterString_Imp {
 
     // PRIVATE CLASS METHODS
 
-    /// Given the specified `inputString` and `maxTotalDisplayWidth` find the
-    /// maximal initial substring of `inputString` whose unicode display width
-    /// (calculated using the rules in [format.string.std] does not exceed
-    /// `maxTotalDisplayWidth`.  Update the specified `charactersUsed` with the
-    /// number of characters of type `t_CHAR` in the maximal substring and
-    /// update the specified `widthUsed` with the unicode display width of the
-    /// maximal substring.  Throw an exception of type `bsl::format_error` in
-    /// the event of failure.
-    static void findPrecisionLimitedString(
-    size_t                                              *charactersUsed,
-    int                                                 *widthUsed,
-    const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>  inputString,
-    int                                                  maxTotalDisplayWidth);
+    /// Write the specified `text`, laid out according to the specified `spec`
+    /// -- honoring its width, precision, fill and alignment -- to the iterator
+    /// accessed by calling the `out()` method on the specified
+    /// `formatContext`.  Return an end iterator of the output range.  Throw an
+    /// exception of type `bsl::format_error` in the event of failure.
+    template <class t_FORMAT_CONTEXT>
+    static typename t_FORMAT_CONTEXT::iterator outputAsString(
+     const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>& text,
+     const StandardFormatSpecification<t_CHAR>&           spec,
+     t_FORMAT_CONTEXT&                                    formatContext);
+
   protected:
     // PROTECTED ACCESSORS
 
@@ -206,8 +128,8 @@ struct FormatterString_Imp {
     /// Throw an exception of type `bsl::format_error` in the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator formatImpl(
-      const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS> value,
-      t_FORMAT_CONTEXT&                                   formatContext) const;
+     const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>& value,
+     t_FORMAT_CONTEXT&                                    formatContext) const;
 
   public:
     // MANIPULATORS
@@ -218,6 +140,11 @@ struct FormatterString_Imp {
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
                                                 t_PARSE_CONTEXT& parseContext);
+
+    /// Render subsequently formatted values in the escaped ("debug")
+    /// presentation, as though `?` had been specified.  The behavior is
+    /// undefined unless `parse` has been called on this object.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void set_debug_format();
 };
 
 }  // close package namespace
@@ -236,6 +163,11 @@ template <class t_CHAR>
 struct formatter<t_CHAR *, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
+
     // ACCESSORS
 
     /// Format the value in the specified `value` parameter according to the
@@ -261,6 +193,11 @@ template <class t_CHAR>
 struct formatter<const t_CHAR *, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
+
     // ACCESSORS
 
     /// Format the value in the specified `value` parameter according to the
@@ -282,10 +219,15 @@ struct formatter<const t_CHAR *, t_CHAR>
 /// This component-private class provides the partial specialization of the
 /// `bsl::formatter` type.  It implements formatting for `char[]` and
 /// `wchar_t[]` types.
-template <class t_CHAR, size_t t_SIZE>
+template <class t_CHAR, std::size_t t_SIZE>
 struct formatter<t_CHAR[t_SIZE], t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
+
     // ACCESSORS
 
     /// Format the value in the specified `value` parameter according to the
@@ -311,6 +253,11 @@ template <class t_CHAR, class t_CHAR_TRAITS, class t_ALLOCATOR>
 struct formatter<std::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS> {
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
+
     // ACCESSORS
 
     /// Format the value in the specified `value` parameter according to the
@@ -337,6 +284,9 @@ struct formatter<bsl::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS> {
   public:
     // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
 
     // We should propagate this formatter to the `std` namespace, so do *not*
     // define the `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20` trait.
@@ -368,6 +318,11 @@ template <class t_CHAR, class t_CHAR_TRAITS>
 struct formatter<std::basic_string_view<t_CHAR, t_CHAR_TRAITS>, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS> {
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
+
     // ACCESSORS
 
     /// Format the value in the specified `value` parameter according to the
@@ -397,6 +352,9 @@ struct formatter<bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS> {
   public:
     // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
 
     // If we do not alias `string_view` then this formatter must be promoted to
     // the `std` namespace, so do *not* define the
@@ -430,6 +388,9 @@ struct formatter<BloombergLP::bslstl::StringRefImp<t_CHAR>, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
     // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                          formatter,
+                          BloombergLP::bslfmt::SupportsDebugFormat);
 
     // This formatter specialization must be promoted to the `std` namespace so
     //  do *not* define the `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20`
@@ -459,121 +420,23 @@ struct formatter<BloombergLP::bslstl::StringRefImp<t_CHAR>, t_CHAR>
 namespace BloombergLP {
 namespace bslfmt {
 
-                    // -------------------------------------
-                    // class FormatterString_GraphemeCluster
-                    // -------------------------------------
-
-// CREATORS
-inline
-FormatterString_GraphemeCluster::FormatterString_GraphemeCluster()
-{
-    reset();
-}
-
-// MANIPULATORS
-inline
-void FormatterString_GraphemeCluster::reset()
-{
-    d_isValid             = false;
-    d_numSourceBytes      = 0;
-    d_numCodePoints       = 0;
-    d_firstCodePointValue = 0;
-    d_firstCodePointWidth = 0;
-}
-
-// ACCESSSORS
-inline
-bool FormatterString_GraphemeCluster::isValid() const
-{
-    return d_isValid;
-}
-
-inline
-int FormatterString_GraphemeCluster::numSourceBytes() const
-{
-    return d_numSourceBytes;
-}
-
-inline
-int FormatterString_GraphemeCluster::numCodePoints() const
-{
-    return d_numCodePoints;
-}
-
-inline
-unsigned long int FormatterString_GraphemeCluster::firstCodePointValue() const
-{
-    return d_firstCodePointValue;
-}
-
-inline
-int FormatterString_GraphemeCluster::firstCodePointWidth() const
-{
-    return d_firstCodePointWidth;
-}
-
                         // --------------------------
                         // struct FormatterString_Imp
                         // --------------------------
 
-template <class t_CHAR, class t_CHAR_TRAITS>
-void FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::findPrecisionLimitedString(
-     size_t                                              *charactersUsed,
-     int                                                 *widthUsed,
-     const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>  inputString,
-     int                                                  maxTotalDisplayWidth)
-{
-    *widthUsed      = 0;
-    *charactersUsed = 0;
-
-    const t_CHAR *current   = inputString.data();
-    size_t        bytesLeft = inputString.size() * sizeof(t_CHAR);
-
-    while (bytesLeft > 0) {
-        FormatterString_GraphemeCluster cluster;
-
-        switch (sizeof(t_CHAR)) {
-          case 1: {
-            cluster.extract(UnicodeCodePoint::e_UTF8, current, bytesLeft);
-          } break;
-          case 2: {
-            cluster.extract(UnicodeCodePoint::e_UTF16, current, bytesLeft);
-          } break;
-          case 4: {
-            cluster.extract(UnicodeCodePoint::e_UTF32, current, bytesLeft);
-          } break;
-          default: {
-            BSLS_THROW(bsl::format_error("Invalid character width"));
-          }
-        }
-        if (!cluster.isValid()) {
-            BSLS_THROW(bsl::format_error("Invalid unicode stream"));
-        }
-
-        if (*widthUsed + cluster.firstCodePointWidth() > maxTotalDisplayWidth)
-            break;
-
-        bytesLeft -= cluster.numSourceBytes();
-        current += cluster.numSourceBytes() / sizeof(t_CHAR);
-
-        *charactersUsed += cluster.numSourceBytes() / sizeof(t_CHAR);
-
-        *widthUsed += cluster.firstCodePointWidth();
-    }
-}
-
-// PROTECTED ACCESSORS
+// PRIVATE CLASS METHODS
 template <class t_CHAR, class t_CHAR_TRAITS>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::formatImpl(
-       const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS> value,
-       t_FORMAT_CONTEXT&                                   formatContext) const
+FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::outputAsString(
+      const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>& text,
+      const StandardFormatSpecification<t_CHAR>&           spec,
+      t_FORMAT_CONTEXT&                                    formatContext)
 {
     typedef bsl::basic_string_view<t_CHAR> StringView;
     typedef PadUtil<t_CHAR>                PadUtil;
 
-    Specification finalSpec(d_spec);
+    Specification finalSpec(spec);
 
     finalSpec.postprocess(formatContext);
 
@@ -596,50 +459,71 @@ FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::formatImpl(
       }
     }
 
-    int    displayWidthUsedByInputString = std::numeric_limits<int>::min();
-    size_t charactersOfInputUsed         = value.size();
-
-    // Only do an analysis of the string if there is a possibility of
-    // truncation or padding.
-    if ((maxDisplayWidth < static_cast<int>(value.size()) * 2) ||
-                          (finalWidth.category() != NumericValue::e_DEFAULT)) {
-        findPrecisionLimitedString(&charactersOfInputUsed,
-                                   &displayWidthUsedByInputString,
-                                   value,
-                                   maxDisplayWidth);
+    // Only measure the string if there is a possibility of truncation or
+    // padding.
+    if ((maxDisplayWidth >= static_cast<int>(text.size()) * 2) &&
+                          (finalWidth.category() == NumericValue::e_DEFAULT)) {
+        return bsl::copy(text.begin(), text.end(), formatContext.out());
+                                                                      // RETURN
     }
-    displayWidthUsedByInputString = bsl::max(0, displayWidthUsedByInputString);
 
     BSLS_ASSERT(NumericValue::e_DEFAULT == finalWidth.category() ||
                 NumericValue::e_VALUE   == finalWidth.category());
 
-    std::ptrdiff_t leftPadFillerCopies  = 0;
-    std::ptrdiff_t rightPadFillerCopies = 0;
+    const StringView content(text.data(), text.size());
+    std::size_t      numCharacters = 0;
+    int              displayWidth  = 0;
+
+    DisplayWidthUtil::findWidthLimitedPrefix(&numCharacters,
+                                             &displayWidth,
+                                             content,
+                                             maxDisplayWidth);
 
     // Note that, per the C++ spec, the fill character is always assumed to
     // have a field width of one, regardless of its actual field width.
 
-
-    PadUtil::computePadding(&leftPadFillerCopies,
-                            &rightPadFillerCopies,
-                            finalWidth,
-                            displayWidthUsedByInputString,
-                            d_spec.alignment(),
-                            Specification::e_ALIGN_LEFT);
-
-    typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
-
     const StringView pad(finalSpec.filler(), finalSpec.numFillerCharacters());
-    outIterator = PadUtil::pad(outIterator, leftPadFillerCopies, pad);
 
-    outIterator = bsl::copy(value.begin(),
-                            value.begin() + charactersOfInputUsed,
-                            outIterator);
-
-    outIterator = PadUtil::pad(outIterator, rightPadFillerCopies, pad);
-
-    return outIterator;
+    return PadUtil::writePadded(formatContext.out(),
+                                content.substr(0, numCharacters),
+                                displayWidth,
+                                finalWidth,
+                                spec.alignment(),
+                                pad,
+                                Specification::e_ALIGN_LEFT);
 }
+
+// PROTECTED ACCESSORS
+template <class t_CHAR, class t_CHAR_TRAITS>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::formatImpl(
+      const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>& value,
+      t_FORMAT_CONTEXT&                                    formatContext) const
+{
+    // If the escaped ("debug") presentation was requested, the escaping
+    // happens first and everything that follows -- precision-driven
+    // truncation and width-driven padding alike -- applies to the escaped
+    // text, quotes included.
+    //
+    // Note that the escaped text is always well-formed, because every
+    // ill-formed code unit of the input has become an ASCII `\x{...}`
+    // sequence.  The grapheme-cluster analysis downstream can therefore no
+    // longer reject the input as an invalid Unicode stream.
+
+    if (Specification::e_STRING_ESCAPED == d_spec.formatType()) {
+        bsl::basic_string<t_CHAR, t_CHAR_TRAITS> escaped;
+
+        EscapeUtil<t_CHAR, t_CHAR_TRAITS>::escapeString(
+                                                   bsl::back_inserter(escaped),
+                                                   value);
+
+        return outputAsString(escaped, d_spec, formatContext);        // RETURN
+    }
+
+    return outputAsString(value, d_spec, formatContext);
+}
+
 
 // MANIPULATORS
 template <class t_CHAR, class t_CHAR_TRAITS>
@@ -665,10 +549,14 @@ FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::parse(
     if (d_spec.localeSpecificFlag())
         BSLS_THROW(bsl::format_error("Formatting L specifier not supported"));
 
-    if (d_spec.formatType() == Specification::e_STRING_ESCAPED)
-        BSLS_THROW(bsl::format_error("String escaping not supported"));
-
     return parseContext.begin();
+}
+
+template <class t_CHAR, class t_CHAR_TRAITS>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::set_debug_format()
+{
+    d_spec.setEscapedFormatType();
 }
 
 }  // close package namespace
@@ -716,7 +604,7 @@ typename t_FORMAT_CONTEXT::iterator formatter<const t_CHAR *, t_CHAR>::format(
                     // -----------------------------------
 
 // ACCESSORS
-template <class t_CHAR, size_t t_SIZE>
+template <class t_CHAR, std::size_t t_SIZE>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator formatter<t_CHAR[t_SIZE], t_CHAR>::format(
                                         const t_CHAR      *value,
@@ -838,9 +726,8 @@ formatter<BloombergLP::bslstl::StringRefImp<t_CHAR>, t_CHAR>::format(
                  BloombergLP::bslstl::StringRefImp<t_CHAR> value,
                  t_FORMAT_CONTEXT&                         formatContext) const
 {
-    bsl::basic_string_view<t_CHAR> view(value.data(), value.length());
     return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(
-                                                                view,
+                                                                value,
                                                                 formatContext);
 }
 

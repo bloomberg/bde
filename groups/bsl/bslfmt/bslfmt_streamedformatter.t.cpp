@@ -656,9 +656,11 @@ int main(int argc, char **argv)
         // Locale option
         TEST_PARSE_FAIL(CanStream, "{:*<5.5Ls}");
 
-        // Escaped string type
-        // Not supported in bslfmt at all or in std before C++23
-        TEST_PARSE_FAIL(CanStream, "{:*<5.5?}");
+        // Escaped string type.  `StreamedFormatter::parse` forwards to the
+        // string formatter, so `?` is accepted and renders the streamed text
+        // escaped.  The macro used here does not consult the `std` oracle,
+        // which would disagree before C++23.
+        TEST_PARSE_SUCCESS_F(CanStream, "{:*<5.5?}");
 
         // Non-string type
         TEST_PARSE_FAIL(CanStream, "{:*<5.5d}");

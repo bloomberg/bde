@@ -1047,7 +1047,7 @@ template <class t_CHAR>
 bsl::string
 FormatterTestUtil_Impl<t_CHAR>::toNarrow(const bsl::string_view& string)
 {
-    return bsl::string(string.data(), string.size());
+    return bsl::string(string);
 }
 
 template <class t_CHAR>

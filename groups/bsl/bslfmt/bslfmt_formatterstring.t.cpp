@@ -195,6 +195,32 @@ static bool veryVerbose;
 /// the specified `useOracle` is `true`, also parse `fmtStr` using a standard
 /// library implementation and make sure that the exception is thrown in this
 /// case too.
+// Whether the `std` implementation available here understands the escaped
+// (`?`) presentation type, and can therefore serve as an oracle for it.
+// `bslfmt` supports `?` under every standard; `std` gained it in C++23 along
+// with range formatting, both from P2286R8.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+#define U_ESCAPE_ORACLE true
+#else
+#define U_ESCAPE_ORACLE false
+#endif
+
+// Whether a format string containing `?` may be passed to a test utility
+// function that takes it as a compile-time constant.  Where `std::format` is
+// available such a parameter is a `std::basic_format_string`, whose
+// `consteval` constructor validates the entire specification using `std`'s
+// formatters; a `?` that `std` does not know is a hard compile-time error,
+// which the run-time `U_ESCAPE_ORACLE` flag is powerless to suppress.  Where
+// `std::format` is absent the parameter is a `bslfmt::basic_format_string`
+// instead, which parses the specification using `bslfmt` and therefore accepts
+// `?`.  So the compile-time form of the test is usable only at the two ends of
+// the range -- with the `bslfmt` implementation, or with a `std` that has
+// P2286R8 -- and never in between.  The run-time form is usable everywhere.
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT) ||                        \
+     defined(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT)
+#define U_ESCAPE_COMPILE_TIME_SPEC 1
+#endif
+
 #define TEST_PARSE_FAIL(type, fmtStr, useOracle)                              \
     do {                                                                      \
         bsl::string errorMsg;                                                 \
@@ -579,8 +605,7 @@ void TestDriver<t_CHAR>::testCase4Minimal(
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // std::basic_string_view<t_CHAR>
 
-    std::basic_string_view<t_CHAR> inputStdSV(inputOriginal.data(),
-                                              inputOriginal.length());
+    std::basic_string_view<t_CHAR> inputStdSV(inputOriginal);
     message.clear();
     rv = bslfmt::FormatterTestUtil<t_CHAR>::testEvaluateVFormat(&message,
                                                                 expected,
@@ -716,9 +741,7 @@ void TestDriver<t_CHAR>::testCase4Comprehensive(
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
                     // `std::basic_string_view<t_CHAR>`
 
-                    std::basic_string_view<t_CHAR> inputStdSV(
-                                                             inputSV.data(),
-                                                             inputSV.length());
+                    std::basic_string_view<t_CHAR> inputStdSV(inputSV);
                     testCase4SingleValueType(&message,
                                              expectedResult,
                                              formatSpec,
@@ -758,31 +781,33 @@ void TestDriver<t_CHAR>::testCase4SingleValueType(
 {
     typedef bslfmt::TestSpecificationGenerator<t_CHAR> Generator;
 
+    // The escaped (`?`) presentation is supported by `bslfmt` under every
+    // standard, but by `std` only from C++23, so the oracle can be consulted
+    // for it only where the standard library provides it.
+
+    const bool isEscaped = generator.isTypeOptionPresent() &&
+                           Generator::e_TYPE_ESCAPED == generator.type();
+
     message->clear();
     bool rv = bslfmt::FormatterTestUtil<t_CHAR>::testEvaluateVFormat(
-                                                                message,
-                                                                expectedResult,
-                                                                true,
-                                                                formatSpec,
-                                                                value,
-                                                                arg1,
-                                                                arg2);
+                                                message,
+                                                expectedResult,
+                                                isEscaped ? U_ESCAPE_ORACLE
+                                                          : true,
+                                                formatSpec,
+                                                value,
+                                                arg1,
+                                                arg2);
 
     if (generator.isStateValidForFormat()) {
-        if (generator.isTypeOptionPresent() && Generator::e_TYPE_ESCAPED ==
-                                                   generator.type()) {
-            ASSERTV(generator.formatSpec().c_str(), !rv);
-        }
-        else {
-            // the following test vector has a tendency to spew
-            if (!rv) {
-                static int failures = 0;
-                ++failures;
-                if (verbose || failures < 50) {
-                    ASSERTV(generator.formatSpec().c_str(),
-                            message->c_str(),
-                            rv);
-                }
+        // the following test vector has a tendency to spew
+        if (!rv) {
+            static int failures = 0;
+            ++failures;
+            if (verbose || failures < 50) {
+                ASSERTV(generator.formatSpec().c_str(),
+                        message->c_str(),
+                        rv);
             }
         }
     }
@@ -919,8 +944,8 @@ int main(int argc, char **argv)
 // directly and instead use `bsl::format` or `bsl::vformat`, so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to test this formatter's ability to a substring with padding
-// and minimum width.
+// Suppose we want to test this formatter's ability to format a substring with
+// padding and minimum width.
 //
 //..
         bslfmt::MockParseContext<char> mpc("*<5.3s", 1);
@@ -1530,28 +1555,18 @@ int main(int argc, char **argv)
         TEST_PARSE_FAIL(char,     "{:*<5.5Ls}",   true);
         TEST_PARSE_FAIL(wchar_t, L"{:*<5.5Ls}",   true);
 
-        // Escaped string type
-        // Not supported in bslfmt at all or in std before C++23
-#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202302L
-        TEST_PARSE_FAIL(char,     "{:*<5.5?}",    true);
-        TEST_PARSE_FAIL(wchar_t, L"{:*<5.5?}",    true);
-#else  // Before C++23
-        // The following two test lines are for an intermediate state of
-        // affairs when `std` is C++23 (so the oracle succeeds, therefore we
-        // disable its checking) but `bslfmt` is still in C++20 state and does
-        // not handle escaped string formats.  Once C++23 `bslfmt` is extended
-        // to handle escaped string formats the following two lines have to be
-        // changed to:
-        //```
-        // TEST_PARSE_SUCCESS_F(char,     "{:*<5.5?}",    true);
-        // TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<5.5?}",    true);
-        //```
-        // In case `bslfmt` is changed to support escaped string format for all
-        // standards the two lines in the `#if` part also have to be updated to
-        // something that checks that `bslfmt` works but the `std` does not.
-        TEST_PARSE_FAIL(char,     "{:*<5.5?}",    false);
-        TEST_PARSE_FAIL(wchar_t, L"{:*<5.5?}",    false);
-#endif  // Since C++23
+        // Escaped string type.  `bslfmt` supports this under every standard,
+        // but `std` gained it in C++23 (P2286R8), so the oracle can only be
+        // consulted where the standard library provides it.  The run-time form
+        // is used in addition to the compile-time one because, in between the
+        // two, the compile-time form cannot be instantiated at all; see
+        // `U_ESCAPE_COMPILE_TIME_SPEC` above.
+#ifdef U_ESCAPE_COMPILE_TIME_SPEC
+        TEST_PARSE_SUCCESS_F(char,      "{:*<5.5?}",   U_ESCAPE_ORACLE);
+        TEST_PARSE_SUCCESS_F(wchar_t,  L"{:*<5.5?}",   U_ESCAPE_ORACLE);
+#endif
+        TEST_PARSE_SUCCESS_VF(char,     "{:*<5.5?}",   U_ESCAPE_ORACLE);
+        TEST_PARSE_SUCCESS_VF(wchar_t, L"{:*<5.5?}",   U_ESCAPE_ORACLE);
 
         // Non-string type
         TEST_PARSE_FAIL(char,     "{:*<5.5d}",    true);
@@ -1658,7 +1673,7 @@ int main(int argc, char **argv)
         TEST_PARSE_SUCCESS_F(char,     "{0:*^{1}.{1}}"         , true);
         TEST_PARSE_SUCCESS_F(wchar_t, L"{0:*^{1}.{1}}"         , true);
 
-// `std::format` is not fully constexpr in gcc 13 parsing format strings
+// `std::format` is not fully constexpr in gcc 13 - parsing format strings
 // containing unicode symbols in a constexpr context triggers a call to a
 // non-constexpr function.
 #if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE <= 13
@@ -1886,70 +1901,6 @@ int main(int argc, char **argv)
                                                               5);
 
         ASSERTV(message.c_str(), rv);
-
-        // Testing `FormatterString_GraphemeCluster`
-
-        {
-            const char *fmt1 = (const char *)
-                UTF8_LITERAL("\U00000067\U00000308");
-            const int   len1 = (int)strlen(fmt1);
-
-            bslfmt::FormatterString_GraphemeCluster cluster;
-            cluster.extract(bslfmt::UnicodeCodePoint::e_UTF8,
-                            (const void *)fmt1,
-                            len1);
-
-            ASSERT(0x67 == cluster.firstCodePointValue() );
-            ASSERT(1    == cluster.firstCodePointWidth() );
-            ASSERT(true == cluster.isValid()             );
-            ASSERT(2    == cluster.numCodePoints()       );
-            ASSERT(3    == cluster.numSourceBytes()      );
-
-            const char *fmt2 = (const char *)
-                UTF8_LITERAL("\U0001F408\U0000200D\U0001F7E7hello");
-            const int   len2 = (int)strlen(fmt2);
-
-            cluster.reset();
-            cluster.extract(bslfmt::UnicodeCodePoint::e_UTF8,
-                            (const void *)fmt2,
-                            len2);
-
-            ASSERT(0x1f408 == cluster.firstCodePointValue() );
-            ASSERT(2       == cluster.firstCodePointWidth() );
-            ASSERT(true    == cluster.isValid()             );
-            ASSERT(3       == cluster.numCodePoints()       );
-            ASSERT(11      == cluster.numSourceBytes()      );
-
-            if (sizeof(wchar_t) == 2) {
-                const wchar_t *fmt3 =
-                       (const wchar_t *)L"\U0001F407\U0000200D\U0001F7E7hello";
-                const int      len3 = (int)wcslen(fmt3);
-
-                cluster.reset();
-                cluster.extract(bslfmt::UnicodeCodePoint::e_UTF16,
-                                (const void *)fmt3,
-                                len3 * sizeof(wchar_t));
-
-                ASSERT(10 == cluster.numSourceBytes());
-            }
-            else {
-                const wchar_t *fmt3 =
-                       (const wchar_t *)L"\U0001F407\U0000200D\U0001F7E7hello";
-                const int      len3 = (int)wcslen(fmt3);
-
-                cluster.reset();
-                cluster.extract(bslfmt::UnicodeCodePoint::e_UTF32,
-                                (const void *)fmt3,
-                                len3 * sizeof(wchar_t));
-
-                ASSERT(12 == cluster.numSourceBytes());
-            }
-
-            ASSERT(0x1f407 == cluster.firstCodePointValue() );
-            ASSERT(2       == cluster.firstCodePointWidth() );
-            ASSERT(true    == cluster.isValid()             );
-            ASSERT(3       == cluster.numCodePoints()       );
-        }
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
