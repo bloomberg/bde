@@ -1,6 +1,45 @@
-bsl-internal (4.42.0.0) unstable; urgency=low
+bsl-internal (4.43.0.0) unstable; urgency=low
 
-  * 3a86b7ded Bumped version to 4.42.0.0
+  * e03ed285a Bumped version to 4.43.0.0
+  * 999de9c66 [DRQS 187009506] Fix MSVC failures in bal (msvc-2022) (#6067)
+  * c0da1295f [DRQS 186991568] Fix MSVC failures in bal (msvc-2022) (#6064)
+  * b5d271136 [DRQS 186978366] Fix MSVC failures in bdl (msvc-2022) (#6062)
+  * 1beea1f11 [DRQS 186977724] Fix MSVC failures in bal (msvc-2022) (#6061)
+  * 3228c6825 Remove validateAndSetYearDay() and validateAndSetTimeTz() (#6060)
+  * 0b278c0fe [DRQS 186976889] Fix UBSan failures in bdl (opt_dbg_64_ubsan_cpp23, clang-21) (#6059)
+  * 17c7c9fde [DRQS 186931408] Fix ASan failures and warnings in bsl and bdl (gcc-13) (#6057)
+  * ebbff1c6b [DRQS 186929851] Fix ASan and TSan failures in bal (gcc-13) (#6056)
+  * 22fb70af3 [DRQS 186910838] Fix UBSan and ASan failures and warnings in bal (#6055)
+  * a4465cdbe [DRQS 185709823] Remove bdlde_quotedprintabledecoder and bdlde_quotedprintableencoder (#5983)
+  * 92dd01d84 [DRQS 186887270] Fix ASan failures and warnings in bal (clang-21, gcc… (#6054)
+  * 2ee5473a8 [DRQS 186874917] Fix UBSan failures in bslma (dbg_64_ubsan_cpp23, cla… (#6053)
+  * 3792d1360 Fix long lines in bdld_datum.h (#6051)
+  * b4161c0ee [DRQS 186871253] Fix UBSan failures in bbl (dbg_64_ubsan_cpp23, clang-21) (#6050)
+  * e03e0e613 Fix UBSan failures in bal (dbg_64_ubsan_cpp23, clang-21) (#6049)
+  * 98f29d64b balxml_utf8readerwrapper.t: sanitize OS-derived temp file name (#6048)
+  * 74078c4e4 Revert "change criteria for HAS_CPP20_FORMAT to avoid gcc-13 libstdc++ known …" (#6047)
+  * f7ae8e9ac [DRQS 185742318] bdlb_guidutil: add RFC 9562 UUID v7 generation (#5977)
+  * 42896fa37 Merge 4.42.x (#6046)
+  * 76f43d2b2 bdls_pathutil: preserve known path length (#6035)
+  * 3a9cc5f19 Add bigobj for bdlar, typo (#6045)
+  * ea1c772d7 bdlcc_deque, bdlmt_throttle: fix tsan test failures (#6044)
+  * 5efd56f0a bcemt_threadutil.t: skip expected-failure sched policies under TSan (#6040)
+  * 49ec2048c [DRQS 184393861] bdlf_visitutil: add bdlf::VisitUtil::visitWith. (#6003)
+  * e110e6907 balm_metrics: avoid dynamic init of static collector pointers in macros (#6043)
+  * c8a38dc54 bdlmt_multiqueuethreadpool: make test case 33 deterministic (#6042)
+  * 774d973be bslmt_threadgroup: disable test case 4 under tsan (#6041)
+  * 03aa9b10b bslmt_fastpostsemaphoreimpl: disable test cases 10 and 11 on Darwin (#6039)
+  * 03248ba52 bslfmt: skip non-aliased bsl::string_view in std::format test path (#6038)
+  * bf9bf80f7 bdl: fix test driver asan issues (#6037)
+  * dbab5ac52 change criteria for HAS_CPP20_FORMAT to avoid gcc-13 libstdc++ known bug (#6036)
+  * 97e399a39 bslmt_platform: remove stale AIX semaphore policy (#6034)
+  * 2f7db622b [DRQS 182790073] bslh_hash: add 3-arg hashAppend for element sequences (#5978)
+  * 948fd012f bsl: fix test asan issues (#6033)
+  * 560b2e827 ball/balst: reduce test memory leaks (#6032)
+  * ef645ba19 Remove AIX support from bsls atomic operations (#5999)
+  * 7902f4969 Merge 4.42.x (#6030)
+  * 7e8041cca Prevent unbounded allocation from ZoneInfoBinaryReader (#6002)
+  * f92356b82 fix non-empty directories and missed socket close (#6028)
   * f909ee139 Support compiling to Wasm via Emscripten (#5933)
   * 543af272c bdlcc_cache.h: improve doc (#6025)
   * ce459c514 correct version for newly obtained data (#6027)
@@ -124,7 +163,7 @@ bsl-internal (4.42.0.0) unstable; urgency=low
   * dee0edd40 Remove buffer overrun. (#5866)
   * 5eeddba6f Remove unused parameter warning. (#5863)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Sat, 17 Oct 2026 16:44:37 +0000
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 Nov 2026 21:03:02 -0500
 
 bsl-internal (4.38.0.0) git; urgency=low
 

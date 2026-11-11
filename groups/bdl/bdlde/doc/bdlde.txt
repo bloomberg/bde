@@ -13,7 +13,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlde' package currently has 23 components having 4 levels of physical
+ The 'bdlde' package currently has 21 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
