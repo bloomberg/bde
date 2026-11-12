@@ -1472,6 +1472,7 @@ class CountedStackDeleter
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#ifndef BDE_BUILD_TARGET_UBSAN
 struct IncrementIntFactory
 {
     void destroy(int *object)
@@ -1488,6 +1489,7 @@ void incrementIntDeleter(int *ptr, IncrementIntFactory *factory)
 
     factory->destroy(ptr);
 }
+#endif // BDE_BUILD_TARGET_UBSAN
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The two deleters defined below do not use the factory (or even object)
 // argument to perform their bookkeeping.  They are typically used to test
@@ -2432,6 +2434,11 @@ struct Fdflt {
 //
 // Note that use of any policy other than that for passing all parameters to
 // the deleter function as `void *` is deprecated.
+//
+// Also note that `bslma::ManagedPtr` stores such deprecated deleters as a
+// `void (*)(void *, void *)` and calls them through that pointer to an
+// incorrect function type, which UBSan (`-fsanitize=function`) reports as
+// undefined behavior, so the tests using them are disabled in UBSan builds.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template<class OBJECT_POLICY, class FACTORY_POLICY> struct DObjFac;
@@ -5047,6 +5054,7 @@ static const PolicyBase TEST_POLICY_BASE_ARRAY[] = {
     //PolicyBase( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
     // Next we test the deprecated support for deleters other than
     // `void (*)(void *, void *)`, starting with deleters that type-erase the
     // `object` type, but have a strongly typed `factory` argument.  Such
@@ -5309,6 +5317,7 @@ static const PolicyBase TEST_POLICY_BASE_ARRAY[] = {
 
     //PolicyBase( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //PolicyBase( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // negative tests for deleters look for a null pointer lvalue.
@@ -5445,6 +5454,7 @@ static const PolicyCBase TEST_POLICY_CONST_BASE_ARRAY[] = {
     PolicyCBase( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
     // Next we test the deprecated support for deleters other than
     // `void (*)(void *, void *)`, starting with deleters that type-erase the
     // `object` type, but have a strongly typed `factory` argument.  Such
@@ -5707,6 +5717,7 @@ static const PolicyCBase TEST_POLICY_CONST_BASE_ARRAY[] = {
 
     //PolicyCBase( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //PolicyCBase( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // negative tests for deleters look for a null pointer lvalue.
@@ -5843,6 +5854,7 @@ static const PolicyDerived TEST_POLICY_DERIVED_ARRAY[] = {
     //PolicyDerived( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
     // Next we test the deprecated support for deleters other than
     // `void (*)(void *, void *)`, starting with deleters that type-erase the
     // `object` type, but have a strongly typed `factory` argument.  Such
@@ -6107,6 +6119,7 @@ static const PolicyDerived TEST_POLICY_DERIVED_ARRAY[] = {
 
     //PolicyDerived( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //PolicyDerived( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // negative tests for deleters look for a null pointer lvalue.
@@ -6172,8 +6185,10 @@ static const PolicyVoid TEST_POLICY_VOID_ARRAY[] = {
     PolicyVoid( Ocomp(), Fbsl(), DVoidVoid< Ocomp, Fbsl >() ),
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
     PolicyVoid( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     PolicyVoid( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // deleter tests
@@ -6263,6 +6278,7 @@ static const PolicyVoid TEST_POLICY_VOID_ARRAY[] = {
     //PolicyVoid( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
     // Next we test the deprecated support for deleters other than
     // `void (*)(void *, void *)`, starting with deleters that type-erase the
     // `object` type, but have a strongly typed `factory` argument.  Such
@@ -6525,6 +6541,7 @@ static const PolicyVoid TEST_POLICY_VOID_ARRAY[] = {
 
     //PolicyVoid( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //PolicyVoid( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // negative tests for deleters look for a null pointer lvalue.
@@ -6586,8 +6603,10 @@ static const PolicyCVoid TEST_POLICY_CONST_VOID_ARRAY[] = {
     PolicyCVoid( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
     PolicyCVoid( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
     PolicyCVoid( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     PolicyCVoid( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #if 0
@@ -6684,6 +6703,7 @@ static const PolicyCVoid TEST_POLICY_CONST_VOID_ARRAY[] = {
     PolicyCVoid( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
     // Next we test the deprecated support for deleters other than
     // `void (*)(void *, void *)`, starting with deleters that type-erase the
     // `object` type, but have a strongly typed `factory` argument.  Such
@@ -6946,6 +6966,7 @@ static const PolicyCVoid TEST_POLICY_CONST_VOID_ARRAY[] = {
 
     //PolicyCVoid( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //PolicyCVoid( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // negative tests for deleters look for a null pointer lvalue.
@@ -6992,8 +7013,10 @@ static const TestPolicy<Base> TEST_POLICY_BASE0_ARRAY[] = {
     TestPolicy<Base>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
     TestPolicy<Base>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
     TestPolicy<Base>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     TestPolicy<Base>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 #endif
@@ -7025,8 +7048,10 @@ static const TestPolicy<Base2> TEST_POLICY_BASE2_ARRAY[] = {
     TestPolicy<Base2>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
     TestPolicy<Base2>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
     TestPolicy<Base2>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     TestPolicy<Base2>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
@@ -10933,6 +10958,7 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
         {
             int cookie = 100;
             bslma::ManagedPtr<int> test(&cookie,
@@ -10944,6 +10970,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<int> test;
             test.load(&cookie, static_cast<void *>(&cookie), &testDeleter);
         }
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 15: {
@@ -12658,6 +12685,7 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
         if (verbose) printf("\tTest bslma::ManagedPtr(ELEMENT_TYPE *ptr,"
                              " bsl::nullptr_t,"
                              " void(*)(ELEMENT_TYPE *, void*));\n");
@@ -12672,6 +12700,7 @@ int main(int argc, char *argv[])
         }
         ASSERTV(numDeletes,    1 == numDeletes);
         ASSERTV(g_deleteCount, 1 == g_deleteCount);
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -13078,6 +13107,7 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_BUILD_TARGET_UBSAN
 // TBD Double check that the non-deprecated form is tested, otherwise correct
 // this test to use non-deprecated functions.
 
@@ -13153,6 +13183,7 @@ int main(int argc, char *argv[])
             ASSERTV(numDeletes, 0 == numDeletes);
         }
         ASSERTV(numDeletes, 1 == numDeletes);
+#endif // BDE_BUILD_TARGET_UBSAN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

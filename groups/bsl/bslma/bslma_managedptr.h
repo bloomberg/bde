@@ -1367,7 +1367,9 @@ class ManagedPtr {
     /// taking a type other than `void *` for its object type.  Also note
     /// that this function is *deprecated* as it relies on undefined
     /// compiler behavior for its implementation (that luckily performs as
-    /// required on every platform supported by BDE).
+    /// required on every platform supported by BDE), and that UBSan
+    /// (`-fsanitize=function`) reports the call to `deleter` as undefined
+    /// behavior.
     ///
     /// @DEPRECATED: Instead, use:
     /// ```
@@ -1393,7 +1395,8 @@ class ManagedPtr {
     /// or if `0 == deleter && 0 != ptr`.  Note that this function is
     /// *deprecated* as it relies on undefined compiler behavior for its
     /// implementation (that luckily performs as required on every platform
-    /// supported by BDE).
+    /// supported by BDE), and that UBSan (`-fsanitize=function`) reports the
+    /// call to `deleter` as undefined behavior.
     ///
     /// @DEPRECATED: Instead, use:
     /// ```
@@ -1570,7 +1573,9 @@ class ManagedPtr {
     /// currently supported platforms; on platforms where the non-deprecated
     /// overload is not available (e.g., GCC 3.4) code should be written as
     /// if it were available, as an appropriate (deprecated) overload will
-    /// be selected with the correct (non-deprecated) behavior.
+    /// be selected with the correct (non-deprecated) behavior.  Also note
+    /// that UBSan (`-fsanitize=function`) reports the call to `deleter` as
+    /// undefined behavior.
     ///
     /// @DEPRECATED: Instead, use:
     /// ```

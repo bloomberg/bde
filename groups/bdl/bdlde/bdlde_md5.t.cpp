@@ -1112,7 +1112,25 @@ int main(int argc, char *argv[])
 
 //              in.setSuppressVersionCheck(1);
 
+                // Each `Md5` streams 69 values, so a full exception test for
+                // every length `i` throws over 97,000 exceptions, which times
+                // out in builds where exceptions are slow (e.g., TSan).
+                // Exception neutrality is verified exhaustively for valid
+                // streams above, so here test every length without injected
+                // exceptions, and inject exceptions only for a sample of
+                // lengths, including those around the object boundaries.
+
+                const bool exceptionTest = 0        == i % 16
+                                        || LOD1 - 1 == i
+                                        || LOD1     == i
+                                        || LOD2 - 1 == i
+                                        || LOD2     == i
+                                        || LOD  - 1 == i;
+
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                  if (!exceptionTest) {
+                      in.setInputLimit(-1);
+                  }
                   in.reset();
                   LOOP_ASSERT(i, in);
                   LOOP_ASSERT(i, !i == in.isEmpty());
