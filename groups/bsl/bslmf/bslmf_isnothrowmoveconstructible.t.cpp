@@ -20,6 +20,12 @@
 #include <stdio.h>   // `printf`
 #include <stdlib.h>  // `atoi`
 
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================
@@ -198,8 +204,9 @@ struct IS_SPECIAL_CASE {
         ) };
 };
 
-#   define ORACLE_VALUE(TYPE) (std::is_nothrow_move_constructible<TYPE>::value   \
-                               && !IS_SPECIAL_CASE<TYPE>::value)
+#   define ORACLE_VALUE(TYPE)                                                 \
+        (std::is_nothrow_move_constructible<TYPE>::value                      \
+         && !IS_SPECIAL_CASE<TYPE>::value)
 # else
 #   define ORACLE_VALUE(TYPE)  std::is_nothrow_move_constructible<TYPE>::value
 # endif

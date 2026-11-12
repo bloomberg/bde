@@ -26,6 +26,12 @@
 #include <stdlib.h>  // `atoi`
 #include <string.h>  // `memcmp`
 
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
+
 using namespace BloombergLP;
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
