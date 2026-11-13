@@ -653,11 +653,12 @@ BSLS_IDENT("$Id: $")
 //
 // * Compiler support:
 //   - GCC 9.1
-//   - Clang 7.0*
+//   - Clang 19.1
 //   - Visual Studio 2019 version 16.1 (<u>MSC</u>VER 1921)
 //
-// Note that Clang does not support sized deallocation operators (N3778) until
-// release 19.1.
+// Note that Clang does not support sized deallocation operators (N3778), nor
+// enable relaxed matching of template template arguments (P0522R0) by
+// default, until release 19.1.
 //
 ///`BSLS_COMPILERFEATURES_FULL_CPP20`
 /// - - - - - - - - - - - - - - - - -
@@ -1092,15 +1093,18 @@ BSLS_IDENT("$Id: $")
 // * Microsoft Visual Studio update number (such as Update 6)
 // * Microsoft Visual Studio version number (such as 15.6.1)
 // * Microsoft Visual C++ Toolset version number (such as 14.30)
-// * C++ compiler version number and `_MSVC_VER` (such as 19.32 and 1932)
-// * C++ compiler `_MSVC_FULL_VER` (such as 193231329)
+// * C++ compiler version number and `_MSC_VER` (such as 19.32 and 1932)
+// * C++ compiler `_MSC_FULL_VER` (such as 193231329)
 //
 // The following table shows the mapping between the different version numbers.
 // The source for the table was
 //: https://dev.to/yumetodo/list-of-mscver-and-mscfullver-8nd
 // and the `_MSC_VER` entry on
 //: https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros
-// at 2020-12-13 20:00-05:00 (EST/New York).
+// at 2020-12-13 20:00-05:00 (EST/New York), with later releases and the
+// toolset versions from
+//: https://learn.microsoft.com/en-us/cpp/overview/compiler-versions
+// at 2026-11-12.
 //
 // ```
 // +-------------------+----------+---------+----------+---------------+
@@ -1143,8 +1147,8 @@ BSLS_IDENT("$Id: $")
 // +-------------------+----------+---------+----------+---------------+
 // | 2019              | 16.0     | 14.20   | 1920     |  192027508    |
 // | 2019 Update  1    | 16.1.2   | 14.21   | 1921     |  192127702    |
-// | 2019 Update  2    | 16.2.3   | 14.21   | 1922     |  192227905    |
-// | 2019 Update  3    | 16.3.2   | 14.21   | 1923     |  192328105    |
+// | 2019 Update  2    | 16.2.3   | 14.22   | 1922     |  192227905    |
+// | 2019 Update  3    | 16.3.2   | 14.23   | 1923     |  192328105    |
 // | 2019 Update  4    | 16.4.0   | 14.24   | 1924     |  192428314    |
 // | 2019 Update  5    | 16.5.1   | 14.25   | 1925     |  192528611    |
 // | 2019 Update  6    | 16.6.2   | 14.26   | 1926     |  192628806    |
@@ -1152,17 +1156,94 @@ BSLS_IDENT("$Id: $")
 // | 2019 Update  8    | 16.8.1   | 14.28   | 1928     |  192829333    |
 // |      Update  8(*) | 16.8.2   | 14.28   | 1928     |  192829334    |
 // | 2019 Update  9    | 16.9.2   | 14.28   | 1928     |  192829913    |
-// | 2019 Update 11    | 16.11.2  | 14.28   | 1929     |  192930133    |
+// | 2019 Update 10    | 16.10    | 14.29   | 1929     |  192929917    |
+// | 2019 Update 11    | 16.11.2  | 14.29   | 1929     |  192930133    |
 // +-------------------+----------+---------+----------+---------------+
 // | 2022              | 17.0.1   | 14.30   | 1930     |  193030705    |
 // | 2022(*)           | 17.0.2   | 14.30   | 1930     |  193030706    |
-// | 2022(*)           | 17.2.2   | 14.30   | 1932     |  193231329    |
-// | 2022(*)           | 17.3.4   | 14.30   | 1933     |  193331630    |
+// | 2022              | 17.1     | 14.31   | 1931     |      ?        |
+// | 2022              | 17.2.2   | 14.32   | 1932     |  193231329    |
+// | 2022              | 17.3.4   | 14.33   | 1933     |  193331630    |
+// | 2022              | 17.4     | 14.34   | 1934     |      ?        |
+// | 2022              | 17.5     | 14.35   | 1935     |      ?        |
+// | 2022              | 17.6     | 14.36   | 1936     |      ?        |
+// | 2022              | 17.7     | 14.37   | 1937     |      ?        |
+// | 2022              | 17.8     | 14.38   | 1938     |      ?        |
+// | 2022              | 17.9.0   | 14.39   | 1939     |  193933519    |
+// | 2022              | 17.10    | 14.40   | 1940     |      ?        |
+// | 2022              | 17.11    | 14.41   | 1941     |      ?        |
+// | 2022              | 17.12    | 14.42   | 1942     |      ?        |
+// | 2022              | 17.13    | 14.43   | 1943     |      ?        |
+// | 2022              | 17.14    | 14.44   | 1944     |      ?        |
+// +-------------------+----------+---------+----------+---------------+
+// | 2026              | 18.0     | 14.50   | 1950     |      ?        |
+// | 2026(**)          | 18.x     | 14.51   | 1951     |      ?        |
+// | 2026(**)          | 18.x     | 14.52   | 1952     |      ?        |
 // +-------------------+----------+---------+----------+---------------+
 // ```
 // (*) Visual Studio may receive interim updates that do not contribute into
 //     the Visual Studio "human friendly" version, but are visible in other
 //     version numbers.
+//
+// (**) Starting with Visual Studio 2026, the MSVC toolset is versioned
+//      independently of Visual Studio, with a new toolset every six months,
+//      and a single Visual Studio update may offer several toolsets.  Toolset
+//      14.52 was a preview as of 2026-05.
+//
+/// Apple Clang versions mapping
+///-----------------------------
+// Apple Clang, shipped with Xcode, reports its own version through
+// `__clang_major__`, `__clang_minor__`, and `__clang_patchlevel__`, and that
+// version does not match the LLVM release on which it is based.  When
+// `__apple_build_version__` is defined, `BSLS_PLATFORM_CMP_VERSION` holds the
+// Apple Clang version.
+//
+// The following table maps each Apple Clang version to the Xcode releases
+// that ship it and to its LLVM base.  The source for the table was the
+// "Toolchain versions" section of
+//: https://en.wikipedia.org/wiki/Xcode
+// at 2026-11-12.
+//
+// ```
+// +-------------+-------------+-----------+
+// | Apple Clang | Xcode       | LLVM base |
+// +=============+=============+===========+
+// | 5.0         | 5.0         | 3.3svn    |
+// | 5.1         | 5.1         | 3.4svn    |
+// | 6.0         | 6.0 - 6.2   | 3.5svn    |
+// | 6.1.0       | 6.3 - 6.4   | 3.6svn    |
+// +-------------+-------------+-----------+
+// | 7.0.0       | 7.0 - 7.1   | 3.7svn    |
+// | 7.0.2       | 7.2         | 3.7svn    |
+// | 7.3.0       | 7.3         | 3.8svn    |
+// | 8.0.0       | 8.0 - 8.2   | 3.9svn    |
+// | 8.1.0       | 8.3         | 3.9svn    |
+// | 9.0.0       | 9.0 - 9.2   | 4.0.0     |
+// | 9.1.0       | 9.3 - 9.4   | 5.0.2     |
+// | 10.0.0      | 10.0 - 10.1 | 6.0.1     |
+// | 10.0.1      | 10.2 - 10.3 | 7.0.0     |
+// +-------------+-------------+-----------+
+// | 11.0.0      | 11.0 - 11.3 | 8.0.0     |
+// | 11.0.3      | 11.4 - 11.7 | 9.0.0     |
+// | 12.0.0      | 12.0 - 12.4 | 10.0.0    |
+// | 12.0.5      | 12.5        | 11.1.0    |
+// | 13.0.0      | 13.0 - 13.2 | 12.0.0    |
+// | 13.1.6      | 13.3 - 13.4 | 13.0.0    |
+// | 14.0.0      | 14.0 - 14.2 | 14.0.0    |
+// | 14.0.3      | 14.3        | 15.0.0    |
+// +-------------+-------------+-----------+
+// | 15.0.0      | 15.0 - 15.4 | 16.0.0    |
+// | 16.0.0      | 16.0 - 16.2 | 17.0.6    |
+// | 17.0.0(*)   | 16.3 - 16.4 | 19.1.4    |
+// +-------------+-------------+-----------+
+// | 17.0.0(*)   | 26.0 - 26.3 | 19.1.5    |
+// | 21.0.0      | 26.4 - 27.3 | 21.1.6    |
+// +-------------+-------------+-----------+
+// ```
+// (*) Apple ships two different compilers that both report version 17.0.0:
+//     the Xcode 16.3 compiler (build `clang-1700.0.13.3`) and the Xcode 26.0
+//     compiler (build `clang-1700.3.19.1`).  Only `__apple_build_version__`,
+//     which encodes the build number, distinguishes them.
 
 // ----------------------------------------------------------------------------
 //
@@ -1380,7 +1461,7 @@ BSLS_IDENT("$Id: $")
 // As GCC tracked the evolving C++11 standard, earlier versions of the compiler
 // have implementations of earlier specifications of features that can show up
 // as bugs compared to the final standard.  Therefore, BDE does not attempt to
-// support C++11 in GCC compilers prior to the 4.8 release.
+// support C++11 in GCC compilers prior to the 5.0 release.
 #if defined(BSLS_PLATFORM_CMP_GNU)
 
   #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT                          1
@@ -1680,19 +1761,28 @@ BSLS_IDENT("$Id: $")
   #endif
 
   // Define full CPP macros
-  #if BSLS_PLATFORM_CMP_VERSION >= 30300
+  #if (!defined(__apple_build_version__) &&                                   \
+                                    BSLS_PLATFORM_CMP_VERSION >= 30300) ||    \
+      ( defined(__apple_build_version__) &&                                   \
+                                    BSLS_PLATFORM_CMP_VERSION >= 50000)
     #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
       #define BSLS_COMPILERFEATURES_FULL_CPP11                                1
     #endif
   #endif
 
-  #if BSLS_PLATFORM_CMP_VERSION >= 30400
+  #if (!defined(__apple_build_version__) &&                                   \
+                                    BSLS_PLATFORM_CMP_VERSION >= 30400) ||    \
+      ( defined(__apple_build_version__) &&                                   \
+                                    BSLS_PLATFORM_CMP_VERSION >= 50100)
     #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201402L
       #define BSLS_COMPILERFEATURES_FULL_CPP14                                1
     #endif
   #endif
 
-  #if BSLS_PLATFORM_CMP_VERSION >= 70000
+  #if (!defined(__apple_build_version__) &&                                   \
+                                    BSLS_PLATFORM_CMP_VERSION >= 190100) ||   \
+      ( defined(__apple_build_version__) &&                                   \
+                                    BSLS_PLATFORM_CMP_VERSION >= 170000)
     #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
       #define BSLS_COMPILERFEATURES_FULL_CPP17                                1
     #endif
@@ -1706,7 +1796,7 @@ BSLS_IDENT("$Id: $")
 //                  Microsoft Visual Studio / MSVC / cl.exe
 // ============================================================================
 
-//MSVC (Minimum supported version is MSVC 2015)
+//MSVC (Minimum supported version is Visual Studio 2017 version 15.3)
 // http://msdn.microsoft.com/en-us/library/hh567368.aspx
 // http://blogs.msdn.com/b/vcblog/archive/2014/06/11/c-11-14-feature-tables-for-visual-studio-14-ctp1.aspx
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -1716,12 +1806,6 @@ BSLS_IDENT("$Id: $")
 //
 //: * extern template is not supported.  It is documented as being "supported"
 //:   but behaves in a non-conforming manner.
-
-  #if BSLS_PLATFORM_CMP_VERSION < 1900
-    #error Earliest supported toolset version is 19.0, Visual Studio 2015
-    BSLS_PLATFORM_COMPILER_ERROR;
-    // Too old compiler, not supported.
-  #endif  // Earlier than Visual Studio 2015
 
   // Not only does Microsoft not always report the language dialect properly in
   // '__cplusplus', many users depends upon it not reflecting the right

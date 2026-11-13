@@ -654,22 +654,44 @@ struct bsls_Platform_Assert;
 #if !defined(BDE_DISABLE_COMPILER_VERSION_CHECK)
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
-    // No minimum supported compiler version has been identified yet.
+    // No minimum version is enforced for C++03 mode.
+    #if defined(__apple_build_version__)
+        #if BSLS_PLATFORM_CMP_VERSION < 50000 && __cplusplus >= 201103L
+            #error C++11 mode is not supported by BDE before Apple clang 5.0
+        #endif
+        #if BSLS_PLATFORM_CMP_VERSION < 50100 && __cplusplus > 201103L
+            #error C++14 mode is not supported by BDE before Apple clang 5.1
+        #endif
+    #else
+        #if BSLS_PLATFORM_CMP_VERSION < 30300 && __cplusplus >= 201103L
+            #error C++11 mode is not supported by BDE before clang 3.3
+        #endif
+        #if BSLS_PLATFORM_CMP_VERSION < 30400 && __cplusplus > 201103L
+            #error C++14 mode is not supported by BDE before clang 3.4
+        #endif
+    #endif
 #elif defined(BSLS_PLATFORM_CMP_EDG)
     // No minimum supported compiler version has been identified yet.
 #elif defined(BSLS_PLATFORM_CMP_SUN)
-    #if BSLS_PLATFORM_CMP_VERSION < 0x5120
+    #if BSLS_PLATFORM_CMP_VERSION < 0x5130
         #error This early compiler is not supported by BDE
     #endif
+    #if __cplusplus >= 201103L
+        #error C++11 mode is not supported by BDE for Sun CC
+    #endif
 #elif defined(BSLS_PLATFORM_CMP_GNU)
-    // Test GNU late, as so many compilers offer a GNU compatibility mode.
     #if BSLS_PLATFORM_CMP_VERSION < 40102
         #error This early compiler is not supported by BDE
     #endif
+    #if BSLS_PLATFORM_CMP_VERSION < 50000 &&                                  \
+                                           defined(__GXX_EXPERIMENTAL_CXX0X__)
+        #error C++11 mode is not supported by BDE before gcc 5.0
+    #endif
+    #if BSLS_PLATFORM_CMP_VERSION < 60000 && __cplusplus >= 201402L
+        #error C++14 mode is not supported by BDE before gcc 6.0
+    #endif
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
-    // Test MSVC last, as many compilers targeting Windows offer a Microsoft
-    // compatibility mode.
-    #if BSLS_PLATFORM_CMP_VERSION < 1800
+    #if BSLS_PLATFORM_CMP_VERSION < 1911
         #error This early compiler is not supported by BDE
     #endif
 #else
