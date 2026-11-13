@@ -14,6 +14,18 @@ library identifier: "conan-pipeline@main",
 
 jobInfo.failIfBranchIndexing()
 
+String sourcePackage = 'bsl-internal'
+List binaryPackages = [
+    'libbbryu-dev',
+    'libinteldfp-dev',
+    'libpcre2-dev',
+    'libbsl-dev',
+    'libbdl-dev',
+    'libs-baltst-dev',
+    'libbal-dev',
+    'libbbl-dev'
+]
+
 node('WINDOWS') {
     try {
         stage('Checkout') {
@@ -33,27 +45,23 @@ node('WINDOWS') {
                     channel = "pr-${env.CHANGE_ID}"
                 }
 
+                conan.excludeFromDistributionLock([sourcePackage] + binaryPackages)
+
                 conan.getReleaseProfiles().each { profile ->
                     dir("build_${profile}") {
-
-                        conan.buildAndExportPkg(
-                            packages: [
-                                       'libbbryu-dev',
-                                       'libinteldfp-dev',
-                                       'libpcre2-dev',
-                                       'libbsl-dev',
-                                       'libbdl-dev',
-                                       'libs-baltst-dev',
-                                       'libbal-dev',
-                                       'libbbl-dev'
-                                       ],
-                            user:    user,
-                            channel: channel,
-                            '-o:a':  '*:dependency_user_channel=test/unstable',
-                            '-pr:h': profile,
-                            '-of':   '.',
-                            path:    sourceDir
-                        )
+                        ([sourcePackage] + binaryPackages).each { name ->
+                            Map args = [
+                                name:    name,
+                                user:    user,
+                                channel: channel,
+                                '-o:a':  '*:dependency_user_channel=test/unstable',
+                                '-pr:h': profile,
+                                '-of':   name,
+                                path:    sourceDir
+                            ]
+                            conan.build(args.clone())
+                            conan.exportPkg(args)
+                        }
                     }
                 }
             }
@@ -65,14 +73,7 @@ node('WINDOWS') {
                 }
 
                 conan.remoteBbConan { remote ->
-                    remote.upload(dryRun: dryRun, pattern: 'libbbryu-dev')
-                    remote.upload(dryRun: dryRun, pattern: 'libinteldfp-dev')
-                    remote.upload(dryRun: dryRun, pattern: 'libpcre2-dev')
-                    remote.upload(dryRun: dryRun, pattern: 'libbsl-dev')
-                    remote.upload(dryRun: dryRun, pattern: 'libbdl-dev')
-                    remote.upload(dryRun: dryRun, pattern: 'libs-baltst-dev')
-                    remote.upload(dryRun: dryRun, pattern: 'libbal-dev')
-                    remote.upload(dryRun: dryRun, pattern: 'libbbl-dev')
+                    ([sourcePackage] + binaryPackages).each { name -> remote.upload(dryRun: dryRun, pattern: name) }
                 }
             }
         }
