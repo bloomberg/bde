@@ -430,6 +430,18 @@ struct Sleeper {
 };
 bsls::AtomicInt Sleeper::s_finished;
 
+static void waitOnLatchAndCount(bslmt::Latch *latch, bsls::AtomicInt *count)
+{
+    // Wait on the specified `latch`, for at most 30 seconds, then increment
+    // the specified `count`.  The timeout ensures that a `drainQueue` that
+    // erroneously waits for this job results in an assertion failure (because
+    // `count` is incremented before `drainQueue` returns) rather than a
+    // deadlock.
+
+    latch->timedWait(bsls::SystemTime::nowRealtimeClock().addSeconds(30));
+    ++*count;
+}
+
 struct Reproducer {
     Obj                    *d_threadPool;
     const bsl::vector<int> *d_handles;
@@ -3626,9 +3638,19 @@ int main(int argc, char *argv[]) {
 
             bsl::vector<int> queueIds;
 
-            const double SLEEP_A_LOT_TIME    = 1.0;
-            Sleeper sleepALot(SLEEP_A_LOT_TIME);
-            Sleeper::s_finished = 0;
+            // Rather than sleeping for a fixed time (which, on a heavily
+            // loaded host, was observed to elapse before the reproducer
+            // chain on `queueIds[2]` completed), the jobs on the other queues
+            // block on `gate` until it is released after `drainQueue`
+            // returns (or, if `drainQueue` erroneously waits for them, until
+            // their 30 second timeout expires).
+
+            bslmt::Latch           gate(1);
+            bsls::AtomicInt        numFinished(0);
+            bsl::function<void()>  sleepALot =
+                                bdlf::BindUtil::bind(&waitOnLatchAndCount,
+                                                     &gate,
+                                                     &numFinished);
 
             Reproducer reproducer(&mX, &queueIds, 2, 0);
             Reproducer::s_counter = k_REPRODUCE_COUNT;
@@ -3645,21 +3667,27 @@ int main(int argc, char *argv[]) {
                     mX.enqueueJob(queueIds[i], sleepALot);
                 }
             }
-            ASSERT(0 == Sleeper::s_finished);
+            ASSERTV(numFinished, 0 == numFinished);
             ASSERTV(Reproducer::s_counter, 0 <  Reproducer::s_counter);
 
             mX.drainQueue(queueIds[2]);
             ASSERTV(Reproducer::s_counter, 0 == Reproducer::s_counter);
-            ASSERT(0 == Sleeper::s_finished);
+            ASSERTV(numFinished, 0 == numFinished);
 
             int numDequeued, numEnqueued;
             X.numProcessed(&numDequeued, &numEnqueued);
 
             ASSERT(k_NUM_QUEUES + k_REPRODUCE_COUNT == numEnqueued);
 
+            gate.arrive();
+
+            // Some jobs on the other queues may not have been dequeued yet
+            // when `drainQueue` returned, so sample the count after `stop`.
+
             mX.stop();
+            X.numProcessed(&numDequeued, &numEnqueued);
             ASSERT(k_NUM_QUEUES + k_REPRODUCE_COUNT == numDequeued);
-            ASSERT(k_NUM_QUEUES - 1 == Sleeper::s_finished);
+            ASSERTV(numFinished, k_NUM_QUEUES - 1 == numFinished);
         }
 
         // next do `drain` case

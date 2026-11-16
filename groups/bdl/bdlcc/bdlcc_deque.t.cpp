@@ -3417,22 +3417,30 @@ class MultiThreadedForcePushTest {
 namespace FORCE_AND_TRY_HIGH_WATER_MARK_STRESS_TEST {
 
 struct FATHWMStressTest {
-    Obj            *d_container_p;
-    bslmt::Barrier *d_barrier_p;
+    Obj                  *d_container_p;
+    bslmt::Barrier       *d_barrier_p;
+    bsls::Types::UintPtr *d_visitedMask_p;
 
     // CREATOR
 
-    /// Create a test object that will access the specified `*container` and
-    /// wait on the specified `*barrier`.
-    FATHWMStressTest(Obj *container, bslmt::Barrier *barrier)
+    /// Create a test object that will access the specified `*container`,
+    /// wait on the specified `*barrier`, and bitwise-or a mask of the
+    /// branches visited into the specified `*visitedMask`.
+    FATHWMStressTest(Obj                  *container,
+                     bslmt::Barrier       *barrier,
+                     bsls::Types::UintPtr *visitedMask)
     : d_container_p(container)
     , d_barrier_p(barrier)
+    , d_visitedMask_p(visitedMask)
     {}
 
     // ACCESSOR
 
     /// Do 3 sequences of push's, using alternating `tryPush*` and `push*`,
-    /// and make sure that all branches were visited.
+    /// and record which branches were visited in `*d_visitedMask_p`.  Note
+    /// that whether a given branch is visited in a single invocation depends
+    /// on thread scheduling, so the caller verifies that all branches were
+    /// visited over all invocations.
     void operator()() const
     {
         const unsigned len = static_cast<unsigned>(d_container_p->length());
@@ -3504,8 +3512,10 @@ struct FATHWMStressTest {
             }
         }
 
-        ASSERTV(reinterpret_cast<void *>(visitedMask), 0x1ff == visitedMask);
-                                                       // all branches visited.
+        // Note that this non-atomic update is safe because the main thread
+        // reads `*d_visitedMask_p` only after joining this thread.
+
+        *d_visitedMask_p |= visitedMask;
     }
 };
 
@@ -6772,9 +6782,10 @@ int main(int argc, char *argv[])
         enum { NUM_START_LENGTHS = sizeof START_LENGTHS /
                                                        sizeof *START_LENGTHS };
 
-        const size_t HIGH_WATER_MARK = 3;
-        int          timesFull = 0;
-        int          minTimesFull = 0;
+        const size_t         HIGH_WATER_MARK = 3;
+        int                  timesFull = 0;
+        int                  minTimesFull = 0;
+        bsls::Types::UintPtr visitedMask = 0;
 
         static const Element startArray[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
                                                           11, 12, 13, 14, 15 };
@@ -6795,7 +6806,8 @@ int main(int argc, char *argv[])
                 ASSERT(X.length() == startLength);
 
                 bslmt::ThreadUtil::Handle handle;
-                CREATETHREAD(handle, FATHWMStressTest(&mX, &barrier));
+                CREATETHREAD(handle,
+                             FATHWMStressTest(&mX, &barrier, &visitedMask));
 
                 barrier.wait();
 
@@ -6940,6 +6952,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) { P_(minTimesFull); P(timesFull); }
             ASSERT(0 == da.numAllocations());
         }
+
+        // Whether the background thread visits a given branch in a single
+        // pass depends on thread scheduling (e.g., on a heavily loaded host
+        // the main thread may pop each element just before the background
+        // thread pushes the next, so the queue is full at every `tryPush*`),
+        // so verify that all branches were visited over all passes.
+
+        ASSERTV(reinterpret_cast<void *>(visitedMask), 0x1ff == visitedMask);
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -7119,6 +7139,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "SEQUENCE CONSTRAINT TEST\n"
                              "========================\n";
+
+        // This case runs 100 configurations of up to 18 contending threads,
+        // which can take more than 90 seconds on a heavily loaded host.
+
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
 
         using namespace SEQUENCE_CONSTRAINT_TEST;
 
@@ -7964,6 +7990,14 @@ int main(int argc, char *argv[])
         const bsls::TimeInterval T4(  4 * DECI_SEC);          //  .4s
         const bsls::TimeInterval T10(10 * DECI_SEC);          // 1.0s
 
+        // The timeout of the push done by the subthread, which is expected to
+        // block until the main thread pops an element.  This is long so that
+        // the push does not time out if the main thread is not scheduled for
+        // a while on a heavily loaded host; a successful push returns as soon
+        // as the main thread pops, so this does not slow down the test.
+
+        const bsls::TimeInterval SUBTHREAD_TIMEOUT(30, 0);    // 30s
+
         const AElement VA('A', &sa);    // deque originally filled with these
         const AElement VB('B', &sa);    // one pushed at end after high water
                                         // mark
@@ -7977,7 +8011,7 @@ int main(int argc, char *argv[])
             const unsigned int HIGH_WATER_MARK = VALUES[ti].d_highWaterMark;
 
             AObj                   x(HIGH_WATER_MARK, &ta);
-            TC::TimedHWMRecordBack testObj(&x, T10, VB);
+            TC::TimedHWMRecordBack testObj(&x, SUBTHREAD_TIMEOUT, VB);
 
             // Verify timed pop on empty deque times out.
 
@@ -8089,7 +8123,7 @@ int main(int argc, char *argv[])
             const unsigned int HIGH_WATER_MARK = VALUES[ti].d_highWaterMark;
 
             AObj                    x(HIGH_WATER_MARK, &ta);
-            TC::TimedHWMRecordFront testObj(&x, T10, VB);
+            TC::TimedHWMRecordFront testObj(&x, SUBTHREAD_TIMEOUT, VB);
 
             // Verify timed pop on empty deque times out.
 

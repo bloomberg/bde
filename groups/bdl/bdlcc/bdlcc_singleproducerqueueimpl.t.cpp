@@ -1609,9 +1609,12 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::join(handle);
 
+            // The upper bound is generous since, on a heavily loaded host, the
+            // deferred thread can be delayed well beyond its one second sleep.
+
             ASSERTV(interval,
-                       bsls::TimeInterval(0.8) <= interval
-                    && bsls::TimeInterval(3.0) >= interval);
+                       bsls::TimeInterval(0.8)  <= interval
+                    && bsls::TimeInterval(10.0) >= interval);
         }
         {
             ASSERT(0 == completionGuard.updateText(bsl::format(

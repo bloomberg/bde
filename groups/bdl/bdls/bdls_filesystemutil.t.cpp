@@ -5374,15 +5374,17 @@ int main(int argc, char *argv[])
             static const int fileFileDelay =
                             bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND / 2;
 
-            // The maximum permitted difference between the queried
-            // realtime clock and the timestamp of the first created file.
-            static const int clockFileCheck =
-                        2 * bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
-
-            // The maximum permitted difference between the timestamps of
-            // created files.
-            static const int fileFileCheck =
-                        2 * bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
+            // The maximum permitted difference between a file's
+            // modification timestamp and the realtime clock readings taken
+            // immediately before and after the file was created and written.
+            // This allows for coarse timestamp granularity and for skew
+            // between the local clock and the clock of the file server (e.g.,
+            // over NFS).  Note that the readings bracketing each file
+            // operation are taken immediately before and after it, so that
+            // scheduling delays on a heavily loaded host (e.g., sleeps that
+            // overshoot, or slow file creation) widen the bracket rather than
+            // causing spurious failures.
+            const bdlt::DatetimeInterval clockFileSlack(0, 0, 0, 1);
 
             // The first time we write to a file on a filesystem there can be
             // initial delays, notably over NFS which doesn't mount a filsystem
@@ -5409,6 +5411,10 @@ int main(int argc, char *argv[])
             // file systems have relatively poor timestamp precision.
             bslmt::ThreadUtil::microSleep(clockFileDelay);
 
+            const bdlt::Datetime before1 =
+                bdlt::EpochUtil::convertFromTimeInterval(
+                    bsls::SystemTime::nowRealtimeClock());
+
             // Create the first file.
             const Obj::FileDescriptor fd1 = u::TestUtil::createEphemeralFile();
             ASSERT(Obj::k_INVALID_FD != fd1);
@@ -5418,10 +5424,18 @@ int main(int argc, char *argv[])
             int rc = u::TestUtil::modifyTemporaryFile(fd1);
             ASSERT_EQ(0, rc);
 
+            const bdlt::Datetime after1 =
+                bdlt::EpochUtil::convertFromTimeInterval(
+                    bsls::SystemTime::nowRealtimeClock());
+
             // A brief sleep to ensure the file timestamps are different.  Note
             // that the delay has to be relatively high as some file systems
             // have relatively poor timestamp precision.
             bslmt::ThreadUtil::microSleep(fileFileDelay);
+
+            const bdlt::Datetime before2 =
+                bdlt::EpochUtil::convertFromTimeInterval(
+                    bsls::SystemTime::nowRealtimeClock());
 
             // Create the second file.
             const Obj::FileDescriptor fd2 = u::TestUtil::createEphemeralFile();
@@ -5431,6 +5445,10 @@ int main(int argc, char *argv[])
             // Force a write to ensure the modification time is up to date.
             rc = u::TestUtil::modifyTemporaryFile(fd2);
             ASSERT_EQ(0, rc);
+
+            const bdlt::Datetime after2 =
+                bdlt::EpochUtil::convertFromTimeInterval(
+                    bsls::SystemTime::nowRealtimeClock());
 
             // A brief sleep to ensure the clock time exceeds the file
             // timestamp.  Note that the delay has to be relatively high as
@@ -5458,12 +5476,18 @@ int main(int argc, char *argv[])
             ASSERT_LT(0, skew1.fractionalDayInMicroseconds());
             ASSERT_LT(0, skew2.fractionalDayInMicroseconds());
             ASSERT_LT(0, skew3.fractionalDayInMicroseconds());
-            ASSERT_GT(clockFileCheck,
-                      skew1.fractionalDayInMicroseconds());
-            ASSERT_GT(fileFileCheck,
-                      skew2.fractionalDayInMicroseconds());
-            ASSERT_GT(clockFileCheck,
-                      skew3.fractionalDayInMicroseconds());
+
+            // Each modification time must lie within the clock readings
+            // bracketing the corresponding file operation, give or take
+            // `clockFileSlack`.
+            ASSERTV(before1, lastModificationTime1,
+                    before1 - clockFileSlack < lastModificationTime1);
+            ASSERTV(after1, lastModificationTime1,
+                    lastModificationTime1 < after1 + clockFileSlack);
+            ASSERTV(before2, lastModificationTime2,
+                    before2 - clockFileSlack < lastModificationTime2);
+            ASSERTV(after2, lastModificationTime2,
+                    lastModificationTime2 < after2 + clockFileSlack);
         }
 
         enum {

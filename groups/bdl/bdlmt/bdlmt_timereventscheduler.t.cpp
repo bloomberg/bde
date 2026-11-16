@@ -4574,10 +4574,13 @@ int main(int argc, char *argv[])
         //   We have two functors, `Slowfunctor` and `Fastfunctor`, the
         //   first of which takes 0.1 seconds, the second of which runs
         //   instantaneously.  We schedule `Slowfunctor` as a clock
-        //   occurring every 0.5 seconds, and schedule `Fastfunctor` to
+        //   occurring every 0.05 seconds, and schedule `Fastfunctor` to
         //   happen at 2 specific times.  We sleep 4 seconds, and then
         //   observe that both functors happened roughly when they were
-        //   supposed to.
+        //   supposed to.  Since `Slowfunctor` may take much longer than 0.1
+        //   seconds on a loaded host, the expected number of its
+        //   invocations, and the tolerance for `Fastfunctor`, are derived
+        //   from its measured duration.
         //
         if (verbose) cout <<"\nTesting accumulated time lag, with events\n"
                          "===========================================\n";
@@ -4612,6 +4615,8 @@ int main(int argc, char *argv[])
             sleepUntilMs(4 * 1000 * 1000 / 1000);
                             // wait 40 time execution time of sf.callback().
 
+            const double stopTime = dnow();
+
             scheduler.stop();
 
             sleepUntilMs(2 * 1000 * 1000 / 1000);
@@ -4624,10 +4629,48 @@ int main(int argc, char *argv[])
             slowfunctorSize &= ~1;          // ignore odd element if there
 
             if (verbose) { P_(slowfunctorSize); P(ff.timeList().size()); }
-            ASSERT(ii < MAX_LOOP || slowfunctorSize >= 35*2);
-            ASSERT(ii < MAX_LOOP || slowfunctorSize <= 44*2);
-            if (slowfunctorSize < 35*2 || slowfunctorSize > 44*2) {
+            ASSERT(ii < MAX_LOOP || slowfunctorSize >= 2);
+            if (slowfunctorSize < 2) {
                 if (verbose || MAX_LOOP == ii) { P_(L_); P(slowfunctorSize); }
+                continue;    // start over
+            }
+
+            // `sf.callback()` often takes much longer than `SLEEP_SECONDS`
+            // (e.g., `Sleep` on Windows rounds up to the ~15.6ms timer tick,
+            // and the dispatcher thread may be starved on heavily loaded
+            // hosts), so the number of callbacks that fit between the first
+            // callback and the call to `stop` is computed from the measured
+            // mean duration of a callback.  If the clock executes pretty much
+            // continuously, at least 7/8 of that number of callbacks must
+            // have occurred (about 35 when each takes `SLEEP_SECONDS`).
+
+            double busyTime = 0;
+            for (Slowfunctor::dateTimeList::iterator it =
+                                                       sf.timeList().begin();
+                 it != sf.timeList().end();
+                 ++it) {
+                const double callbackStart = *it;
+
+                if (++it == sf.timeList().end()) {
+                    break;                                             // BREAK
+                }
+                busyTime += *it - callbackStart;
+            }
+            const double callbackTime = bsl::max(Slowfunctor::SLEEP_SECONDS,
+                                                 busyTime * 2 /
+                                                              slowfunctorSize);
+            const double windowTime   = stopTime - sf.timeList().front();
+            const int    minSize      =
+                     2 * static_cast<int>(0.875 * windowTime / callbackTime);
+
+            if (verbose) { P_(callbackTime); P_(windowTime); P(minSize); }
+            ASSERT(ii < MAX_LOOP || slowfunctorSize >= minSize);
+            ASSERT(ii < MAX_LOOP || slowfunctorSize <= 44*2);
+            if (slowfunctorSize < minSize || slowfunctorSize > 44*2) {
+                if (verbose || MAX_LOOP == ii) {
+                    P_(L_); P_(callbackTime); P_(windowTime); P_(minSize);
+                    P(slowfunctorSize);
+                }
                 continue;    // start over
             }
             ASSERT(ii < MAX_LOOP || 2 == ff.timeList().size());
@@ -4635,6 +4678,7 @@ int main(int argc, char *argv[])
                 if (verbose || MAX_LOOP == ii) {
                     P_(L_); P(ff.timeList().size());
                 }
+                continue;    // start over
             }
 
             Slowfunctor::dateTimeList::iterator sfit = sf.timeList().begin();
@@ -4685,13 +4729,20 @@ int main(int argc, char *argv[])
             }
 #endif
 
+            // An event cannot run until the callback of the clock that is
+            // executing when the event becomes due has completed, so allow
+            // for the measured duration of a callback.
+
+            const double ffTolerance = bsl::max(Fastfunctor::TOLERANCE,
+                                                3 * callbackTime);
+
             Fastfunctor::dateTimeList::iterator ffit = ff.timeList().begin();
 
             double ffdiff = *ffit - afterStarted.totalSecondsAsDouble();
             double ffoffBy = ffdiff - 2;
-            if (veryVerbose) { P_(ffdiff); P_(ffoffBy); P(ff.TOLERANCE); }
-            ASSERT(ii < MAX_LOOP || ff.TOLERANCE > abs(ffoffBy));
-            if (ff.TOLERANCE <= abs(ffoffBy)) {
+            if (veryVerbose) { P_(ffdiff); P_(ffoffBy); P(ffTolerance); }
+            ASSERT(ii < MAX_LOOP || ffTolerance > abs(ffoffBy));
+            if (ffTolerance <= abs(ffoffBy)) {
                 if (verbose || MAX_LOOP == ii) {
                     P_(L_); P_(ffdiff); P(ffoffBy);
                 }
@@ -4701,11 +4752,11 @@ int main(int argc, char *argv[])
             ++ffit;
             ffdiff = *ffit - afterStarted.totalSecondsAsDouble();
             ffoffBy = ffdiff - 3;
-            if (veryVerbose) { P_(ffdiff); P_(ffoffBy); P(ff.TOLERANCE); }
-            ASSERT(ii < MAX_LOOP || ff.TOLERANCE > abs(ffoffBy));
-            if (ff.TOLERANCE <= abs(ffoffBy)) {
+            if (veryVerbose) { P_(ffdiff); P_(ffoffBy); P(ffTolerance); }
+            ASSERT(ii < MAX_LOOP || ffTolerance > abs(ffoffBy));
+            if (ffTolerance <= abs(ffoffBy)) {
                 if (!veryVerbose && MAX_LOOP == ii) {
-                    P_(L_); P_(ffdiff); P_(ffoffBy); P(ff.TOLERANCE);
+                    P_(L_); P_(ffdiff); P_(ffoffBy); P(ffTolerance);
                 }
                 continue;
             }

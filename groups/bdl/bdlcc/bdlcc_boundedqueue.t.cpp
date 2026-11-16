@@ -24,6 +24,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -783,12 +784,34 @@ extern "C" void *case13_removeAll(void *arg)
     bslmt::Barrier  *barrier = static_cast<Case13Data *>(arg)->d_barrier_p;
     bsls::AtomicInt *count   = static_cast<Case13Data *>(arg)->d_count_p;
 
+    // The duration of each iteration depends heavily upon thread scheduling
+    // (the destructor of `LongDestructor` yields), so stop iterating once
+    // `k_MAX_DURATION` seconds have elapsed to avoid exceeding the
+    // `TimedCompletionGuard` on heavily loaded hosts.  Note that only this
+    // thread modifies `*count`; the `tryPushBack` thread only reads it.
+
+    const double k_MAX_DURATION = 200.0;
+
     barrier->wait();
+
+    bsls::Stopwatch timer;
+    timer.start();
+
+    int iterations = 0;
 
     while (*count > 0) {
         queue->removeAll();
         bslmt::ThreadUtil::microSleep(1, 0);
-        (*count)--;
+        ++iterations;
+        if (timer.elapsedTime() < k_MAX_DURATION) {
+            (*count)--;
+        }
+        else {
+            cout << "case 13: stopped after " << iterations
+                 << " iterations of `removeAll` (" << k_MAX_DURATION
+                 << " seconds elapsed)\n";
+            *count = 0;
+        }
     }
 
     barrier->wait();
@@ -1767,9 +1790,12 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::join(handle);
 
+            // The upper bound is generous since, on a heavily loaded host, the
+            // deferred thread can be delayed well beyond its one second sleep.
+
             ASSERTV(interval,
-                       bsls::TimeInterval(0.8) <= interval
-                    && bsls::TimeInterval(3.0) >= interval);
+                       bsls::TimeInterval(0.8)  <= interval
+                    && bsls::TimeInterval(10.0) >= interval);
         }
         {
             ASSERT(0 == completionGuard.updateText(bsl::format(
@@ -1798,9 +1824,12 @@ int main(int argc, char *argv[])
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
+            // The upper bound is generous since, on a heavily loaded host, the
+            // deferred thread can be delayed well beyond its one second sleep.
+
             ASSERTV(interval,
-                       bsls::TimeInterval(0.8) <= interval
-                    && bsls::TimeInterval(3.0) >= interval);
+                       bsls::TimeInterval(0.8)  <= interval
+                    && bsls::TimeInterval(10.0) >= interval);
 
             bslmt::ThreadUtil::join(handle);
         }

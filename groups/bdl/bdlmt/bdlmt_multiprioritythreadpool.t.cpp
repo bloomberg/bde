@@ -436,7 +436,8 @@ enum {
     NUM_PRIORITIES = 2,
     PRIORITY_MASK = 1,
     NUM_POOL_THREADS = 2,
-    NUM_PRODUCER_THREADS = 15
+    NUM_PRODUCER_THREADS = 15,
+    NUM_PASSES = 2
 };
 
 struct Worker {
@@ -490,25 +491,31 @@ struct ProducerThread {
     : d_workersPerProducer(workersPerProducer)
     {}
 
+    /// For each of `NUM_PASSES` passes, wait on `*s_barrier`, submit
+    /// `d_workersPerProducer` jobs, and wait on `*s_barrier` again.
     void operator()()
     {
-        s_barrier->wait();
+        for (int pass = 0; pass < NUM_PASSES; ++pass) {
+            s_barrier->wait();
 
-        int i;
-        for (i = 0; d_workersPerProducer > i; ++i) {
-            Worker w(i & PRIORITY_MASK);
+            int i;
+            for (i = 0; d_workersPerProducer > i; ++i) {
+                Worker w(i & PRIORITY_MASK);
 
-            if (w.submitMe()) {
-                break;
+                if (w.submitMe()) {
+                    break;
+                }
             }
-        }
 
-        if (veryVerbose && d_workersPerProducer - i) {
-            static bslmt::Mutex mutex;
-            bslmt::LockGuard<bslmt::Mutex> lock(&mutex);
+            if (veryVerbose && d_workersPerProducer - i) {
+                static bslmt::Mutex mutex;
+                bslmt::LockGuard<bslmt::Mutex> lock(&mutex);
 
-            cout << "Aborted with " << d_workersPerProducer - i <<
+                cout << "Aborted with " << d_workersPerProducer - i <<
                                                     " submissions to go\n";
+            }
+
+            s_barrier->wait();
         }
     }
 };
@@ -916,6 +923,14 @@ int main(int argc, char *argv[])
         //   identical jobs of varying priorities, and observe at the end
         //   that jobs of more urgent priority got executed faster than
         //   jobs of lower priority.
+        //
+        //   Do this in two passes.  In the first pass, the pool runs jobs
+        //   while the producers submit them, and verify only that every job
+        //   is run, since whether a backlog forms (and so whether priorities
+        //   have any effect) depends upon thread scheduling.  In the second
+        //   pass, suspend processing while the jobs are submitted, so that
+        //   all of them are pending when processing resumes, and verify the
+        //   priority ordering.
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -954,64 +969,96 @@ int main(int argc, char *argv[])
 
         STARTTHREADS(pool);
 
-        ASSERT(0 == Worker::s_time);
+        for (int pass = 0; pass < NUM_PASSES; ++pass) {
+            const bool suspended = 1 == pass;
 
-        barrier.wait();         // set all producer threads loose
+            if (verbose) {
+                cout << "Pass " << pass
+                     << (suspended ? " (suspended)\n" : " (running)\n");
+            }
 
+            if (suspended) {
+                pool.suspendProcessing();
+            }
+
+            Worker::s_time = 0;
+
+            barrier.wait();         // set all producer threads loose
+
+            if (0 == pass) {
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-        // Windows allocates a string using the default allocator when
-        // performing the thread name unicode conversion.
-        ASSERTV(taDefaultLocal.numAllocations(),
-                NUM_POOL_THREADS == taDefaultLocal.numAllocations());
+                // Windows allocates a string using the default allocator
+                // when performing the thread name unicode conversion.
+                ASSERTV(taDefaultLocal.numAllocations(),
+                        NUM_POOL_THREADS == taDefaultLocal.numAllocations());
 #else
-        ASSERTV(taDefaultLocal.numBytesMax(),
-                0 == taDefaultLocal.numBytesMax());
-        ASSERTV(taDefaultLocal.numAllocations(),
-                0 == taDefaultLocal.numAllocations());
+                ASSERTV(taDefaultLocal.numBytesMax(),
+                        0 == taDefaultLocal.numBytesMax());
+                ASSERTV(taDefaultLocal.numAllocations(),
+                        0 == taDefaultLocal.numAllocations());
 #endif
+            }
 
-        double startTime = u::nowAsDouble();
+            double startTime = u::nowAsDouble();
+
+            barrier.wait();         // all producers have submitted their jobs
+
+            if (suspended) {
+                ASSERT(0 == doneQueue.queue().length());  // no job has run
+
+                pool.resumeProcessing();
+            }
+            pool.drainJobs();
+
+            if (verbose) {
+                cout << doneQueue.queue().length()
+                     << " mini-jobs processed in "
+                     << u::nowAsDouble() - startTime << " seconds\n";
+                cout << "Atomictime = " << Worker::s_time << endl;
+            }
+
+            ASSERTV(pass, doneQueue.queue().length(),
+                    doneQueue.queue().length() ==
+                             NUM_WORKERS_PER_PRODUCER * NUM_PRODUCER_THREADS);
+
+            int dataPoints[ NUM_PRIORITIES];
+            double averages[NUM_PRIORITIES];        // starts out sums
+
+            memset(dataPoints, 0, sizeof(dataPoints));
+            memset(averages,   0, sizeof(averages));
+
+            while (0 < doneQueue.queue().length()) {
+                Worker w = doneQueue.popFront();
+
+                ++dataPoints[w.d_priority];
+                averages[    w.d_priority] += w.d_doneTime - w.d_submittedTime;
+            }
+            for (int i = 0; NUM_PRIORITIES > i; ++i) {
+                if (dataPoints[i]) {
+                    averages[i] /= dataPoints[i];
+                }
+            }
+
+            if (verbose) {
+                T_ P(averages[0]); T_ P(averages[1]);
+            }
+
+            if (suspended) {
+                // All the jobs are pending when processing resumes, so the
+                // more urgent ones run first, and wait about 0.6 times as
+                // long on average.  If priorities were ignored, the jobs would
+                // wait about equally long.
+
+                ASSERTV(averages[0], averages[1],
+                        averages[0] < 0.9 * averages[1]);
+            }
+        }
 
         tg.joinAll();
-
-        pool.drainJobs();
         pool.stopThreads();
 
         ASSERTV(taDefaultLocal.numBytesInUse(),
                                           0 == taDefaultLocal.numBytesInUse());
-
-        if (verbose) {
-            cout << doneQueue.queue().length() << " mini-jobs processed in " <<
-                                  u::nowAsDouble() - startTime << " seconds\n";
-            cout << "Atomictime = " << Worker::s_time << endl;
-        }
-
-        ASSERT(doneQueue.queue().length() == NUM_WORKERS_PER_PRODUCER *
-                                                        NUM_PRODUCER_THREADS);
-
-        int dataPoints[ NUM_PRIORITIES];
-        double averages[NUM_PRIORITIES];        // starts out sums
-
-        memset(dataPoints, 0, sizeof(dataPoints));
-        memset(averages,   0, sizeof(averages));
-
-        while (0 < doneQueue.queue().length()) {
-            Worker w = doneQueue.popFront();
-
-            ++dataPoints[w.d_priority];
-            averages[    w.d_priority] += w.d_doneTime - w.d_submittedTime;
-        }
-        for (int i = 0; NUM_PRIORITIES > i; ++i) {
-            if (dataPoints[i]) {
-                averages[i] /= dataPoints[i];
-            }
-        }
-
-        if (verbose) {
-            T_ P(averages[0]); T_ P(averages[1]);
-        }
-
-        ASSERTV(averages[0], averages[1], averages[0] < averages[1]);
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
         // Windows allocates a string using the default allocator when

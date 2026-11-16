@@ -571,8 +571,8 @@ class TestMutex : public bslmt::Mutex
     /// Acquire a lock on this mutex object.  If this object is currently
     /// locked by a different thread, then suspend execution of the current
     /// thread until a lock can be acquired.  The count of invocations of this
-    /// method is kept is `s_TestMutex_count`.  If, prior to updating the count,
-    /// `(*s_TestMutex_script_p)[s_TestMutex_count]`, invoke
+    /// method is kept is `s_TestMutex_count`.  If, prior to updating the
+    /// count, `(*s_TestMutex_script_p)[s_TestMutex_count]`, invoke
     /// `s_TestMutex_barrier.wait()` twice before locking the mutex and once
     /// afterwards.
     void lock();
@@ -1541,9 +1541,12 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::join(handle);
 
+            // The upper bound is generous since, on a heavily loaded host, the
+            // deferred thread can be delayed well beyond its one second sleep.
+
             ASSERTV(interval,
-                       bsls::TimeInterval(0.8) <= interval
-                    && bsls::TimeInterval(3.0) >= interval);
+                       bsls::TimeInterval(0.8)  <= interval
+                    && bsls::TimeInterval(10.0) >= interval);
         }
         {
             ASSERT(0 == completionGuard.updateText(bsl::format(
@@ -1572,9 +1575,12 @@ int main(int argc, char *argv[])
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
+            // The upper bound is generous since, on a heavily loaded host, the
+            // deferred thread can be delayed well beyond its one second sleep.
+
             ASSERTV(interval,
-                       bsls::TimeInterval(0.8) <= interval
-                    && bsls::TimeInterval(3.0) >= interval);
+                       bsls::TimeInterval(0.8)  <= interval
+                    && bsls::TimeInterval(10.0) >= interval);
 
             bslmt::ThreadUtil::join(handle);
         }
