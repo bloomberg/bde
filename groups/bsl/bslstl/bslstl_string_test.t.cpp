@@ -25951,7 +25951,9 @@ int main(int argc, char *argv[])
         //  See `TestDriver<CHAR_TYPE>::testCase20` for details.
         //
         //  This test case was taking 6 times too long on C++11 and beyond, so
-        //  we are disabling most of the testing except in verbose mode.
+        //  we are disabling most of the testing except in verbose mode.  In
+        //  ASan builds, the `wchar_t` value and range testing is also done
+        //  only in verbose mode.
         //
         // Testing:
         //   basic_string& replace(pos1, n1, const string& str);
@@ -25976,11 +25978,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting `replace` with value"
                             "\n============================\n");
 
+#ifdef BDE_BUILD_TARGET_ASAN
+        // This test case times out in ASan builds unless `wchar_t` testing is
+        // restricted to verbose mode.
+
+        const bool testWchar = verbose;
+#else
+        const bool testWchar = true;
+#endif
+
         if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase20();
 
-        if (verbose) printf("\n... with `wchar_t`.\n");
-        TestDriver<wchar_t>::testCase20();
+        if (testWchar) {
+            if (verbose) printf("\n... with `wchar_t`.\n");
+            TestDriver<wchar_t>::testCase20();
+        }
 
         if (verbose) {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
@@ -26032,13 +26045,15 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<char>::testCase20Range(CharArray<char>());
 
-        if (verbose) printf("\n... with `wchar_t` "
-                            "and arbitrary input iterator.\n");
-        TestDriver<wchar_t>::testCase20Range(CharList<wchar_t>());
+        if (testWchar) {
+            if (verbose) printf("\n... with `wchar_t` "
+                                "and arbitrary input iterator.\n");
+            TestDriver<wchar_t>::testCase20Range(CharList<wchar_t>());
 
-        if (verbose) printf("\n... with `wchar_t` "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<wchar_t>::testCase20Range(CharArray<wchar_t>());
+            if (verbose) printf("\n... with `wchar_t` "
+                                "and arbitrary random-access iterator.\n");
+            TestDriver<wchar_t>::testCase20Range(CharArray<wchar_t>());
+        }
 
         if (verbose) {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)

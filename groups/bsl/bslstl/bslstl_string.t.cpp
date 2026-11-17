@@ -1978,7 +1978,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase47(ITR_TAG )
         if constexpr (std::is_same_v<ITR_TAG, std::input_iterator_tag>)
         {
             static_assert(true == bsl::input_iterator<decltype(tc.begin())>);
-            static_assert(false == bsl::forward_iterator<decltype(tc.begin())>);
+            static_assert(false ==
+                              bsl::forward_iterator<decltype(tc.begin())>);
         }
 
         if constexpr (std::is_same_v<ITR_TAG, std::forward_iterator_tag>)
@@ -7206,7 +7207,8 @@ int main(int argc, char *argv[])
         //
         // 2. Note that this test case was taking too much time, so testing
         //    on `CHAR_TYPE` other than `char` and `wchar_t` is done only in
-        //    verbose mode.
+        //    verbose mode.  In ASan builds, the cross-product testing on
+        //    `wchar_t` is also done only in verbose mode.
         //
         // Testing:
         //   basic_string& operator=(const basic_string& rhs);
@@ -7224,8 +7226,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase9();
 
-        if (verbose) printf("\n... with `wchar_t`.\n");
-        TestDriver<wchar_t>::testCase9();
+#ifdef BDE_BUILD_TARGET_ASAN
+        // This test case times out in ASan builds unless `wchar_t` testing is
+        // restricted to verbose mode.
+
+        const bool testWchar = verbose;
+#else
+        const bool testWchar = true;
+#endif
+
+        if (testWchar) {
+            if (verbose) printf("\n... with `wchar_t`.\n");
+            TestDriver<wchar_t>::testCase9();
+        }
 
         if (verbose) {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)

@@ -2850,8 +2850,8 @@ int main(int argc, char *argv[])
         ASSERT(0 != ginv_p);
         Rep rep(&ta);
         rep.installFunc(pf, ginv_p);
-        int (*inv_p)(Rep*, int, int) =
-            reinterpret_cast<int (*)(Rep*, int, int)>(ginv_p);
+        int (*inv_p)(const Rep*, int, int) =
+            reinterpret_cast<int (*)(const Rep*, int, int)>(ginv_p);
         ASSERT(0x4003 == inv_p(&rep, 1, 2));
 
       } break;

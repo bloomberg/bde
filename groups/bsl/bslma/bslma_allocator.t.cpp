@@ -1381,6 +1381,17 @@ int main(int argc, char *argv[])
 
             for (std::size_t align = 1; align <= 256; align <<= 1) {
 
+#ifdef BDE_BUILD_TARGET_UBSAN
+                // A 0-byte allocation returns a singular pointer that is
+                // aligned only to `k_MAX_ALIGNMENT`.  For larger `align`, this
+                // violates the alignment assumption (`alloc_align`) that some
+                // standard library implementations place on
+                // `memory_resource::allocate` and is reported by UBSan.
+                if (0 == bytes && align > k_MAX_ALIGNMENT) {
+                    continue;
+                }
+#endif // BDE_BUILD_TARGET_UBSAN
+
                 // Use `bsl::memory_resource` interface
                 void *p = mr.allocate(bytes, align);
                 ASSERTV(bytes, align, p, ALLOC.lastOp() == e_ALLOC);
