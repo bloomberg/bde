@@ -1302,7 +1302,14 @@ int main(int argc, char *argv[])
                { L_,   0,            SZ_INT_MAX/4,   SZ_INT_MAX/4 +1    },
   #elif defined(BSLS_PLATFORM_CPU_64_BIT)
                { L_,   0,            SZ_INT_MAX,    (SZ_INT_MAX+1)*1    },
+    #ifndef BDE_BUILD_TARGET_TSAN
+               // This row needs about 16GB at its peak (the 4GB fill string,
+               // the 4GB buffer, and the 8GB buffer it is grown to by
+               // `estimateCurrentCapacity`), which, together with the shadow
+               // memory, exhausts the memory available to ThreadSanitizer.
+
                { L_,   0,            SZ_INT_MAX*2,  (SZ_INT_MAX+1)*2    },
+    #endif
   #else
         #error "Unknown CPU"
   #endif

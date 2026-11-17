@@ -2133,6 +2133,19 @@ void testCase15MoveAssignment(int id)
     const bsl::size_t            NUM_DATA  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
+    // Exhaustively testing every pair of rows (with exception injection, and
+    // with both the same and different allocators) exceeds the test time
+    // limit in ASan builds (in particular, when unoptimized).  In such builds
+    // we test, for each source row `ti`, only the target rows `tj` with
+    // `tj % k_TJ_STRIDE == ti % k_TJ_STRIDE`; this still exercises every row
+    // as both source and target, and always includes `tj == ti`.
+
+#ifdef BDE_BUILD_TARGET_ASAN
+    const bsl::size_t k_TJ_STRIDE = 3;
+#else
+    const bsl::size_t k_TJ_STRIDE = 1;
+#endif
+
     for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE1 = DATA[ti].d_lineNum;
         const char *const SPEC1 = DATA[ti].d_spec_p;
@@ -2154,7 +2167,9 @@ void testCase15MoveAssignment(int id)
 
         // Test with same allocator.
 
-        for (bsl::size_t tj = 0; tj < NUM_DATA; ++tj) {
+        for (bsl::size_t tj = ti % k_TJ_STRIDE;
+                         tj < NUM_DATA;
+                         tj += k_TJ_STRIDE) {
             const int         LINE2 = DATA[tj].d_lineNum;
             const char *const SPEC2 = DATA[tj].d_spec_p;
             const int         ID2   = DATA[tj].d_valueId;
@@ -2223,7 +2238,9 @@ void testCase15MoveAssignment(int id)
 
         // Test with different allocators.
 
-        for (bsl::size_t tj = 0; tj < NUM_DATA; ++tj) {
+        for (bsl::size_t tj = ti % k_TJ_STRIDE;
+                         tj < NUM_DATA;
+                         tj += k_TJ_STRIDE) {
             const int         LINE2 = DATA[tj].d_lineNum;
             const char *const SPEC2 = DATA[tj].d_spec_p;
             const int         ID2   = DATA[tj].d_valueId;
@@ -3606,9 +3623,15 @@ int main(int argc, char *argv[])
         const NonTransparentSet& cnXSet = mnXSet;
         NonTransparentMap        mnXMap(0, Hasher(), Comparator(), &oa);
         const NonTransparentMap& cnXMap = mnXMap;
-        TransparentSet           mXSet(0, TransparentHasher(), TransparentComparator(), &oa);
+        TransparentSet           mXSet(0,
+                                       TransparentHasher(),
+                                       TransparentComparator(),
+                                       &oa);
         const TransparentSet&    cXSet = mXSet;
-        TransparentMap           mXMap(0, TransparentHasher(), TransparentComparator(), &oa);
+        TransparentMap           mXMap(0,
+                                       TransparentHasher(),
+                                       TransparentComparator(),
+                                       &oa);
         const TransparentMap&    cXMap = mXMap;
 
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -3642,10 +3665,10 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 printf("\tTesting mutable non-transparent container.\n");
             }
-             testTransparentComparator          (mnXSet, false, KEY, SetUtil());
-             testTransparentComparator          (mnXMap, false, KEY, MapUtil());
-             testTransparentComparatorMutableSet(mnXSet, false, KEY);
-             testTransparentComparatorMutableMap(mnXMap, false, KEY);
+            testTransparentComparator          (mnXSet, false, KEY, SetUtil());
+            testTransparentComparator          (mnXMap, false, KEY, MapUtil());
+            testTransparentComparatorMutableSet(mnXSet, false, KEY);
+            testTransparentComparatorMutableMap(mnXMap, false, KEY);
 
             if (veryVerbose) {
                 printf("\tTesting const transparent container.\n");
@@ -3656,12 +3679,12 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 printf("\tTesting mutable transparent container.\n");
             }
-             testTransparentComparator          (mXSet, true, KEY, SetUtil());
-             testTransparentComparator          (mXMap, true, KEY, MapUtil());
-             testTransparentComparatorMutableSet(mXSet, true, KEY);
-             testTransparentComparatorMutableMap(mXMap, true, KEY);
+            testTransparentComparator          (mXSet, true, KEY, SetUtil());
+            testTransparentComparator          (mXMap, true, KEY, MapUtil());
+            testTransparentComparatorMutableSet(mXSet, true, KEY);
+            testTransparentComparatorMutableMap(mXMap, true, KEY);
 
-             testTransparentComparatorMutableOnlySet(mXSet, KEY);
+            testTransparentComparatorMutableOnlySet(mXSet, KEY);
         }
       } break;
       case 22: {
