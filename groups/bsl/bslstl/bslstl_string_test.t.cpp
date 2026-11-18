@@ -539,7 +539,8 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN) &&                                         \
-    (BSLS_PLATFORM_CMP_VERSION < 0x5150 || !defined(BDE_BUILD_TARGET_OPT))
+    (BSLS_PLATFORM_CMP_VERSION < 0x5150 || !defined(BDE_BUILD_TARGET_OPT)     \
+     || defined(BDE_BUILD_TARGET_DBG))
 # define BSLS_STRING_TEST_ASSUMING_NO_NRVO
     // The Sun compiler version 5.12.4 does not support NRVO. 5.12.6 appears to
     // support NRVO, but only when building in optimized mode.
