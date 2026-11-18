@@ -2,7 +2,7 @@
 #include <bslmf_isaccessiblebaseof.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslmf_isaccessiblebaseof_cpp, "$Id$ $CSID$")
+BSLS_IDENT("$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2022 Bloomberg Finance L.P.
