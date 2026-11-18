@@ -52,75 +52,77 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 100 components having 21 levels of physical
+ The 'bslmf' package currently has 100 components having 22 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  21. bslmf_isnothrowswappable
+  22. bslmf_isnothrowswappable
 
-  20. bslmf_isswappable
+  21. bslmf_isswappable
       bslmf_unwraprefdecay
 
-  19. bslmf_forwardingreftype
+  20. bslmf_forwardingreftype
       bslmf_forwardingtype
       bslmf_invokeresult
       bslmf_unwrapreference
       bslmf_util
 
-  18. bslmf_movableref
+  19. bslmf_movableref
       bslmf_referencewrapper
 
-  17. bslmf_isbitwisemoveable
+  18. bslmf_isbitwisemoveable
       bslmf_iscopyconstructible
       bslmf_isnothrowmoveconstructible
 
-  16. bslmf_isbitwisecopyable
+  17. bslmf_isbitwisecopyable
 
-  15. bslmf_haspointersemantics
+  16. bslmf_haspointersemantics
       bslmf_isbitwiseequalitycomparable
       bslmf_istriviallycopyable
       bslmf_istriviallydefaultconstructible
       bslmf_matcharithmetictype
       bslmf_usesallocatorargt
 
-  14. bslmf_detectnestedtrait
+  15. bslmf_detectnestedtrait
       bslmf_isenum
 
-  13. bslmf_isaccessiblebaseof
+  14. bslmf_isaccessiblebaseof
       bslmf_isconvertibletoany
       bslmf_nestedtraitdeclaration
       bslmf_usesallocator
 
-  12. bslmf_isconvertible
-
-  11. bslmf_isfundamental
-
-  10. bslmf_isarithmetic
-
-   9. bslmf_isintegral
+  13. bslmf_isconvertible
       bslmf_ismemberpointer
 
-   8. bslmf_addcv
+  12. bslmf_isfundamental
       bslmf_ismemberobjectpointer
 
-   7. bslmf_addconst
-      bslmf_addvolatile
-      bslmf_decay
+  11. bslmf_isarithmetic
       bslmf_isempty
       bslmf_ismemberfunctionpointer
       bslmf_ispolymorphic
       bslmf_removepointer
 
-   6. bslmf_isclass
+  10. bslmf_decay
+      bslmf_isclass
       bslmf_isfloatingpoint
-      bslmf_isfunction
+      bslmf_isintegral
       bslmf_ispointer
       bslmf_isvoid
       bslmf_memberfunctionpointertraits
       bslmf_memberpointertraits
       bslmf_removecvq
       bslmf_removecvref
+
+   9. bslmf_removecv
+
+   8. bslmf_addcv
+
+   7. bslmf_addconst
+      bslmf_addvolatile
+
+   6. bslmf_isfunction
 
    5. bslmf_addpointer
       bslmf_addreference
@@ -132,7 +134,6 @@
       bslmf_matchanytype
       bslmf_metaint                                      !DEPRECATED!
       bslmf_negation
-      bslmf_removecv
       bslmf_selecttrait
 
    4. bslmf_addlvaluereference

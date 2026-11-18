@@ -5,21 +5,23 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for removing top-level cv-qualifiers.
+//@PURPOSE: Provide a metafunction for removing top-level cv-qualifiers.
 //
 //@CLASSES:
-//  bsl::remove_cv: meta-function for removing top-level cv-qualifiers
-//  bsl::remove_cv_t: alias to the return type of the meta-function
+//  bsl::remove_cv: metafunction for removing top-level cv-qualifiers
+//  bsl::remove_cv_t: alias to the return type of metafunction `bsl::remove_cv`
 //
 //@SEE_ALSO: bslmf_addcv
 //
-//@DESCRIPTION: This component defines a meta-function, `bsl::remove_cv`, and
-// declares a `bsl::remove_cv_t` alias to the return type of the
+//@DESCRIPTION: This component defines a metafunction, `bsl::remove_cv`, and
+// declares a `bsl::remove_cv_t` alias to the return type of the metafunction
 // `bsl::remove_cv`, that may be used to remove any top-level cv-qualifiers
 // (`const`-qualifier and `volatile`-qualifier) from a type.
 //
-// `bsl::remove_cv` and  `bsl::remove_cv_t` meet the requirements of the
-// `remove_cv` template defined in the C++11 standard [meta.trans.cv].
+// `bsl::remove_cv` meets the requirements of the `remove_cv` template defined
+// in the C++11 Standard [meta.trans.cv], and `bsl::remove_cv_t` meets the
+// requirements of the `remove_cv_t` alias template defined in the C++14
+// Standard [meta.type.synop].
 //
 ///Usage
 ///-----
@@ -40,28 +42,28 @@ BSLS_IDENT("$Id: $")
 // verify that the resulting type is the same as `MyType`:
 // ```
 // assert(true == (bsl::is_same<bsl::remove_cv<MyCvType>::type,
-//                                                           MyType>::value));
+//                              MyType>::value));
 // ```
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// remove a `const`-qualified and `volatile`-qualifier from `MyCvType` using
-//`bsl::remove_cv_t` and verify that the resulting type is the same as
-// `MyType`:
+// Finally, in C++11 and later, we remove the cv-qualifiers from `MyCvType`
+// using the alias template `bsl::remove_cv_t` and verify that the resulting
+// type is the same as `MyType`:
 // ```
-// #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//   assert(true ==
-//                   (bsl::is_same<bsl::remove_cv_t<MyCvType>, MyType>::value));
+// #if BSLS_COMPILERFEATURES_FULL_CPP11
+// assert(true == (bsl::is_same<bsl::remove_cv_t<MyCvType>, MyType>::value));
 // #endif
 // ```
-// Note, that the `bsl::remove_cv_t` avoids the `::type` suffix and `typename`
-// prefix when we want to use the result of the `bsl::remove_cv` meta-function
+// Note that `bsl::remove_cv_t` avoids the `::type` suffix and `typename`
+// prefix when we want to use the result of the `bsl::remove_cv` metafunction
 // in templates.
 
 #include <bslscm_version.h>
 
+#include <bsls_compilerfeatures.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslmf_removeconst.h>
 #include <bslmf_removevolatile.h>
-
-#include <bsls_compilerfeatures.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
@@ -69,34 +71,62 @@ namespace bsl {
                          // struct remove_cv
                          // ================
 
-/// This `struct` template implements the `remove_cv` meta-function defined
-/// in the C++11 standard [meta.trans.cv], providing an alias, `type`, that
-/// returns the result.  `type` has the same type as the (template
-/// parameter) `t_TYPE` except that any top-level cv-qualifiers have been
-/// removed.
+/// This `struct` template implements the `remove_cv` metafunction defined in
+/// the C++11 Standard [meta.trans.cv], providing an alias, `type`, that
+/// returns the result.  `type` has the same type as the (template parameter)
+/// `t_TYPE` except that any top-level cv-qualifiers have been removed.  This
+/// primary template handles a `t_TYPE` that is not cv-qualified.
 template <class t_TYPE>
 struct remove_cv {
 
     // PUBLIC TYPES
 
-    /// This `typedef` is an alias to the same type as the (template
-    /// parameter) `t_TYPE` except that any top-level cv-qualifier has been
-    /// removed.
-    typedef typename remove_const<typename remove_volatile<t_TYPE>::type>::type
-        type;
+    /// This `typedef` is an alias to the (template parameter) `t_TYPE`.
+    typedef t_TYPE type;
 };
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+/// This partial specialization, for a `const`-qualified template argument,
+/// `const t_TYPE`, provides a `type` that is the (template parameter)
+/// `t_TYPE`.
+template <class t_TYPE>
+struct remove_cv<const t_TYPE> {
+
+    // PUBLIC TYPES
+    typedef t_TYPE type;
+};
+
+/// This partial specialization, for a `volatile`-qualified template argument,
+/// `volatile t_TYPE`, provides a `type` that is the (template parameter)
+/// `t_TYPE`.
+template <class t_TYPE>
+struct remove_cv<volatile t_TYPE> {
+
+    // PUBLIC TYPES
+    typedef t_TYPE type;
+};
+
+/// This partial specialization, for a `const volatile`-qualified template
+/// argument, `const volatile t_TYPE`, provides a `type` that is the (template
+/// parameter) `t_TYPE`.  Note that this specialization is more specialized
+/// than either of those above, and so is required to avoid ambiguity.
+template <class t_TYPE>
+struct remove_cv<const volatile t_TYPE> {
+
+    // PUBLIC TYPES
+    typedef t_TYPE type;
+};
+
+#if BSLS_COMPILERFEATURES_FULL_CPP11
 
 // ALIASES
 
 /// `remove_cv_t` is an alias to the return type of the `bsl::remove_cv`
-/// meta-function.  Note, that the `remove_cv_t` avoids the `::type` suffix
-/// and `typename` prefix when we want to use the result of the
-/// meta-function in templates.
+/// metafunction.  Note that `remove_cv_t` avoids the `::type` suffix and
+/// `typename` prefix when we want to use the result of the metafunction in
+/// templates.
 template <class t_TYPE>
 using remove_cv_t = typename remove_cv<t_TYPE>::type;
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif  // BSLS_COMPILERFEATURES_FULL_CPP11
 
 }  // close namespace bsl
 

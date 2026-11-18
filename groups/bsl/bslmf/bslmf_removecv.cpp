@@ -4,7 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslmf_issame.h>  // for testing only
+#include <bslmf_addconst.h>       // for testing only
+#include <bslmf_addcv.h>          // for testing only
+#include <bslmf_addvolatile.h>    // for testing only
+#include <bslmf_issame.h>         // for testing only
+#include <bslmf_typeidentity.h>   // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
