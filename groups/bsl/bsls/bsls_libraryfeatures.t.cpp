@@ -2976,17 +2976,15 @@ int main(int argc, char *argv[])
             const char chars[] = {'a', 'b'};
             std::ranges::cartesian_product_view res{
                                    std::views::cartesian_product(nums, chars)};
-            const std::pair<int, char> expected[] = {
+            typedef std::tuple<int, char> Element;
+            const Element expected[] = {
                 {1, 'a'}, {1, 'b'},
                 {2, 'a'}, {2, 'b'},
                 {3, 'a'}, {3, 'b'}
             };
-#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE == 13
-            ASSERT(std::ranges::equal(res, expected,
-                                       std::equal_to<std::pair<int, char>>{}));
-#else
-            ASSERT(std::ranges::equal(res, expected));
-#endif
+            ASSERT(std::ranges::equal(res,
+                                      expected,
+                                      std::equal_to<Element>()));
         }
 #endif
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK
@@ -3043,14 +3041,11 @@ int main(int argc, char *argv[])
             const char chars[] = {'a', 'b', 'c'};
             {
                 std::ranges::zip_view view{std::views::zip(nums, chars)};
-                const std::pair<int, char> expected[] =
-                    {{1, 'a'}, {2, 'b'}, {3, 'c'}};
-#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE == 13
-                ASSERT(std::ranges::equal(view, expected,
-                                       std::equal_to<std::pair<int, char>>{}));
-#else
-                ASSERT(std::ranges::equal(view, expected));
-#endif
+                typedef std::tuple<int, char> Element;
+                const Element expected[] = {{1, 'a'}, {2, 'b'}, {3, 'c'}};
+                ASSERT(std::ranges::equal(view,
+                                          expected,
+                                          std::equal_to<Element>()));
             }
             {
                 const auto concat = [](int n, char c) {

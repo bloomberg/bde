@@ -3139,10 +3139,29 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
         0 // null string required as last element
     };
 
-    static const int EXTEND[] = {
+    static const int EXTEND_FULL[] = {
         0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 13, 15, 23, 24, 25, 30, 63, 64, 65
     };
-    enum { NUM_EXTEND = sizeof(EXTEND) / sizeof(*EXTEND) };
+
+    // With stack-use-after-return detection (enabled by default by Clang on
+    // Linux), this test takes several minutes in ASan builds, so a reduced
+    // set of capacities, covering the short-string boundary, is used there
+    // unless in verbose mode.
+
+    static const int EXTEND_REDUCED[] = {
+        0, 1, DEFAULT_CAPACITY, DEFAULT_CAPACITY + 1, 65
+    };
+
+#ifdef BDE_BUILD_TARGET_ASAN
+    const bool reduceExtend = !verbose;
+#else
+    const bool reduceExtend = false;
+#endif
+
+    const int *const EXTEND     = reduceExtend ? EXTEND_REDUCED : EXTEND_FULL;
+    const int        NUM_EXTEND = reduceExtend
+        ? static_cast<int>(sizeof EXTEND_REDUCED / sizeof *EXTEND_REDUCED)
+        : static_cast<int>(sizeof EXTEND_FULL    / sizeof *EXTEND_FULL);
 
     if (verbose) printf("\nAssign cross product of values "
                         "with varied representations.\n"
@@ -3334,14 +3353,27 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
             0
         }; // Null string required as last element.
 
-        static const int EXTEND[] = {
+        static const int EXTEND_FULL[] = {
             0, 1, 2, 3, 4, 5, 9, 11, 12, 13,
             DEFAULT_CAPACITY - 1,
             DEFAULT_CAPACITY,
             DEFAULT_CAPACITY + 1,
             DEFAULT_CAPACITY * 5
         };
-        enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
+
+        // As above, a reduced set of capacities is used in ASan builds
+        // unless in verbose mode.
+
+        static const int EXTEND_REDUCED[] = {
+            0, 1, DEFAULT_CAPACITY, DEFAULT_CAPACITY + 1, DEFAULT_CAPACITY * 5
+        };
+
+        const int *const EXTEND     = reduceExtend
+                                    ? EXTEND_REDUCED
+                                    : EXTEND_FULL;
+        const int        NUM_EXTEND = reduceExtend
+            ? static_cast<int>(sizeof EXTEND_REDUCED / sizeof *EXTEND_REDUCED)
+            : static_cast<int>(sizeof EXTEND_FULL    / sizeof *EXTEND_FULL);
 
         int iterationModulus = 1;
         int iteration = 0;
@@ -7207,8 +7239,9 @@ int main(int argc, char *argv[])
         //
         // 2. Note that this test case was taking too much time, so testing
         //    on `CHAR_TYPE` other than `char` and `wchar_t` is done only in
-        //    verbose mode.  In ASan builds, the cross-product testing on
-        //    `wchar_t` is also done only in verbose mode.
+        //    verbose mode.  In ASan builds, copy- and move-assignment testing
+        //    on `wchar_t`, and move-assignment testing on the full set of
+        //    capacities, are also done only in verbose mode.
         //
         // Testing:
         //   basic_string& operator=(const basic_string& rhs);
@@ -7228,7 +7261,9 @@ int main(int argc, char *argv[])
 
 #ifdef BDE_BUILD_TARGET_ASAN
         // This test case times out in ASan builds unless `wchar_t` testing is
-        // restricted to verbose mode.
+        // restricted to verbose mode: with stack-use-after-return detection
+        // (enabled by default by Clang on Linux), the `wchar_t` testing takes
+        // well over 10 minutes.
 
         const bool testWchar = verbose;
 #else
@@ -7287,8 +7322,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase9Move();
 
-        if (verbose) printf("\n... with `wchar_t`.\n");
-        TestDriver<wchar_t>::testCase9Move();
+        if (testWchar) {
+            if (verbose) printf("\n... with `wchar_t`.\n");
+            TestDriver<wchar_t>::testCase9Move();
+        }
 
         if (verbose) {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)

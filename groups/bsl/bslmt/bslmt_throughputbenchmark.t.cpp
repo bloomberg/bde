@@ -625,61 +625,90 @@ int main(int argc, char *argv[])
         const int    k_NUM_DATA   = sizeof DATA / sizeof *DATA;
         const int    k_NUM_TRIALS = 100;
 
-        for (int i = 0; i < k_NUM_DATA; ++i) {
-            const double targetDuration(DATA[i]);
-
-            int countLower = 0;
-            int countHigher = 0;
-
-            unsigned int beforeAntiOptimization = Obj::antiOptimization();
-
-            bsls::Types::Int64 amount = Obj::estimateBusyWorkAmount(
-                                           bsls::TimeInterval(targetDuration));
-
-            ASSERT(beforeAntiOptimization != Obj::antiOptimization());
-
-            bsl::array<bsls::Types::Int64, k_NUM_TRIALS> observations;
-            for (int trial = 0; trial < k_NUM_TRIALS; ++trial) {
-                bsls::TimeInterval startTime =
-                                         bsls::SystemTime::nowMonotonicClock();
-                Obj::busyWork(amount);
-                bsls::Types::Int64 nanos =
-                                       (  bsls::SystemTime::nowMonotonicClock()
-                                        - startTime).totalNanoseconds();
-                observations[trial] = nanos;
-            }
-            for (int trial = 0; trial < k_NUM_TRIALS; ++trial) {
-                bsls::TimeInterval obs;
-                obs.setTotalNanoseconds(observations[trial]);
-                double duration = obs.totalSecondsAsDouble();
-                if (veryVeryVerbose) {
-                    P_(amount) P_(targetDuration) P(duration);
-                }
-                if (1.1 * targetDuration >= duration) {
-                    ++countLower;
-                }
-                if (0.9 * targetDuration <= duration) {
-                    ++countHigher;
-                }
-            }
-
-            if (veryVerbose) {
-                P_(targetDuration) P_(countLower) P(countHigher);
-            }
-
 /// The below inexplicably fails consistantly on Sun build box for gcc cpp03.
 /// Will be addressed in DRQS 179148059.
 #if !defined(BSLS_PLATFORM_OS_SOLARIS) || \
     !defined(BSLS_PLATFORM_CMP_GNU) || \
     defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-            ASSERTV(targetDuration,
-                    countLower,
-                    100 * countLower >= 10 * k_NUM_TRIALS);
-
-            ASSERTV(targetDuration,
-                    countHigher,
-                    100 * countHigher >= 10 * k_NUM_TRIALS);
+        const bool k_VERIFY_DISTRIBUTION = true;
+#else
+        const bool k_VERIFY_DISTRIBUTION = false;
 #endif
+
+        for (int i = 0; i < k_NUM_DATA; ++i) {
+            const double targetDuration(DATA[i]);
+
+            // The estimate of the busy work amount is distorted if this
+            // thread runs slower or faster during the estimation than during
+            // the observations (e.g., due to machine load, or on a processor
+            // with cores of differing performance), so the estimation and
+            // observations are retried a few times, and the distribution of
+            // the observed durations is only asserted on the final attempt.
+
+            const int k_MAX_ATTEMPTS = 5;
+
+            int  countLower  = 0;
+            int  countHigher = 0;
+            bool lowerOk     = false;
+            bool higherOk    = false;
+
+            for (int attempt = 1; attempt <= k_MAX_ATTEMPTS; ++attempt) {
+                countLower  = 0;
+                countHigher = 0;
+
+                unsigned int beforeAntiOptimization = Obj::antiOptimization();
+
+                bsls::Types::Int64 amount = Obj::estimateBusyWorkAmount(
+                                           bsls::TimeInterval(targetDuration));
+
+                ASSERT(beforeAntiOptimization != Obj::antiOptimization());
+
+                bsl::array<bsls::Types::Int64, k_NUM_TRIALS> observations;
+                for (int trial = 0; trial < k_NUM_TRIALS; ++trial) {
+                    bsls::TimeInterval startTime =
+                                         bsls::SystemTime::nowMonotonicClock();
+                    Obj::busyWork(amount);
+                    bsls::Types::Int64 nanos =
+                                       (  bsls::SystemTime::nowMonotonicClock()
+                                        - startTime).totalNanoseconds();
+                    observations[trial] = nanos;
+                }
+                for (int trial = 0; trial < k_NUM_TRIALS; ++trial) {
+                    bsls::TimeInterval obs;
+                    obs.setTotalNanoseconds(observations[trial]);
+                    double duration = obs.totalSecondsAsDouble();
+                    if (veryVeryVerbose) {
+                        P_(amount) P_(targetDuration) P(duration);
+                    }
+                    if (1.1 * targetDuration >= duration) {
+                        ++countLower;
+                    }
+                    if (0.9 * targetDuration <= duration) {
+                        ++countHigher;
+                    }
+                }
+
+                if (veryVerbose) {
+                    P_(targetDuration) P_(countLower) P(countHigher);
+                }
+
+                lowerOk  = 100 * countLower  >= 10 * k_NUM_TRIALS;
+                higherOk = 100 * countHigher >= 10 * k_NUM_TRIALS;
+
+                if (!k_VERIFY_DISTRIBUTION || (lowerOk && higherOk)) {
+                    break;                                             // BREAK
+                }
+
+                if (verbose) {
+                    P_(attempt) P_(targetDuration) P_(countLower)
+                    P(countHigher);
+                }
+            }
+
+            if (k_VERIFY_DISTRIBUTION) {
+                ASSERTV(targetDuration, countLower,  lowerOk);
+                ASSERTV(targetDuration, countHigher, higherOk);
+            }
 
             ASSERT(defaultAllocator.numAllocations() == allocations);
         }

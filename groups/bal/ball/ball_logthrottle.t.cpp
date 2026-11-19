@@ -562,11 +562,13 @@ void testMain(
         // (since heavy load should not effect the maximum number of messages
         // written).
         //
-        // The lower bound can be violated if this process is starved of CPU
-        // (e.g., when many tests are run concurrently on a loaded machine),
-        // so the measurement is retried a few times, and the lower bound is
-        // only asserted on the final attempt.  The upper bound is asserted on
-        // every attempt.
+        // If this process is starved of CPU (e.g., when many tests are run
+        // concurrently on a loaded machine), fewer messages are logged at
+        // times the throttle would permit them, so the lower bound is
+        // computed from the times at which the messages are actually logged,
+        // rather than from the elapsed time.  In addition, the measurement is
+        // retried a few times, and the lower bound is only asserted on the
+        // final attempt.  The upper bound is asserted on every attempt.
         enum {
             k_NS_PER_MSG = 1 *
                            bdlt::TimeUnitRatio::k_NANOSECONDS_PER_MILLISECOND,
@@ -579,8 +581,27 @@ void testMain(
 
             bsls::Types::Uint64 numStartPublished = TO->numPublishedRecords();
 
+            // Count the messages that the throttle should permit given the
+            // times at which they are logged: with a burst of 1, the throttle
+            // permits a message if at least `k_NS_PER_MSG` have elapsed since
+            // it last permitted one.  If this process is starved of CPU, the
+            // messages are logged at fewer distinct times, and this count is
+            // lower than the count expected from the elapsed time.
+
+            const double k_SECONDS_PER_MSG =
+                            (double)k_NS_PER_MSG /
+                       (double)bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND;
+
+            double nextPermitted        = startTime;
+            double numPermittedExpected = 0;
+
             bsls::Types::Uint64 idx = 0;
-            while (u::doubleClock() < endTime) {
+            double              now;
+            while ((now = u::doubleClock()) < endTime) {
+                if (now >= nextPermitted) {
+                    ++numPermittedExpected;
+                    nextPermitted = now + k_SECONDS_PER_MSG;
+                }
                 if (testType == u::e_PRINTF_STYLE) {
                     LOG_VA(1, k_NS_PER_MSG, "Message: %lld", idx);
                 }
@@ -611,7 +632,7 @@ void testMain(
                     actualNumPublished <= maxAllowedMessages);
 
             const bool lowerBoundOk =
-                               actualNumPublished > maxExpectedMessages * .25;
+                              actualNumPublished > numPermittedExpected * .25;
 
             if (lowerBoundOk) {
                 break;                                                 // BREAK
@@ -619,12 +640,13 @@ void testMain(
 
             if (verbose) {
                 P_(attempt) P_(actualTime) P_(maxExpectedMessages)
-                                                         P(actualNumPublished);
+                P_(numPermittedExpected) P(actualNumPublished);
             }
 
             ASSERTV(attempt,
                     actualTime,
                     maxExpectedMessages,
+                    numPermittedExpected,
                     actualNumPublished,
                     attempt < k_MAX_ATTEMPTS);
         }

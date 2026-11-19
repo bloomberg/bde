@@ -2328,7 +2328,8 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf buf("abc");
-            buf.sgetc();
+            const int first = buf.sgetc();
+            ASSERT(first == 'a');
 
             buf.str("123");
             const int res = buf.sgetc();
@@ -3168,7 +3169,7 @@ int main(int argc, char *argv[])
 
             // Verify this works with wide characters too
             typedef StringViewLikeHelper<wchar_t, bsl::char_traits<wchar_t> >
-                                                                 WideHelperType;
+                                                                WideHelperType;
             const bsl::wstring   wideData(L"wide string-view-like content");
             const WideHelperType wideSvlh(&wideData);
 
