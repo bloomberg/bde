@@ -27,6 +27,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_compile_options(bdlf INTERFACE /bigobj)
     target_compile_options(bdlcc INTERFACE /bigobj)
     target_compile_options(bdlar INTERFACE /bigobj)
+    target_compile_options(bdlar-iface PRIVATE /bigobj)
     target_link_libraries(bdlb-iface PRIVATE bcrypt)
 endif()
 
