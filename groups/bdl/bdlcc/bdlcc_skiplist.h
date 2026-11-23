@@ -286,8 +286,12 @@ BSLS_IDENT("$Id: $")
 //         d_list.addR(when, event, &newFrontFlag);
 //         if (newFrontFlag) {
 //             // This event is scheduled before all other events.  Wake up
-//             // the dispatcher thread.
+//             // the dispatcher thread.  Signal while holding `d_condMutex`,
+//             // so that the signal is not lost if the dispatcher thread has
+//             // found the list empty (or with a later front) but has not
+//             // yet begun waiting.
 //
+//             bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
 //             d_notEmptyCond.signal();
 //         }
 //     }

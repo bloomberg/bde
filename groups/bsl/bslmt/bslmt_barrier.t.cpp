@@ -883,6 +883,17 @@ int main(int argc, char *argv[])
         //   void arrive();
         // --------------------------------------------------------------------
 
+        // This case creates about 1000 threads and repeatedly releases 16
+        // contending threads, which can take more than 90 seconds on a
+        // heavily loaded host.
+
+        {
+            char s[1024];
+
+            snprintf(s, sizeof s, "case %i", test);
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0), s));
+        }
+
         if (verbose) cout << endl
                           << "TESTING `arrive`" << endl
                           << "================" << endl;

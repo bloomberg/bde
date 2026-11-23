@@ -2275,12 +2275,14 @@ int main(int argc, char *argv[])
 
         // Third subtest: Consume time; verify that it appears in the counts.
         {
-            const unsigned longLoop = 50 * 1000L * 1000L;
+            const unsigned longLoop = 200 * 1000L * 1000L;
 
             // Burn a little processor time--at least one timeQuantum.
             // The `volatile` should force every access to memory and slow
             // things up a little, or a lot.  It may make the test less
-            // dependent on ever-increasing processor speeds.
+            // dependent on ever-increasing processor speeds.  Note that 50
+            // million iterations consumed slightly less than one
+            // `timeQuantum` (10ms) of user time on a fast Linux host.
 
             if (verbose)
                 puts("\nHooking Test: System time requests over long loop."

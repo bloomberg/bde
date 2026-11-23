@@ -61,7 +61,8 @@ static int nativeDefaultThreadStackSizeImp()
     BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(INT_MAX));
 
 #  ifdef PTHREAD_STACK_MIN
-    BSLS_ASSERT(threadStackSize >= PTHREAD_STACK_MIN);
+    BSLS_ASSERT(threadStackSize >=
+                                 static_cast<bsl::size_t>(PTHREAD_STACK_MIN));
 #  endif
 
     return static_cast<int>(threadStackSize);

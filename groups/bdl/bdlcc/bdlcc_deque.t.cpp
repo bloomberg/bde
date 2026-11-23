@@ -7990,6 +7990,15 @@ int main(int argc, char *argv[])
         const bsls::TimeInterval T4(  4 * DECI_SEC);          //  .4s
         const bsls::TimeInterval T10(10 * DECI_SEC);          // 1.0s
 
+        // The minimum wall time, as measured by the stopwatch, of a timed
+        // operation that times out after `T1`.  The timeouts are specified
+        // relative to the realtime clock, which may have a resolution of about
+        // 16ms (e.g., on Windows), and a timed wait may expire up to a clock
+        // tick early, so the measured time can be a couple of clock ticks
+        // (about 30ms) short of `T1`; the bound allows some extra margin.
+
+        const double MIN_T1_WALL_TIME = 0.06;
+
         // The timeout of the push done by the subthread, which is expected to
         // block until the main thread pops an element.  This is long so that
         // the push does not time out if the main thread is not scheduled for
@@ -8026,7 +8035,7 @@ int main(int argc, char *argv[])
 
             // Verify we timed out after 0.1 sec.
 
-            ASSERT(sw.accumulatedWallTime() > 0.09);
+            ASSERT(sw.accumulatedWallTime() > MIN_T1_WALL_TIME);
 
             sw.reset();
             sw.start(true);
@@ -8056,7 +8065,7 @@ int main(int argc, char *argv[])
 
             sw.stop();
 
-            ASSERT(sw.accumulatedWallTime() > 0.09);
+            ASSERT(sw.accumulatedWallTime() > MIN_T1_WALL_TIME);
             ASSERT(HIGH_WATER_MARK == x.length());
             ASSERT(VA == u::myBack(x));
 
@@ -8138,7 +8147,7 @@ int main(int argc, char *argv[])
 
             // Verify we timed out after 0.1 sec.
 
-            ASSERT(sw.accumulatedWallTime() > 0.09);
+            ASSERT(sw.accumulatedWallTime() > MIN_T1_WALL_TIME);
 
             sw.reset();
             sw.start(true);
@@ -8168,7 +8177,7 @@ int main(int argc, char *argv[])
 
             sw.stop();
 
-            ASSERT(sw.accumulatedWallTime() > 0.09);
+            ASSERT(sw.accumulatedWallTime() > MIN_T1_WALL_TIME);
             ASSERT(HIGH_WATER_MARK == x.length());
             ASSERT(VA == u::myFront(x));
 

@@ -8,6 +8,7 @@
 #include <bsls_atomic.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_cerrno.h>
 #include <bsl_cstdlib.h>
@@ -85,6 +86,22 @@ int verbose;
 int veryVerbose;
 
 typedef bslmt::Condition Obj;
+
+/// Call `timedWait` on the specified `condition` with the specified `mutex`
+/// and `absTime`, and return the result of the last call.  While the call
+/// returns 0, retry it (at most 100 times), since spurious wakeups are rare
+/// but possible.
+template <class t_ABS_TIME>
+int timedWaitUntilTimeout(Obj              *condition,
+                          bslmt::Mutex     *mutex,
+                          const t_ABS_TIME& absTime)
+{
+    int rv = condition->timedWait(mutex, absTime);
+    for (int i = 0; 0 == rv && i < 100; ++i) {
+        rv = condition->timedWait(mutex, absTime);
+    }
+    return rv;
+}
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 // BDE_VERIFY pragma: push
@@ -171,7 +188,7 @@ int WaitForTimeout(bslmt::Condition& mX, bslmt::Mutex *m, int secondsToWait)
 {
     typename CLOCK::time_point tp = CLOCK::now() +
                                            bsl::chrono::seconds(secondsToWait);
-    int                        ret = mX.timedWait(m, tp);
+    int                        ret = timedWaitUntilTimeout(&mX, m, tp);
     if (bslmt::Condition::e_TIMED_OUT == ret) {
         ASSERT(CLOCK::now() >= tp);
     }
@@ -322,14 +339,18 @@ int main(int argc, char *argv[])
               bsls::Stopwatch timer;
 
               timer.start();
-              int    rv      = x.timedWait(&lock,
+              int    rv      = timedWaitUntilTimeout(
+                                     &x,
+                                     &lock,
                                      bsls::SystemTime::nowRealtimeClock() + 2);
               double elapsed = timer.elapsedTime();
               ASSERT(Obj::e_TIMED_OUT == rv);
               ASSERTV(elapsed, 1.8 <= elapsed && elapsed <= 5.0);
 
               timer.start();
-              rv      = x.timedWait(&lock,
+              rv      = timedWaitUntilTimeout(
+                                    &x,
+                                    &lock,
                                     bsls::SystemTime::nowRealtimeClock() - 1);
               elapsed = timer.elapsedTime();
               ASSERT(Obj::e_TIMED_OUT == rv);
@@ -349,14 +370,18 @@ int main(int argc, char *argv[])
               bsls::Stopwatch timer;
 
               timer.start();
-              int    rv      = x.timedWait(&lock,
+              int    rv      = timedWaitUntilTimeout(
+                                    &x,
+                                    &lock,
                                     bsls::SystemTime::nowMonotonicClock() + 2);
               double elapsed = timer.elapsedTime();
               ASSERT(Obj::e_TIMED_OUT == rv);
               ASSERTV(elapsed, 1.8 <= elapsed && elapsed <= 5.0);
 
               timer.start();
-              rv      = x.timedWait(&lock,
+              rv      = timedWaitUntilTimeout(
+                                    &x,
+                                    &lock,
                                     bsls::SystemTime::nowMonotonicClock() - 1);
               elapsed = timer.elapsedTime();
               ASSERT(Obj::e_TIMED_OUT == rv);

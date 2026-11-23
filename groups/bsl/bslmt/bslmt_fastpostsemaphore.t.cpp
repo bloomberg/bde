@@ -871,6 +871,14 @@ cout << endl
                           << "CREATORS" << endl
                           << "========" << endl;
 
+        // The upper bound on the duration of each timed out `timedWait` is
+        // generous since, on a heavily loaded host, the thread can be
+        // descheduled well beyond the timeout.  Note that the lower bound
+        // still detects a timeout computed against an incorrectly initialized
+        // clock that results in an immediate return.
+
+        const bsls::TimeInterval k_MAX_DURATION(5.0);
+
         {
             // verify default count is 0 and default clock is realtime
 
@@ -893,7 +901,7 @@ cout << endl
                                         - start;
 
             ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
-            ASSERTV(duration, bsls::TimeInterval(0.30) >= duration);
+            ASSERTV(duration, k_MAX_DURATION >= duration);
         }
         {
             // verify initial count can be set
@@ -921,7 +929,7 @@ cout << endl
                                         - start;
 
             ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
-            ASSERTV(duration, bsls::TimeInterval(0.30) >= duration);
+            ASSERTV(duration, k_MAX_DURATION >= duration);
         }
         {
             // verify clock can be set
@@ -938,7 +946,7 @@ cout << endl
                                         - start;
 
             ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
-            ASSERTV(duration, bsls::TimeInterval(0.30) >= duration);
+            ASSERTV(duration, k_MAX_DURATION >= duration);
         }
         {
             // verify initial count and clock can be set
@@ -959,7 +967,7 @@ cout << endl
                                         - start;
 
             ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
-            ASSERTV(duration, bsls::TimeInterval(0.30) >= duration);
+            ASSERTV(duration, k_MAX_DURATION >= duration);
         }
       } break;
       case 1: {

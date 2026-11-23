@@ -1756,6 +1756,13 @@ int main(int argc, char *argv[])
             bslmt::TimedSemaphore sema;
             bsls::AtomicInt numCaught(0);
 
+            // The timeout, in seconds, for the producer to post `sema`.  This
+            // is long, as the producer may not be scheduled for a while on a
+            // heavily loaded host; a successful wait returns as soon as the
+            // producer posts, so this does not slow down the test.
+
+            enum { k_TIMEOUT = 20 };
+
             bslmt::ThreadUtil::Handle producer;
             int rc = bslmt::ThreadUtil::create(&producer,
                                               bdlf::BindUtil::bind(
@@ -1783,7 +1790,7 @@ int main(int argc, char *argv[])
 
             // Now the queue should become non-full and the pusher should be
             // woken up and able to push into it
-            ASSERT(0 == sema.timedWait(u::now().addSeconds(1)));
+            ASSERT(0 == sema.timedWait(u::now().addSeconds(k_TIMEOUT)));
 
             ASSERT(k_QUEUE_LENGTH == queue.length());
 
@@ -1802,7 +1809,7 @@ int main(int argc, char *argv[])
 
             // Now the queue should become non-full and the pusher should be
             // woken up and able to push into it
-            ASSERT(0 == sema.timedWait(u::now().addSeconds(1)));
+            ASSERT(0 == sema.timedWait(u::now().addSeconds(k_TIMEOUT)));
 
             ASSERT(k_QUEUE_LENGTH == queue.length());
 
@@ -1817,7 +1824,7 @@ int main(int argc, char *argv[])
 
             // pop an item to unblock the pusher
             ExceptionTester test = queue.popFront();
-            ASSERT(0 == sema.timedWait(u::now().addSeconds(1)));
+            ASSERT(0 == sema.timedWait(u::now().addSeconds(k_TIMEOUT)));
             LOOP_ASSERT(numCaught, 1 == numCaught);
 
             LOOP_ASSERT(queue.length(), 0 == queue.length());

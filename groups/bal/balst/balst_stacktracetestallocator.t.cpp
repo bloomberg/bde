@@ -774,6 +774,17 @@ enum { ABORT_LIMIT = 1 };
 enum { ABORT_LIMIT = 2 };
 #endif
 
+#if defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_GNU) &&    \
+    defined(BDE_BUILD_TARGET_OPT)
+// Despite the workaround described in `my_FailureHandlerLongJmp`, `longjmp`
+// from a d'tor still corrupts memory with the Solaris GNU compiler in
+// optimized builds, resulting in an illegal instruction in case 2, so do not
+// `longjmp` from a d'tor on this platform.
+enum { DTOR_ABORT_LIMIT = 1 };
+#else
+enum { DTOR_ABORT_LIMIT = ABORT_LIMIT };
+#endif
+
 // ============================================================================
 // There is a problem with some of the optimizers being *VERY* clever about
 // inlining calls.  Even if you take a pointer to a function and then call
@@ -3526,7 +3537,7 @@ int main(int argc, char *argv[])
         bsls::AtomicBool FAILURE_LONGJMP;
 
         // atomic and `volatile` avoids clobbered warning
-        for (bsls::AtomicInt i(0); i < 2 * ABORT_LIMIT; ++i) {
+        for (bsls::AtomicInt i(0); i < 2 * DTOR_ABORT_LIMIT; ++i) {
             CLEAN_DESTROY   = i %  2;
             FAILURE_LONGJMP = i >= 2;
 

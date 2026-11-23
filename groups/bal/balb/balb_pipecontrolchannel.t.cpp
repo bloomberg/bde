@@ -705,7 +705,18 @@ int main(int argc, char *argv[])
     }
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-    sigset(SIGPIPE, onSigPipe);
+    {
+        // Install a persistent `SIGPIPE` handler.  Note that `sigset` is
+        // deprecated, and `signal` may reset the handler after the first
+        // signal on some platforms (e.g., Solaris), so use `sigaction`.
+
+        struct sigaction action;
+        bsl::memset(&action, 0, sizeof action);
+        action.sa_handler = onSigPipe;
+        sigemptyset(&action.sa_mask);
+        const int rc = sigaction(SIGPIPE, &action, 0);
+        ASSERT(0 == rc);
+    }
 #endif
 
     switch (test) { case 0:

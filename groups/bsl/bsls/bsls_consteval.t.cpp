@@ -68,7 +68,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define STRINGIFY2(...) "" #__VA_ARGS__
-#define STRINGIFY(a) STRINGIFY2(a)
+#define STRINGIFY(...) STRINGIFY2(__VA_ARGS__)
 
 // ============================================================================
 //                              HELPER FUNCTIONS
