@@ -104,6 +104,8 @@ using bsl::flush;
 // [ 3] int add(TYPE const& object);
 // [15] int add(TYPE&&);
 // [15] void removeAll(bsl::vector<TYPE> *);
+// [15] void removeAll(std::vector<TYPE> *);
+// [15] void removeAll(std::pmr::vector<TYPE> *);
 // [ 3] int remove(int handle, TYPE* valueBuffer=0);
 // [ 5] int replace(int handle, TYPE const &newObject);
 // [15] int replace(int, TYPE&&);
@@ -1543,12 +1545,29 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     ASSERT(hasSpecElements(X, ""));
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    gg(&mX, spec);
-    std::pmr::vector<ELEMENT> vPmr;
-    mX.removeAll(&vPmr);
-    ASSERT(hasSpecElements(vPmr, spec));
-    ASSERT(0 == X.length());
-    ASSERT(hasSpecElements(X, ""));
+    // libc++'s `std::pmr::polymorphic_allocator::construct` uses an
+    // unqualified placement `new`.  For `NonTypicalOverloadsTestType` that
+    // finds the class-specific placement `new`, which aborts.  libc++ 23.1.6
+    // still does this, so the skip stops at libc++ 24.
+
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION < 240000
+    constexpr bool k_SKIP_PMR = bsl::is_same<ELEMENT,
+                                   bsltf::NonTypicalOverloadsTestType>::value;
+#else
+    constexpr bool k_SKIP_PMR = false;
+#endif
+
+    if constexpr (!k_SKIP_PMR) {
+        gg(&mX, spec);
+        std::pmr::vector<ELEMENT> vPmr;
+        mX.removeAll(&vPmr);
+        ASSERT(hasSpecElements(vPmr, spec));
+        ASSERT(0 == X.length());
+        ASSERT(hasSpecElements(X, ""));
+    }
+    else if (verbose) {
+        cout << "skipping removeAll(std::pmr::vector *) under libc++" << endl;
+    }
 #endif
 
     spec = "ABCDEF";
@@ -2709,10 +2728,16 @@ int main(int argc, char *argv[])
         //    `value` accessors to access the object and see if it was moved
         //    into.
         //
+        // 4. On libc++ before libc++ 24, skip
+        //    `removeAll(std::pmr::vector<TYPE> *)` for
+        //    `bsltf::NonTypicalOverloadsTestType`.
+        //
         // Testing:
         //   int add(TYPE&&);
         //   int replace(int, TYPE&&);
         //   void removeAll(bsl::vector<TYPE> *);
+        //   void removeAll(std::vector<TYPE> *);
+        //   void removeAll(std::pmr::vector<TYPE> *);
         //   bslma::Allocator *allocator() const;
         //   bool isMember(const TYPE&) const;
         //   const TYPE& value(int) const;
