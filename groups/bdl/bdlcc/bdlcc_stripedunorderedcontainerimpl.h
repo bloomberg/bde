@@ -155,10 +155,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-template <class KEY,
-          class VALUE,
-          class HASH  = bsl::hash<KEY>,
-          class EQUAL = bsl::equal_to<KEY> >
+template <class t_KEY,
+          class t_VALUE,
+          class t_HASH  = bsl::hash<t_KEY>,
+          class t_EQUAL = bsl::equal_to<t_KEY> >
 class StripedUnorderedContainerImpl;
 
                // =============================================
@@ -219,8 +219,8 @@ class StripedUnorderedContainerImpl_RehashBitSetGuard {
                  // ========================================
 
 /// This class template represents a node in the singly-linked list of
-/// `(KEY, VALUE)` elements for each bucket of a hash map.
-template <class KEY, class VALUE>
+/// `(t_KEY, t_VALUE)` elements for each bucket of a hash map.
+template <class t_KEY, class t_VALUE>
 class StripedUnorderedContainerImpl_Node {
 
   private:
@@ -230,10 +230,10 @@ class StripedUnorderedContainerImpl_Node {
     mutable StripedUnorderedContainerImpl_Node *d_next_p;
 
     // footprint of key
-    bsls::ObjectBuffer<KEY>            d_key;
+    bsls::ObjectBuffer<t_KEY>          d_key;
 
     // Footprint of value
-    bsls::ObjectBuffer<VALUE>          d_value;
+    bsls::ObjectBuffer<t_VALUE>        d_value;
 
     // memory allocator (held, not owned).
     bslma::Allocator                  *d_allocator_p;
@@ -241,10 +241,10 @@ class StripedUnorderedContainerImpl_Node {
   private:
     // NOT IMPLEMENTED
     StripedUnorderedContainerImpl_Node(
-                        const StripedUnorderedContainerImpl_Node<KEY, VALUE>&);
+                    const StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>&);
                                                                     // = delete
-    StripedUnorderedContainerImpl_Node<KEY, VALUE>&
-              operator=(const StripedUnorderedContainerImpl_Node<KEY, VALUE>&);
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>&
+          operator=(const StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>&);
                                                                     // = delete
 
   public:
@@ -256,24 +256,24 @@ class StripedUnorderedContainerImpl_Node {
     /// used to supply memory.  If `basicAllocator` is 0, the currently
     /// installed default allocator is used.
     StripedUnorderedContainerImpl_Node(
-                       const KEY&                          key,
-                       const VALUE&                        value,
+                       const t_KEY&                        key,
+                       const t_VALUE&                      value,
                        StripedUnorderedContainerImpl_Node *nextPtr,
                        bslma::Allocator                   *basicAllocator = 0);
     StripedUnorderedContainerImpl_Node(
-                       const KEY&                          key,
-                       bslmf::MovableRef<VALUE>            value,
+                       const t_KEY&                        key,
+                       bslmf::MovableRef<t_VALUE>          value,
                        StripedUnorderedContainerImpl_Node *nextPtr,
                        bslma::Allocator                   *basicAllocator = 0);
 
     /// Create a `bdlcc::StripedUnorderedContainerImpl_Node` object having
-    /// the specified `key` and a value initialized to `VALUE()`, and with
+    /// the specified `key` and a value initialized to `t_VALUE()`, and with
     /// the specified `nextPtr` pointer to the next node.  Optionally
     /// specify a `basicAllocator` used to supply memory.  If
     /// `basicAllocator` is 0, the currently installed default allocator is
     /// used.
     StripedUnorderedContainerImpl_Node(
-                       const KEY&                          key,
+                       const t_KEY&                        key,
                        StripedUnorderedContainerImpl_Node *nextPtr,
                        bslma::Allocator                   *basicAllocator = 0);
 
@@ -283,12 +283,12 @@ class StripedUnorderedContainerImpl_Node {
     /// with the specified `nextPtr` pointer to the next node.  If the
     /// specified `basicAllocator` is not 0, it is used to supply memory;
     /// otherwise, the currently installed default allocator is used.
-    template <class... Args>
+    template <class... t_ARGS>
     StripedUnorderedContainerImpl_Node(
                             bslma::Allocator                   *basicAllocator,
-                            const KEY&                          key,
+                            const t_KEY&                        key,
                             StripedUnorderedContainerImpl_Node *nextPtr,
-                            Args&&...                           args);
+                            t_ARGS&&...                         args);
 #endif
 
     /// Destroy this object.
@@ -304,18 +304,18 @@ class StripedUnorderedContainerImpl_Node {
 
     /// Return a reference providing modifiable access to the `value`
     /// attribute of this object.
-    VALUE& value();
+    t_VALUE& value();
 
     // ACCESSORS
 
     /// Return a `const` reference to the `key` attribute of this object.
-    const KEY& key() const;
+    const t_KEY& key() const;
 
     /// Return the pointer to the next node.
     StripedUnorderedContainerImpl_Node *next() const;
 
     /// Return a `const` reference to the `value` attribute of this object.
-    const VALUE& value() const;
+    const t_VALUE& value() const;
 
                                // Aspects
 
@@ -329,9 +329,9 @@ class StripedUnorderedContainerImpl_Node {
                 // ==========================================
 
 /// This class represents a bucket of the hash map.  This class template
-/// represents the head of in the singly-linked list of `(KEY, VALUE)`
+/// represents the head of in the singly-linked list of `(t_KEY, t_VALUE)`
 /// elements in a hash map.
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 class StripedUnorderedContainerImpl_Bucket {
 
   private:
@@ -344,10 +344,10 @@ class StripedUnorderedContainerImpl_Bucket {
     // DATA
 
     // Pointer to the first element in the bucket
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *d_head_p;
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *d_head_p;
 
     // Pointer to the last element in the bucket
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *d_tail_p;
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *d_tail_p;
 
     // Number of nodes in this bucket
     bsl::size_t                            d_size;
@@ -358,9 +358,9 @@ class StripedUnorderedContainerImpl_Bucket {
   private:
     // NOT IMPLEMENTED
     StripedUnorderedContainerImpl_Bucket(
-          const StripedUnorderedContainerImpl_Bucket<KEY, VALUE>&); // = delete
-    StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& operator=(
-          const StripedUnorderedContainerImpl_Bucket<KEY, VALUE>&); // = delete
+      const StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>&); // = delete
+    StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>& operator=(
+      const StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>&); // = delete
 
   public:
     // TYPES
@@ -389,7 +389,7 @@ class StripedUnorderedContainerImpl_Bucket {
     /// the same value as the specified `original` object.  The `original`
     /// object is left in a valid but unspecified state.
     StripedUnorderedContainerImpl_Bucket(
-           bslmf::MovableRef<StripedUnorderedContainerImpl_Bucket<KEY, VALUE> >
+       bslmf::MovableRef<StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE> >
                                                                       original,
            bslma::Allocator                                          *);
 
@@ -399,13 +399,13 @@ class StripedUnorderedContainerImpl_Bucket {
     // MANIPULATORS
 
     /// Add the specified `nodePtr` node at the end of this bucket.
-    void addNode(StripedUnorderedContainerImpl_Node<KEY, VALUE> *nodePtr);
+    void addNode(StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *nodePtr);
 
     /// Empty `StripedUnorderedContainerImpl_Bucket` and delete all nodes.
     void clear();
 
     /// Return the address of the head (node) of this bucket list.
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> **headAddress();
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> **headAddress();
 
     /// Increment the `size` attribute of this bucket by the specified
     /// `amount`.
@@ -413,14 +413,14 @@ class StripedUnorderedContainerImpl_Bucket {
 
     /// Set the address of the head of this bucket list to the specified
     /// `value`.
-    void setHead(StripedUnorderedContainerImpl_Node<KEY, VALUE> *value);
+    void setHead(StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *value);
 
     /// Set the `size` attribute of this bucket to the specified `value`.
     void setSize(bsl::size_t value);
 
     /// Set the pointer of the tail of this bucket list to the specified
     /// `value`.
-    void setTail(StripedUnorderedContainerImpl_Node<KEY, VALUE> *value);
+    void setTail(StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *value);
 
     /// Set the value attribute of the element in this bucket having the
     /// specified `key` to the specified `value`, using the specified
@@ -440,11 +440,11 @@ class StripedUnorderedContainerImpl_Bucket {
     /// change.  Also note that specifying `e_BUCKETSCOPE_FIRST` is more
     /// performant when there is a single element in the bucket having
     /// `key`.
-    template <class EQUAL>
-    bsl::size_t setValue(const KEY&   key,
-                         const EQUAL& equal,
-                         const VALUE& value,
-                         BucketScope  scope);
+    template <class t_EQUAL>
+    bsl::size_t setValue(const t_KEY&   key,
+                         const t_EQUAL& equal,
+                         const t_VALUE& value,
+                         BucketScope    scope);
 
     /// Set the value attribute of the element in this bucket having the
     /// specified `key` to the specified `value`, using the specified
@@ -455,10 +455,10 @@ class StripedUnorderedContainerImpl_Bucket {
     /// value set.  Note that, when there are multiple elements having
     /// `key`, the selection of "first" is unspecified and subject to
     /// change.
-    template <class EQUAL>
-    bsl::size_t setValue(const KEY&               key,
-                         const EQUAL&             equal,
-                         bslmf::MovableRef<VALUE> value);
+    template <class t_EQUAL>
+    bsl::size_t setValue(const t_KEY&               key,
+                         const t_EQUAL&             equal,
+                         bslmf::MovableRef<t_VALUE> value);
 
     // ACCESSORS
 
@@ -469,17 +469,17 @@ class StripedUnorderedContainerImpl_Bucket {
     /// Return `true` if this bucket contains an element with the specified
     /// `key`, using the specified `equal` to compare keys; and `false`
     /// otherwise.
-    template <class EQUAL>
-    bool hasKey(const KEY& key, const EQUAL& equal) const;
+    template <class t_EQUAL>
+    bool hasKey(const t_KEY& key, const t_EQUAL& equal) const;
 
     /// Return the head (node) of this bucket list.
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *head() const;
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *head() const;
 
     /// Return the current number of elements in this bucket.
     bsl::size_t size() const;
 
     /// Return address of the tail (node) of this bucket list.
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *tail() const;
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *tail() const;
 
                                // Aspects
 
@@ -488,10 +488,10 @@ class StripedUnorderedContainerImpl_Bucket {
     bslma::Allocator *allocator() const;
 };
 
-template <class KEY,
-          class VALUE,
-          class HASH  = bsl::hash<KEY>,
-          class EQUAL = bsl::equal_to<KEY> >
+template <class t_KEY,
+          class t_VALUE,
+          class t_HASH  = bsl::hash<t_KEY>,
+          class t_EQUAL = bsl::equal_to<t_KEY> >
 class StripedUnorderedContainerImpl_TestUtil;
 
 class StripedUnorderedContainerImpl_LockElement;
@@ -509,7 +509,7 @@ struct StripedUnorderedContainerImplMaxLoadFactorFlag {
 
 /// This class implements the logic for a striped hash multimap with logic
 /// that supports a (unique) map as a special case.
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
 
   public:
@@ -520,25 +520,25 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     };
 
     /// Node in a bucket.
-    typedef StripedUnorderedContainerImpl_Node<KEY, VALUE> Node;
+    typedef StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> Node;
 
     /// Value type of a bulk insert entry.
-    typedef bsl::pair<KEY, VALUE> KVType;
+    typedef bsl::pair<t_KEY, t_VALUE> KVType;
 
     /// An alias to a function meeting the following contract:
     /// ```
-    /// bool visitorFunction(VALUE *value, const KEY& key);
+    /// bool visitorFunction(t_VALUE *value, const t_KEY& key);
     ///     // Visit the specified 'value' attribute associated with the
     ///     // specified 'key'.  Return 'true' if this function may be
     ///     // called on additional elements, and 'false' otherwise (i.e.,
     ///     // if no other elements should be visited).  Note that this
     ///     // functor can change the value associated with 'key'.
     /// ```
-    typedef bsl::function<bool (VALUE *, const KEY&)> VisitorFunction;
+    typedef bsl::function<bool (t_VALUE *, const t_KEY&)> VisitorFunction;
 
     /// An alias to a function meeting the following contract:
     /// ```
-    /// bool visitorFunction(const VALUE& value, const KEY& key);
+    /// bool visitorFunction(const t_VALUE& value, const t_KEY& key);
     ///     // Visit the specified 'value' attribute associated with the
     ///     // specified 'key'.  Return 'true' if this function may be
     ///     // called on additional elements, and 'false' otherwise (i.e.,
@@ -546,17 +546,17 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     ///     // functor can *not* change the values associated with 'key'
     ///     // and 'value'.
     /// ```
-    typedef bsl::function<bool (const VALUE&, const KEY&)>
+    typedef bsl::function<bool (const t_VALUE&, const t_KEY&)>
                                                        ReadOnlyVisitorFunction;
 
     /// An alias to a function meeting the following contract:
     /// ```
-    /// bool eraseIfValuePredicate(const VALUE& value);
+    /// bool eraseIfValuePredicate(const t_VALUE& value);
     ///     // Return 'true' if the specified 'value' is to be removed from
     ///     // the container, and 'false' otherwise.  Note that this
     ///     // functor can *not* change the values associated with 'value'.
     /// ```
-    typedef bsl::function<bool(const VALUE&)> EraseIfValuePredicate;
+    typedef bsl::function<bool(const t_VALUE&)> EraseIfValuePredicate;
 
   private:
     // PRIVATE TYPES
@@ -622,10 +622,10 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     const float                             d_maxLoadFactor;
 
     // hashing function for keys
-    HASH                              d_hasher;
+    t_HASH                            d_hasher;
 
     // comparison function for keys
-    EQUAL                             d_comparator;
+    t_EQUAL                           d_comparator;
 
     // * bit 0: 0-rehash not in progress; 1-rehash in progress.
     // * bit 1: 0-rehash disabled;        1-rehash enabled.
@@ -641,7 +641,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     const char                        d_numElementsPad[k_INT_PADDING];
 
     // hash table data, storing key-value pairs
-    bsl::vector<StripedUnorderedContainerImpl_Bucket<KEY,VALUE> >
+    bsl::vector<StripedUnorderedContainerImpl_Bucket<t_KEY,t_VALUE> >
                                       d_buckets;
 
     // Pointer to an array of locks for the stripes.  Note that mutex can't
@@ -653,16 +653,16 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
 
     // FRIENDS
     friend class
-               StripedUnorderedContainerImpl_TestUtil<KEY, VALUE, HASH, EQUAL>;
+       StripedUnorderedContainerImpl_TestUtil<t_KEY, t_VALUE, t_HASH, t_EQUAL>;
     friend class StripedUnorderedContainerImpl_LockElement;
 
   private:
     // NOT IMPLEMENTED
     StripedUnorderedContainerImpl(
-                const StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>&);
+        const StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>&);
                                                                     // = delete
-    StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>&
-      operator=(const StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>&);
+    StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>& operator=(
+        const StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>&);
                                                                     // = delete
 
     // PRIVATE CLASS METHODS
@@ -675,7 +675,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
                                      bsl::size_t numStripes);
 
     /// Return `true`
-    static bool alwaysTrue(const VALUE&);
+    static bool alwaysTrue(const t_VALUE&);
 
     /// Return the nearest higher power of 2 for the specified `num`.
     static bsl::size_t powerCeil(bsl::size_t num);
@@ -701,10 +701,10 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     ///:   value; otherwise, do nothing.
     ///
     /// Return the number of elements inserted.
-    template <class... Args>
+    template <class... t_ARGS>
     bsl::size_t emplace(Multiplicity multiplicity,
-                        const KEY&   key,
-                        Args&&...    args);
+                        const t_KEY& key,
+                        t_ARGS&&...  args);
 #endif
 
     /// Remove from this hash map the element, if any, having the specified
@@ -713,22 +713,22 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// first element found.  Return the number of elements erased.  Note
     /// that, when there are multiple elements having `key`, the selection
     /// of "first" is unspecified and subject to change.
-    bsl::size_t erase(const KEY& key, Scope scope);
+    bsl::size_t erase(const t_KEY& key, Scope scope);
 
     /// Erase from this hash map elements in this hash map having any of the
     /// values in the keys contained between the specified `first`
     /// (inclusive) and `last` (exclusive) random-access iterators.  The
-    /// iterators provide read access to a sequence of `KEY` objects.  If
+    /// iterators provide read access to a sequence of `t_KEY` objects.  If
     /// there are multiple elements for any key value and the specified
     /// `scope` is `e_SCOPE_ALL` then erase them all; otherwise, erase just
     /// the first such element found.  Return the number of elements erased.
     /// The behavior is undefined unless `first <= last`.  Note that, when
     /// there are multiple elements having `key`, the selection of "first"
     /// is unspecified and subject to change.
-    template <class RANDOM_ITER>
-    bsl::size_t eraseBulk(RANDOM_ITER first,
-                          RANDOM_ITER last,
-                          Scope       scope);
+    template <class t_RANDOM_ITER>
+    bsl::size_t eraseBulk(t_RANDOM_ITER first,
+                          t_RANDOM_ITER last,
+                          Scope         scope);
 
     /// Remove from this hash map the element, if any, having the specified
     /// `key`, where specified `predicate` holds true.  If there are
@@ -738,7 +738,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// elements erased.  Note that, when there are multiple elements for
     /// which `predicate` holds true, the selection of "first" is
     /// unspecified and subject to change.
-    bsl::size_t eraseIf(const KEY&                   key,
+    bsl::size_t eraseIf(const t_KEY&                 key,
                         Scope                        scope,
                         const EraseIfValuePredicate& predicate);
 
@@ -758,17 +758,17 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// Return the number of elements inserted.  Note that, when there are
     /// multiple elements having `key`, the selection of "first" is
     /// unspecified and subject to change.
-    bsl::size_t insert(const KEY&    key,
-                       const VALUE&  value,
-                       Multiplicity  multiplicity);
-    bsl::size_t insert(const KEY&               key,
-                       bslmf::MovableRef<VALUE> value,
-                       Multiplicity             multiplicity);
+    bsl::size_t insert(const t_KEY&   key,
+                       const t_VALUE& value,
+                       Multiplicity   multiplicity);
+    bsl::size_t insert(const t_KEY&               key,
+                       bslmf::MovableRef<t_VALUE> value,
+                       Multiplicity               multiplicity);
 
     /// Insert into this hash map elements having the key-value pairs
     /// obtained between the specified `first` (inclusive) and `last`
     /// (exclusive) random-access iterators.  The iterators provide read
-    /// access to a sequence of `bsl::pair<KEY, VALUE>` objects.  The
+    /// access to a sequence of `bsl::pair<t_KEY, t_VALUE>` objects.  The
     /// behavior with respect to duplicate key values in the hash map
     /// depends on the specified `multiplicity`:
     ///
@@ -786,10 +786,10 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// unless `first <= last`.  Note that, when there are multiple elements
     /// having `key`, the selection of "first" is unspecified and subject to
     /// change.
-    template <class RANDOM_ITER>
-    bsl::size_t insertBulk(RANDOM_ITER  first,
-                           RANDOM_ITER  last,
-                           Multiplicity multiplicity);
+    template <class t_RANDOM_ITER>
+    bsl::size_t insertBulk(t_RANDOM_ITER first,
+                           t_RANDOM_ITER last,
+                           Multiplicity  multiplicity);
 
     /// Invoke the specified `visitor` passing the specified `key`, and the
     /// address of the attribute part of an element (of possibly many
@@ -798,7 +798,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// ```
     /// bool visitor(&value, key);
     /// ```
-    /// If no element in the hash map has `key`, insert `(key, VALUE())` and
+    /// If no element in the hash map has `key`, insert `(key, t_VALUE())` and
     /// invoke to `visitor` with `value` pointing to the defsult constructed
     /// value.  If there are multiple elements having `key` and the
     /// specified `scope` is `e_SCOPE_ALL` then apply `visitor` to each of
@@ -812,7 +812,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// having `key`, the selection of "first" and the order applying
     /// `visitor` are unspecified and subject to change.  Also note that a
     /// return value of `0` implies that an element was inserted.
-    int setComputedValue(const KEY&             key,
+    int setComputedValue(const t_KEY&           key,
                          const VisitorFunction& visitor,
                          Scope                  scope);
 
@@ -834,9 +834,9 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// selection of "first" is unspecified and subject to change.  Also
     /// note that specifying `e_SCOPE_FIRST` is more performant when there
     /// is a single element in the bucket having `key`.
-    bsl::size_t setValue(const KEY&   key,
-                         const VALUE& value,
-                         Scope        scope);
+    bsl::size_t setValue(const t_KEY&   key,
+                         const t_VALUE& value,
+                         Scope          scope);
 
     // PRIVATE ACCESSORS
 
@@ -846,7 +846,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// This operation does not lock the related stripe or check the rehash
     /// state.  Note that `numBuckets` does not have to be the current
     /// number of buckets in this hash map.
-    bsl::size_t bucketIndex(const KEY& key, bsl::size_t numBuckets) const;
+    bsl::size_t bucketIndex(const t_KEY& key, bsl::size_t numBuckets) const;
 
     /// Return the stripe index associated with the specified `bucketIndex`.
     bsl::size_t bucketToStripe(bsl::size_t bucketIndex) const;
@@ -855,20 +855,20 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// element in this hash map having the specified `key`.  Return the
     /// number of elements found with `key`.  Note that the order of the
     /// values returned is not specified.
-    template <class VECTOR>
-    bsl::size_t getValueImpl(VECTOR *valuesPtr, const KEY& key) const;
+    template <class t_VECTOR>
+    bsl::size_t getValueImpl(t_VECTOR *valuesPtr, const t_KEY& key) const;
 
     /// Lock for read the stripe related to the specified `key`, setting the
     /// specified `bucketIdx` to the bucket index associated with `key`.
     /// Return the address to the lock-element associated with the returned
     /// `bucketIdx`.
-    LockElement *lockRead(bsl::size_t *bucketIdx, const KEY& key) const;
+    LockElement *lockRead(bsl::size_t *bucketIdx, const t_KEY& key) const;
 
     /// Lock for write the stripe related to the specified `key`, setting
     /// the specified `bucketIdx` to the bucket index associated with `key`.
     /// Return the address to the lock-element associated with the returned
     /// `bucketIdx`.
-    LockElement *lockWrite(bsl::size_t *bucketIdx, const KEY& key) const;
+    LockElement *lockWrite(bsl::size_t *bucketIdx, const t_KEY& key) const;
 
   public:
     // CREATORS
@@ -919,15 +919,15 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// Emplace into this hash map an element having the specified `key` and
     /// value constructed from the specified `args`, irrespective of other
     /// elements in the hash map having the same `key` value.
-    template <class... Args>
-    void emplaceAlways(const KEY& key, Args&&... args);
+    template <class... t_ARGS>
+    void emplaceAlways(const t_KEY& key, t_ARGS&&... args);
 
     /// If no element in this hash map has the specified `key` value, emplace
     /// into this hash map an element having the specified `key` and value
     /// constructed from the specified `args`; otherwise, do nothing.  Return
     /// the number of elements inserted.
-    template <class... Args>
-    bsl::size_t emplaceUnique(const KEY& key, Args&&... args);
+    template <class... t_ARGS>
+    bsl::size_t emplaceUnique(const t_KEY& key, t_ARGS&&... args);
 #endif
 
     /// Allow rehash.  If conditions warrant, rehash will be started by the
@@ -940,53 +940,53 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
 
     /// Erase from this hash map the elements having the specified `key`.
     /// Return the number of elements erased.
-    bsl::size_t eraseAll(const KEY& key);
+    bsl::size_t eraseAll(const t_KEY& key);
 
     /// Erase from this hash map the elements having the specified `key` for
     /// which the specified `predicate` holds true.  Return the number of
     /// elements erased.
-    bsl::size_t eraseAllIf(const KEY&                   key,
+    bsl::size_t eraseAllIf(const t_KEY&                 key,
                            const EraseIfValuePredicate& predicate);
 
     /// Erase from this hash map elements in this hash map having any of the
     /// values in the keys contained between the specified `first`
     /// (inclusive) and `last` (exclusive) random-access iterators.  The
-    /// iterators provide read access to a sequence of `KEY` objects.  All
+    /// iterators provide read access to a sequence of `t_KEY` objects.  All
     /// erasures are done by the calling thread and the order of erasure is
     /// not specified.  Return the number of elements removed.  The behavior
     /// is undefined unless `first <= last`.  Note that the map may not have
     /// an element for every value in `keys`.
-    template <class RANDOM_ITER>
-    bsl::size_t eraseBulkAll(RANDOM_ITER first, RANDOM_ITER last);
+    template <class t_RANDOM_ITER>
+    bsl::size_t eraseBulkAll(t_RANDOM_ITER first, t_RANDOM_ITER last);
 
     /// Erase from this hash map elements in this hash map having any of the
     /// values in the keys contained between the specified `first`
     /// (inclusive) and `last` (exclusive) random-access iterators.  The
-    /// iterators provide read access to a sequence of `KEY` objects.  If
+    /// iterators provide read access to a sequence of `t_KEY` objects.  If
     /// there are multiple elements for any key value, erase just the first
     /// such element found.  All erasures are done by the calling thread and
     /// the order of erasure is not specified.  Return the number of
     /// elements removed.  The behavior is undefined unless `first <= last`.
     /// Note that the map may not have an element for every value in `keys`.
-    template <class RANDOM_ITER>
-    bsl::size_t eraseBulkFirst(RANDOM_ITER first, RANDOM_ITER last);
+    template <class t_RANDOM_ITER>
+    bsl::size_t eraseBulkFirst(t_RANDOM_ITER first, t_RANDOM_ITER last);
 
     /// Erase from this hash map the *first* element (of possibly many)
     /// found to the specified `key`.  Return the number of elements erased.
     /// Note that method is more performant than `eraseAll` when there is
     /// one element having `key`.
-    bsl::size_t eraseFirst(const KEY& key);
+    bsl::size_t eraseFirst(const t_KEY& key);
 
     /// Erase from this hash map the *first* element with specified `key`
     /// (of possibly many) found, for which the specified `predicate` holds
     /// true.  Return the number of elements erased.
-    bsl::size_t eraseFirstIf(const KEY&                   key,
+    bsl::size_t eraseFirstIf(const t_KEY&                 key,
                              const EraseIfValuePredicate& predicate);
 
     /// Insert into this hash map an element having the specified `key` and
     /// `value`.  Note that other elements having the same `key` may exist
     /// in this hash map.
-    void insertAlways(const KEY& key, const VALUE& value);
+    void insertAlways(const t_KEY& key, const t_VALUE& value);
 
     /// Insert into this hash map an element having the specified `key` and
     /// the specified move-insertable `value`.  The `value` object is left
@@ -994,35 +994,35 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// and `allocator() != value.allocator()` this operation may cost as
     /// much as a copy.  Note that other elements having the same `key` may
     /// exist in this hash map.
-    void insertAlways(const KEY& key, bslmf::MovableRef<VALUE> value);
+    void insertAlways(const t_KEY& key, bslmf::MovableRef<t_VALUE> value);
 
     /// Insert into this hash map elements having the key-value pairs
     /// obtained between the specified `first` (inclusive) and `last`
     /// (exclusive) random-access iterators.  The iterators provide read
-    /// access to a sequence of `bsl::pair<KEY, VALUE>` objects.  All
+    /// access to a sequence of `bsl::pair<t_KEY, t_VALUE>` objects.  All
     /// insertions are done by the calling thread and the order of insertion
     /// is not specified.  The behavior is undefined unless `first <= last`.
-    template <class RANDOM_ITER>
-    void insertBulkAlways(RANDOM_ITER first, RANDOM_ITER last);
+    template <class t_RANDOM_ITER>
+    void insertBulkAlways(t_RANDOM_ITER first, t_RANDOM_ITER last);
 
     /// Insert into this hash map elements having the key-value pairs
     /// obtained between the specified `first` (inclusive) and `last`
     /// (exclusive) random-access iterators.  The iterators provide read
-    /// access to a sequence of `bsl::pair<KEY, VALUE>` objects.  If an
+    /// access to a sequence of `bsl::pair<t_KEY, t_VALUE>` objects.  If an
     /// element having one of the keys already exists in this hash map, set
     /// the value attribute to the corresponding value from `data`.  All
     /// insertions are done by the calling thread and the order of insertion
     /// is not specified.  Return the number of elements inserted.  The
     /// behavior is undefined unless `first <= last`.
-    template <class RANDOM_ITER>
-    bsl::size_t insertBulkUnique(RANDOM_ITER first, RANDOM_ITER last);
+    template <class t_RANDOM_ITER>
+    bsl::size_t insertBulkUnique(t_RANDOM_ITER first, t_RANDOM_ITER last);
 
     /// Insert into this hash map an element having the specified `key` and
     /// `value`.  If `key` already exists in this hash map, the value
     /// attribute of that element is set to `value`.  Return 1 if an element
     /// is inserted, and 0 if an existing element is updated.  Note that the
     /// return value equals the number of elements inserted.
-    bsl::size_t insertUnique(const KEY& key, const VALUE& value);
+    bsl::size_t insertUnique(const t_KEY& key, const t_VALUE& value);
 
     /// Insert into this hash map an element having the specified `key` and
     /// the specified move-insertable `value`.  If `key` already exists in
@@ -1033,7 +1033,8 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// `allocator() != value.allocator()` this operation may cost as much
     /// as a copy.  Note that the return value equals the number of elements
     /// inserted.
-    bsl::size_t insertUnique(const KEY& key, bslmf::MovableRef<VALUE> value);
+    bsl::size_t insertUnique(const t_KEY&               key,
+                             bslmf::MovableRef<t_VALUE> value);
 
     /// Recreate this hash map to one having at least the specified
     /// `numBuckets`.  This operation is a no-op if *any* of the following
@@ -1046,9 +1047,9 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// `key`.  If `key` is not in the map, `value` will be default
     /// constructed.  That is, for each `(key, value)` found, invoke:
     /// ```
-    /// bool visitor(VALUE *value, const Key& key);
+    /// bool visitor(t_VALUE *value, const t_KEY& key);
     /// ```
-    /// If no element in the map has `key`, insert `(key, VALUE())` and
+    /// If no element in the map has `key`, insert `(key, t_VALUE())` and
     /// invoke `visitor` with `value` pointing to the defsult constructed
     /// value.  Return the number of elements visited or the negation of
     /// that value if visitations stopped because `visitor` returned
@@ -1059,7 +1060,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// that the `setComputedValueFirst` method is more performant than the
     /// when the hash map contains a single element for `key`.  Also note
     /// that a return value of `0` implies that an element was inserted.
-    int setComputedValueAll(const KEY&             key,
+    int setComputedValueAll(const t_KEY&           key,
                             const VisitorFunction& visitor);
 
     /// Invoke the specified `visitor` passing the specified `key`, and the
@@ -1068,9 +1069,9 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// in the map, `value` will be default constructed.  That is, for
     /// `(key, value)`, invoke:
     /// ```
-    /// bool visitor(VALUE *value, const Key& key);
+    /// bool visitor(t_VALUE *value, const t_KEY& key);
     /// ```
-    /// If no element in the map has `key`, insert `(key, VALUE())` and
+    /// If no element in the map has `key`, insert `(key, t_VALUE())` and
     /// invoke `visitor` with `value` pointing to the defsult constructed
     /// value.  Return 1 if `key` was found and `visitor` returned `true`, 0
     /// if `key` was not found, and -1 if `key` was found and `visitor`
@@ -1085,7 +1086,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// `setComputedValueAll` method when the hash map contains a single
     /// element for `key`.  Also note that a return value of `0` implies
     /// that an element was inserted.
-    int setComputedValueFirst(const KEY&             key,
+    int setComputedValueFirst(const t_KEY&           key,
                               const VisitorFunction& visitor);
 
     /// Set the value attribute of every element in this hash map having the
@@ -1093,7 +1094,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// exists, insert `(key, value)`.  Return the number of elements found
     /// with `key`.  Note that if no elements were found, and a new value
     /// was inserted, `0` is returned.
-    bsl::size_t setValueAll(const KEY& key, const VALUE& value);
+    bsl::size_t setValueAll(const t_KEY& key, const t_VALUE& value);
 
     /// Set the value attribute of the *first* element in this hash map (of
     /// possibly many) found to have the specified `key` to the specified
@@ -1102,7 +1103,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// elements were found, and a new value was inserted, `0` is returned.
     /// Also note that this method is more performant than `setValueAll`
     /// when there is one element having `key` in the hash map.
-    bsl::size_t setValueFirst(const KEY& key, const VALUE& value);
+    bsl::size_t setValueFirst(const t_KEY& key, const t_VALUE& value);
 
     /// Set the value attribute of the element in this hash map having the
     /// specified `key` to the specified `value`.  If no such element
@@ -1113,7 +1114,8 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// `0` is returned.  Also note that, when there are multiple elements
     /// having `key`, the selection of "first" is unspecified and subject to
     /// change.
-    bsl::size_t setValueFirst(const KEY& key, bslmf::MovableRef<VALUE> value);
+    bsl::size_t setValueFirst(const t_KEY&               key,
+                              bslmf::MovableRef<t_VALUE> value);
 
     /// Serially call the specified `visitor` on each element (if one
     /// exists) in this hash map having the specified `key` until every such
@@ -1130,7 +1132,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// `visitor`, as it may lead to a deadlock.
     ///
     /// @DEPRECATED: Use `visit(key, visitor)` instead.
-    int update(const KEY& key, const VisitorFunction& visitor);
+    int update(const t_KEY& key, const VisitorFunction& visitor);
 
     /// Call the specified `visitor` (in an unspecified order) on the
     /// elements in this hash table until each element has been visited or
@@ -1165,7 +1167,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// for duration of each invocation.  The behavior is undefined if hash
     /// map manipulators and `getValue*` methods are invoked from within
     /// `visitor`, as it may lead to a deadlock.
-    int visit(const KEY& key, const VisitorFunction& visitor);
+    int visit(const t_KEY& key, const VisitorFunction& visitor);
 
     // ACCESSORS
 
@@ -1173,7 +1175,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// by this hash map, where elements having the specified `key` are
     /// inserted.  Note that unless rehash is disabled, the value returned
     /// may be obsolete at the time it is returned.
-    bsl::size_t bucketIndex(const KEY& key) const;
+    bsl::size_t bucketIndex(const t_KEY& key) const;
 
     /// Return the number of buckets in the array of buckets maintained by
     /// this hash map.  Note that unless rehash is disabled, the value
@@ -1195,9 +1197,9 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     bool empty() const;
 
     /// Return (a copy of) the key-equality functor used by this hash map
-    /// that returns `true` if two `KEY` objects have the same value, and
+    /// that returns `true` if two `t_KEY` objects have the same value, and
     /// `false` otherwise.
-    EQUAL equalFunction() const;
+    t_EQUAL equalFunction() const;
 
     /// Load, into the specified `*value`, the value attribute of the first
     /// element (of possibly many elements) found in this hash map having
@@ -1206,22 +1208,24 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// values returned.  Also note that, when there are multiple elements
     /// having `key`, the selection of "first" is implementation specific
     /// and subject to change.
-    bsl::size_t getValue(VALUE *value, const KEY& key) const;
+    bsl::size_t getValue(t_VALUE *value, const t_KEY& key) const;
 
     /// Load, into the specified '*valuesPtr', the value attributes of every
     /// element in this hash map having the specified 'key'.  Return the number
     /// of elements found with 'key'.  Note that the order of the values
     /// returned is not specified.
-    bsl::size_t getValue(bsl::vector<VALUE> *valuesPtr, const KEY& key) const;
-    bsl::size_t getValue(std::vector<VALUE> *valuesPtr, const KEY& key) const;
+    bsl::size_t getValue(bsl::vector<t_VALUE> *valuesPtr,
+                         const t_KEY&          key) const;
+    bsl::size_t getValue(std::vector<t_VALUE> *valuesPtr,
+                         const t_KEY&          key) const;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    bsl::size_t getValue(std::pmr::vector<VALUE> *valuesPtr, const KEY& key)
-                                                                         const;
+    bsl::size_t getValue(std::pmr::vector<t_VALUE> *valuesPtr,
+                         const t_KEY&               key) const;
 #endif
 
     /// Return (a copy of) the unary hash functor used by this hash map to
-    /// generate a hash value (of type `std::size_t`) for a `KEY` object.
-    HASH hashFunction() const;
+    /// generate a hash value (of type `std::size_t`) for a `t_KEY` object.
+    t_HASH hashFunction() const;
 
     /// Return `true` if rehash is enabled, or `false` otherwise.
     bool isRehashEnabled() const;
@@ -1273,7 +1277,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// `visitor` has read-only access to each element for duration of each
     /// invocation.  The behavior is undefined if hash map manipulators are
     /// invoked from within `visitor`, as it may lead to a deadlock.
-    int visitReadOnly(const KEY&                     key,
+    int visitReadOnly(const t_KEY&                   key,
                       const ReadOnlyVisitorFunction& visitor) const;
 
     /// Return the current number of elements in this hash.
@@ -1294,14 +1298,14 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
 /// This class implements a test utility that gives the test driver access
 /// to the lock / unlock method of the Read/Write mutex.  Its purpose is to
 /// allow testing that the locking actually happens as planned.
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 class StripedUnorderedContainerImpl_TestUtil {
 
     // PRIVATE TYPES
     typedef StripedUnorderedContainerImpl_LockElement LockElement;
 
     // DATA
-    StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>& d_hash;
+    StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>& d_hash;
 
   public:
     // CREATORS
@@ -1309,7 +1313,7 @@ class StripedUnorderedContainerImpl_TestUtil {
     /// Create a `StripedUnorderedContainerImpl_TestUtil` object to test
     /// locking in the specified `hash`.
     explicit StripedUnorderedContainerImpl_TestUtil(
-                 StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>& hash);
+         StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>& hash);
 
     //! ~StripedUnorderedContainerImpl_TestUtil() = default;
         // Destroy this object.
@@ -1318,22 +1322,22 @@ class StripedUnorderedContainerImpl_TestUtil {
 
     /// Call the `lockRead` method of `bdlcc::StripedUnorderedContainerImpl`
     /// `d_locks_p` lock of the specified `key`.
-    void lockRead(const KEY& key);
+    void lockRead(const t_KEY& key);
 
     /// Call the `lockWrite` method of
     /// `bdlcc::StripedUnorderedContainerImpl` `d_locks_p` lock of the
     /// specified `key`.
-    void lockWrite(const KEY& key);
+    void lockWrite(const t_KEY& key);
 
     /// Call the `unlockWrite` method of
     /// `bdlcc::StripedUnorderedContainerImpl` `d_locks_p` lock of the
     /// specified `key`.
-    void unlockWrite(const KEY& key);
+    void unlockWrite(const t_KEY& key);
 
     /// Call the `unlockRead` method of
     /// `bdlcc::StripedUnorderedContainerImpl` `d_locks_p` lock of the
     /// specified `key`.
-    void unlockRead(const KEY& key);
+    void unlockRead(const t_KEY& key);
 };
 
                 // ===============================================
@@ -1580,12 +1584,12 @@ bool StripedUnorderedContainerImpl_RehashBitSetGuard::trySetRehashBit(
                 // ----------------------------------------
 
 // CREATORS
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Node<KEY, VALUE>::
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::
                                             StripedUnorderedContainerImpl_Node(
-                            const KEY&                          key,
-                            const VALUE&                        value,
+                            const t_KEY&                        key,
+                            const t_VALUE&                      value,
                             StripedUnorderedContainerImpl_Node *nextPtr,
                             bslma::Allocator                   *basicAllocator)
 : d_next_p(nextPtr)
@@ -1594,7 +1598,7 @@ StripedUnorderedContainerImpl_Node<KEY, VALUE>::
     bslma::ConstructionUtil::construct(d_key.address(),
                                        d_allocator_p,
                                        key);
-    bslma::DestructorProctor<KEY> proctor(&d_key.object());
+    bslma::DestructorProctor<t_KEY> proctor(&d_key.object());
 
     bslma::ConstructionUtil::construct(d_value.address(),
                                        d_allocator_p,
@@ -1602,12 +1606,12 @@ StripedUnorderedContainerImpl_Node<KEY, VALUE>::
     proctor.release();
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Node<KEY, VALUE>::
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::
                                             StripedUnorderedContainerImpl_Node(
-                            const KEY&                          key,
-                            bslmf::MovableRef<VALUE>            value,
+                            const t_KEY&                        key,
+                            bslmf::MovableRef<t_VALUE>          value,
                             StripedUnorderedContainerImpl_Node *nextPtr,
                             bslma::Allocator                   *basicAllocator)
 : d_next_p(nextPtr)
@@ -1616,19 +1620,19 @@ StripedUnorderedContainerImpl_Node<KEY, VALUE>::
     bslma::ConstructionUtil::construct(d_key.address(),
                                        d_allocator_p,
                                        key);
-    bslma::DestructorProctor<KEY> proctor(&d_key.object());
+    bslma::DestructorProctor<t_KEY> proctor(&d_key.object());
 
-    VALUE& dummy = value;
+    t_VALUE& dummy = value;
     bslalg::ScalarPrimitives::moveConstruct(d_value.address(),
                                             dummy,
                                             d_allocator_p);
     proctor.release();
 }
 
-template <class KEY, class VALUE>
-StripedUnorderedContainerImpl_Node<KEY, VALUE>::
+template <class t_KEY, class t_VALUE>
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::
     StripedUnorderedContainerImpl_Node(
-                            const KEY&                          key,
+                            const t_KEY&                        key,
                             StripedUnorderedContainerImpl_Node *nextPtr,
                             bslma::Allocator                   *basicAllocator)
 : d_next_p(nextPtr)
@@ -1637,42 +1641,42 @@ StripedUnorderedContainerImpl_Node<KEY, VALUE>::
     bslma::ConstructionUtil::construct(d_key.address(),
                                        d_allocator_p,
                                        key);
-    bslma::DestructorProctor<KEY> proctor(&d_key.object());
+    bslma::DestructorProctor<t_KEY> proctor(&d_key.object());
 
     bslma::ConstructionUtil::construct(d_value.address(), d_allocator_p);
     proctor.release();
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class KEY, class VALUE>
-template <class... Args>
+template <class t_KEY, class t_VALUE>
+template <class... t_ARGS>
 inline
-StripedUnorderedContainerImpl_Node<KEY, VALUE>::
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::
                                             StripedUnorderedContainerImpl_Node(
                             bslma::Allocator                   *basicAllocator,
-                            const KEY&                          key,
+                            const t_KEY&                        key,
                             StripedUnorderedContainerImpl_Node *nextPtr,
-                            Args&&...                           args)
+                            t_ARGS&&...                         args)
 : d_next_p(nextPtr)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     bslma::ConstructionUtil::construct(d_key.address(),
                                        d_allocator_p,
                                        key);
-    bslma::DestructorProctor<KEY> proctor(&d_key.object());
+    bslma::DestructorProctor<t_KEY> proctor(&d_key.object());
 
     bslma::ConstructionUtil::construct(d_value.address(),
                                        d_allocator_p,
-                                       BSLS_COMPILERFEATURES_FORWARD(Args,
+                                       BSLS_COMPILERFEATURES_FORWARD(t_ARGS,
                                                                      args)...);
 
     proctor.release();
 }
 #endif
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Node<KEY, VALUE>::
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::
                                           ~StripedUnorderedContainerImpl_Node()
 {
     // Destroy the object buffers content
@@ -1681,58 +1685,59 @@ StripedUnorderedContainerImpl_Node<KEY, VALUE>::
 }
 
 // MANIPULATORS
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Node<KEY, VALUE> **
-                  StripedUnorderedContainerImpl_Node<KEY, VALUE>::nextAddress()
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> **
+              StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::nextAddress()
 {
     return &d_next_p;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-void StripedUnorderedContainerImpl_Node<KEY, VALUE>::setNext(
-                       StripedUnorderedContainerImpl_Node<KEY, VALUE> *nextPtr)
+void StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::setNext(
+                   StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *nextPtr)
 {
     d_next_p = nextPtr;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-VALUE& StripedUnorderedContainerImpl_Node<KEY, VALUE>::value()
+t_VALUE& StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::value()
 {
     return d_value.object();
 }
 
 // ACCESSORS
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-const KEY& StripedUnorderedContainerImpl_Node<KEY, VALUE>::key() const
+const t_KEY& StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::key() const
 {
     return d_key.object();
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Node<KEY, VALUE> *
-                   StripedUnorderedContainerImpl_Node<KEY, VALUE>::next() const
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *
+               StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::next() const
 {
     return d_next_p;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-const VALUE& StripedUnorderedContainerImpl_Node<KEY, VALUE>::value() const
+const t_VALUE&
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::value() const
 {
     return d_value.object();
 }
 
                                // Aspects
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
 bslma::Allocator *
-              StripedUnorderedContainerImpl_Node<KEY, VALUE>::allocator() const
+          StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>::allocator() const
 {
     return d_allocator_p;
 }
@@ -1742,9 +1747,9 @@ bslma::Allocator *
                // ------------------------------------------
 
 // CREATORS
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::
+StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::
                                           StripedUnorderedContainerImpl_Bucket(
                                               bslma::Allocator *basicAllocator)
 : d_head_p(NULL)
@@ -1754,11 +1759,11 @@ StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::
 {
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::
+StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::
                                           StripedUnorderedContainerImpl_Bucket(
-           bslmf::MovableRef<StripedUnorderedContainerImpl_Bucket<KEY, VALUE> >
+       bslmf::MovableRef<StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE> >
                                                                       original,
            bslma::Allocator                                          *)
 : d_head_p(MoveUtil::move(MoveUtil::access(original).d_head_p))
@@ -1771,19 +1776,19 @@ StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::
     MoveUtil::access(original).d_size   = 0;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::
+StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::
                                         ~StripedUnorderedContainerImpl_Bucket()
 {
     clear();
 }
 
 // MANIPULATORS
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-void StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::addNode(
-                       StripedUnorderedContainerImpl_Node<KEY, VALUE> *nodePtr)
+void StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::addNode(
+                   StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *nodePtr)
 {
     BSLS_ASSERT(nodePtr->next() == NULL);
 
@@ -1797,14 +1802,15 @@ void StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::addNode(
     ++d_size;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-void StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::clear()
+void StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::clear()
 {
     // Delete all content in a loop
-    for (StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = d_head_p;
+    for (StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode =
+                                                                      d_head_p;
                                                             curNode != NULL;) {
-        StripedUnorderedContainerImpl_Node<KEY, VALUE> *nextPtr =
+        StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *nextPtr =
                                                                curNode->next();
         d_allocator_p->deleteObject(curNode);
         curNode = nextPtr;
@@ -1814,57 +1820,57 @@ void StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::clear()
     d_size = 0;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Node<KEY, VALUE>
-              **StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::headAddress()
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>
+          **StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::headAddress()
 {
     return &d_head_p;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-void StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::incrementSize(
+void StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::incrementSize(
                                                                     int amount)
 {
     d_size += amount;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-void StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setHead(
-                         StripedUnorderedContainerImpl_Node<KEY, VALUE> *value)
+void StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::setHead(
+                     StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *value)
 {
     d_head_p = value;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-void StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setSize(
+void StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::setSize(
                                                              bsl::size_t value)
 {
     d_size = value;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-void StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setTail(
-                         StripedUnorderedContainerImpl_Node<KEY, VALUE> *value)
+void StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::setTail(
+                     StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *value)
 {
     d_tail_p = value;
 }
 
-template <class KEY, class VALUE>
-template <class EQUAL>
-bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
-                                                            const KEY&   key,
-                                                            const EQUAL& equal,
-                                                            const VALUE& value,
-                                                            BucketScope  scope)
+template <class t_KEY, class t_VALUE>
+template <class t_EQUAL>
+bsl::size_t StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::setValue(
+                                                          const t_KEY&   key,
+                                                          const t_EQUAL& equal,
+                                                          const t_VALUE& value,
+                                                          BucketScope    scope)
 {
     if (d_head_p == NULL) {
         d_head_p = new (*d_allocator_p)
-                                StripedUnorderedContainerImpl_Node<KEY, VALUE>(
+                            StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>(
                                                                 key,
                                                                 value,
                                                                 NULL,
@@ -1874,8 +1880,8 @@ bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
         return 0;                                                     // RETURN
     }
 
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = d_head_p;
-    int                                             count   = 0;
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode = d_head_p;
+    int                                                 count   = 0;
     for (; curNode != NULL; curNode = curNode->next()) {
         if (equal(curNode->key(), key)) {
             curNode->value() = value;
@@ -1888,8 +1894,8 @@ bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
     if (count > 0) {
         return count;                                                 // RETURN
     }
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *newNode =
-           new (*d_allocator_p) StripedUnorderedContainerImpl_Node<KEY, VALUE>(
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *newNode =
+       new (*d_allocator_p) StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>(
                                                                 key,
                                                                 value,
                                                                 NULL,
@@ -1900,16 +1906,16 @@ bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
     return 0;
 }
 
-template <class KEY, class VALUE>
-template <class EQUAL>
-bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
-                                                const KEY&               key,
-                                                const EQUAL&             equal,
-                                                bslmf::MovableRef<VALUE> value)
+template <class t_KEY, class t_VALUE>
+template <class t_EQUAL>
+bsl::size_t StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::setValue(
+                                              const t_KEY&               key,
+                                              const t_EQUAL&             equal,
+                                              bslmf::MovableRef<t_VALUE> value)
 {
     if (d_head_p == NULL) {
         d_head_p = new (*d_allocator_p)
-                                StripedUnorderedContainerImpl_Node<KEY, VALUE>(
+                            StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>(
                                             key,
                                             bslmf::MovableRefUtil::move(value),
                                             NULL,
@@ -1918,7 +1924,7 @@ bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
         d_size = 1;
         return 0;                                                     // RETURN
     }
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = d_head_p;
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode = d_head_p;
     for (; curNode != NULL; curNode = curNode->next()) {
         if (equal(curNode->key(), key)) {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -1929,8 +1935,8 @@ bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
             return 1;                                                 // RETURN
         }
     }
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *newNode =
-           new (*d_allocator_p) StripedUnorderedContainerImpl_Node<KEY, VALUE>(
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *newNode =
+       new (*d_allocator_p) StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>(
                                             key,
                                             bslmf::MovableRefUtil::move(value),
                                             NULL,
@@ -1942,21 +1948,21 @@ bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::setValue(
 }
 
 // ACCESSORS
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-bool StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::empty() const
+bool StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::empty() const
 {
     return d_size == 0;
 }
 
-template <class KEY, class VALUE>
-template <class EQUAL>
+template <class t_KEY, class t_VALUE>
+template <class t_EQUAL>
 inline
-bool StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::
-                                               hasKey(const KEY&   key,
-                                                      const EQUAL& equal) const
+bool StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::
+                                               hasKey(const t_KEY&   key,
+                                                    const t_EQUAL& equal) const
 {
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = d_head_p;
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode = d_head_p;
     while (curNode != NULL) {
         if (equal(curNode->key(), key)) {
             return true;                                              // RETURN
@@ -1966,35 +1972,35 @@ bool StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::
     return false;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Node<KEY, VALUE>
-                *StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::head() const
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>
+            *StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::head() const
 {
     return d_head_p;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-bsl::size_t StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::size() const
+bsl::size_t StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::size() const
 {
     return d_size;
 }
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-StripedUnorderedContainerImpl_Node<KEY, VALUE> *
-                 StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::tail() const
+StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *
+             StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::tail() const
 {
     return d_tail_p;
 }
 
                                // Aspects
 
-template <class KEY, class VALUE>
+template <class t_KEY, class t_VALUE>
 inline
-bslma::Allocator *StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::allocator()
-                                                                          const
+bslma::Allocator *
+StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::allocator() const
 {
     return d_allocator_p;
 }
@@ -2138,10 +2144,10 @@ void StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard::lock(
                       // -----------------------------------
 
 // PRIVATE CLASS METHODS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-         StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::adjustBuckets(
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::adjustBuckets(
                                                         bsl::size_t numBuckets,
                                                         bsl::size_t numStripes)
 {
@@ -2157,17 +2163,19 @@ bsl::size_t
     return numBuckets;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bool StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::alwaysTrue(
-                                                                  const VALUE&)
+bool
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::alwaysTrue(
+                                                                const t_VALUE&)
 {
     return true;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::powerCeil(
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::powerCeil(
                                                                bsl::size_t num)
 {
     if (num <= 1) {
@@ -2182,9 +2190,10 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::powerCeil(
 }
 
 // PRIVATE MANIPULATORS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::checkRehash()
+void
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::checkRehash()
 {
     float loadF = loadFactor();
     if (d_maxLoadFactor < loadF && canRehash()) {
@@ -2198,21 +2207,23 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::checkRehash()
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::erase(
-                                                              const KEY& key,
-                                                              Scope      scope)
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::erase(
+                                                            const t_KEY& key,
+                                                            Scope        scope)
 {
     return eraseIf(key, scope, alwaysTrue);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class RANDOM_ITER>
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseBulk(
-                                                             RANDOM_ITER first,
-                                                             RANDOM_ITER last,
-                                                             Scope       scope)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class t_RANDOM_ITER>
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseBulk(
+                                                           t_RANDOM_ITER first,
+                                                           t_RANDOM_ITER last,
+                                                           Scope         scope)
 {
     BSLS_ASSERT(first <= last);
 
@@ -2249,10 +2260,10 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseBulk(
                                                          sortIdxs[j].d_hashVal,
                                                          d_numBuckets);
 
-            StripedUnorderedContainerImpl_Bucket<KEY, VALUE> &bucket =
+            StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE> &bucket =
                                                           d_buckets[bucketIdx];
 
-            const KEY& key  = first[dataIdx];
+            const t_KEY& key = first[dataIdx];
 
             Node **prevNodeAddress = bucket.headAddress();
             Node  *prevNode        = NULL;
@@ -2282,9 +2293,10 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseBulk(
     return count;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseIf(
-                                        const KEY&                   key,
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseIf(
+                                        const t_KEY&                 key,
                                         Scope                        scope,
                                         const EraseIfValuePredicate& predicate)
 {
@@ -2292,10 +2304,10 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseIf(
     bsl::size_t bucketIdx;
     LEWGuard    guard(lockWrite(&bucketIdx, key));
 
-    StripedUnorderedContainerImpl_Bucket<KEY, VALUE> &bucket =
+    StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE> &bucket =
                                                           d_buckets[bucketIdx];
 
-    typedef StripedUnorderedContainerImpl_Node<KEY, VALUE> Node;
+    typedef StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> Node;
 
     bsl::size_t count = 0;
 
@@ -2325,28 +2337,29 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseIf(
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class... Args>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class... t_ARGS>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::emplace(
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::emplace(
                                                      Multiplicity multiplicity,
-                                                     const KEY&   key,
-                                                     Args&&...    args)
+                                                     const t_KEY& key,
+                                                     t_ARGS&&...  args)
 {
     bsl::size_t bucketIdx;
     LEWGuard    guard(lockWrite(&bucketIdx, key));
 
-    StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket =
+    StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>& bucket =
                                                           d_buckets[bucketIdx];
 
     if (e_ALWAYS == multiplicity || 0 == bucket.hasKey(key, d_comparator)) {
         Node *node = new (*d_allocator_p)
-                                StripedUnorderedContainerImpl_Node<KEY, VALUE>(
+                            StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>(
                                                  d_allocator_p,
                                                  key,
                                                  NULL,
                                                  BSLS_COMPILERFEATURES_FORWARD(
-                                                                     Args,
+                                                                     t_ARGS,
                                                                      args)...);
         bucket.addNode(node);
         guard.release();
@@ -2359,12 +2372,13 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::emplace(
 }
 #endif
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insert(
-                                                     const KEY&   key,
-                                                     const VALUE& value,
-                                                     Multiplicity multiplicity)
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::insert(
+                                                   const t_KEY&   key,
+                                                   const t_VALUE& value,
+                                                   Multiplicity   multiplicity)
 {
     bool insertAlways = multiplicity == e_ALWAYS;
 
@@ -2375,7 +2389,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insert(
     if (insertAlways) {
         // Insert, ignoring an existing value if any.  Use only in multimap.
         Node *node = new (*d_allocator_p)
-                 StripedUnorderedContainerImpl_Node<KEY, VALUE>(key,
+             StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>(key,
                                                                 value,
                                                                 NULL,
                                                                 d_allocator_p);
@@ -2387,7 +2401,8 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insert(
         key,
         d_comparator,
         value,
-        StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::e_BUCKETSCOPE_FIRST);
+        StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::
+                                                          e_BUCKETSCOPE_FIRST);
     }
     if (ret == 1) {
         return 0;                                                     // RETURN
@@ -2398,12 +2413,13 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insert(
     return 1;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insert(
-                                         const KEY&               key,
-                                         bslmf::MovableRef<VALUE> value,
-                                         Multiplicity             multiplicity)
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::insert(
+                                       const t_KEY&               key,
+                                       bslmf::MovableRef<t_VALUE> value,
+                                       Multiplicity               multiplicity)
 {
     bool insertAlways = multiplicity == e_ALWAYS;
 
@@ -2433,12 +2449,13 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insert(
     return 1;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class RANDOM_ITER>
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertBulk(
-                                                     RANDOM_ITER  first,
-                                                     RANDOM_ITER  last,
-                                                     Multiplicity multiplicity)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class t_RANDOM_ITER>
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::insertBulk(
+                                                    t_RANDOM_ITER first,
+                                                    t_RANDOM_ITER last,
+                                                    Multiplicity  multiplicity)
 {
     BSLS_ASSERT(first <= last);
 
@@ -2475,15 +2492,15 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertBulk(
                 bslalg::HashTableImpUtil::computeBucketIndex(
                                                          sortIdxs[j].d_hashVal,
                                                          d_numBuckets);
-            const KEY&   key   = first[dataIdx].first;
-            const VALUE& value = first[dataIdx].second;
+            const t_KEY&   key   = first[dataIdx].first;
+            const t_VALUE& value = first[dataIdx].second;
 
             if (insertAlways) {
                 // Insert, ignoring an existing value if any.  Use only in
                 // multimap.
-                StripedUnorderedContainerImpl_Node<KEY, VALUE> *node =
+                StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *node =
                                                            new (*d_allocator_p)
-                                StripedUnorderedContainerImpl_Node<KEY, VALUE>(
+                            StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>(
                                                                 key,
                                                                 value,
                                                                 NULL,
@@ -2496,7 +2513,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertBulk(
                     key,
                     d_comparator,
                     value,
-                    StripedUnorderedContainerImpl_Bucket<KEY, VALUE>::
+                    StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>::
                                                           e_BUCKETSCOPE_FIRST);
                 if (ret == 0) {
                     ++count;
@@ -2509,13 +2526,14 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertBulk(
     return count;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setComputedValue(
-                                                const KEY&             key,
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+int
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                               setComputedValue(const t_KEY&           key,
                                                 const VisitorFunction& visitor,
                                                 Scope                  scope)
 {
-    typedef StripedUnorderedContainerImpl_Bucket<KEY, VALUE> BucketClass;
+    typedef StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE> BucketClass;
     typename BucketClass::BucketScope setAll = scope == e_SCOPE_ALL
                                             ? BucketClass::e_BUCKETSCOPE_ALL
                                             : BucketClass::e_BUCKETSCOPE_FIRST;
@@ -2523,11 +2541,12 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setComputedValue(
     bsl::size_t                bucketIdx;
     LEWGuard                   guard(lockWrite(&bucketIdx, key));
 
-    StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket =
+    StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>& bucket =
                                                           d_buckets[bucketIdx];
     // Loop on the elements in the list
-    int                                             count = 0;
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = bucket.head();
+    int                                                 count = 0;
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode =
+                                                                 bucket.head();
     for (; curNode != NULL; curNode = curNode->next()) {
         if (d_comparator(curNode->key(), key)) {
             bool ret = visitor(&curNode->value(), key);
@@ -2545,14 +2564,14 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setComputedValue(
     }
 
     // Not found - process as false, and return 0.
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *addNode =
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *addNode =
                                                            new (*d_allocator_p)
-                 StripedUnorderedContainerImpl_Node<KEY, VALUE>(key,
+             StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>(key,
                                                                 NULL,
                                                                 d_allocator_p);
     {
         bslma::RawDeleterProctor<
-            StripedUnorderedContainerImpl_Node<KEY, VALUE>,
+            StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE>,
             bslma::Allocator>
             proctor(addNode, d_allocator_p);
 
@@ -2575,14 +2594,15 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setComputedValue(
     return 0;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setValue(
-                                                            const KEY&   key,
-                                                            const VALUE& value,
-                                                            Scope        scope)
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::setValue(
+                                                          const t_KEY&   key,
+                                                          const t_VALUE& value,
+                                                          Scope          scope)
 {
-    typedef StripedUnorderedContainerImpl_Bucket<KEY, VALUE> BucketClass;
+    typedef StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE> BucketClass;
     typename BucketClass::BucketScope setAll = scope == e_SCOPE_ALL
                                             ? BucketClass::e_BUCKETSCOPE_ALL
                                             : BucketClass::e_BUCKETSCOPE_FIRST;
@@ -2590,7 +2610,7 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setValue(
     bsl::size_t                bucketIdx;
     LEWGuard                   guard(lockWrite(&bucketIdx, key));
 
-    StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket =
+    StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>& bucket =
                                                           d_buckets[bucketIdx];
 
     bsl::size_t count = bucket.setValue(key, d_comparator, value, setAll);
@@ -2603,12 +2623,12 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setValue(
 }
 
 // PRIVATE ACCESSORS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::bucketIndex(
-                                                  const KEY&  key,
-                                                  bsl::size_t numBuckets) const
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::bucketIndex(
+                                                 const t_KEY& key,
+                                                 bsl::size_t  numBuckets) const
 {
     bsl::size_t hashVal   = d_hasher(key);
     bsl::size_t bucketIdx =
@@ -2616,29 +2636,29 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::bucketIndex(
     return bucketIdx;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::bucketToStripe(
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::bucketToStripe(
                                                  bsl::size_t bucketIndex) const
 {
     return bucketIndex & d_hashMask;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class VECTOR>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class t_VECTOR>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValueImpl(
-                                                          VECTOR    *valuesPtr,
-                                                          const KEY& key) const
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::getValueImpl(
+                                                        t_VECTOR    *valuesPtr,
+                                                        const t_KEY& key) const
 {
     static const bool isVector =
-                           bsl::is_same<bsl::vector<VALUE>, VECTOR>::value
+                       bsl::is_same<bsl::vector<t_VALUE>, t_VECTOR>::value
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                        || bsl::is_same<std::pmr::vector<VALUE>, VECTOR>::value
+                    || bsl::is_same<std::pmr::vector<t_VALUE>, t_VECTOR>::value
 #endif
-                        || bsl::is_same<std::vector<VALUE>, VECTOR>::value;
+                    || bsl::is_same<std::vector<t_VALUE>, t_VECTOR>::value;
     BSLMF_ASSERT(isVector);
 
     BSLS_ASSERT(NULL != valuesPtr);
@@ -2648,11 +2668,12 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValueImpl(
     bsl::size_t bucketIdx;
     LERGuard    guard(lockRead(&bucketIdx, key));
 
-    bsl::size_t                                             count  = 0;
-    const StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket = d_buckets[
-                                                                    bucketIdx];
+    bsl::size_t                                                 count  = 0;
+    const StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>& bucket =
+                                                          d_buckets[bucketIdx];
     // Loop on the elements in the list
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode  = bucket.head();
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode =
+                                                                 bucket.head();
     for (; curNode != NULL; curNode = curNode->next()) {
         if (d_comparator(curNode->key(), key)) {
             valuesPtr->push_back(curNode->value());
@@ -2662,12 +2683,12 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValueImpl(
     return count;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 StripedUnorderedContainerImpl_LockElement *
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::lockRead(
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::lockRead(
                                                        bsl::size_t  *bucketIdx,
-                                                       const KEY&    key) const
+                                                       const t_KEY&  key) const
 {
     // From key, get hash value, and current number of buckets.
     bsl::size_t  hashVal    = d_hasher(key);
@@ -2686,12 +2707,12 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::lockRead(
     return &lockElement;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 StripedUnorderedContainerImpl_LockElement *
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::lockWrite(
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::lockWrite(
                                                        bsl::size_t  *bucketIdx,
-                                                       const KEY&    key) const
+                                                       const t_KEY&  key) const
 {
     // From key, get hash value, and current number of buckets.
     bsl::size_t  hashVal      = d_hasher(key);
@@ -2712,9 +2733,9 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::lockWrite(
 }
 
 // CREATORS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
                                                  StripedUnorderedContainerImpl(
                                 StripedUnorderedContainerImplMaxLoadFactorFlag,
                                 float             maxLoadFactor,
@@ -2743,9 +2764,9 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
                                                  StripedUnorderedContainerImpl(
                                            bsl::size_t       numInitialBuckets,
                                            bsl::size_t       numStripes,
@@ -2772,9 +2793,9 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
                                                ~StripedUnorderedContainerImpl()
 {
     for (bsl::size_t i = 0; i < d_numStripes; ++i) {
@@ -2784,9 +2805,9 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::
 }
 
 // MANIPULATORS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::clear()
+void StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::clear()
 {
     // Locking all stripes will inherently block until a rehash will complete
     for (bsl::size_t i = 0; i < d_numStripes; ++i) {
@@ -2801,9 +2822,10 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::clear()
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::disableRehash()
+void
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::disableRehash()
 {
     for (;;) {
         int oldState = d_state.load();
@@ -2815,30 +2837,31 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::disableRehash()
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class... Args>
-void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::
-                                  emplaceAlways(const KEY& key, Args&&... args)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class... t_ARGS>
+void StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                              emplaceAlways(const t_KEY& key, t_ARGS&&... args)
 {
     emplace(e_ALWAYS,
             key,
-            BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+            BSLS_COMPILERFEATURES_FORWARD(t_ARGS, args)...);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class... Args>
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::
-                                  emplaceUnique(const KEY& key, Args&&... args)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class... t_ARGS>
+bsl::size_t StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                              emplaceUnique(const t_KEY& key, t_ARGS&&... args)
 {
     return emplace(e_UNIQUE,
                    key,
-                   BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+                   BSLS_COMPILERFEATURES_FORWARD(t_ARGS, args)...);
 }
 #endif
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::enableRehash()
+void
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::enableRehash()
 {
     for (;;) {
         int oldState = d_state.load();
@@ -2849,132 +2872,136 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::enableRehash()
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseAll(
-                                                                const KEY& key)
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseAll(
+                                                              const t_KEY& key)
 {
     return erase(key, e_SCOPE_ALL);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseAllIf(
-                                        const KEY&                   key,
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseAllIf(
+                                        const t_KEY&                 key,
                                         const EraseIfValuePredicate& predicate)
 {
     return eraseIf(key, e_SCOPE_ALL, predicate);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class RANDOM_ITER>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class t_RANDOM_ITER>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseBulkAll(
-                                                             RANDOM_ITER first,
-                                                             RANDOM_ITER last)
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseBulkAll(
+                                                           t_RANDOM_ITER first,
+                                                           t_RANDOM_ITER last)
 {
     BSLS_ASSERT(first <= last);
 
     return eraseBulk(first, last, e_SCOPE_ALL);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class RANDOM_ITER>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class t_RANDOM_ITER>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseBulkFirst(
-                                                             RANDOM_ITER first,
-                                                             RANDOM_ITER last)
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseBulkFirst(
+                                                           t_RANDOM_ITER first,
+                                                           t_RANDOM_ITER last)
 {
     BSLS_ASSERT(first <= last);
 
     return eraseBulk(first, last, e_SCOPE_FIRST);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseFirst(
-                                                                const KEY& key)
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseFirst(
+                                                              const t_KEY& key)
 {
     return erase(key, e_SCOPE_FIRST);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::eraseFirstIf(
-                                        const KEY&                   key,
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseFirstIf(
+                                        const t_KEY&                 key,
                                         const EraseIfValuePredicate& predicate)
 {
     return eraseIf(key, e_SCOPE_FIRST, predicate);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertAlways(
-                                                            const KEY&   key,
-                                                            const VALUE& value)
+void
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::insertAlways(
+                                                          const t_KEY&   key,
+                                                          const t_VALUE& value)
 {
     insert(key, value, e_ALWAYS);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertAlways(
-                                                const KEY&               key,
-                                                bslmf::MovableRef<VALUE> value)
+void
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::insertAlways(
+                                              const t_KEY&               key,
+                                              bslmf::MovableRef<t_VALUE> value)
 {
     insert(key, bslmf::MovableRefUtil::move(value), e_ALWAYS);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class RANDOM_ITER>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class t_RANDOM_ITER>
 inline
-void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertBulkAlways(
-                                                             RANDOM_ITER first,
-                                                             RANDOM_ITER last)
+void
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                      insertBulkAlways(t_RANDOM_ITER first, t_RANDOM_ITER last)
 {
     BSLS_ASSERT(first <= last);
 
     insertBulk(first, last, e_ALWAYS);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class RANDOM_ITER>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class t_RANDOM_ITER>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertBulkUnique(
-                                                             RANDOM_ITER first,
-                                                             RANDOM_ITER last)
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                      insertBulkUnique(t_RANDOM_ITER first, t_RANDOM_ITER last)
 {
     BSLS_ASSERT(first <= last);
 
     return insertBulk(first, last, e_UNIQUE);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertUnique(
-                                                            const KEY&   key,
-                                                            const VALUE& value)
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::insertUnique(
+                                                          const t_KEY&   key,
+                                                          const t_VALUE& value)
 {
     return insert(key, value, e_UNIQUE);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertUnique(
-                                                const KEY&               key,
-                                                bslmf::MovableRef<VALUE> value)
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::insertUnique(
+                                              const t_KEY&               key,
+                                              bslmf::MovableRef<t_VALUE> value)
 {
     return insert(key, bslmf::MovableRefUtil::move(value), e_UNIQUE);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::rehash(
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::rehash(
                                                         bsl::size_t numBuckets)
 {
     // 'numBuckets' must not less than 2, and must be a power of 2.  To avoid
@@ -3001,9 +3028,8 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::rehash(
     }
 
     // Allocate a new data vector
-    bsl::vector<StripedUnorderedContainerImpl_Bucket<KEY,VALUE> > newBuckets(
-                                                                numBuckets,
-                                                                d_allocator_p);
+    bsl::vector<StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE> >
+                                         newBuckets(numBuckets, d_allocator_p);
 
     StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard locksGuard(d_locks_p);
     // Main loop on stripes: lock a stripe and process all buckets in it
@@ -3015,14 +3041,14 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::rehash(
         // current stripe as the first bucket, and add 'd_numStripes' for the
         // next bucket, until 'd_numBuckets'.
         for (bsl::size_t j = i; j < d_numBuckets; j += d_numStripes) {
-            StripedUnorderedContainerImpl_Bucket<KEY, VALUE> &bucket =
+            StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE> &bucket =
                                                                   d_buckets[j];
             // Process the nodes in the bucket.  Note that we do not need to
             // delete the old node and allocate a new one, but can simply move
             // it.
-            for (StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode =
+            for (StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode =
                                              bucket.head(); curNode != NULL;) {
-                StripedUnorderedContainerImpl_Node<KEY, VALUE> *nextPtr =
+                StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *nextPtr =
                                                                curNode->next();
 
                 bsl::size_t newBucketIdx = bucketIndex(curNode->key(),
@@ -3043,57 +3069,55 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::rehash(
     d_numBuckets = numBuckets;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 int
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setComputedValueAll(
-                                                const KEY&             key,
-                                                const VisitorFunction& visitor)
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+          setComputedValueAll(const t_KEY& key, const VisitorFunction& visitor)
 {
     return setComputedValue(key, visitor, e_SCOPE_ALL);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 int
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setComputedValueFirst(
-                                                const KEY&             key,
-                                                const VisitorFunction& visitor)
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+        setComputedValueFirst(const t_KEY& key, const VisitorFunction& visitor)
 {
     return setComputedValue(key, visitor, e_SCOPE_FIRST);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setValueAll(
-                                                            const KEY&   key,
-                                                            const VALUE& value)
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::setValueAll(
+                                                          const t_KEY&   key,
+                                                          const t_VALUE& value)
 {
     return setValue(key, value, e_SCOPE_ALL);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setValueFirst(
-                                                            const KEY&   key,
-                                                            const VALUE& value)
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::setValueFirst(
+                                                          const t_KEY&   key,
+                                                          const t_VALUE& value)
 {
     return setValue(key, value, e_SCOPE_FIRST);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setValueFirst(
-                                                const KEY&               key,
-                                                bslmf::MovableRef<VALUE> value)
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::setValueFirst(
+                                              const t_KEY&               key,
+                                              bslmf::MovableRef<t_VALUE> value)
 {
     bsl::size_t bucketIdx;
     LEWGuard    guard(lockWrite(&bucketIdx, key));
 
-    StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket =
+    StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>& bucket =
                                                           d_buckets[bucketIdx];
 
     bsl::size_t count = bucket.setValue(key,
@@ -3107,17 +3131,17 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::setValueFirst(
     return count;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::update(
-                                                const KEY&             key,
+int StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::update(
+                                                const t_KEY&           key,
                                                 const VisitorFunction& visitor)
 {
     return visit(key, visitor);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visit(
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+int StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::visit(
                                                 const VisitorFunction& visitor)
 {
     // Main loop on stripes: lock a stripe and process all buckets in it
@@ -3131,10 +3155,10 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visit(
         // current stripe as the first bucket, and add 'd_numStripes' for the
         // next bucket, until 'd_numBuckets'.
         for (bsl::size_t j = i; j < d_numBuckets; j += d_numStripes) {
-            StripedUnorderedContainerImpl_Bucket<KEY, VALUE> &bucket =
+            StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE> &bucket =
                                                                   d_buckets[j];
             // Loop on the nodes in the bucket.
-            for (StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode =
+            for (StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode =
                                                 bucket.head(); curNode != NULL;
                                                    curNode = curNode->next()) {
                 ++count;
@@ -3148,21 +3172,22 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visit(
     return count;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visit(
-                                                const KEY&             key,
+int StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::visit(
+                                                const t_KEY&           key,
                                                 const VisitorFunction& visitor)
 {
     bsl::size_t bucketIdx;
     LEWGuard    guard(lockWrite(&bucketIdx, key));
 
-    StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket =
+    StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>& bucket =
                                                           d_buckets[bucketIdx];
 
     // Loop on the elements in the list
-    int                                             count = 0;
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = bucket.head();
+    int                                                 count = 0;
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode =
+                                                                 bucket.head();
     for (; curNode != NULL; curNode = curNode->next()) {
         if (d_comparator(curNode->key(), key)) {
             ++count;
@@ -3176,26 +3201,28 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visit(
 }
 
 // ACCESSORS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::bucketCount() const
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                            bucketCount() const
 {
     return d_numBuckets;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::bucketIndex(
-                                                          const KEY& key) const
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::bucketIndex(
+                                                        const t_KEY& key) const
 {
     return bucketIndex(key, d_numBuckets);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::bucketSize(
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::bucketSize(
                                                        bsl::size_t index) const
 {
     BSLS_ASSERT(index < bucketCount());
@@ -3203,16 +3230,19 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::bucketSize(
     return d_buckets[index].size();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bool StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::canRehash() const
+bool
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                              canRehash() const
 {
     return d_state == k_REHASH_ENABLED;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bool StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::empty() const
+bool
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::empty() const
 {
     for (bsl::size_t i = 0; i < d_numBuckets; ++i) {
         if (!d_buckets[i].empty()) {
@@ -3222,29 +3252,32 @@ bool StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::empty() const
     return true;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-EQUAL
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::equalFunction() const
+t_EQUAL
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                          equalFunction() const
 {
     return d_comparator;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValue(
-                                                         VALUE      *value,
-                                                         const KEY&  key) const
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::getValue(
+                                                        t_VALUE     *value,
+                                                        const t_KEY& key) const
 {
     BSLS_ASSERT(NULL != value);
 
     bsl::size_t bucketIdx;
     LERGuard    guard(lockRead(&bucketIdx, key));
 
-    const StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket = d_buckets[
-                                                                    bucketIdx];
+    const StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>& bucket =
+                                                          d_buckets[bucketIdx];
     // Loop on the elements in the list
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode  = bucket.head();
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode =
+                                                                 bucket.head();
     for (; curNode != NULL; curNode = curNode->next()) {
         if (d_comparator(curNode->key(), key)) {
             *value = curNode->value();
@@ -3254,78 +3287,87 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValue(
     return 0;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValue(
-                                                 bsl::vector<VALUE> *valuesPtr,
-                                                 const KEY&          key) const
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::getValue(
+                                               bsl::vector<t_VALUE> *valuesPtr,
+                                               const t_KEY&          key) const
 {
     return getValueImpl(valuesPtr, key);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValue(
-                                                 std::vector<VALUE> *valuesPtr,
-                                                 const KEY&          key) const
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::getValue(
+                                               std::vector<t_VALUE> *valuesPtr,
+                                               const t_KEY&          key) const
 {
     return getValueImpl(valuesPtr, key);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValue(
-                                            std::pmr::vector<VALUE> *valuesPtr,
-                                            const KEY&               key) const
+bsl::size_t
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::getValue(
+                                          std::pmr::vector<t_VALUE> *valuesPtr,
+                                          const t_KEY&               key) const
 {
     return getValueImpl(valuesPtr, key);
 }
 #endif
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-HASH
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::hashFunction() const
+t_HASH
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                           hashFunction() const
 {
     return d_hasher;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bool
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::isRehashEnabled() const
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                        isRehashEnabled() const
 {
     return d_state & k_REHASH_ENABLED;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 float
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::loadFactor() const
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                             loadFactor() const
 {
     return static_cast<float>(d_numElements.loadRelaxed()) /
            static_cast<float>(d_numBuckets);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 float
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::maxLoadFactor() const
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                          maxLoadFactor() const
 {
     return d_maxLoadFactor;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::numStripes() const
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                             numStripes() const
 {
     return static_cast<bsl::size_t>(d_numStripes);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+int
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::visitReadOnly(
                                   const ReadOnlyVisitorFunction& visitor) const
 {
     // Main loop on stripes: lock a stripe and process all buckets in it
@@ -3339,10 +3381,10 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
         // current stripe as the first bucket, and add 'd_numStripes' for the
         // next bucket, until 'd_numBuckets'.
         for (bsl::size_t j = i; j < d_numBuckets; j += d_numStripes) {
-            const StripedUnorderedContainerImpl_Bucket<KEY, VALUE> &bucket =
-                                                                  d_buckets[j];
+            const StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>&
+                                                         bucket = d_buckets[j];
             // Loop on the nodes in the bucket.
-            for (StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode =
+            for (StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode =
                                                 bucket.head(); curNode != NULL;
                                                    curNode = curNode->next()) {
                 ++count;
@@ -3356,21 +3398,23 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
     return count;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
-                                  const KEY&                     key,
+int
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::visitReadOnly(
+                                  const t_KEY&                   key,
                                   const ReadOnlyVisitorFunction& visitor) const
 {
     bsl::size_t bucketIdx;
     LERGuard    guard(lockRead(&bucketIdx, key));
 
-    const StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket =
+    const StripedUnorderedContainerImpl_Bucket<t_KEY, t_VALUE>& bucket =
                                                           d_buckets[bucketIdx];
 
     // Loop on the elements in the list
-    int                                             count = 0;
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = bucket.head();
+    int                                                 count = 0;
+    StripedUnorderedContainerImpl_Node<t_KEY, t_VALUE> *curNode =
+                                                                 bucket.head();
     for (; curNode != NULL; curNode = curNode->next()) {
         if (d_comparator(curNode->key(), key)) {
             ++count;
@@ -3383,20 +3427,21 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
     return count;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::size() const
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::size() const
 {
     return d_numElements.loadRelaxed();
 }
 
                                // Aspects
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bslma::Allocator *
-      StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::allocator() const
+StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                              allocator() const
 {
     return d_allocator_p;
 }
@@ -3406,20 +3451,21 @@ bslma::Allocator *
              // --------------------------------------------
 
 // CREATORS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-StripedUnorderedContainerImpl_TestUtil<KEY, VALUE, HASH, EQUAL>::
+StripedUnorderedContainerImpl_TestUtil<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
                                         StripedUnorderedContainerImpl_TestUtil(
-                  StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>& hash)
+          StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>& hash)
 : d_hash(hash)
 {
 }
 
 // MANIPULATORS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedContainerImpl_TestUtil<KEY, VALUE, HASH, EQUAL>::lockRead(
-                                                                const KEY& key)
+void
+StripedUnorderedContainerImpl_TestUtil<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                     lockRead(const t_KEY& key)
 {
     bsl::size_t  bucketIdx = d_hash.bucketIndex(key);
     bsl::size_t  stripeIdx = d_hash.bucketToStripe(bucketIdx);
@@ -3427,10 +3473,10 @@ void StripedUnorderedContainerImpl_TestUtil<KEY, VALUE, HASH, EQUAL>::lockRead(
     lockElement.lockR();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedContainerImpl_TestUtil<KEY, VALUE, HASH, EQUAL>::
-                                                      lockWrite(const KEY& key)
+void StripedUnorderedContainerImpl_TestUtil<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                    lockWrite(const t_KEY& key)
 {
     bsl::size_t  bucketIdx   = d_hash.bucketIndex(key);
     bsl::size_t  stripeIdx   = d_hash.bucketToStripe(bucketIdx);
@@ -3438,10 +3484,10 @@ void StripedUnorderedContainerImpl_TestUtil<KEY, VALUE, HASH, EQUAL>::
     lockElement.lockW();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedContainerImpl_TestUtil<KEY, VALUE, HASH, EQUAL>::
-                                                     unlockRead(const KEY& key)
+void StripedUnorderedContainerImpl_TestUtil<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                   unlockRead(const t_KEY& key)
 {
     bsl::size_t  bucketIdx   = d_hash.bucketIndex(key);
     bsl::size_t  stripeIdx   = d_hash.bucketToStripe(bucketIdx);
@@ -3449,10 +3495,10 @@ void StripedUnorderedContainerImpl_TestUtil<KEY, VALUE, HASH, EQUAL>::
     lockElement.unlockR();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedContainerImpl_TestUtil<KEY, VALUE, HASH, EQUAL>::
-                                                    unlockWrite(const KEY& key)
+void StripedUnorderedContainerImpl_TestUtil<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                  unlockWrite(const t_KEY& key)
 {
     bsl::size_t  bucketIdx   = d_hash.bucketIndex(key);
     bsl::size_t  stripeIdx   = d_hash.bucketToStripe(bucketIdx);
@@ -3481,11 +3527,11 @@ bool bdlcc::operator<(const StripedUnorderedContainerImpl_SortItem& lhs,
 
 namespace bslma {
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-struct UsesBslmaAllocator<bdlcc::StripedUnorderedContainerImpl<KEY,
-                                                               VALUE,
-                                                               HASH,
-                                                               EQUAL> >
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+struct UsesBslmaAllocator<bdlcc::StripedUnorderedContainerImpl<t_KEY,
+                                                               t_VALUE,
+                                                               t_HASH,
+                                                               t_EQUAL> >
                                                              : bsl::true_type {
 };
 

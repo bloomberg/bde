@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 // a user provided functor the value of every key in the map.
 //
 // The `bdlcc::StripedUnorderedMultiMap` class is an *irregular* value-semantic
-// type, even if `KEY` and `VALUE` are VSTs.  This class does not implement
+// type, even if `t_KEY` and `t_VALUE` are VSTs.  This class does not implement
 // equality comparison, assignment operator, or copy constructor.
 //
 ///Thread Safety
@@ -228,8 +228,8 @@ namespace bdlcc {
                     // ==============================
 
 /// This class template defines a fully thread-safe container that provides
-/// a mapping from keys (of template parameter type `KEY`) to their
-/// associated mapped values (of template parameter type `VALUE`).
+/// a mapping from keys (of template parameter type `t_KEY`) to their
+/// associated mapped values (of template parameter type `t_VALUE`).
 ///
 /// The buckets of this hash map are guarded by `numStripes` reader-writer
 /// locks, a value specified on construction.  Partitioning the buckets
@@ -241,15 +241,16 @@ namespace bdlcc {
 /// limited practicality in the typical use case because they are readily
 /// invalidated when the map population is open to modification by multiple
 /// threads.
-template <class KEY,
-          class VALUE,
-          class HASH  = bsl::hash<KEY>,
-          class EQUAL = bsl::equal_to<KEY> >
+template <class t_KEY,
+          class t_VALUE,
+          class t_HASH  = bsl::hash<t_KEY>,
+          class t_EQUAL = bsl::equal_to<t_KEY> >
 class StripedUnorderedMultiMap {
 
   private:
     // PRIVATE TYPES
-    typedef StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL> Impl;
+    typedef StripedUnorderedContainerImpl<t_KEY, t_VALUE, t_HASH, t_EQUAL>
+                                                                          Impl;
 
     // DATA
 
@@ -259,10 +260,10 @@ class StripedUnorderedMultiMap {
   private:
     // NOT IMPLEMENTED
     StripedUnorderedMultiMap(
-                     const StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>&);
+             const StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>&);
                                                                     // = delete
-    StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>&
-           operator=(const StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>&);
+    StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>&
+   operator=(const StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>&);
                                                                     // = delete
 
   public:
@@ -275,7 +276,7 @@ class StripedUnorderedMultiMap {
     // PUBLIC TYPES
 
     /// Value type of a bulk insert entry.
-    typedef bsl::pair<KEY, VALUE> KVType;
+    typedef bsl::pair<t_KEY, t_VALUE> KVType;
 
     /// An alias to a function meeting the following contract:
     /// ```
@@ -284,9 +285,9 @@ class StripedUnorderedMultiMap {
     /// /// called on additional elements, and `false` otherwise (i.e.,
     /// /// if no other elements should be visited).  Note that this
     /// /// functor can change the value associated with `key`.
-    /// bool visitorFunction(VALUE *value, const KEY& key);
+    /// bool visitorFunction(t_VALUE *value, const t_KEY& key);
     /// ```
-    typedef bsl::function<bool (VALUE *, const KEY&)> VisitorFunction;
+    typedef bsl::function<bool (t_VALUE *, const t_KEY&)> VisitorFunction;
 
     /// An alias to a function meeting the following contract:
     /// ```
@@ -296,9 +297,9 @@ class StripedUnorderedMultiMap {
     /// /// if no other elements should be visited).  Note that this
     /// /// functor can *not* change the values associated with `key`
     /// /// and `value`.
-    /// bool readOnlyVisitorFunction(const VALUE& value, const KEY& key);
+    /// bool readOnlyVisitorFunction(const t_VALUE& value, const t_KEY& key);
     /// ```
-    typedef bsl::function<bool (const VALUE&, const KEY&)>
+    typedef bsl::function<bool (const t_VALUE&, const t_KEY&)>
                                                        ReadOnlyVisitorFunction;
 
     /// An alias to a function meeting the following contract:
@@ -306,9 +307,9 @@ class StripedUnorderedMultiMap {
     /// /// Return `true` if the specified `value` is to be removed from
     /// /// the container, and `false` otherwise.  Note that this
     /// /// functor can *not* change the values associated with `value`.
-    /// bool eraseIfValuePredicate(const VALUE& value);
+    /// bool eraseIfValuePredicate(const t_VALUE& value);
     /// ```
-    typedef bsl::function<bool(const VALUE&)> EraseIfValuePredicate;
+    typedef bsl::function<bool(const t_VALUE&)> EraseIfValuePredicate;
 
     // CREATORS
 
@@ -345,8 +346,8 @@ class StripedUnorderedMultiMap {
     /// Emplace into this hash map an element having the specified `key` and
     /// value constructed from the specified `args`, irrespective of other
     /// elements in the hash map having the same `key` value.
-    template <class... Args>
-    void emplace(const KEY& key, Args&&... args);
+    template <class... t_ARGS>
+    void emplace(const t_KEY& key, t_ARGS&&... args);
 #endif
 
     /// Allow rehash.  If conditions warrant, rehash will be started by the
@@ -359,41 +360,41 @@ class StripedUnorderedMultiMap {
 
     /// Erase from this hash map the elements having the specified `key`.
     /// Return the number of elements erased.
-    bsl::size_t eraseAll(const KEY& key);
+    bsl::size_t eraseAll(const t_KEY& key);
 
     /// Erase from this hash map the elements having the specified `key` for
     /// which the specified `predicate` holds true.  Return the number of
     /// elements erased.
-    bsl::size_t eraseAllIf(const KEY&                   key,
+    bsl::size_t eraseAllIf(const t_KEY&                 key,
                            const EraseIfValuePredicate& predicate);
 
     /// Erase from this hash map elements in this hash map having any of the
     /// values in the keys contained between the specified `first`
     /// (inclusive) and `last` (exclusive) random-access iterators.  The
-    /// iterators provide read access to a sequence of `KEY` objects.  All
+    /// iterators provide read access to a sequence of `t_KEY` objects.  All
     /// erasures are done by the calling thread and the order of erasure is
     /// not specified.  Return the number of elements removed.  The behavior
     /// is undefined unless `first <= last`.  Note that the map may not have
     /// an element for every value in `keys`.
-    template <class RANDOM_ITER>
-    bsl::size_t eraseBulkAll(RANDOM_ITER first, RANDOM_ITER last);
+    template <class t_RANDOM_ITER>
+    bsl::size_t eraseBulkAll(t_RANDOM_ITER first, t_RANDOM_ITER last);
 
     /// Erase from this hash map the *first* element (of possibly many)
     /// found to the specified `key`.  Return the number of elements erased.
     /// Note that method is more performant than `eraseAll` when there is
     /// one element having `key`.
-    bsl::size_t eraseFirst(const KEY& key);
+    bsl::size_t eraseFirst(const t_KEY& key);
 
     /// Erase from this hash map the *first* element (of possibly many) with
     /// specified `key` found, for which the specified `predicate` holds
     /// true.  Return the number of elements erased.
-    bsl::size_t eraseFirstIf(const KEY&                   key,
+    bsl::size_t eraseFirstIf(const t_KEY&                 key,
                              const EraseIfValuePredicate& predicate);
 
     /// Insert into this hash map an element having the specified `key` and
     /// `value`.  Note that other elements having the same `key` may exist
     /// in this hash map.
-    void insert(const KEY& key, const VALUE& value);
+    void insert(const t_KEY& key, const t_VALUE& value);
 
     /// Insert into this hash map an element having the specified `key` and
     /// the specified move-insertable `value`.  The `value` object is left
@@ -401,16 +402,16 @@ class StripedUnorderedMultiMap {
     /// and `allocator() != value.allocator()` this operation may cost as
     /// much as a copy.  Note that other elements having the same `key` may
     /// exist in this hash map.
-    void insert(const KEY& key, bslmf::MovableRef<VALUE> value);
+    void insert(const t_KEY& key, bslmf::MovableRef<t_VALUE> value);
 
     /// Insert into this hash map elements having the key-value pairs
     /// obtained between the specified `first` (inclusive) and `last`
     /// (exclusive) random-access iterators.  The iterators provide read
-    /// access to a sequence of `bsl::pair<KEY, VALUE>` objects.  All
+    /// access to a sequence of `bsl::pair<t_KEY, t_VALUE>` objects.  All
     /// insertions are done by the calling thread and the order of insertion
     /// is not specified.  The behavior is undefined unless `first <= last`.
-    template <class RANDOM_ITER>
-    void insertBulk(RANDOM_ITER first, RANDOM_ITER last);
+    template <class t_RANDOM_ITER>
+    void insertBulk(t_RANDOM_ITER first, t_RANDOM_ITER last);
 
     /// Recreate this hash map to one having at least the specified
     /// `numBuckets`.  This operation is a no-op if *any* of the following
@@ -423,9 +424,9 @@ class StripedUnorderedMultiMap {
     /// `key`.  If `key` is not in the map, `value` will be default
     /// constructed.  That is, for each `(key, value)` found, invoke:
     /// ```
-    /// bool visitor(VALUE *value, const Key& key);
+    /// bool visitor(t_VALUE *value, const t_KEY& key);
     /// ```
-    /// If no element in the map has `key`, insert `(key, VALUE())` and
+    /// If no element in the map has `key`, insert `(key, t_VALUE())` and
     /// invoke `visitor` with `value` pointing to the default constructed
     /// value.  Return the number of elements visited or the negation of
     /// that value if visitations stopped because `visitor` returned
@@ -436,7 +437,7 @@ class StripedUnorderedMultiMap {
     /// that the `setComputedValueFirst` method is more performant than the
     /// when the hash map contains a single element for `key`.  Also note
     /// that a return value of `0` implies that an element was inserted.
-    int setComputedValueAll(const KEY&             key,
+    int setComputedValueAll(const t_KEY&           key,
                             const VisitorFunction& visitor);
 
     /// Invoke the specified `visitor` passing the specified `key`, and the
@@ -445,9 +446,9 @@ class StripedUnorderedMultiMap {
     /// in the map, `value` will be default constructed.  That is, for
     /// `(key, value)`, invoke:
     /// ```
-    /// bool visitor(VALUE *value, const Key& key);
+    /// bool visitor(t_VALUE *value, const t_KEY& key);
     /// ```
-    /// If no element in the map has `key`, insert `(key, VALUE())` and
+    /// If no element in the map has `key`, insert `(key, t_VALUE())` and
     /// invoke `visitor` with `value` pointing to the default constructed
     /// value.  Return 1 if `key` was found and `visitor` returned `true`, 0
     /// if `key` was not found, and -1 if `key` was found and `visitor`
@@ -462,7 +463,7 @@ class StripedUnorderedMultiMap {
     /// `setComputedValueAll` method when the hash map contains a single
     /// element for `key`.  Also note that a return value of `0` implies
     /// that an element was inserted.
-    int setComputedValueFirst(const KEY&             key,
+    int setComputedValueFirst(const t_KEY&           key,
                               const VisitorFunction& visitor);
 
     /// Set the value attribute of every element in this hash map having the
@@ -470,7 +471,7 @@ class StripedUnorderedMultiMap {
     /// exists, insert `(key, value)`.  Return the number of elements found
     /// with `key`.  Note that if no elements were found, and a new value
     /// was inserted, `0` is returned.
-    bsl::size_t setValueAll(const KEY& key, const VALUE& value);
+    bsl::size_t setValueAll(const t_KEY& key, const t_VALUE& value);
 
     /// Set the value attribute of the *first* element in this hash map (of
     /// possibly many) found to have the specified `key` to the specified
@@ -479,7 +480,7 @@ class StripedUnorderedMultiMap {
     /// elements were found, and a new value was inserted, `0` is returned.
     /// Also note that this method is more performant than `setValueAll`
     /// when there is one element having `key` in the hash map.
-    bsl::size_t setValueFirst(const KEY& key, const VALUE& value);
+    bsl::size_t setValueFirst(const t_KEY& key, const t_VALUE& value);
 
     /// Set the value attribute of the *first* element in this hash map (of
     /// possibly many) found to have the specified `key` to the specified
@@ -491,7 +492,8 @@ class StripedUnorderedMultiMap {
     /// were found, and a new value was inserted, `0` is returned.  Also
     /// note that this method is more performant than `setValueAll` when
     /// there is one element having `key` in the hash map.
-    bsl::size_t setValueFirst(const KEY& key, bslmf::MovableRef<VALUE> value);
+    bsl::size_t setValueFirst(const t_KEY&               key,
+                              bslmf::MovableRef<t_VALUE> value);
 
     /// Serially call the specified `visitor` on each element (if one
     /// exists) in this hash map having the specified `key` until every such
@@ -508,7 +510,7 @@ class StripedUnorderedMultiMap {
     /// `visitor`, as it may lead to a deadlock.
     ///
     /// @DEPRECATED: Use `visit(key, visitor)` instead.
-    int update(const KEY& key, const VisitorFunction& visitor);
+    int update(const t_KEY& key, const VisitorFunction& visitor);
 
     /// Call the specified `visitor` (in an unspecified order) on the
     /// elements in this hash table until each such element has been visited
@@ -543,7 +545,7 @@ class StripedUnorderedMultiMap {
     /// for duration of each invocation.  The behavior is undefined if hash
     /// map manipulators and `getValue*` methods are invoked from within
     /// `visitor`, as it may lead to a deadlock.
-    int visit(const KEY& key, const VisitorFunction& visitor);
+    int visit(const t_KEY& key, const VisitorFunction& visitor);
 
     // ACCESSORS
 
@@ -556,7 +558,7 @@ class StripedUnorderedMultiMap {
     /// by this hash map, where elements having the specified `key` are
     /// inserted.  Note that unless rehash is disabled, the value returned
     /// may be obsolete at the time it is returned.
-    bsl::size_t bucketIndex(const KEY& key) const;
+    bsl::size_t bucketIndex(const t_KEY& key) const;
 
     /// Return the number of elements contained in the bucket at the
     /// specified `index` in the array of buckets maintained by this hash
@@ -570,33 +572,33 @@ class StripedUnorderedMultiMap {
     bool empty() const;
 
     /// Return (a copy of) the key-equality functor used by this hash map.
-    /// The returned function will return `true` if two `KEY` objects have
+    /// The returned function will return `true` if two `t_KEY` objects have
     /// the same value, and `false` otherwise.
-    EQUAL equalFunction() const;
+    t_EQUAL equalFunction() const;
 
-    bsl::size_t getValueAll(bsl::vector<VALUE>      *valuesPtr,
-                            const KEY&               key) const;
-    bsl::size_t getValueAll(std::vector<VALUE>      *valuesPtr,
-                            const KEY&               key) const;
+    bsl::size_t getValueAll(bsl::vector<t_VALUE>      *valuesPtr,
+                            const t_KEY&               key) const;
+    bsl::size_t getValueAll(std::vector<t_VALUE>      *valuesPtr,
+                            const t_KEY&               key) const;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     /// Load, into the specified `*valuesPtr`, the value attributes of every
     /// element in this hash map having the specified `key`.  Return the
     /// number of elements found with `key`.  Note that the order of the
     /// values returned is not specified.
-    bsl::size_t getValueAll(std::pmr::vector<VALUE> *valuesPtr,
-                            const KEY&               key) const;
+    bsl::size_t getValueAll(std::pmr::vector<t_VALUE> *valuesPtr,
+                            const t_KEY&               key) const;
 #endif
 
     /// Load, into the specified `*value`, the value attribute of the first
     /// element found in this hash map having the specified `key`.  Return 1
     /// on success, and 0 if `key` does not exist in this hash map.  Note
     /// that the return value equals the number of values returned.
-    bsl::size_t getValueFirst(VALUE *value, const KEY& key) const;
+    bsl::size_t getValueFirst(t_VALUE *value, const t_KEY& key) const;
 
     /// Return (a copy of) the unary hash functor used by this hash map.
     /// The return function will generate a hash value (of type
-    /// `std::size_t`) for a `KEY` object.
-    HASH hashFunction() const;
+    /// `std::size_t`) for a `t_KEY` object.
+    t_HASH hashFunction() const;
 
     /// Return `true` if rehash is enabled, or `false` otherwise.
     bool isRehashEnabled() const;
@@ -648,7 +650,7 @@ class StripedUnorderedMultiMap {
     /// `visitor` has read-only access to each element for duration of each
     /// invocation.  The behavior is undefined if hash map manipulators are
     /// invoked from within `visitor`, as it may lead to a deadlock.
-    int visitReadOnly(const KEY&                     key,
+    int visitReadOnly(const t_KEY&                   key,
                       const ReadOnlyVisitorFunction& visitor) const;
 
     /// Return the current number of elements in this hash map.
@@ -671,235 +673,243 @@ class StripedUnorderedMultiMap {
                     // ------------------------------
 
 // CREATORS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::StripedUnorderedMultiMap(
-                                           bsl::size_t       numInitialBuckets,
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                  StripedUnorderedMultiMap(bsl::size_t       numInitialBuckets,
                                            bsl::size_t       numStripes,
                                            bslma::Allocator *basicAllocator)
 : d_imp(numInitialBuckets, numStripes, basicAllocator)
 {
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::StripedUnorderedMultiMap(
-                                           bslma::Allocator *basicAllocator)
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                     StripedUnorderedMultiMap(bslma::Allocator *basicAllocator)
 : d_imp(k_DEFAULT_NUM_BUCKETS, k_DEFAULT_NUM_STRIPES, basicAllocator)
 {
 }
 
 // MANIPULATORS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::clear()
+void StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::clear()
 {
     d_imp.clear();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::disableRehash()
+void StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::disableRehash()
 {
     d_imp.disableRehash();
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class... Args>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class... t_ARGS>
 inline
-void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
-                                        emplace(const KEY& key, Args&&... args)
+void StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                    emplace(const t_KEY& key, t_ARGS&&... args)
 {
-    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(t_ARGS, args)...);
 }
 #endif
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::enableRehash()
+void StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::enableRehash()
 {
     d_imp.enableRehash();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::eraseAll(
-                                                                const KEY& key)
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseAll(
+                                                              const t_KEY& key)
 {
     return d_imp.eraseAll(key);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::eraseAllIf(
-                                        const KEY&                   key,
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseAllIf(
+                                        const t_KEY&                 key,
                                         const EraseIfValuePredicate& predicate)
 {
     return d_imp.eraseAllIf(key, predicate);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class RANDOM_ITER>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class t_RANDOM_ITER>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::eraseBulkAll(
-                                                             RANDOM_ITER first,
-                                                             RANDOM_ITER last)
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseBulkAll(
+                                                           t_RANDOM_ITER first,
+                                                           t_RANDOM_ITER last)
 {
     BSLS_ASSERT(first <= last);
 
     return d_imp.eraseBulkAll(first, last);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::eraseFirst(
-                                                                const KEY& key)
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseFirst(
+                                                              const t_KEY& key)
 {
     return d_imp.eraseFirst(key);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::eraseFirstIf(
-                                        const KEY&                   key,
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::eraseFirstIf(
+                                        const t_KEY&                 key,
                                         const EraseIfValuePredicate& predicate)
 {
     return d_imp.eraseFirstIf(key, predicate);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::insert(
-                                                            const KEY&   key,
-                                                            const VALUE& value)
+void StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::insert(
+                                                          const t_KEY&   key,
+                                                          const t_VALUE& value)
 {
     d_imp.insertAlways(key, value);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::insert(
-                                                const KEY&               key,
-                                                bslmf::MovableRef<VALUE> value)
+void StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::insert(
+                                              const t_KEY&               key,
+                                              bslmf::MovableRef<t_VALUE> value)
 {
     d_imp.insertAlways(key, bslmf::MovableRefUtil::move(value));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class RANDOM_ITER>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+template <class t_RANDOM_ITER>
 inline
-void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::insertBulk(
-                                                             RANDOM_ITER first,
-                                                             RANDOM_ITER last)
+void StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::insertBulk(
+                                                           t_RANDOM_ITER first,
+                                                           t_RANDOM_ITER last)
 {
     BSLS_ASSERT(first <= last);
 
     d_imp.insertBulkAlways(first, last);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::rehash(
+void StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::rehash(
                                                         bsl::size_t numBuckets)
 {
     d_imp.rehash(numBuckets);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 int
-StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::setComputedValueAll(
-                                                const KEY&             key,
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::setComputedValueAll(
+                                                const t_KEY&           key,
                                                 const VisitorFunction& visitor)
 {
     return d_imp.setComputedValueAll(key, visitor);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 int
-StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::setComputedValueFirst(
-                                                const KEY&             key,
-                                                const VisitorFunction& visitor)
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+        setComputedValueFirst(const t_KEY& key, const VisitorFunction& visitor)
 {
     return d_imp.setComputedValueFirst(key, visitor);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::setValueAll(
-                                                            const KEY&   key,
-                                                            const VALUE& value)
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::setValueAll(
+                                                          const t_KEY&   key,
+                                                          const t_VALUE& value)
 {
     return d_imp.setValueAll(key, value);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::setValueFirst(
-                                                            const KEY&   key,
-                                                            const VALUE& value)
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::setValueFirst(
+                                                          const t_KEY&   key,
+                                                          const t_VALUE& value)
 {
     return d_imp.setValueFirst(key, value);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::setValueFirst(
-                                                const KEY&               key,
-                                                bslmf::MovableRef<VALUE> value)
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::setValueFirst(
+                                              const t_KEY&               key,
+                                              bslmf::MovableRef<t_VALUE> value)
 {
     return d_imp.setValueFirst(key, bslmf::MovableRefUtil::move(value));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-int StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::update(
-                                                const KEY&             key,
+int StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::update(
+                                                const t_KEY&           key,
                                                 const VisitorFunction& visitor)
 {
     return d_imp.update(key, visitor);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-int StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::visit(
+int StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::visit(
                                                 const VisitorFunction& visitor)
 {
     return d_imp.visit(visitor);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-int StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::visit(
-                                                const KEY&             key,
+int StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::visit(
+                                                const t_KEY&           key,
                                                 const VisitorFunction& visitor)
 {
     return d_imp.visit(key, visitor);
 }
 
 // ACCESSORS
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 bsl::size_t
-StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::bucketCount() const
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::bucketCount() const
 {
     return d_imp.bucketCount();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::bucketIndex(
-                                                          const KEY& key) const
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::bucketIndex(
+                                                        const t_KEY& key) const
 {
     return d_imp.bucketIndex(key);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::bucketSize(
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::bucketSize(
                                                        bsl::size_t index) const
 {
     BSLS_ASSERT(bucketCount() > index);
@@ -907,124 +917,136 @@ bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::bucketSize(
     return d_imp.bucketSize(index);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bool StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::empty() const
+bool StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::empty() const
 {
     return d_imp.empty();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-EQUAL StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::equalFunction() const
+t_EQUAL
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                          equalFunction() const
 {
     return d_imp.equalFunction();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::getValueAll(
-                                                 bsl::vector<VALUE> *valuesPtr,
-                                                 const KEY&          key) const
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::getValueAll(
+                                               bsl::vector<t_VALUE> *valuesPtr,
+                                               const t_KEY&          key) const
 {
     return d_imp.getValue(valuesPtr, key);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::getValueAll(
-                                                 std::vector<VALUE> *valuesPtr,
-                                                 const KEY&          key) const
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::getValueAll(
+                                               std::vector<t_VALUE> *valuesPtr,
+                                               const t_KEY&          key) const
 {
     return d_imp.getValue(valuesPtr, key);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::getValueAll(
-                                            std::pmr::vector<VALUE> *valuesPtr,
-                                            const KEY&               key) const
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::getValueAll(
+                                          std::pmr::vector<t_VALUE> *valuesPtr,
+                                          const t_KEY&               key) const
 {
     return d_imp.getValue(valuesPtr, key);
 }
 #endif
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::getValueFirst(
-                                                         VALUE      *value,
-                                                         const KEY&  key) const
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::getValueFirst(
+                                                        t_VALUE     *value,
+                                                        const t_KEY& key) const
 {
     return d_imp.getValue(value, key);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-HASH StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::hashFunction() const
+t_HASH
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::hashFunction() const
 {
     return d_imp.hashFunction();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bool StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::isRehashEnabled() const
+bool
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                        isRehashEnabled() const
 {
     return d_imp.isRehashEnabled();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-float StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::loadFactor() const
+float
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::loadFactor() const
 {
     return d_imp.loadFactor();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
 float
-StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::maxLoadFactor() const
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                                                          maxLoadFactor() const
 {
     return d_imp.maxLoadFactor();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::numStripes()
-                                                                          const
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::numStripes() const
 {
     return d_imp.numStripes();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-int StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
+int StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::visitReadOnly(
                                   const ReadOnlyVisitorFunction& visitor) const
 {
     return d_imp.visitReadOnly(visitor);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-int StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
-                                  const KEY&                     key,
+int StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::visitReadOnly(
+                                  const t_KEY&                   key,
                                   const ReadOnlyVisitorFunction& visitor) const
 {
     return d_imp.visitReadOnly(key, visitor);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::size() const
+bsl::size_t
+StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::size() const
 {
     return d_imp.size();
 }
 
                                // Aspects
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
 inline
-bslma::Allocator *StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+bslma::Allocator *StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
                                                               allocator() const
 {
     return d_imp.allocator();
@@ -1034,9 +1056,9 @@ bslma::Allocator *StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
 
 namespace bslma {
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-struct
-UsesBslmaAllocator<bdlcc::StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL> >
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+struct UsesBslmaAllocator<
+             bdlcc::StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL> >
     : bsl::true_type {
 };
 

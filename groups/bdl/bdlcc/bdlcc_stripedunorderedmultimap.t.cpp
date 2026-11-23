@@ -85,11 +85,11 @@ using namespace bsl;
 // map with multiple values for the same key.  By design this container does
 // not implement equality comparison, an assignment operator, copy constructor,
 // or even a `print` method.  Thus, it is classified as an *irregular*
-// value-semantic type, even if its `KEY` and `VALUE` types are are VSTs and,
-// test drivers of other (value-semantic) containers are of limited use here.
-// This test driver will *not* be provide the canonical (first) ten test cases
-// typically used for VSTs.  Still, the fundamental principles of test case
-// ordering will, of course, be followed.
+// value-semantic type, even if its `t_KEY` and `t_VALUE` types are VSTs
+// and, test drivers of other (value-semantic) containers are of limited use
+// here.  This test driver will *not* provide the canonical (first) ten test
+// cases typically used for VSTs.  Still, the fundamental principles of test
+// case ordering will, of course, be followed.
 //
 // This fully thread-safe container template should be able to handle any type
 // that is acceptable to the standard containers `bsl::unorderedmap`.
@@ -125,42 +125,42 @@ using namespace bsl;
 // MANIPULATORS
 // [10] void clear();
 // [18] void disableRehash();
-// [27] void emplace(const KEY& key, Args&&... args);
+// [27] void emplace(const t_KEY& key, t_ARGS&&... args);
 // [18] void enableRehash();
-// [ 8] bsl::size_t eraseAll(const KEY& key);
-// [25] bsl::size_t eraseAllIf(const KEY&, const EraseIfValuePredicate&);
+// [ 8] bsl::size_t eraseAll(const t_KEY& key);
+// [25] bsl::size_t eraseAllIf(const t_KEY&, const EraseIfValuePredicate&);
 // [ 9] bsl::size_t eraseBulkAll(RANDOMIT first, last);
-// [ 7] bsl::size_t eraseFirst(const KEY& key);
-// [26] bsl::size_t eraseFirstIf(const KEY&, const EraseIfValuePredicate&);
-// [ 3] bsl::size_t insert(const KEY& key, const VALUE& value);
-// [21] void insert(const KEY& key, VALUE&& value);
+// [ 7] bsl::size_t eraseFirst(const t_KEY& key);
+// [26] bsl::size_t eraseFirstIf(const t_KEY&, const EraseIfValuePredicate&);
+// [ 3] bsl::size_t insert(const t_KEY& key, const t_VALUE& value);
+// [21] void insert(const t_KEY& key, t_VALUE&& value);
 // [11] void insertBulk(RANDOMIT first, last);
 // [18] void rehash(bsl::size_t numBuckets);
-// [15] int setComputedValueAll(const KEY& key, functor);
-// [14] int setComputedValueFirst(const KEY& key, functor);
-// [13] bsl::size_t setValueAll(const KEY& key, const VALUE& value);
-// [12] bsl::size_t setValueFirst(const KEY& key, const VALUE& value);
-// [20] bsl::size_t setValueFirst(const KEY& key, VALUE&& value);
-// [16] int update(const KEY& key, const VisitorFunction& functor);
+// [15] int setComputedValueAll(const t_KEY& key, functor);
+// [14] int setComputedValueFirst(const t_KEY& key, functor);
+// [13] bsl::size_t setValueAll(const t_KEY& key, const t_VALUE& value);
+// [12] bsl::size_t setValueFirst(const t_KEY& key, const t_VALUE& value);
+// [20] bsl::size_t setValueFirst(const t_KEY& key, t_VALUE&& value);
+// [16] int update(const t_KEY& key, const VisitorFunction& functor);
 // [17] int visit(const VisitorFunction& visitor);
-// [16] int visit(const KEY& key, const VisitorFunction& functor);
+// [16] int visit(const t_KEY& key, const VisitorFunction& functor);
 //
 // ACCESSORS
-// [ 4] bsl::size_t bucketIndex(const KEY& key) const;
+// [ 4] bsl::size_t bucketIndex(const t_KEY& key) const;
 // [ 4] bsl::size_t bucketCount() const;
 // [ 4] bsl::size_t bucketSize(bsl::size_t index) const;
 // [ 4] bool empty() const;
-// [ 4] EQUAL equalFunction() const;
-// [ 5] bsl::size_t getValueFirst(VALUE *value, const KEY& key) const;
-// [ 6] bsl::size_t getValueAll(*valuesVector, const KEY& key) const;
-// [ 4] HASH hashFunction() const;
+// [ 4] t_EQUAL equalFunction() const;
+// [ 5] bsl::size_t getValueFirst(t_VALUE *value, const t_KEY& key) const;
+// [ 6] bsl::size_t getValueAll(*valuesVector, const t_KEY& key) const;
+// [ 4] t_HASH hashFunction() const;
 // [18] bool isRehashEnabled() const;
 // [18] float loadFactor() const;
 // [18] float maxLoadFactor() const;
 // [ 4] bsl::size_t numStripes() const;
 // [ 4] bsl::size_t size() const;
 // [22] int visitReadOnly(const ReadOnlyVisitorFunction& visitor) const;
-// [22] int visitReadOnly(const KEY&, const ReadOnlyVisitorFunction&) const;
+// [22] int visitReadOnly(const t_KEY&, const ReadOnlyVisitorFunction&) const;
 //
 // [ 4] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
@@ -535,21 +535,21 @@ namespace {
 
 bslma::TestAllocator defaultAllocator("default-static", false);
 
-/// Convert an `int` value to a `bsl::pair` of the template parameter `KEY`
-/// and `VALUE` types.
-template <class KEY, class VALUE, class ALLOC>
+/// Convert an `int` value to a `bsl::pair` of the template parameter `t_KEY`
+/// and `t_VALUE` types.
+template <class t_KEY, class t_VALUE, class t_ALLOC>
 struct IntToPairConverter {
 
     // CLASS METHODS
 
-    /// Create a new `pair<KEY, VALUE>` object at the specified `address`,
-    /// passing the specified `value` to the `KEY` and `VALUE` constructors
+    /// Create a new `pair<t_KEY, t_VALUE>` object at the specified `address`,
+    /// passing the specified `value` to the `t_KEY` and `t_VALUE` constructors
     /// and using the specified `allocator` to supply memory.  The behavior
     /// is undefined unless `0 < value < 128`.
     static void
-    createInplace(bsl::pair<KEY, VALUE> *address,
-                  int                    value,
-                  ALLOC                  allocator)
+    createInplace(bsl::pair<t_KEY, t_VALUE> *address,
+                  int                        value,
+                  t_ALLOC                    allocator)
     {
         BSLS_ASSERT(address);
         BSLS_ASSERT(    0 < value);
@@ -565,20 +565,20 @@ struct IntToPairConverter {
         bslma::Allocator *privateAllocator =
                                       &bslma::MallocFreeAllocator::singleton();
 
-        bsls::ObjectBuffer<typename bsl::remove_const<KEY>::type> tempKey;
+        bsls::ObjectBuffer<typename bsl::remove_const<t_KEY>::type> tempKey;
         bsltf::TemplateTestFacility::emplace(tempKey.address(),
                                              value,
                                              privateAllocator);
-        bslma::DestructorGuard<typename bsl::remove_const<KEY>::type>
+        bslma::DestructorGuard<typename bsl::remove_const<t_KEY>::type>
                                                    keyGuard(tempKey.address());
 
-        bsls::ObjectBuffer<VALUE> tempValue;
+        bsls::ObjectBuffer<t_VALUE> tempValue;
         bsltf::TemplateTestFacility::emplace(tempValue.address(),
                                              value - 'A' + '0',
                                              privateAllocator);
-        bslma::DestructorGuard<VALUE> valueGuard(tempValue.address());
+        bslma::DestructorGuard<t_VALUE> valueGuard(tempValue.address());
 
-        bsl::allocator_traits<ALLOC>::construct(
+        bsl::allocator_traits<t_ALLOC>::construct(
                               allocator,
                               address,
                               bslmf::MovableRefUtil::move(tempKey.object()),
@@ -587,11 +587,11 @@ struct IntToPairConverter {
 };
 
 /// This test class provides a mechanism that defines a function-call
-/// operator that compares two objects of the parameterized `TYPE`.  The
+/// operator that compares two objects of the parameterized `t_TYPE`.  The
 /// function-call operator is implemented with integer comparison using
-/// integers converted from objects of `TYPE` by the class method
+/// integers converted from objects of `t_TYPE` by the class method
 /// `TemplateTestFacility::getIdentifier`.
-template <class TYPE>
+template <class t_TYPE>
 class TestHashFunctor {
 
     // DATA
@@ -606,7 +606,7 @@ class TestHashFunctor {
     // ACCESSORS
 
     /// Return the has value of the specified `obj`.
-    bsl::size_t operator() (const TYPE& obj) const
+    bsl::size_t operator() (const t_TYPE& obj) const
     {
         return  bsltf::TemplateTestFacility::getIdentifier(obj);
     }
@@ -626,8 +626,8 @@ class TestHashFunctor {
 
 /// Return `true` if the ID of the specified `lhs` and `rhs` is equal, and
 /// `false` otherwise.
-template <class TYPE>
-bool areEqual(const TYPE& lhs, const TYPE& rhs)
+template <class t_TYPE>
+bool areEqual(const t_TYPE& lhs, const t_TYPE& rhs)
 {
     return bsltf::TemplateTestFacility::getIdentifier(lhs)
         == bsltf::TemplateTestFacility::getIdentifier(rhs);
@@ -635,8 +635,8 @@ bool areEqual(const TYPE& lhs, const TYPE& rhs)
 
 /// Return `true` if the ID of the specified `lhs` is greater than the
 /// specified `rhs`, and `false` otherwise.
-template <class TYPE>
-bool isGreater(const TYPE& lhs, const TYPE& rhs)
+template <class t_TYPE>
+bool isGreater(const t_TYPE& lhs, const t_TYPE& rhs)
 {
     return bsltf::TemplateTestFacility::getIdentifier(lhs)
         > bsltf::TemplateTestFacility::getIdentifier(rhs);
@@ -644,19 +644,19 @@ bool isGreater(const TYPE& lhs, const TYPE& rhs)
 
 /// Return `true` if the ID of the specified `lhs` is less than the
 /// specified `rhs`, and `false` otherwise.
-template <class TYPE>
-bool isLess(const TYPE& lhs, const TYPE& rhs)
+template <class t_TYPE>
+bool isLess(const t_TYPE& lhs, const t_TYPE& rhs)
 {
     return bsltf::TemplateTestFacility::getIdentifier(lhs)
         < bsltf::TemplateTestFacility::getIdentifier(rhs);
 }
 
 /// This test class provides a mechanism that defines a function-call
-/// operator that compares two objects of the parameterized `TYPE`.  The
+/// operator that compares two objects of the parameterized `t_TYPE`.  The
 /// function-call operator is implemented with integer comparison using
-/// integers converted from objects of `TYPE` by the class method
+/// integers converted from objects of `t_TYPE` by the class method
 /// `TemplateTestFacility::getIdentifier`.
-template <class TYPE>
+template <class t_TYPE>
 class TestEqualityComparator {
 
     // DATA
@@ -675,7 +675,7 @@ class TestEqualityComparator {
     /// called.   Return `true` if the integer representation of the
     /// specified `lhs` is less than integer representation of the specified
     /// `rhs`.
-    bool operator() (const TYPE& lhs, const TYPE& rhs) const
+    bool operator() (const t_TYPE& lhs, const t_TYPE& rhs) const
     {
         return areEqual(lhs, rhs);
     }
@@ -696,31 +696,33 @@ class TestEqualityComparator {
 
 
 /// This templatized struct provide a namespace for testing `bdlcc::Hash`.
-/// The parameterized `KEY`, `VALUE`, `HASH`, `EQUAL` specifies the key
+/// The parameterized `t_KEY`, `t_VALUE`, `t_HASH`, `t_EQUAL` specifies the key
 /// type, the mapped type, the hash functor, the equality comparator type
 /// respectively.  Each "testCase*" method test a specific aspect of
-/// `bdlcc:Hash<KEY, VALUE, HASH, EQUAL>`.  Every test cases should be
+/// `bdlcc:Hash<t_KEY, t_VALUE, t_HASH, t_EQUAL>`.  Every test cases should be
 /// invoked with various parameterized type to fully test the hash.
-template <class KEY,
-          class VALUE = KEY,
-          class HASH  = TestHashFunctor<KEY>,
-          class EQUAL = TestEqualityComparator<KEY> >
+template <class t_KEY,
+          class t_VALUE = t_KEY,
+          class t_HASH  = TestHashFunctor<t_KEY>,
+          class t_EQUAL = TestEqualityComparator<t_KEY> >
 class TestDriver {
 
   private:
     // TYPES
-    typedef bdlcc::StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL> Obj;
-    typedef bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL> VisitedElements;
+    typedef bdlcc::StripedUnorderedMultiMap<t_KEY, t_VALUE, t_HASH, t_EQUAL>
+                                                                           Obj;
+    typedef bsl::unordered_multimap<t_KEY, t_VALUE, t_HASH, t_EQUAL>
+                                                               VisitedElements;
 
     // Shorthands
-    typedef bsl::pair<KEY, VALUE>    PairType;
-    typedef bsl::allocator<PairType> PairStdAllocator;
+    typedef bsl::pair<t_KEY, t_VALUE> PairType;
+    typedef bsl::allocator<PairType>  PairStdAllocator;
 
     typedef bsltf::TestValuesArray<PairType,
                                    PairStdAllocator,
                                    IntToPairConverter<
-                                                KEY,
-                                                VALUE,
+                                                t_KEY,
+                                                t_VALUE,
                                                 PairStdAllocator> > TestValues;
 
     /// Functor for testCase23 - eraseIfValuePredicate.
@@ -729,15 +731,16 @@ class TestDriver {
         enum OP { greater, equal, less };
 
         // DATA
-        VALUE d_value;  // Functor will store the specified `d_value`.
-        OP    d_op;     // Enum that will store the type of comparison operator
+        t_VALUE d_value;  // Functor will store the specified `d_value`.
+        OP      d_op;     // Enum that will store the type of comparison
+                          // operator
 
         // CREATORS
 
         /// Create a `TestCaseEraseIfValuePredicate` with the specified
         /// `value` and specified `op`.
-        explicit TestCaseEraseIfValuePredicate(const VALUE& value,
-                                               const OP&    op)
+        explicit TestCaseEraseIfValuePredicate(const t_VALUE& value,
+                                               const OP&      op)
         : d_value(value)
         , d_op(op)
         {}
@@ -747,7 +750,7 @@ class TestDriver {
         /// Return `true` when specified `value` compares greater than,
         /// equal to, less than the value provided upon construction for op
         /// greater, equal, less respectively, otherwise returns `false`
-        bool operator()(const VALUE& value)
+        bool operator()(const t_VALUE& value)
         {
             bool result = false;
             switch(d_op)
@@ -792,25 +795,25 @@ class TestDriver {
         /// Register a visit of the specified `value` related to the
         /// specified `key`.  Return `true` for the first `d_numSuccess`
         /// calls, and `false` afterwards.
-        bool operator()(const VALUE& value, const KEY& key);
+        bool operator()(const t_VALUE& value, const t_KEY& key);
     };
 
     /// Functor for testCase15 - setComputedValue in rehash.
     struct TestCase15Updater {
 
         // DATA
-        VALUE d_value; // Value to assign if `found` is `false`.
+        t_VALUE d_value; // Value to assign if `found` is `false`.
 
         // CREATORS
 
         /// Create a `TestCase15Updater` with the specified `value`.
-        explicit TestCase15Updater(const VALUE &value);
+        explicit TestCase15Updater(const t_VALUE &value);
 
         // MANIPULATORS
 
-        /// If the specified `value` equals VALUE(), set `value` to the
+        /// If the specified `value` equals t_VALUE(), set `value` to the
         /// constructor provided `value`.  Ignore the specified `key`.
-        bool operator()(VALUE *value, const KEY& key);
+        bool operator()(t_VALUE *value, const t_KEY& key);
     };
 
     /// Functor for testCase14 - visit(visitor).
@@ -833,8 +836,8 @@ class TestDriver {
         /// Update the specified `value` with the value related to the key
         /// after the specified `key`.  Return `true` for the first
         /// `d_numSuccess` calls, and `false` afterwards.
-        bool operator()(VALUE      *value,
-                        const KEY&  key);
+        bool operator()(t_VALUE     *value,
+                        const t_KEY& key);
     };
 
     /// Functor for testCase13 - visit(key, visitor).
@@ -855,7 +858,7 @@ class TestDriver {
         /// identifier in the value pointed by the specified `value` to the
         /// static s_testCase13_valueId.  Copy the static s_testCase13_value
         /// to `value`.  Return the boolean value in `d_success`.
-        bool operator()(VALUE *value, const KEY& key);
+        bool operator()(t_VALUE *value, const t_KEY& key);
     };
 
     /// Functor for `testCase12` - `setComputedValue`.
@@ -864,32 +867,32 @@ class TestDriver {
         // MANIPULATORS
 
         /// Set the specified `key` to the static `s_testCase12_key`.  If
-        /// the specified `value` does not equal VALUE(), set the identifier
+        /// the specified `value` does not equal t_VALUE(), set the identifier
         /// in the value pointed by `value` to the static
         /// `s_testCase12_valueId` and `s_testCase12_found` to `true`,
         /// otherwise set `s_testCase12_found` to `true`.  Copy the static
         /// `s_testCase12_value` to `value`.
-        bool operator()(VALUE *value, const KEY& key);
+        bool operator()(t_VALUE *value, const t_KEY& key);
     };
 
     // PUBLIC DATA
     static bool  s_testCase12_found;
-    static KEY   s_testCase12_key;
+    static t_KEY s_testCase12_key;
     static int   s_testCase12_valueId;
 
     // Places for the test case 12 functor to put a copy of its `found`
     // input, `key` input, the identifier of its `*value` input, and to
     // obtain a value to be set to `*value`, respectively.
-    static VALUE s_testCase12_value;
+    static t_VALUE s_testCase12_value;
 
-    static KEY   s_testCase13_key;
+    static t_KEY s_testCase13_key;
     static int   s_testCase13_valueId;
 
     // Places for the test case 13 functor to put a copy of its `key`
     // input. to put a copy of the identifier of its `*value` input, to
     // obtain a value to be set to its `*value`, and to keep a counter of
     // calls, respectively.
-    static VALUE s_testCase13_value;
+    static t_VALUE s_testCase13_value;
 
     // Place for the test case 14 functor to put a number of visited
     // values.
@@ -931,9 +934,9 @@ class TestDriver {
     static void testCase26();
 };
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase19Reader::TestCase19Reader(
-                                                  bsl::size_t       numSuccess,
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+               TestCase19Reader::TestCase19Reader(bsl::size_t       numSuccess,
                                                   const TestValues& values)
 : d_numSuccess(numSuccess)
 , d_values(values)
@@ -942,10 +945,10 @@ TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase19Reader::TestCase19Reader(
     s_testCase19_visitedElements.clear();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase19Reader::operator()(
-                                                            const VALUE& value,
-                                                            const KEY&   key)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+bool TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::TestCase19Reader::operator()(
+                                                          const t_VALUE& value,
+                                                          const t_KEY&   key)
 {
     // Search for key within d_values.  As we need to copy from next value,
     // assume that it must be within the first 51 members.
@@ -967,28 +970,29 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase19Reader::operator()(
     return s_testCase19_count <= d_numSuccess;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase15Updater::TestCase15Updater(
-                                                            const VALUE& value)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                     TestCase15Updater::TestCase15Updater(const t_VALUE& value)
 : d_value(value)
 {
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase15Updater::operator()(
-                                                             VALUE      *value,
-                                                             const KEY&  key)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+bool
+TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::TestCase15Updater::operator()(
+                                                            t_VALUE     *value,
+                                                            const t_KEY& key)
 {
     (void)key;
-    if (areEqual(*value, VALUE())) {
+    if (areEqual(*value, t_VALUE())) {
         *value = d_value;
     }
     return true;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase14Updater::TestCase14Updater(
-                                                  int               numSuccess,
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+             TestCase14Updater::TestCase14Updater(int               numSuccess,
                                                   const TestValues& values)
 : d_numSuccess(numSuccess)
 , d_values(values)
@@ -996,9 +1000,10 @@ TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase14Updater::TestCase14Updater(
     s_testCase14_count = 0;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase14Updater::operator()(
-                                                  VALUE *value, const KEY& key)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+bool
+TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::TestCase14Updater::operator()(
+                                              t_VALUE *value, const t_KEY& key)
 {
     // Search for key within d_values.  As we need to copy from next value,
     // assume that it must be within the first 51 members.
@@ -1018,17 +1023,18 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase14Updater::operator()(
     return s_testCase14_count <= d_numSuccess;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase13Updater::TestCase13Updater(
-                                                                  bool success)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::
+                             TestCase13Updater::TestCase13Updater(bool success)
 : d_success(success)
 {
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase13Updater::operator()(
-                                                             VALUE      *value,
-                                                             const KEY&  key)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+bool
+TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::TestCase13Updater::operator()(
+                                                            t_VALUE     *value,
+                                                            const t_KEY& key)
 {
     s_testCase13_key     = key;
     s_testCase13_valueId = TstFacility::getIdentifier(*value);
@@ -1036,57 +1042,60 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase13Updater::operator()(
     return d_success;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase12Updater::operator()(
-                                                             VALUE      *value,
-                                                             const KEY&  key)
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+bool
+TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::TestCase12Updater::operator()(
+                                                            t_VALUE     *value,
+                                                            const t_KEY& key)
 {
-    s_testCase12_found = !areEqual(*value, VALUE());
+    s_testCase12_found = !areEqual(*value, t_VALUE());
     s_testCase12_key   = key;
     if (s_testCase12_found) {
         s_testCase12_valueId = TstFacility::getIdentifier(*value);
     }
     else {
-        ASSERTV(areEqual(*value, VALUE()));
+        ASSERTV(areEqual(*value, t_VALUE()));
         s_testCase12_valueId = 0;
     }
     *value = s_testCase12_value;
     return true;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-bool TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_found;
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+bool TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::s_testCase12_found;
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-KEY TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_key = KEY();
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+t_KEY TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::s_testCase12_key = t_KEY();
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_valueId;
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+int TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::s_testCase12_valueId;
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-VALUE TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_value = VALUE();
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+t_VALUE
+TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::s_testCase12_value = t_VALUE();
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-KEY TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase13_key = KEY();
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+t_KEY TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::s_testCase13_key = t_KEY();
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase13_valueId;
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+int TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::s_testCase13_valueId;
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-VALUE TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase13_value = VALUE();
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+t_VALUE
+TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::s_testCase13_value = t_VALUE();
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase14_count;
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+int TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::s_testCase14_count;
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-bsl::size_t TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase19_count;
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+bsl::size_t TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::s_testCase19_count;
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-typename TestDriver<KEY, VALUE, HASH, EQUAL>::VisitedElements
-             TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase19_visitedElements;
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+typename TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::VisitedElements
+     TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::s_testCase19_visitedElements;
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase26()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase26()
 {
     // ------------------------------------------------------------------------
     // TEST `eraseFirstIf`
@@ -1130,7 +1139,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase26()
     // 4. Erase fails for the elements when predicate returns false
     //
     // Testing:
-    //   bsl::size_t eraseFirstIf(const KEY&, const EraseIfValuePredicate&);
+    //   bsl::size_t eraseFirstIf(const t_KEY&, const EraseIfValuePredicate&);
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
@@ -1140,17 +1149,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase26()
     // This is equivalent to portion of `testCase23` in `StripedUnorderedImpl`.
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator ia("ignored", veryVeryVeryVerbose);
     bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
 
-    const VALUE valueOne = bsltf::TemplateTestFacility::create<VALUE>(1);
-    const VALUE valueZero = bsltf::TemplateTestFacility::create<VALUE>(0);
+    const t_VALUE valueOne = bsltf::TemplateTestFacility::create<t_VALUE>(1);
+    const t_VALUE valueZero = bsltf::TemplateTestFacility::create<t_VALUE>(0);
 
     TestCaseEraseIfValuePredicate valueOnePred(
                                          valueOne,
@@ -1315,8 +1324,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase26()
 }
 
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase25()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase25()
 {
     // ------------------------------------------------------------------------
     // TEST `eraseAllIf`
@@ -1360,7 +1369,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase25()
     // 4. Erase fails for the elements when predicate returns false
     //
     // Testing:
-    //   bsl::size_t eraseAllIf(const KEY&, const EraseIfValuePredicate&);
+    //   bsl::size_t eraseAllIf(const t_KEY&, const EraseIfValuePredicate&);
     // ------------------------------------------------------------------------
 
     // This is equivalent to portion of `testCase23` in `StripedUnorderedImpl`.
@@ -1372,8 +1381,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase25()
     bslma::TestAllocator ia("ignored", veryVeryVeryVerbose);
     bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
 
-    const VALUE valueOne  = bsltf::TemplateTestFacility::create<VALUE>(1);
-    const VALUE valueZero = bsltf::TemplateTestFacility::create<VALUE>(0);
+    const t_VALUE valueOne  = bsltf::TemplateTestFacility::create<t_VALUE>(1);
+    const t_VALUE valueZero = bsltf::TemplateTestFacility::create<t_VALUE>(0);
 
     TestCaseEraseIfValuePredicate valueOnePred(
                                          valueOne,
@@ -1523,8 +1532,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase25()
     ASSERT(dam.isTotalSame());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase22()
 {
     // ------------------------------------------------------------------------
     // TEST `visitReadOnly`
@@ -1539,7 +1548,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
     //    `visitReadOnly(const ReadOnlyVisitorFunction& v)`).  The functor is
     //    called for every element in the hash map having the given `key` by
     //    `single-key` overload (i.e.
-    //    `visitReadOnly(const KEY& k, const ReadOnlyVisitorFunction& v)`.
+    //    `visitReadOnly(const t_KEY& k, const ReadOnlyVisitorFunction& v)`.
     //
     // 3. The `visit` methods return the number of values visited.
     //
@@ -1576,7 +1585,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
     //
     // Testing:
     //   int visitReadOnly(const ReadOnlyVisitorFunction& visitor) const;
-    //   int visitReadOnly(const KEY&, const ReadOnlyVisitorFunction&) const;
+    //   int visitReadOnly(const t_KEY&, const ReadOnlyVisitorFunction&) const;
     // ------------------------------------------------------------------------
 
     // Test is equivalent to `testCase19` in `StripedUnorderedContainerImpl`.
@@ -1586,10 +1595,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
                       << "====================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     typedef typename VisitedElements::const_iterator Element;
@@ -1680,7 +1689,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
         ASSERTV(dam.isTotalSame());
 
         // Confirm that values remain unchanged.
-        bsl::vector<VALUE> values(&sa);
+        bsl::vector<t_VALUE> values(&sa);
         for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
             bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
             ASSERTV(1 == rc1);
@@ -1754,7 +1763,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
         ASSERTV(EXP_NUM_VISITS, s_testCase19_visitedElements.size(),
                 EXP_NUM_VISITS == s_testCase19_visitedElements.size());
 
-        bsl::vector<VALUE> values(&sa);
+        bsl::vector<t_VALUE> values(&sa);
         for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
             bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
             ASSERTV(1 == rc1);
@@ -1827,7 +1836,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
         ASSERTV(dam.isTotalSame());
 
         // Confirm that all values remain unchanged.
-        bsl::vector<VALUE> values(&sa);
+        bsl::vector<t_VALUE> values(&sa);
         for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
             bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
             ASSERTV(2 == rc1);
@@ -1846,9 +1855,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
             bsl::pair<Element, Element> elements =
                 s_testCase19_visitedElements.equal_range(VALUES[tj].first);
             Element element     = elements.first;
-            VALUE   firstValue  = element->second;
+            t_VALUE firstValue  = element->second;
             ++element;
-            VALUE secondValue = element->second;
+            t_VALUE secondValue = element->second;
             ASSERTV((areEqual(VALUES[tj].second,              firstValue) &&
                      areEqual(VALUES[LENGTH - tj - 1].second, secondValue))
                  || (areEqual(VALUES[tj].second,              secondValue) &&
@@ -1908,7 +1917,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
         ASSERTV(dam.isTotalSame());
 
         // Confirm that all values remain unchanged.
-        bsl::vector<VALUE> values(&sa);
+        bsl::vector<t_VALUE> values(&sa);
         for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
             bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
             ASSERTV(2 == rc1);
@@ -1927,9 +1936,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
                 bsl::pair<Element, Element> elements =
                     s_testCase19_visitedElements.equal_range(VALUES[tj].first);
                 Element element    = elements.first;
-                VALUE   firstValue = element->second;
+                t_VALUE firstValue = element->second;
                 ++element;
-                VALUE secondValue = element->second;
+                t_VALUE secondValue = element->second;
                 ASSERTV(
                     (areEqual(VALUES[tj].second, firstValue) &&
                      areEqual(VALUES[LENGTH - tj - 1].second, secondValue)) ||
@@ -2032,7 +2041,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
         ASSERTV(dam.isTotalSame());
 
         // Confirm that values remain unchanged.
-        bsl::vector<VALUE> values(&sa);
+        bsl::vector<t_VALUE> values(&sa);
         for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
             bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
             ASSERTV(1 == rc1);
@@ -2115,7 +2124,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
         ASSERTV(dam.isTotalSame());
 
         // Confirm that all values remain unchanged.
-        bsl::vector<VALUE> values(&sa);
+        bsl::vector<t_VALUE> values(&sa);
         for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
             bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
             ASSERTV(2 == rc1);
@@ -2132,9 +2141,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
         bsl::pair<Element, Element> elements =
                  s_testCase19_visitedElements.equal_range(VALUES[INDEX].first);
         Element element     = elements.first;
-        VALUE   firstValue  = element->second;
+        t_VALUE firstValue  = element->second;
         ++element;
-        VALUE   secondValue = element->second;
+        t_VALUE secondValue = element->second;
         ASSERTV((areEqual(VALUES[INDEX].second, firstValue) &&
                  areEqual(VALUES[0].second,     secondValue))
              || (areEqual(VALUES[INDEX].second, secondValue) &&
@@ -2225,7 +2234,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
             ASSERTV(dam.isTotalSame());
 
             // Confirm that all values remain unchanged.
-            bsl::vector<VALUE> values(&sa);
+            bsl::vector<t_VALUE> values(&sa);
             for (bsl::size_t tk = 0; tk < LENGTH; ++tk) {
                 bsl::size_t rc1 = X.getValueAll(&values, VALUES[tk].first);
                 if (INDEX == tk) {
@@ -2287,8 +2296,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
     }  // END Testing with duplicate values - fail
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase21()
 {
     // ------------------------------------------------------------------------
     // TEST MOVABLE `insert`
@@ -2312,7 +2321,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
     //
     // 6. The method works as expected when the hash map is empty.
     //
-    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    // 7. QoI: When element(s) are updated, and the `t_VALUE` type is
     //    non-allocating, no memory is allocated or deallocated.
     //
     // 8. QoI: There is no temporary memory allocation from any allocator.
@@ -2325,7 +2334,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
     //   2. Confirm that the return value is 0.
     //   3. The size of the container does not change.
     //   4. The size of the bucket does not change.
-    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   5. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   6. Confirm that the value(s) associated with the key were updated to
     //      the new value.
     //   7. Confirm that no other elements have changed.
@@ -2346,7 +2355,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
     //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.
     //
     // Testing:
-    //   void insert(const KEY& key, VALUE&& value);
+    //   void insert(const t_KEY& key, t_VALUE&& value);
     // ------------------------------------------------------------------------
 
     // This is equivalent to portion of `testCase18` in `StripedUnorderedImpl`.
@@ -2356,10 +2365,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
                       << "=====================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -2377,7 +2386,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
     {
         Obj mX(8, 4, &supplied);  const Obj& X = mX;
 
-        VALUE val(VALUES[0].second, &scratch);
+        t_VALUE val(VALUES[0].second, &scratch);
         ASSERTV(bsltf::MoveState::e_NOT_MOVED == val.movedInto());
         ASSERTV(bsltf::MoveState::e_NOT_MOVED == val.movedFrom());
 
@@ -2388,7 +2397,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
 
         ASSERTV(1 == X.size());
 
-        VALUE       value(&scratch);
+        t_VALUE     value(&scratch);
         bsl::size_t rc = X.getValueFirst(&value, VALUES[0].first);
         ASSERTV(1 == rc);
         ASSERTV(areEqual(value, VALUES[0].second));
@@ -2411,7 +2420,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
         bsl::size_t bucketIdx     = X.bucketIndex(VALUES[LENGTH - 1].first);
         bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
 
-        VALUE val(VALUES[LENGTH].second, &scratch);
+        t_VALUE val(VALUES[LENGTH].second, &scratch);
         ASSERTV(bsltf::MoveState::e_NOT_MOVED == val.movedFrom());
 
         // Check existing value
@@ -2428,7 +2437,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
 
         // Confirm a duplicate key was added, and we now have both the old and
         // the new values.
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
 
         bsl::size_t rc = X.getValueAll(&values, VALUES[LENGTH - 1].first);
         ASSERTV(2 == rc);
@@ -2441,7 +2450,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
         ASSERTV(sam.isInUseUp());
 
         // Confirm that other values have not changed.
-        VALUE value(&scratch);
+        t_VALUE value(&scratch);
         for (bsl::size_t tj = 0; tj < LENGTH - 1; ++tj) {
             rc = X.getValueFirst(&value, VALUES[tj].first);
             ASSERTV(1 == rc);
@@ -2454,7 +2463,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
         bucketIdx     = X.bucketIndex(VALUES[LENGTH + 1].first);
         oldBucketSize = X.bucketSize(bucketIdx);
 
-        VALUE val1(VALUES[LENGTH + 1].second, &scratch);
+        t_VALUE val1(VALUES[LENGTH + 1].second, &scratch);
 
         mX.insert(VALUES[LENGTH + 1].first, MoveUtil::move(val1));
         ASSERTV(bsltf::MoveState::e_MOVED == val1.movedFrom());
@@ -2484,7 +2493,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
 
         // Exception testing - check missing value
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
-            VALUE val1(VALUES[LENGTH + 2].second, &scratch);
+            t_VALUE val1(VALUES[LENGTH + 2].second, &scratch);
             mX.insert(VALUES[LENGTH + 2].first, MoveUtil::move(val1));
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -2508,7 +2517,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
         bsl::size_t bucketIdx     = X.bucketIndex(VALUES[LENGTH - 1].first);
         bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
 
-        VALUE val(VALUES[LENGTH].second, &scratch);
+        t_VALUE val(VALUES[LENGTH].second, &scratch);
         // Check existing value
         mX.insert(VALUES[LENGTH - 1].first, MoveUtil::move(val));
         ASSERTV(bsltf::MoveState::e_MOVED == val.movedFrom());
@@ -2523,7 +2532,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
 
         // Confirm that we now have 3 values, and one of them is the value that
         // set set.
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
 
         bsl::size_t rc = X.getValueAll(&values, VALUES[LENGTH - 1].first);
         ASSERTV(3 == rc);
@@ -2549,7 +2558,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
         bucketIdx     = X.bucketIndex(VALUES[LENGTH + 1].first);
         oldBucketSize = X.bucketSize(bucketIdx);
 
-        VALUE val1(VALUES[LENGTH + 1].second, &scratch);
+        t_VALUE val1(VALUES[LENGTH + 1].second, &scratch);
 
         // Check missing value.
         mX.insert(VALUES[LENGTH + 1].first, MoveUtil::move(val1));
@@ -2583,10 +2592,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
 
         // Exception testing - check missing and existing values.
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
-            VALUE val(VALUES[LENGTH].second, &scratch);
+            t_VALUE val(VALUES[LENGTH].second, &scratch);
             mX.insert(VALUES[LENGTH - 1].first, MoveUtil::move(val));
 
-            VALUE val1(VALUES[LENGTH + 1].second, &scratch);
+            t_VALUE val1(VALUES[LENGTH + 1].second, &scratch);
             mX.insert(VALUES[LENGTH + 1].first, MoveUtil::move(val1));
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -2596,8 +2605,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase21()
     ASSERT(dam.isTotalSame());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase20()
 {
     // ------------------------------------------------------------------------
     // TEST MOVABLE `setValueFirst`
@@ -2621,7 +2630,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
     //
     // 6. The method works as expected when the hash map is empty.
     //
-    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    // 7. QoI: When element(s) are updated, and the `t_VALUE` type is
     //    non-allocating, no memory is allocated or deallocated.
     //
     // 8. QoI: There is no temporary memory allocation from any allocator.
@@ -2634,7 +2643,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
     //   2. Confirm that the return value is 1.
     //   3. The size of the container does not change.
     //   4. The size of the bucket does not change.
-    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   5. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   6. Confirm that the value(s) associated with the key were updated to
     //      the new value.
     //   7. Confirm that no other elements have changed.
@@ -2655,7 +2664,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
     //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.
     //
     // Testing:
-    //   bsl::size_t setValueFirst(const KEY& key, VALUE&& value);
+    //   bsl::size_t setValueFirst(const t_KEY& key, t_VALUE&& value);
     // ------------------------------------------------------------------------
 
     // This is equivalent to `testCase17` in `StripedUnorderedImpl`.
@@ -2665,10 +2674,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
                       << "============================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -2686,7 +2695,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
     {
         Obj mX(8, 4, &supplied);  const Obj& X = mX;
 
-        VALUE val(VALUES[0].second, &scratch);
+        t_VALUE val(VALUES[0].second, &scratch);
         ASSERTV(bsltf::MoveState::e_NOT_MOVED == val.movedInto());
         ASSERTV(bsltf::MoveState::e_NOT_MOVED == val.movedFrom());
 
@@ -2697,7 +2706,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
         ASSERTV(rc, 0 == rc);
         ASSERTV(1 == X.size());
 
-        VALUE value(&scratch);
+        t_VALUE value(&scratch);
         rc = X.getValueFirst(&value, VALUES[0].first);
         ASSERTV(1 == rc);
         ASSERTV(areEqual(value, VALUES[0].second));
@@ -2720,7 +2729,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
         bsl::size_t bucketIdx     = X.bucketIndex(VALUES[LENGTH - 1].first);
         bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
 
-        VALUE val(VALUES[LENGTH].second, &scratch);
+        t_VALUE val(VALUES[LENGTH].second, &scratch);
         ASSERTV(bsltf::MoveState::e_NOT_MOVED == val.movedFrom());
 
         // Check existing value.
@@ -2736,13 +2745,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
         ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
 
         // Confirm the value has changed to the new value.
-        VALUE value(&scratch);
+        t_VALUE value(&scratch);
         rc = X.getValueFirst(&value, VALUES[LENGTH - 1].first);
         ASSERTV(1 == rc);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -2758,7 +2767,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
         bucketIdx     = X.bucketIndex(VALUES[LENGTH + 1].first);
         oldBucketSize = X.bucketSize(bucketIdx);
 
-        VALUE val1(VALUES[LENGTH + 1].second, &scratch);
+        t_VALUE val1(VALUES[LENGTH + 1].second, &scratch);
 
         // Check missing value
         rc = mX.setValueFirst(VALUES[LENGTH + 1].first, MoveUtil::move(val1));
@@ -2792,7 +2801,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
 
         // Exception testing - check missing value
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
-            VALUE val1(VALUES[LENGTH + 2].second, &scratch);
+            t_VALUE val1(VALUES[LENGTH + 2].second, &scratch);
             mX.setValueFirst(VALUES[LENGTH + 2].first, MoveUtil::move(val1));
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -2817,7 +2826,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
         bsl::size_t bucketIdx     = X.bucketIndex(VALUES[LENGTH - 1].first);
         bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
 
-        VALUE val(VALUES[LENGTH].second, &scratch);
+        t_VALUE val(VALUES[LENGTH].second, &scratch);
 
         bsl::size_t rc = mX.setValueFirst(VALUES[LENGTH - 1].first,
                                           MoveUtil::move(val));
@@ -2830,15 +2839,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
         ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
 
         // Confirm that one of the values have changed to the new value
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
         rc = X.getValueAll(&values, VALUES[LENGTH - 1].first);
         ASSERTV(2 == rc);
         bool val0Eq = areEqual(values[0], VALUES[LENGTH].second);
         bool val1Eq = areEqual(values[1], VALUES[LENGTH].second);
         ASSERTV((val0Eq && !val1Eq) || (!val0Eq && val1Eq));
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -2857,7 +2866,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
         bucketIdx     = X.bucketIndex(VALUES[LENGTH + 1].first);
         oldBucketSize = X.bucketSize(bucketIdx);
 
-        VALUE val1(VALUES[LENGTH + 1].second, &scratch);
+        t_VALUE val1(VALUES[LENGTH + 1].second, &scratch);
 
         // Check missing value
         rc = mX.setValueFirst(VALUES[LENGTH + 1].first, MoveUtil::move(val1));
@@ -2891,7 +2900,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
 
         // Exception testing - check missing value
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
-            VALUE val1(VALUES[LENGTH + 2].second, &scratch);
+            t_VALUE val1(VALUES[LENGTH + 2].second, &scratch);
             mX.setValueFirst(VALUES[LENGTH + 2].first, MoveUtil::move(val1));
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -2901,8 +2910,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase20()
     ASSERT(dam.isTotalSame());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase19()
 {
     // --------------------------------------------------------------------
     // TYPE TRAITS
@@ -2924,17 +2933,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
                       << "==============================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase18()
 {
     // ------------------------------------------------------------------------
     // TEST REHASHING FUNCTIONS
@@ -3017,10 +3026,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
                       << "========================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -3127,7 +3136,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
                 //
                 // Set computed value functor copies around values.
                 if (i == 5 ||
-                         (i >= 6 && bslma::UsesBslmaAllocator<VALUE>::value)) {
+                       (i >= 6 && bslma::UsesBslmaAllocator<t_VALUE>::value)) {
                     dam.reset();
                 }
                 ASSERTV(i, dam.isTotalSame());
@@ -3231,8 +3240,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
     ASSERT(dam.isTotalSame());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase17()
 {
     // ------------------------------------------------------------------------
     // TEST `visit`
@@ -3260,7 +3269,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
     //
     // 5. The method works if the hash map is empty.
     //
-    // 6. QoI: When element(s) are updated, and the `VALUE` type is
+    // 6. QoI: When element(s) are updated, and the `t_VALUE` type is
     //    non-allocating, no memory is allocated or deallocated.
     //
     // 7. QoI: There is no temporary memory allocation from any allocator.
@@ -3275,7 +3284,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
     //   4. Confirm that the functor was called the correct number of times.
     //   5. The size of the container does not change.
     //   6. The sizes of all buckets do not change.
-    //   7. Memory in use does not change if `VALUE` type is non-allocating.
+    //   7. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   8. Confirm that the value associated with each key were updated to
     //      the new value.
     //
@@ -3286,7 +3295,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
     //   4. Confirm that the functor was called the correct number of times.
     //   5. The size of the container does not change.
     //   6. The sizes of all buckets do not change.
-    //   7. Memory in use does not change if `VALUE` type is non-allocating.
+    //   7. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   8. Confirm that the value associated with each key were updated to
     //      the new value.
     //   9. Confirm that the second half of the elements have not changed.
@@ -3298,7 +3307,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
     //   4. Confirm that the functor was called the correct number of times.
     //   5. The size of the container does not change.
     //   6. The sizes of all buckets do not change.
-    //   7. Memory in use does not change if `VALUE` type is non-allocating.
+    //   7. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   8. Confirm that the values associated with the key were updated to
     //      the new values.
     //
@@ -3313,15 +3322,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
                       << "============" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    bsl::vector<VALUE>   valueVec(1, &scratch);
-    VALUE&               value = valueVec[0];
+    bsl::vector<t_VALUE> valueVec(1, &scratch);
+    t_VALUE&             value = valueVec[0];
 
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
@@ -3343,7 +3352,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
         ASSERTV(rc, 0 == rc);
         ASSERTV(0 == X.size());
     }
-    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+    if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 
@@ -3390,8 +3399,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
             ASSERTV(bucketSizes[i] == X.bucketSize(i));
         }
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -3448,8 +3457,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
             ASSERTV(bucketSizes[i] == X.bucketSize(i));
         }
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -3508,13 +3517,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
             ASSERTV(bucketSizes[i] == X.bucketSize(i));
         }
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
         // Confirm that values changed to the correct value.
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
         for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
             bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
             ASSERTV(2 == rc1);
@@ -3525,13 +3534,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
     } // END Testing with duplicate values - success
 
     // CONCERN: In no case does memory come from the default allocator.
-    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+    if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase16()
 {
     // ------------------------------------------------------------------------
     // TEST `visit(key, visitor)`
@@ -3562,7 +3571,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
     //
     // 6. The method works if the hash map is empty.
     //
-    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    // 7. QoI: When element(s) are updated, and the `t_VALUE` type is
     //    non-allocating, no memory is allocated or deallocated.
     //
     // 8. QoI: There is no temporary memory allocation from any allocator.
@@ -3575,7 +3584,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
     //   2. Confirm that the return value is correct.
     //   3. The size of the container does not change.
     //   4. The size of the bucket does not change.
-    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   5. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   6. Confirm that the value(s) associated with the key were updated to
     //      the new value.
     //   7. Confirm that no other elements have changed.
@@ -3585,7 +3594,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
     //   2. Confirm that the return value is correct.
     //   3. The size of the container does not change.
     //   4. The size of the bucket does not change.
-    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   5. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   6. Confirm that the values associated with the key were updated to
     //      the new value.
     //   7. Confirm that no other elements have changed.
@@ -3593,13 +3602,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
     //   9. Confirm that the return value is correct.
     //  10. The size of the container does not change.
     //  11. The size of the bucket does not change.
-    //  12. Memory in use does not change if `VALUE` type is non-allocating.
+    //  12. Memory in use does not change if `t_VALUE` type is non-allocating.
     //  13. Confirm that one of the values associated with the key was updated
     //      to the new value.
     //  14. Confirm that no other elements have changed.
     //
     // Testing:
-    //   int visit(const KEY& key, const VisitorFunction& functor);
+    //   int visit(const t_KEY& key, const VisitorFunction& functor);
     // ------------------------------------------------------------------------
 
     // This is equivalent to `testCase13` in `StripedUnorderedImpl`.
@@ -3609,10 +3618,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
                       << "=============" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -3670,13 +3679,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
         ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
 
         // Confirm the value has changed to the new value.
-        VALUE       value;
+        t_VALUE     value;
         bsl::size_t rc1 = X.getValueFirst(&value, VALUES[LENGTH - 1].first);
         ASSERTV(1 == rc1);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -3707,7 +3716,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
                                                 VALUES[tj].second));
         }
     } // END Testing with unique values
-    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+    if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 
@@ -3743,15 +3752,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
         ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
 
         // Confirm the values have changed to the new value.
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
 
         bsl::size_t rc1 = X.getValueAll(&values, VALUES[LENGTH - 1].first);
         ASSERTV(2 == rc1);
         ASSERTV(areEqual(values[0], VALUES[LENGTH].second));
         ASSERTV(areEqual(values[1], VALUES[LENGTH].second));
 
-        // No change in memory allocation if VALUE is non-allocating
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if t_VALUE is non-allocating
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -3794,8 +3803,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
                 areEqual(values[1], VALUES[LENGTH - 2].second) ||
                 areEqual(values[1], VALUES[1].second));
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
         // Confirm that other values have not changed.
@@ -3808,7 +3817,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
                     areEqual(values[1], VALUES[LENGTH - tj - 1].second));
         }
     } // END Test updating duplicate keys.
-    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+    if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 
@@ -3842,13 +3851,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
     }
 
     // CONCERN: In no case does memory come from the default allocator.
-    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+    if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase16_update()
 {
     // ------------------------------------------------------------------------
     // TEST `update` (DEPRECATED)
@@ -3879,7 +3888,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
     //
     // 6. The method works if the hash map is empty.
     //
-    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    // 7. QoI: When element(s) are updated, and the `t_VALUE` type is
     //    non-allocating, no memory is allocated or deallocated.
     //
     // 8. QoI: There is no temporary memory allocation from any allocator.
@@ -3892,7 +3901,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
     //   2. Confirm that the return value is correct.
     //   3. The size of the container does not change.
     //   4. The size of the bucket does not change.
-    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   5. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   6. Confirm that the value(s) associated with the key were updated to
     //      the new value.
     //   7. Confirm that no other elements have changed.
@@ -3902,7 +3911,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
     //   2. Confirm that the return value is correct.
     //   3. The size of the container does not change.
     //   4. The size of the bucket does not change.
-    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   5. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   6. Confirm that the values associated with the key were updated to
     //      the new value.
     //   7. Confirm that no other elements have changed.
@@ -3910,13 +3919,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
     //   9. Confirm that the return value is correct.
     //  10. The size of the container does not change.
     //  11. The size of the bucket does not change.
-    //  12. Memory in use does not change if `VALUE` type is non-allocating.
+    //  12. Memory in use does not change if `t_VALUE` type is non-allocating.
     //  13. Confirm that one of the values associated with the key was updated
     //      to the new value.
     //  14. Confirm that no other elements have changed.
     //
     // Testing:
-    //   int update(const KEY& key, const VisitorFunction& functor);
+    //   int update(const t_KEY& key, const VisitorFunction& functor);
     // ------------------------------------------------------------------------
 
     // This is equivalent to `testCase13` in `StripedUnorderedImpl`.
@@ -3926,10 +3935,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
                       << "==========================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -3987,13 +3996,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
         ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
 
         // Confirm the value has changed to the new value.
-        VALUE       value;
+        t_VALUE     value;
         bsl::size_t rc1 = X.getValueFirst(&value, VALUES[LENGTH - 1].first);
         ASSERTV(1 == rc1);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -4024,7 +4033,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
                                                 VALUES[tj].second));
         }
     } // END Testing with unique values
-    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+    if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 
@@ -4060,15 +4069,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
         ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
 
         // Confirm the values have changed to the new value.
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
 
         bsl::size_t rc1 = X.getValueAll(&values, VALUES[LENGTH - 1].first);
         ASSERTV(2 == rc1);
         ASSERTV(areEqual(values[0], VALUES[LENGTH].second));
         ASSERTV(areEqual(values[1], VALUES[LENGTH].second));
 
-        // No change in memory allocation if VALUE is non-allocating
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if t_VALUE is non-allocating
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -4111,8 +4120,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
                 areEqual(values[1], VALUES[LENGTH - 2].second) ||
                 areEqual(values[1], VALUES[1].second));
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
         // Confirm that other values have not changed.
@@ -4125,7 +4134,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
                     areEqual(values[1], VALUES[LENGTH - tj - 1].second));
         }
     } // END Test updating duplicate keys.
-    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+    if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 
@@ -4161,13 +4170,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
     }
 
     // CONCERN: In no case does memory come from the default allocator.
-    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+    if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase15()
 {
     // ------------------------------------------------------------------------
     // TEST `setComputedValueAll`
@@ -4190,14 +4199,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
     // 5. The expected `functor` is called with the expected arguments.
     //   1. If `found` is `true`, the value of the existing element is found at
     //      the provided address.
-    //   2. If `found` is `false`, `VALUE()` is found
+    //   2. If `found` is `false`, `t_VALUE()` is found
     //
     // 6. When the `functor` changes the value of the provide value address,
     //    the element has its value changed.
     //
     // 7. Any memory allocation is exception neutral.
     //
-    // 8. QoI: When element(s) are updated, and the `VALUE` type is
+    // 8. QoI: When element(s) are updated, and the `t_VALUE` type is
     //    non-allocating, no memory is allocated or deallocated.
     //
     // 9. QoI: There is no temporary memory allocation from any allocator.
@@ -4210,7 +4219,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
     //   2. Confirm that the return value is correct.
     //   3. The size of the container does not change.
     //   4. The size of the bucket does not change.
-    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   5. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   6. Confirm that the value(s) associated with the key were updated to
     //      the new value.
     //   7. Confirm that no other elements have changed.
@@ -4227,7 +4236,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
     //   2. Duplicate keys
     //
     // Testing:
-    //   int setComputedValueAll(const KEY& key, functor);
+    //   int setComputedValueAll(const t_KEY& key, functor);
     // ------------------------------------------------------------------------
 
     // This is equivalent to portion of `testCase12` in `StripedUnorderedImpl`.
@@ -4242,8 +4251,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
     TestCase12Updater    testCase12Updater;
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    bsl::vector<VALUE>   valueVec(1, &scratch);
-    VALUE&               value = valueVec[0];
+    bsl::vector<t_VALUE> valueVec(1, &scratch);
+    t_VALUE&             value = valueVec[0];
 
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
@@ -4260,7 +4269,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
 
         bsl::size_t rc = X.getValueFirst(&value, VALUES[0].first);
         ASSERTV(1 == rc);
-        ASSERTV(areEqual(value, VALUE()));
+        ASSERTV(areEqual(value, t_VALUE()));
     }
 
     // Test updating unique keys.
@@ -4305,8 +4314,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
         ASSERTV(1 == rc);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if VALUE is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if t_VALUE is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -4403,15 +4412,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
         ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
 
         // Confirm the values have changed to the new value.
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
 
         bsl::size_t rc = X.getValueAll(&values, VALUES[LENGTH - 1].first);
         ASSERTV(2 == rc);
         ASSERTV(areEqual(values[0], VALUES[LENGTH].second));
         ASSERTV(areEqual(values[1], VALUES[LENGTH].second));
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -4475,13 +4484,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
     } // END Test updating duplicate keys.
 
     // CONCERN: In no case does memory come from the default allocator.
-    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+    if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase14()
 {
     // ------------------------------------------------------------------------
     // TEST `setComputedValueFirst`
@@ -4504,14 +4513,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
     // 5. The expected `functor` is called with the expected arguments.
     //   1. If `found` is `true`, the value of the existing element is found at
     //      the provided address.
-    //   2. If `found` is `false`, `VALUE()` is found
+    //   2. If `found` is `false`, `t_VALUE()` is found
     //
     // 6. When the `functor` changes the value of the provide value address,
     //    the element has its value changed.
     //
     // 7. Any memory allocation is exception neutral.
     //
-    // 8. QoI: When element(s) are updated, and the `VALUE` type is
+    // 8. QoI: When element(s) are updated, and the `t_VALUE` type is
     //    non-allocating, no memory is allocated or deallocated.
     //
     // 9. QoI: There is no temporary memory allocation from any allocator.
@@ -4524,7 +4533,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
     //   2. Confirm that the return value is correct.
     //   3. The size of the container does not change.
     //   4. The size of the bucket does not change.
-    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   5. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   6. Confirm that the value(s) associated with the key were updated to
     //      the new value.
     //   7. Confirm that no other elements have changed.
@@ -4541,7 +4550,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
     //   4. Duplicate keys
     //
     // Testing:
-    //   bsl::size_t setComputedValueFirst(const KEY& key, functor);
+    //   bsl::size_t setComputedValueFirst(const t_KEY& key, functor);
     // ------------------------------------------------------------------------
 
     // This is equivalent to portion of `testCase12` in `StripedUnorderedImpl`.
@@ -4551,15 +4560,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
                       << "============================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    bsl::vector<VALUE>   valueVec(1, &scratch);
-    VALUE&               value = valueVec[0];
+    bsl::vector<t_VALUE> valueVec(1, &scratch);
+    t_VALUE&             value = valueVec[0];
 
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
@@ -4580,7 +4589,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
 
         bsl::size_t rc = X.getValueFirst(&value, VALUES[0].first);
         ASSERTV(1 == rc);
-        ASSERTV(areEqual(value, VALUE()));
+        ASSERTV(areEqual(value, t_VALUE()));
     }
 
     // Testing with unique values.
@@ -4625,8 +4634,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
         ASSERTV(1 == rc);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if VALUE is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if t_VALUE is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
         // Confirm that other values have not changed.
@@ -4722,15 +4731,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
         ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
 
         // Confirm that one of the values have changed to the new value.
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
 
         bsl::size_t rc = X.getValueAll(&values, VALUES[LENGTH - 1].first);
         ASSERTV(2 == rc);
         ASSERTV(areEqual(values[0], VALUES[LENGTH].second) ||
                 areEqual(values[1], VALUES[LENGTH].second));
 
-        // No change in memory allocation if `VALUE` is non-allocating.
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if `t_VALUE` is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -4795,13 +4804,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
     } // END Test updating duplicate keys.
 
     // CONCERN: In no case does memory come from the default allocator.
-    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+    if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase13()
 {
     // ------------------------------------------------------------------------
     // TEST `setValueAll`
@@ -4825,7 +4834,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
     //
     // 6. The method works as expected when the hash map is empty.
     //
-    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    // 7. QoI: When element(s) are updated, and the `t_VALUE` type is
     //    non-allocating, no memory is allocated or deallocated.
     //
     // 8. QoI: There is no temporary memory allocation from any allocator.
@@ -4838,7 +4847,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
     //   2. Confirm that the return value is correct.
     //   3. The size of the container does not change.
     //   4. The size of the bucket does not change.
-    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   5. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   6. Confirm that the value(s) associated with the key were updated to
     //      the new value.
     //   7. Confirm that no other elements have changed.
@@ -4859,7 +4868,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
     //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.
     //
     // Testing:
-    //   bsl::size_t setValueAll(const KEY& key, value);
+    //   bsl::size_t setValueAll(const t_KEY& key, value);
     // ------------------------------------------------------------------------
 
     // This is equivalent to `testCase11` in `StripedUnorderedMultiMap`.
@@ -4869,16 +4878,16 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
                       << "==================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    bsl::vector<VALUE>   valueVec(1, &scratch);
-    VALUE&               value = valueVec[0];
-    bsl::vector<VALUE>   values(&scratch);
+    bsl::vector<t_VALUE> valueVec(1, &scratch);
+    t_VALUE&             value = valueVec[0];
+    bsl::vector<t_VALUE> values(&scratch);
 
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
@@ -4934,8 +4943,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
         ASSERTV(1 == rc);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if VALUE is non-allocating
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if t_VALUE is non-allocating
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -5017,14 +5026,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
         ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
 
         // Confirm the values have changed to the new value
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
         rc = X.getValueAll(&values, VALUES[LENGTH - 1].first);
         ASSERTV(2 == rc);
         ASSERTV(areEqual(values[0], VALUES[LENGTH].second));
         ASSERTV(areEqual(values[1], VALUES[LENGTH].second));
 
-        // No change in memory allocation if VALUE is non-allocating
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if t_VALUE is non-allocating
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -5085,8 +5094,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
     ASSERT(dam.isTotalSame());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase12()
 {
     // ------------------------------------------------------------------------
     // TEST `setValueFirst`
@@ -5110,7 +5119,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
     //
     // 6. The method works as expected when the hash map is empty.
     //
-    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    // 7. QoI: When element(s) are updated, and the `t_VALUE` type is
     //    non-allocating, no memory is allocated or deallocated.
     //
     // 8. QoI: There is no temporary memory allocation from any allocator.
@@ -5123,7 +5132,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
     //   2. Confirm that the return value is correct.
     //   3. The size of the container does not change.
     //   4. The size of the bucket does not change.
-    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   5. Memory in use does not change if `t_VALUE` type is non-allocating.
     //   6. Confirm that the value(s) associated with the key were updated to
     //      the new value.
     //   7. Confirm that no other elements have changed.
@@ -5140,7 +5149,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
     //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.
     //
     // Testing:
-    //   bsl::size_t setValueFirst(const KEY& key, value);
+    //   bsl::size_t setValueFirst(const t_KEY& key, value);
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
@@ -5148,16 +5157,16 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
                       << "====================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    bsl::vector<VALUE>   valueVec(1, &scratch);
-    VALUE&               value = valueVec[0];
-    bsl::vector<VALUE>   values(&scratch);
+    bsl::vector<t_VALUE> valueVec(1, &scratch);
+    t_VALUE&             value = valueVec[0];
+    bsl::vector<t_VALUE> values(&scratch);
 
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
@@ -5213,8 +5222,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
         ASSERTV(1 == rc);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if VALUE is non-allocating
-        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        // No change in memory allocation if t_VALUE is non-allocating
+        if (false == bslma::UsesBslmaAllocator<t_VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
 
@@ -5270,8 +5279,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
     ASSERT(dam.isTotalSame());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase11()
 {
     // ------------------------------------------------------------------------
     // TEST `insertBulk`
@@ -5353,10 +5362,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
                       << "=================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
@@ -5387,7 +5396,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
         ASSERTV(MAX_LENGTH, X.size(), MAX_LENGTH == X.size());
         // Confirm that the keys inserted have the correct values.
         for (bsl::size_t tj = 0; tj < MAX_LENGTH; ++tj) {
-            VALUE value = VALUE();
+            t_VALUE value = t_VALUE();
             rc = X.getValueFirst(&value, VALUES[tj].first);
             ASSERTV(1 == rc);
             ASSERTV(areEqual(value, VALUES[tj].second));
@@ -5530,7 +5539,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
                 // values.
                 for (bsl::size_t i = 0; i < tk; ++i) {
                     bsl::size_t j = i + tkOffset + LENGTH;
-                    VALUE       value = VALUE();
+                    t_VALUE     value = t_VALUE();
                     rc = X.getValueFirst(&value, VALUES[j].first);
                     ASSERTV(1 == rc);
                     ASSERTV(areEqual(value, VALUES[j].second));
@@ -5539,8 +5548,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
                 // Confirm that the inserted existing keys have the
                 // appropriate values.
                 for (bsl::size_t i = 0; i < tk; ++i) {
-                    bsl::size_t        j = i + tkOffset;
-                    bsl::vector<VALUE> values;
+                    bsl::size_t          j = i + tkOffset;
+                    bsl::vector<t_VALUE> values;
                     rc = X.getValueAll(&values, VALUES[j].first);
                     ASSERTV(2 == rc);
                     ASSERTV(areEqual(values[0], VALUES[j + 1].second)
@@ -5554,7 +5563,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
 
             // Confirm that the untouched keys have the same values.
             for (bsl::size_t i = tkOffset; i < LENGTH; ++i) {
-                VALUE value = VALUE();
+                t_VALUE value = t_VALUE();
                 rc = X.getValueFirst(&value, VALUES[i].first);
                 ASSERTV(1 == rc);
                 ASSERTV(areEqual(value, VALUES[i].second));
@@ -5697,7 +5706,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
                 // values.
                 for (bsl::size_t i = 0; i < tk; ++i) {
                     bsl::size_t j = i + tkOffset + LENGTH;
-                    VALUE       value = VALUE();
+                    t_VALUE     value = t_VALUE();
                     rc = X.getValueFirst(&value, VALUES[j].first);
                     ASSERTV(1 == rc);
                     ASSERTV(areEqual(value, VALUES[j].second));
@@ -5706,8 +5715,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
                 // Confirm that the inserted existing keys have the
                 // appropriate values.
                 for (bsl::size_t i = 0; i < tk; ++i) {
-                    bsl::size_t        j = i + tkOffset;
-                    bsl::vector<VALUE> values;
+                    bsl::size_t          j = i + tkOffset;
+                    bsl::vector<t_VALUE> values;
                     rc = X.getValueAll(&values, VALUES[j].first);
                     ASSERTV(3 == rc);
                     ASSERT(areEqual(values[0], VALUES[j+1]       .second)
@@ -5726,7 +5735,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
 
             // Confirm that the untouched keys have the same values.
             for (bsl::size_t i = tkOffset; i < LENGTH; ++i) {
-                bsl::vector<VALUE> values;
+                bsl::vector<t_VALUE> values;
                 rc = X.getValueAll(&values, VALUES[i].first);
                 ASSERTV(2 == rc);
                 ASSERTV(
@@ -5802,8 +5811,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase10()
 {
     // ------------------------------------------------------------------------
     // TEST `clear`
@@ -5837,10 +5846,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                       << "============" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -5889,8 +5898,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
     ASSERT(dam.isTotalSame());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase9()
 {
     // ------------------------------------------------------------------------
     // TEST `eraseBulkAll`
@@ -5955,10 +5964,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
                       << "===================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -5974,7 +5983,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
         Obj mX(8, 4, &supplied);  const Obj& X = mX;
 
         // Keys to be erased with `eraseBulk`
-        bsl::vector<KEY> eraseKeys(&scratch);
+        bsl::vector<t_KEY> eraseKeys(&scratch);
         for (bsl::size_t v = 0; v < MAX_LENGTH; ++v) {
             eraseKeys.push_back(VALUES[v].first);
         }
@@ -6005,7 +6014,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
 
                 // special case: empty vector of keys
                 if (tk == 0) {
-                    bsl::vector<KEY> eraseKeys(&scratch);
+                    bsl::vector<t_KEY> eraseKeys(&scratch);
 
                     bsl::size_t count = mX.eraseBulkAll(eraseKeys.cbegin(),
                                                         eraseKeys.cbegin());
@@ -6023,7 +6032,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
                 // that were already removed.
                 ASSERTV(LENGTH == X.size());
                 for (bsl::size_t v = 0; v < LENGTH; v += tk) {
-                    bsl::vector<KEY> eraseKeys(tk, &scratch);
+                    bsl::vector<t_KEY> eraseKeys(tk, &scratch);
                     // Index and size of buckets related to the keys in the
                     // current eraseKeys.
                     bsl::vector<bsl::size_t> bucketIdxs (tk, &scratch);
@@ -6094,7 +6103,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
 
                 // special case: empty vector of keys
                 if (tk == 0) {
-                    bsl::vector<KEY> eraseKeys(&scratch);
+                    bsl::vector<t_KEY> eraseKeys(&scratch);
 
                     bsl::size_t count = mX.eraseBulkAll(eraseKeys.cbegin(),
                                                         eraseKeys.cbegin());
@@ -6113,7 +6122,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
 
                 ASSERTV(2 * LENGTH == X.size());
                 for (bsl::size_t v = 0; v < LENGTH; v += tk) {
-                    bsl::vector<KEY> eraseKeys(tk, &scratch);
+                    bsl::vector<t_KEY> eraseKeys(tk, &scratch);
                     // Index and size of buckets related to the keys in the
                     // current `eraseKeys` vector.
                     bsl::vector<bsl::size_t> bucketIdxs (tk, &scratch);
@@ -6175,7 +6184,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
 
         Obj mX;
 
-        bsl::vector<KEY> eraseKeys(1, &scratch);
+        bsl::vector<t_KEY> eraseKeys(1, &scratch);
         eraseKeys[0] = VALUES[0].first;
 
         bsls::AssertTestHandlerGuard hG;
@@ -6186,8 +6195,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase8()
 {
     // ------------------------------------------------------------------------
     // TEST `eraseAll`
@@ -6229,7 +6238,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
     //   2. Duplicate keys
     //
     // Testing:
-    //   bsl::size_t eraseAll(const KEY& key);
+    //   bsl::size_t eraseAll(const t_KEY& key);
     // ------------------------------------------------------------------------
 
     // This is equivalent to portion of `testCase7` in `StripedUnorderedImpl`.
@@ -6344,8 +6353,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
     ASSERT(dam.isTotalSame());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase7()
 {
     // ------------------------------------------------------------------------
     // TEST `eraseFirst`
@@ -6387,7 +6396,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
     //   2. Duplicate keys
     //
     // Testing:
-    //   bsl::size_t eraseFirst(const KEY& key);
+    //   bsl::size_t eraseFirst(const t_KEY& key);
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
@@ -6397,10 +6406,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
     // This is equivalent to portion of `testCase7` in `StripedUnorderedImpl`.
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -6527,8 +6536,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
     ASSERT(dam.isTotalSame());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase6()
 {
     // ------------------------------------------------------------------------
     // TEST `getValueAll`
@@ -6581,10 +6590,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
                       << "==================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -6604,7 +6613,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
         // arbitrary number of stripes and buckets
         Obj mX(64, 4, &supplied);  const Obj& X = mX;
 
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
 
         bslma::TestAllocatorMonitor sam(&supplied);
 
@@ -6625,7 +6634,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
 
             mX.insert(VALUES[ti].first, VALUES[ti].second);
 
-            bsl::vector<VALUE> values(&scratch);
+            bsl::vector<t_VALUE> values(&scratch);
 
             bslma::TestAllocatorMonitor sam(&supplied);
 
@@ -6656,7 +6665,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
             mX.insert(VALUES[ti].first, VALUES[ti].second);
             mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
 
-            bsl::vector<VALUE> values(&scratch);
+            bsl::vector<t_VALUE> values(&scratch);
 
             bslma::TestAllocatorMonitor sam(&supplied);
 
@@ -6688,7 +6697,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
         mX.insert(VALUES[ti].first, VALUES[ti].second);
         mX.insert(VALUES[ti].first, VALUES[ti].second);
 
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
 
         bslma::TestAllocatorMonitor sam(&supplied);
 
@@ -6709,7 +6718,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
         mX.insert(VALUES[ti].first, VALUES[ti].second);
         mX.insert(VALUES[ti].first, VALUES[ti+1].second);
 
-        bsl::vector<VALUE> values(&scratch);
+        bsl::vector<t_VALUE> values(&scratch);
 
         bslma::TestAllocatorMonitor sam(&supplied);
 
@@ -6733,7 +6742,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
         mX.insert(VALUES[ti].first, VALUES[ti].second);
         mX.insert(VALUES[ti].first, VALUES[ti+1].second);
 
-        std::vector<VALUE> values;
+        std::vector<t_VALUE> values;
 
         bslma::TestAllocatorMonitor sam(&supplied);
 
@@ -6755,7 +6764,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
         mX.insert(VALUES[ti].first, VALUES[ti].second);
         mX.insert(VALUES[ti].first, VALUES[ti+1].second);
 
-        std::pmr::vector<VALUE> values;
+        std::pmr::vector<t_VALUE> values;
 
         bslma::TestAllocatorMonitor sam(&supplied);
 
@@ -6771,8 +6780,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
 #endif
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase5()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase5()
 {
     // ------------------------------------------------------------------------
     // TEST `getValueFirst`
@@ -6816,7 +6825,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase5()
     //     test.
     //
     // Testing:
-    //   bsl::size_t getValueFirst(VALUE *value, key) const;
+    //   bsl::size_t getValueFirst(t_VALUE *value, key) const;
     // ------------------------------------------------------------------------
 
     // This is similar to `testCase5` in `StripedUnorderedImpl`.
@@ -6826,15 +6835,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase5()
                       << "====================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    bsl::vector<VALUE>   valueVec(1, &scratch);
-    VALUE&               value = valueVec[0];
+    bsl::vector<t_VALUE> valueVec(1, &scratch);
+    t_VALUE&             value = valueVec[0];
 
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
@@ -6957,8 +6966,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase5()
     ASSERT(dam.isTotalSame());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase4()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase4()
 {
     // ------------------------------------------------------------------------
     // BASIC ACCESSORS
@@ -6997,9 +7006,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase4()
     //     adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
     //
     // Testing:
-    //   HASH hashFunction() const;
-    //   EQUAL equalFunction() const;
-    //   bsl::size_t bucketIndex(const KEY& key) const;
+    //   t_HASH hashFunction() const;
+    //   t_EQUAL equalFunction() const;
+    //   bsl::size_t bucketIndex(const t_KEY& key) const;
     //   bsl::size_t bucketCount() const;
     //   bsl::size_t bucketSize(bsl::size_t index) const;
     //   bool empty() const;
@@ -7015,14 +7024,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase4()
                       << "===============" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
-    const KEY   cKEY   = TstFacility::create<KEY  >(0);
-    const VALUE cVALUE = TstFacility::create<VALUE>(0);
+    const t_KEY   cKEY   = TstFacility::create<t_KEY  >(0);
+    const t_VALUE cVALUE = TstFacility::create<t_VALUE>(0);
 
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
@@ -7070,8 +7079,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase4()
 }
 
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase3()
 {
     // ------------------------------------------------------------------------
     // INSERT (SINGLE KEY/VALUE)
@@ -7126,7 +7135,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
     //    with expect results for each operation.
     //
     // Testing:
-    //   void insert(const KEY& key, const VALUE& value);
+    //   void insert(const t_KEY& key, const t_VALUE& value);
     // ------------------------------------------------------------------------
 
     // This is similar to a portion (`e_INSERT_ALWAYS`) of `testCase3` in
@@ -7138,10 +7147,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     << "=========================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -7172,9 +7181,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
         if (verbose) cout << "Depth 0" << endl;
         {
             const bsls::Types::Int64 EXPECTED_NUM_ALLOCATIONS
-                   = 1 // for container node
-                   + (true == bslma::UsesBslmaAllocator<KEY>  ::value ? 1 : 0)
-                   + (true == bslma::UsesBslmaAllocator<VALUE>::value ? 1 : 0);
+                 = 1 // for container node
+                 + (true == bslma::UsesBslmaAllocator<t_KEY>  ::value ? 1 : 0)
+                 + (true == bslma::UsesBslmaAllocator<t_VALUE>::value ? 1 : 0);
 
             if (veryVeryVerbose) { P(EXPECTED_NUM_ALLOCATIONS) }
 
@@ -7196,11 +7205,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                                            / sizeof *INSERTS0;
 
             for (bsl::size_t tj = 0; tj < NUM_INSERTS0; ++tj) {
-                const int   LINE      = INSERTS0[tj].d_line;
-                const int   keyCode   = INSERTS0[tj].d_key;
-                const int   valueCode = INSERTS0[tj].d_value;
-                const KEY   cKEY      = TstFacility::create<KEY  >(  keyCode);
-                const VALUE cVALUE    = TstFacility::create<VALUE>(valueCode);
+                const int     LINE      = INSERTS0[tj].d_line;
+                const int     keyCode   = INSERTS0[tj].d_key;
+                const int     valueCode = INSERTS0[tj].d_value;
+                const t_KEY   cKEY      =
+                                       TstFacility::create<t_KEY  >(  keyCode);
+                const t_VALUE cVALUE    =
+                                       TstFacility::create<t_VALUE>(valueCode);
                 dam.reset(); // `TstFacility::create` allocates from default
                              // allocator.
                 (void)LINE;
@@ -7265,8 +7276,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     ASSERTV(bucketIndex, EXP_BIDX  == bucketIndex);
                     ASSERTV(bucketSize,  EXP_BSIZE == bucketSize);
 
-                    bsl::vector<VALUE> values(&scratch);
-                    bsl::size_t        rc = X.getValueAll(&values, cKEY);
+                    bsl::vector<t_VALUE> values(&scratch);
+                    bsl::size_t          rc = X.getValueAll(&values, cKEY);
                     ASSERT(numElements == rc);
                     ASSERT(areEqual(values[0] , cVALUE));
 
@@ -7304,12 +7315,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                                            / sizeof *INSERTS1;
 
             for (bsl::size_t tj = 0; tj < NUM_INSERTS1; ++tj) {
-                const int   LINE      = INSERTS1[tj].d_line;
-                const char  OBJ       = INSERTS1[tj].d_object;
-                const int   keyCode   = INSERTS1[tj].d_key;
-                const int   valueCode = INSERTS1[tj].d_value;
-                const KEY   cKEY      = TstFacility::create<KEY  >(  keyCode);
-                const VALUE cVALUE    = TstFacility::create<VALUE>(valueCode);
+                const int     LINE      = INSERTS1[tj].d_line;
+                const char    OBJ       = INSERTS1[tj].d_object;
+                const int     keyCode   = INSERTS1[tj].d_key;
+                const int     valueCode = INSERTS1[tj].d_value;
+                const t_KEY   cKEY      =
+                                       TstFacility::create<t_KEY  >(  keyCode);
+                const t_VALUE cVALUE    =
+                                       TstFacility::create<t_VALUE>(valueCode);
                 dam.reset(); // `TstFacility::create` allocates from default
                              // allocator.
 
@@ -7347,12 +7360,12 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     Obj mA(NUM_BUCKETS, NUM_STRIPES, &sa);
                     Obj mB(NUM_BUCKETS, NUM_STRIPES, &sa);
 
-                    const KEY   cKEY_A   = TstFacility::create<KEY  >(KA);
-                    const KEY   cKEY_B   = TstFacility::create<KEY  >(KB);
-                    const VALUE cVALUE1A = TstFacility::create<VALUE>(VA1);
-                    const VALUE cVALUE1B = TstFacility::create<VALUE>(VB1);
-                    const VALUE cVALUE2A = TstFacility::create<VALUE>(VA2);
-                    const VALUE cVALUE2B = TstFacility::create<VALUE>(VB2);
+                    const t_KEY   cKEY_A   = TstFacility::create<t_KEY  >(KA);
+                    const t_KEY   cKEY_B   = TstFacility::create<t_KEY  >(KB);
+                    const t_VALUE cVALUE1A = TstFacility::create<t_VALUE>(VA1);
+                    const t_VALUE cVALUE1B = TstFacility::create<t_VALUE>(VB1);
+                    const t_VALUE cVALUE2A = TstFacility::create<t_VALUE>(VA2);
+                    const t_VALUE cVALUE2B = TstFacility::create<t_VALUE>(VB2);
 
                     mA.insert(cKEY_A, cVALUE1A);
                     mB.insert(cKEY_B, cVALUE1B);
@@ -7361,8 +7374,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     Obj&  mX     = *objPtr;  const Obj& X = mX;
 
                     // CREATE ARGUMENTS;
-                    const VALUE  VALUE1 = OBJ == 'A' ? cVALUE1A : cVALUE1B;
-                    const VALUE  VALUE2 = OBJ == 'A' ? cVALUE2A : cVALUE2B;
+                    const t_VALUE  VALUE1 = OBJ == 'A' ? cVALUE1A : cVALUE1B;
+                    const t_VALUE  VALUE2 = OBJ == 'A' ? cVALUE2A : cVALUE2B;
 
                     // INSERT TEST
                     bslma::TestAllocatorMonitor dam1(&da);
@@ -7384,14 +7397,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     ASSERTV(bucketIndex, EXP_BIDX  == bucketIndex);
                     ASSERTV(bucketSize,  EXP_BSIZE == bucketSize);
 
-                    bsl::vector<VALUE> values(&scratch);
-                    bsl::size_t        rc = X.getValueAll(&values, cKEY);
+                    bsl::vector<t_VALUE> values(&scratch);
+                    bsl::size_t          rc = X.getValueAll(&values, cKEY);
 
                     ASSERT(numElements == rc);
 
                     bsl::size_t V1COUNT = 0;
                     bsl::size_t V2COUNT = 0;
-                    for (typename bsl::vector<VALUE>::const_iterator
+                    for (typename bsl::vector<t_VALUE>::const_iterator
                                                 itr  = values.begin(),
                                                 end  = values.end();
                                                 end != itr; ++itr) {
@@ -7580,14 +7593,20 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     // Create Test Object
                     Obj mX(NUM_BUCKETS, NUM_STRIPES, &sa); const Obj& X = mX;
 
-                    const KEY   E1_KEY   = TstFacility::create<KEY  >(E1KEY);
-                    const KEY   E2_KEY   = TstFacility::create<KEY  >(E2KEY);
-                    const VALUE E1_VALUE = TstFacility::create<VALUE>(E1VALUE);
-                    const VALUE E2_VALUE = TstFacility::create<VALUE>(E2VALUE);
+                    const t_KEY   E1_KEY   =
+                                         TstFacility::create<t_KEY  >(E1KEY);
+                    const t_KEY   E2_KEY   =
+                                         TstFacility::create<t_KEY  >(E2KEY);
+                    const t_VALUE E1_VALUE =
+                                         TstFacility::create<t_VALUE>(E1VALUE);
+                    const t_VALUE E2_VALUE =
+                                         TstFacility::create<t_VALUE>(E2VALUE);
 
                     // Create Arguments for Insertion Test
-                    const KEY   I_KEY    = TstFacility::create<KEY  >(IKEY);
-                    const VALUE I_VALUE  = TstFacility::create<VALUE>(IVALUE);
+                    const t_KEY   I_KEY    =
+                                         TstFacility::create<t_KEY  >(IKEY);
+                    const t_VALUE I_VALUE  =
+                                         TstFacility::create<t_VALUE>(IVALUE);
                     dam.reset(); // `TstFacility::create` allocates from
                                  // default allocator.
 
@@ -7628,11 +7647,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                         }
                         if (veryVeryVerbose)  cout << endl;
 
-                        const KEY cKEY = TstFacility::create<KEY>(key);
+                        const t_KEY cKEY = TstFacility::create<t_KEY>(key);
                         dam.reset(); // `TstFacility::create` allocates from
                                      // default allocator.
 
-                        bsl::vector<VALUE> foundValues(&scratch);
+                        bsl::vector<t_VALUE> foundValues(&scratch);
 
                         bsl::size_t rc = X.getValueAll(&foundValues, cKEY);
                         ASSERT(rc == foundValues.size());
@@ -7641,7 +7660,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
 
                         bsl::vector<int> foundValuesAsInt(&scratch);
 
-                        for (typename bsl::vector<VALUE>::const_iterator
+                        for (typename bsl::vector<t_VALUE>::const_iterator
                                                     itr  = foundValues.begin(),
                                                     end  = foundValues.end();
                                                     end != itr; ++itr) {
@@ -7686,8 +7705,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
 }
 
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase2()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase2()
 {
     // ------------------------------------------------------------------------
     // CONSTRUCTOR AND DESTRUCTOR
@@ -7738,10 +7757,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase2()
                       << "==========================" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     // CONCERN: In no case does memory come from the default allocator.
@@ -7950,8 +7969,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase2()
 }
 
 
-template <class KEY, class VALUE, class HASH, class EQUAL>
-void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase1()
+template <class t_KEY, class t_VALUE, class t_HASH, class t_EQUAL>
+void TestDriver<t_KEY, t_VALUE, t_HASH, t_EQUAL>::testCase1()
 {
     // ------------------------------------------------------------------------
     // BREATHING TEST
@@ -7970,40 +7989,40 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase1()
                       << "==============" << endl;
 
     if (veryVeryVerbose) {
-        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
-             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
-             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
-             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+        cout << "KEY  " << ": " << bsls::NameOf<t_KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<t_VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<t_HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<t_EQUAL>() << endl;
     }
 
     {
         Obj mX(1024, 16);  const Obj& X = mX;
 
-        mX.insert(TstFacility::create<KEY>(1),
-                  TstFacility::create<VALUE>(11));
-        mX.insert(TstFacility::create<KEY>(2),
-                  TstFacility::create<VALUE>(22));
-        mX.insert(TstFacility::create<KEY>(3),
-                  TstFacility::create<VALUE>(33));
-        mX.insert(TstFacility::create<KEY>(4),
-                  TstFacility::create<VALUE>(44));
-        mX.insert(TstFacility::create<KEY>(5),
-                  TstFacility::create<VALUE>(55));
+        mX.insert(TstFacility::create<t_KEY>(1),
+                  TstFacility::create<t_VALUE>(11));
+        mX.insert(TstFacility::create<t_KEY>(2),
+                  TstFacility::create<t_VALUE>(22));
+        mX.insert(TstFacility::create<t_KEY>(3),
+                  TstFacility::create<t_VALUE>(33));
+        mX.insert(TstFacility::create<t_KEY>(4),
+                  TstFacility::create<t_VALUE>(44));
+        mX.insert(TstFacility::create<t_KEY>(5),
+                  TstFacility::create<t_VALUE>(55));
 
         ASSERTV(X.size(), X.size() == 5);
 
         {
-            VALUE       value;
+            t_VALUE     value;
             bsl::size_t rc = mX.getValueFirst(&value,
-                                              TstFacility::create<KEY>(1));
+                                              TstFacility::create<t_KEY>(1));
             ASSERTV(rc   , 1 == rc);
             ASSERTV(value, 11 == TstFacility::getIdentifier(value));
         };
 
         {
-            VALUE       value;
+            t_VALUE     value;
             bsl::size_t rc = mX.getValueFirst(&value,
-                                              TstFacility::create<KEY>(3));
+                                              TstFacility::create<t_KEY>(3));
             ASSERTV(rc   , 1 == rc);
             ASSERTV(value, 33 == TstFacility::getIdentifier(value));
         };
@@ -8039,7 +8058,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase1()
         mX.insert(VALUES[3].first, VALUES[3].second);
 
         {
-            VALUE       value;
+            t_VALUE     value;
             bsl::size_t rc = mX.getValueFirst(&value, VALUES[1].first);
             ASSERTV(rc   , 1 == rc);
             ASSERTV(value, areEqual(VALUES[1].second, value));
@@ -8081,11 +8100,11 @@ bsl::vector<int> stringSplit(bsl::string csString)
 namespace hPerf {
 /// This class provides the performance test functions for the various
 /// performance tests on `bdlcc::StripedUnorderedMultiMap`.
-template <class KEY, class VAL>
+template <class t_KEY, class t_VAL>
 class HBenchmark {
 
   public:
-    typedef bdlcc::StripedUnorderedMultiMap<KEY, VAL> MapType;
+    typedef bdlcc::StripedUnorderedMultiMap<t_KEY, t_VAL> MapType;
 
   private:
     // DATA
@@ -8104,40 +8123,40 @@ class HBenchmark {
 
     // PRIVATE ACCESSORS
 
-    /// Return a KEY type from the specified `key`.
-    KEY makeKey(int key) const
+    /// Return a t_KEY type from the specified `key`.
+    t_KEY makeKey(int key) const
     {
-        return makeKey(key, bsl::is_same<bsl::string, KEY>());
+        return makeKey(key, bsl::is_same<bsl::string, t_KEY>());
     }
 
     /// Return a string built from the specified `key`.
-    KEY makeKey(int key, bsl::true_type) const
+    t_KEY makeKey(int key, bsl::true_type) const
     {
         return bsl::to_string(key);
     }
 
-    /// Return a KEY type from the specified `key`, cast from `key`.
-    KEY makeKey(int key, bsl::false_type) const
+    /// Return a t_KEY type from the specified `key`, cast from `key`.
+    t_KEY makeKey(int key, bsl::false_type) const
     {
-        return static_cast<KEY>(key);
+        return static_cast<t_KEY>(key);
     }
 
-    /// Return a VAL type from the specified `key`.
-    VAL makeValue(int key) const
+    /// Return a t_VAL type from the specified `key`.
+    t_VAL makeValue(int key) const
     {
-        return makeValue(key, bsl::is_same<bsl::string, VAL>());
+        return makeValue(key, bsl::is_same<bsl::string, t_VAL>());
     }
 
     /// Return a string built from the specified `key`.
-    VAL makeValue(int key, bsl::true_type) const
+    t_VAL makeValue(int key, bsl::true_type) const
     {
         return bsl::to_string(key);
     }
 
-    /// Return a VAL type from the specified `key`, cast from `key`.
-    VAL makeValue(int key, bsl::false_type) const
+    /// Return a t_VAL type from the specified `key`, cast from `key`.
+    t_VAL makeValue(int key, bsl::false_type) const
     {
-        return static_cast<VAL>(key);
+        return static_cast<t_VAL>(key);
     }
 
   private:
@@ -8190,12 +8209,12 @@ class HBenchmark {
 };  // END class HBenchmark
 
 // CREATORS
-template <class KEY, class VAL>
-HBenchmark<KEY, VAL>::HBenchmark(int               numStripes,
-                                 int               numBuckets,
-                                 int               maxSize,
-                                 bool              enblRehash,
-                                 bslma::Allocator *basicAllocator)
+template <class t_KEY, class t_VAL>
+HBenchmark<t_KEY, t_VAL>::HBenchmark(int               numStripes,
+                                     int               numBuckets,
+                                     int               maxSize,
+                                     bool              enblRehash,
+                                     bslma::Allocator *basicAllocator)
 : d_numStripes(numStripes)
 , d_numBuckets(numBuckets)
 , d_maxSize(maxSize)
@@ -8207,22 +8226,22 @@ HBenchmark<KEY, VAL>::HBenchmark(int               numStripes,
 {
 }
 
-template <class KEY, class VAL>
-void HBenchmark<KEY, VAL>::initializeSample(bool)
+template <class t_KEY, class t_VAL>
+void HBenchmark<t_KEY, t_VAL>::initializeSample(bool)
 {
     initializeSampleNoInsert(false); // Parameter is ignored
     // For test types 2, 3, 4 - do the inserts
     for (int j = 0; j < d_maxSize; ++j) {
-        int key   = d_curValue++;
-        KEY ky    = makeKey(key);
-        VAL value = makeValue(key);
+        int key     = d_curValue++;
+        t_KEY ky    = makeKey(key);
+        t_VAL value = makeValue(key);
         d_map_p->insert(ky, value);
     }
     d_curValue = 0;
 }
 
-template <class KEY, class VAL>
-void HBenchmark<KEY, VAL>::initializeSampleNoInsert(bool)
+template <class t_KEY, class t_VAL>
+void HBenchmark<t_KEY, t_VAL>::initializeSampleNoInsert(bool)
 {
     // For test types 0, 1
     d_map_p = new (*d_allocator_p) MapType(
@@ -8233,28 +8252,28 @@ void HBenchmark<KEY, VAL>::initializeSampleNoInsert(bool)
     d_countErr = 0;
 }
 
-template <class KEY, class VAL>
-void HBenchmark<KEY, VAL>::cleanupSample(bool)
+template <class t_KEY, class t_VAL>
+void HBenchmark<t_KEY, t_VAL>::cleanupSample(bool)
 {
     d_allocator_p->deleteObject(d_map_p);
 }
 
 // ACCESSORS
-template <class KEY, class VAL>
+template <class t_KEY, class t_VAL>
 inline
-int HBenchmark<KEY, VAL>::countErr() const
+int HBenchmark<t_KEY, t_VAL>::countErr() const
 {
     return d_countErr;
 }
 
 // TEST FUNCTIONS
-template <class KEY, class VAL>
-void HBenchmark<KEY, VAL>::insert(int)
+template <class t_KEY, class t_VAL>
+void HBenchmark<t_KEY, t_VAL>::insert(int)
 {
     // insert a single element into the hash map. Test type 1
-    int key   = d_curValue++;
-    KEY ky    = makeKey(key);
-    VAL value = makeValue(key);
+    int key     = d_curValue++;
+    t_KEY ky    = makeKey(key);
+    t_VAL value = makeValue(key);
     d_map_p->setValueFirst(ky, value);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxSize ==
                                           static_cast<int>(d_map_p->size()))) {
@@ -8263,39 +8282,39 @@ void HBenchmark<KEY, VAL>::insert(int)
     }
 }
 
-template <class KEY, class VAL>
-void HBenchmark<KEY, VAL>::findExist(int)
+template <class t_KEY, class t_VAL>
+void HBenchmark<t_KEY, t_VAL>::findExist(int)
 {
     // find a single element that exists in the hash map. Test type 2
     int         key = d_curValue++;
-    KEY         ky  = makeKey(key);
-    VAL         value;
+    t_KEY       ky  = makeKey(key);
+    t_VAL       value;
     bsl::size_t num = d_map_p->getValueFirst(&value, ky);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == num)) ++d_countErr;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize))
         d_curValue = 0;
 }
 
-template <class KEY, class VAL>
-void HBenchmark<KEY, VAL>::findMiss(int)
+template <class t_KEY, class t_VAL>
+void HBenchmark<t_KEY, t_VAL>::findMiss(int)
 {
     // find a single element that is missing in the hash map. Test type 3
     int key = d_curValue++;
     key += static_cast<int>(d_numBuckets);
-    KEY         ky = makeKey(key);
-    VAL         value;
+    t_KEY       ky = makeKey(key);
+    t_VAL       value;
     bsl::size_t num = d_map_p->getValueFirst(&value, ky);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != num)) ++d_countErr;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize))
         d_curValue = 0;
 }
 
-template <class KEY, class VAL>
-void HBenchmark<KEY, VAL>::erase(int)
+template <class t_KEY, class t_VAL>
+void HBenchmark<t_KEY, t_VAL>::erase(int)
 {
     // erase a single element from the hash map. Test type 4
-    int key = d_curValue++;
-    KEY ky  = makeKey(key);
+    int key  = d_curValue++;
+    t_KEY ky = makeKey(key);
     d_map_p->eraseFirst(ky);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_curValue >= d_maxSize))
         d_curValue = 0;
@@ -8352,7 +8371,7 @@ int main(int argc, char *argv[])
         //   Verify the method works as expected.
         //
         // Concerns:
-        // 1. The method `emplace` can construct `VALUE` with multiple
+        // 1. The method `emplace` can construct `t_VALUE` with multiple
         //    parameters.
         //
         // 2. The method `emplace` can use move semantics.
@@ -8367,7 +8386,7 @@ int main(int argc, char *argv[])
         //    are moved when appropriate.  (C-2)
         //
         // Testing:
-        //   bsl::size_t emplace(const KEY& key, Args&&... args);
+        //   bsl::size_t emplace(const t_KEY& key, t_ARGS&&... args);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING `emplace`\n"
