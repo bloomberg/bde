@@ -1,6 +1,13 @@
-bsl-internal (4.43.0.0) unstable; urgency=low
+bsl-internal (4.43.1.0) unstable; urgency=low
 
-  * e03ed285a Bumped version to 4.43.0.0
+  * 3cd5a1a8d Bumped version to 4.43.1.0
+  * 6dd8fd6c5 [DRQS 186904367] Fix baljsn::Decoder reporting present required attributes as missing (#6070)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 11 Nov 2026 18:25:58 +0000
+
+bsl-internal (4.43.0.0) git; urgency=low
+
+  * c11017bdc Changelog for version 4.43.0.0
   * 999de9c66 [DRQS 187009506] Fix MSVC failures in bal (msvc-2022) (#6067)
   * c0da1295f [DRQS 186991568] Fix MSVC failures in bal (msvc-2022) (#6064)
   * b5d271136 [DRQS 186978366] Fix MSVC failures in bdl (msvc-2022) (#6062)
@@ -163,7 +170,7 @@ bsl-internal (4.43.0.0) unstable; urgency=low
   * dee0edd40 Remove buffer overrun. (#5866)
   * 5eeddba6f Remove unused parameter warning. (#5863)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 Nov 2026 21:03:02 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 Nov 2026 21:08:57 -0500
 
 bsl-internal (4.38.0.0) git; urgency=low
 
