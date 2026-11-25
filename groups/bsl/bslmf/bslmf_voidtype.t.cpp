@@ -6,7 +6,7 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // `printf`
+#include <stdio.h>   // `printf`, `puts`
 #include <stdlib.h>  // `atoi`
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -92,6 +92,13 @@ void aSsErT(bool condition, const char *message, int line)
 # define BUG_FORMS_POINTERS_AND_REFERENCES_TO_ABOMINABLE_FUNCTIONS 1
 #endif
 
+// KNOWN DEFECT: Clang compilers prior to version 3.7 do not implement the
+// resolution of CWG 1558, so will fail the SFINAE tests in test in cases 4, 5,
+// 6, and 7.  We should update the minimum supported Clang version rather than
+// cater to a long out-of-support early C++ compiler.  The trait fundamentally
+// works even here, struggling only when too many template type arguments are
+// supplied.
+
 //=============================================================================
 //                      WARNING SUPPRESSION
 //-----------------------------------------------------------------------------
@@ -113,12 +120,12 @@ void aSsErT(bool condition, const char *message, int line)
 
 ///Usage Example 1
 ///- - - - - - - -
-// In this example, we demonstrate the use of `VoidType` to determine whether a
-// given type `T` has a member type `T::iterator`.  Our goal is to create a
-// metafunction, `HasIteratorType`, such that `HasIteratorType<T>::k_VALUE` is
-// `true` if `T::iterator` is a valid type and `false` otherwise.  This example
-// is adapted from the paper proposing `std::void_t` for the C++ Standard,
-// N3911.
+// In this example, we demonstrate the use of `BSLMF_VOIDTYPE` to determine
+// whether a given type `T` has a member type `T::iterator`.  Our goal is to
+// create a metafunction, `HasIteratorType`, such that
+// `HasIteratorType<T>::k_VALUE` is `true` if `T::iterator` is a valid type and
+// `false` otherwise.  This example is adapted from the paper proposing
+// `std::void_t` for the C++ Standard, N3911.
 //
 // First, we define the base-case metafunction that returns `false`:
 // ```
@@ -127,8 +134,8 @@ void aSsErT(bool condition, const char *message, int line)
         enum { k_VALUE = false };
     };
 // ```
-// Then, we create a partial specialization that uses `VoidType` to probe for
-// `T::iterator`:
+// Then, we create a partial specialization that uses `BSLMF_VOIDTYPE` to probe
+// for `T::iterator`:
 // ```
     template <class TYPE>
     struct HasIteratorType<TYPE, BSLMF_VOIDTYPE(typename TYPE::iterator)> {
@@ -164,11 +171,11 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Usage Example 2
 ///- - - - - - - -
-// This example demonstrates the use of `VoidType` to probe for more than one
-// type at once.  As in the previous example, we are defining a metafunction.
-// We'll define `IsTraversable<T>::k_VALUE` to be `true` if `T::iterator` and
-// `T::value_type` both exist.  First, we define a primary template that always
-// yields `false`:
+// This example demonstrates the use of `BSLMF_VOIDTYPE2` to probe for more
+// than one type at once.  As in the previous example, we are defining a
+// metafunction.  We'll define `IsTraversable<T>::k_VALUE` to be `true` if
+// `T::iterator` and `T::value_type` both exist.  First, we define a primary
+// template that always yields `false`:
 // ```
     template <class TYPE, class = void>
     struct IsTraversable {
@@ -176,7 +183,7 @@ void aSsErT(bool condition, const char *message, int line)
     };
 // ```
 // Then, we create a partial specialization that uses `BSLMF_VOIDTYPE2` with
-// two parameters:
+// two arguments:
 // ```
     template <class TYPE>
     struct IsTraversable<TYPE,
@@ -271,10 +278,10 @@ template <class TYPE>
 struct IsMediumClassOracle<
 TYPE,
 std::void_t<
-int TYPE::*,                                                   // is  "class"
-typename std::enable_if<(sizeof(TYPE) >  sizeof(char))>::type, // not "small"
-typename std::enable_if<(sizeof(TYPE) <= sizeof(int ))>::type  // not "large"
-> > : std::true_type {
+int TYPE::*,                                              // is  "class"
+std::enable_if_t<(sizeof(TYPE) >  sizeof(char))>,         // not "small"
+std::enable_if_t<(sizeof(TYPE) <= sizeof(int ))>          // not "large"
+>> : std::true_type {
 };
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
@@ -435,8 +442,15 @@ inline bool isVoidPointer(void *)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;
+    const bool     veryVeryVerbose = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVerbose;          // suppress warning
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -458,8 +472,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
+        if (verbose) puts("\nUSAGE EXAMPLE"
+                          "\n=============");
 
         usageExample1();
         usageExample2();
@@ -502,8 +516,8 @@ int main(int argc, char *argv[])
         //   BSLMF_VOIDTYPES
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING `BSLMF_VOIDTYPES`"
-                            "\n=========================\n");
+        if (verbose) puts("\nTESTING `BSLMF_VOIDTYPES`"
+                          "\n=========================");
 
         typedef Incomplete T;   // abbreviation for table below
 
@@ -564,7 +578,7 @@ int main(int argc, char *argv[])
         IS_MEDIUM_CLASS(void(&)()       , false);
         IS_MEDIUM_CLASS(void   ()const  , false);
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE)
         IS_MEDIUM_CLASS(void   ()        noexcept, false);
         IS_MEDIUM_CLASS(void(*)()        noexcept, false);
         IS_MEDIUM_CLASS(void(&)()        noexcept, false);
@@ -610,8 +624,8 @@ int main(int argc, char *argv[])
         //   BSLMF_VOIDTYPE2
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING `BSLMF_VOIDTYPE2`"
-                            "\n=========================\n");
+        if (verbose) puts("\nTESTING `BSLMF_VOIDTYPE2`"
+                          "\n=========================");
 
         typedef Incomplete T;   // abbreviation for table below
 
@@ -647,7 +661,7 @@ int main(int argc, char *argv[])
         ASSERT(!IsReasonable<void   ()const>::k_VALUE);
 #endif
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE)
         ASSERT( IsReasonable<void   ()        noexcept>::k_VALUE);
         ASSERT( IsReasonable<void(*)()        noexcept>::k_VALUE);
         ASSERT(!IsReasonable<void(&)()        noexcept>::k_VALUE);
@@ -691,8 +705,8 @@ int main(int argc, char *argv[])
         //   BSLMF_VOIDTYPE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING `BSLMF_VOIDTYPE`"
-                            "\n========================\n");
+        if (verbose) puts("\nTESTING `BSLMF_VOIDTYPE`"
+                          "\n========================");
 
         typedef Incomplete T;   // abbreviation for table below
 
@@ -726,7 +740,7 @@ int main(int argc, char *argv[])
         ASSERT(!IsClassType<void(&)()     >::k_VALUE);
         ASSERT(!IsClassType<void   ()const>::k_VALUE);
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE)
         ASSERT(!IsClassType<void   ()        noexcept>::k_VALUE);
         ASSERT(!IsClassType<void(*)()        noexcept>::k_VALUE);
         ASSERT(!IsClassType<void(&)()        noexcept>::k_VALUE);
@@ -779,12 +793,11 @@ int main(int argc, char *argv[])
         //   bsl::void_t
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING `bsl::void_t<T>`"
-                            "\n========================\n");
+        if (verbose) puts("\nTESTING `bsl::void_t<T>`"
+                          "\n========================");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)     \
- || !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-        if (verbose) printf("Alias templates unsupported on this platform\n");
+#ifndef BSLS_COMPILERFEATURES_FULL_CPP11
+        if (verbose) puts("`bsl::void_t` requires full C++11 support");
 #else
 # define TEST(...) \
         ASSERT(isVoidPointer((bsl::void_t<__VA_ARGS__> *)0))
@@ -891,8 +904,8 @@ int main(int argc, char *argv[])
         //   VoidType::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING `VoidType<T>::type`"
-                            "\n===========================\n");
+        if (verbose) puts("\nTESTING `VoidType<T>::type`"
+                          "\n===========================");
 
 #define TEST(...) \
         ASSERT(isVoidPointer((bslmf::VoidType<__VA_ARGS__>::type *)0))
@@ -930,7 +943,7 @@ int main(int argc, char *argv[])
              signed long long *, MyEnum *, MyStruct *, MyUnion *, Incomplete *,
              signed long long &, MyEnum &, MyStruct &, MyUnion &);
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+# ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         // Additional test for 15 types, demonstrating variadic support
 
         TEST(signed long long,   MyEnum,   MyStruct,   MyUnion,   Incomplete,
@@ -1017,8 +1030,8 @@ int main(int argc, char *argv[])
         //   CONCERN: Test machinery works as expected
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING THE TEST MACHINERY"
-                            "\n==========================\n");
+        if (verbose) puts("\nTESTING THE TEST MACHINERY"
+                          "\n==========================");
 
         ASSERT( isVoidPointer((void *)0));
         ASSERT(!isVoidPointer((const void *)0));
