@@ -8,19 +8,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time type transformation to lvalue reference.
 //
 //@CLASSES:
-//  bsl::add_lvalue_reference: standard meta-function for type transformation
-//  bsl::add_lvalue_reference_t: alias to the return type of the meta-function
+//  bsl::add_lvalue_reference: standard metafunction for type transformation
+//  bsl::add_lvalue_reference_t: alias to the return type of the metafunction
 //
 //@SEE_ALSO: bslmf_addrvaluereference, bslmf_removereference
 //
-//@DESCRIPTION: This component defines a meta-function,
+//@DESCRIPTION: This component defines a metafunction,
 // `bsl::add_lvalue_reference`, that may be used to transform a type to its
-// lvalue reference type.  An lvalue, as defined in C++11 standard
-// [basic.lval], is an expression that designates a function or an object.
+// corresponding lvalue reference type.  An lvalue, as defined in the C++11
+// Standard [basic.lval], is an expression that designates a function or an
+// object.
 //
 // `bsl::add_lvalue_reference` and `bsl::add_lvalue_reference_t` meet the
-// requirements of the `add_lvalue_reference` template defined in the C++11
-// standard [meta.trans.ref].
+// requirements of the `add_lvalue_reference` template and
+// `add_lvalue_reference_t` alias defined in the C++ Standard [meta.trans.ref].
 //
 ///Usage
 ///-----
@@ -31,9 +32,9 @@ BSLS_IDENT("$Id: $")
 // Suppose that we want to transform a set of types to their lvalue reference
 // types.
 //
-// Now, we instantiate the `bsl::add_lvalue_reference` template for each of
-// these types, and use the `bsl::is_same` meta-function to assert the `type`
-// static data member of each instantiation:
+// First, we instantiate the `bsl::add_lvalue_reference` template for several
+// types, and use the `bsl::is_same` metafunction to assert the `type` member
+// of each instantiation:
 // ```
 // assert(true ==
 //       (bsl::is_same<bsl::add_lvalue_reference<int>::type,   int&>::value));
@@ -46,30 +47,27 @@ BSLS_IDENT("$Id: $")
 //       (bsl::is_same<bsl::add_lvalue_reference<int&&>::type, int&>::value));
 // #endif
 // ```
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// instantiate the `bsl::add_lvalue_reference_t` template for the same set of
-// types, and use the `bsl::is_same` meta-function to assert the resultant type
-// of each instantiation:
+// Finally, in C++11 and later, we instantiate the
+// `bsl::add_lvalue_reference_t` alias template for the same set of types, and
+// use the `bsl::is_same` metafunction to assert the resultant type of each
+// instantiation:
 // ```
 // #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 //   assert(true  ==
-//           (bsl::is_same<bsl::add_lvalue_reference_t<int>,   int& >::value));
+//           (bsl::is_same<bsl::add_lvalue_reference_t<int>,   int&>::value));
 //   assert(false ==
-//           (bsl::is_same<bsl::add_lvalue_reference_t<int>,   int  >::value));
+//           (bsl::is_same<bsl::add_lvalue_reference_t<int>,   int >::value));
 //   assert(true  ==
-//           (bsl::is_same<bsl::add_lvalue_reference_t<int&>,  int& >::value));
+//           (bsl::is_same<bsl::add_lvalue_reference_t<int&>,  int&>::value));
 // #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 //   assert(true ==
-//           (bsl::is_same<bsl::add_lvalue_reference_t<int&&>, int&&>::value));
+//           (bsl::is_same<bsl::add_lvalue_reference_t<int&&>, int&>::value));
 // #endif
 // #endif
 // ```
-// Note, that the rvalue reference used above is a feature introduced in the
-// C++11 standard and may not be supported by all compilers.
-//
-// Also note that the `bsl::add_lvalue_reference_t` avoids the `::type` suffix
-// and `typename` prefix when we want to use the result of
-// `bsl::add_lvalue_reference` meta-function in templates.
+// Note that use of the `bsl::add_lvalue_reference_t` alias avoids the need for
+// the `::type` suffix and `typename` prefix when using the result of the
+// `bsl::add_lvalue_reference` metafunction in templates.
 
 #include <bslscm_version.h>
 
@@ -80,61 +78,68 @@ namespace bsl {
                          // struct add_lvalue_reference
                          // ===========================
 
-/// This `struct` template implements a meta-function to transform the
-/// (template parameter) `t_TYPE` to its lvalue reference type.
+/// This `struct` template implements the `add_lvalue_reference` metafunction
+/// defined in the C++11 Standard [meta.trans.ref], providing an alias, `type`,
+/// that returns the result, an lvalue reference to `t_TYPE`, or to the type to
+/// which `t_TYPE` refers if it is a reference type.
 template <class t_TYPE>
 struct add_lvalue_reference {
 
-    /// This `typedef` defines the return type of this meta function.
+    /// This `typedef` defines the return type of this metafunction.
     typedef t_TYPE& type;
 };
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-/// This partial specialization of `add_lvalue_reference` defines a return
-/// type when it is instantiated with an lvalue reference type.
+/// This partial specialization, for when the template argument is an lvalue
+/// reference type, `t_TYPE&`, provides a `type` that is that same lvalue
+/// reference type.  Note that it is required in C++03, where no reference to
+/// a reference type can be formed.
 template <class t_TYPE>
 struct add_lvalue_reference<t_TYPE&> {
 
-    /// This `typedef` defines the return type of this meta function.
+    /// This `typedef` defines the return type of this metafunction.
     typedef t_TYPE& type;
 };
 
 #endif
 
-/// This partial specialization of `add_lvalue_reference` defines the return
-/// type when it is instantiated with `void` type.
+/// This explicit specialization of `add_lvalue_reference` provides a `type`
+/// that is `void`, unchanged, as no reference to `void` can be formed.
 template <>
 struct add_lvalue_reference<void> {
 
-    /// This `typedef` defines the return type of this meta function.
+    /// This `typedef` defines the return type of this metafunction.
     typedef void type;
 };
 
-/// This partial specialization of `add_lvalue_reference` defines the return
-/// type when it is instantiated with `void const` type.
+/// This explicit specialization of `add_lvalue_reference` provides a `type`
+/// that is `void const`, unchanged, as no reference to `void const` can be
+/// formed.
 template <>
 struct add_lvalue_reference<void const> {
 
-    /// This `typedef` defines the return type of this meta function.
+    /// This `typedef` defines the return type of this metafunction.
     typedef void const type;
 };
 
-/// This partial specialization of `add_lvalue_reference` defines the return
-/// type when it is instantiated with `void volatile` type.
+/// This explicit specialization of `add_lvalue_reference` provides a `type`
+/// that is `void volatile`, unchanged, as no reference to `void volatile`
+/// can be formed.
 template <>
 struct add_lvalue_reference<void volatile> {
 
-    /// This `typedef` defines the return type of this meta function.
+    /// This `typedef` defines the return type of this metafunction.
     typedef void volatile type;
 };
 
-/// This partial specialization of `add_lvalue_reference` defines the return
-/// type when it is instantiated with `void const volatile` type.
+/// This explicit specialization of `add_lvalue_reference` provides a `type`
+/// that is `void const volatile`, unchanged, as no reference to
+/// `void const volatile` can be formed.
 template <>
 struct add_lvalue_reference<void const volatile> {
 
-    /// This `typedef` defines the return type of this meta function.
+    /// This `typedef` defines the return type of this metafunction.
     typedef void const volatile type;
 };
 
@@ -142,10 +147,10 @@ struct add_lvalue_reference<void const volatile> {
 
 // ALIASES
 
-/// `add_lvalue_reference_t` is an alias to the return type of
-/// `add_lvalue_reference` meta-function.  Note, that the `add_const_t`
-/// avoids the `::type` suffix and `typename` prefix when we want to use the
-/// result of the meta-function in templates.
+/// `add_lvalue_reference_t` is an alias to the return type of the
+/// `add_lvalue_reference` metafunction; use of this alias avoids the need for
+/// the `::type` suffix and `typename` prefix when using the result of the
+/// metafunction in templates.
 template <class t_TYPE>
 using add_lvalue_reference_t = typename add_lvalue_reference<t_TYPE>::type;
 

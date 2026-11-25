@@ -284,13 +284,14 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Transform to Rvalue Reference Types
-/// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to transform a couple of types to rvalue reference
+///Example 1: Transforming Types to Rvalue Reference Types
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to transform a set of types to their rvalue reference
 // types.
 //
-// Now, for a set of types, we transform each type to the corresponding rvalue
-// reference of that type using `bsl::remove_reference` and verify the result:
+// First, we instantiate the `bsl::add_rvalue_reference` template for several
+// types, and use the `bsl::is_same` metafunction to assert the `type` member
+// of each instantiation:
 // ```
   #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     ASSERT(true  ==
@@ -302,10 +303,12 @@ int main(int argc, char *argv[])
     ASSERT(true  ==
          (bsl::is_same<bsl::add_rvalue_reference<int&&>::type, int&&>::value));
 // ```
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// instantiate the `bsl::add_rvalue_reference_t` template for the same set of
-// types, and use the `bsl::is_same` meta-function to assert the resultant type
-// of each instantiation:
+// Notice that, as a consequence of reference collapsing [dcl.ref], an lvalue
+// reference type is not transformed.
+//
+// Finally, we instantiate the `bsl::add_rvalue_reference_t` alias template for
+// the same set of types, and use the `bsl::is_same` metafunction to assert the
+// resultant type of each instantiation:
 // ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     ASSERT(true  ==
@@ -319,11 +322,12 @@ int main(int argc, char *argv[])
 #endif
 #endif
 // ```
-// Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.  Note also that according to `reference collapsing` semantics
-// [8.3.2], `add_rvalue_reference` does not transform `TYPE` to rvalue
-// reference type if `TYPE` is a lvalue reference type.
-
+// Note that rvalue references were introduced in C++11, and so this component
+// is not available for earlier standards.
+//
+// Also note that use of the `bsl::add_rvalue_reference_t` alias avoids the
+// need for the `::type` suffix and `typename` prefix when using the result of
+// the `bsl::add_rvalue_reference` metafunction in templates.
       } break;
       case 1: {
         // --------------------------------------------------------------------

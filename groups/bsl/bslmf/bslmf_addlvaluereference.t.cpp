@@ -242,9 +242,9 @@ int main(int argc, char *argv[])
 // Suppose that we want to transform a set of types to their lvalue reference
 // types.
 //
-// Now, we instantiate the `bsl::add_lvalue_reference` template for these
-// types, and use the `bsl::is_same` meta-function to assert the `type` static
-// data member of each instantiation:
+// First, we instantiate the `bsl::add_lvalue_reference` template for several
+// types, and use the `bsl::is_same` metafunction to assert the `type` member
+// of each instantiation:
 // ```
     ASSERT(true ==
           (bsl::is_same<bsl::add_lvalue_reference<int>::type,   int&>::value));
@@ -257,13 +257,10 @@ int main(int argc, char *argv[])
           (bsl::is_same<bsl::add_lvalue_reference<int&&>::type, int&>::value));
   #endif
 // ```
-// Notice that the rvalue reference used above is a feature introduced in the
-// C++11 standard and may not be supported by all compilers.
-//
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// instantiate the `bsl::add_lvalue_reference_t` template for the same set of
-// types, and use the `bsl::is_same` meta-function to assert the resultant type
-// of each instantiation:
+// Finally, in C++11 and later, we instantiate the
+// `bsl::add_lvalue_reference_t` alias template for the same set of types, and
+// use the `bsl::is_same` metafunction to assert the resultant type of each
+// instantiation:
 // ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     ASSERT(true  ==
@@ -278,7 +275,9 @@ int main(int argc, char *argv[])
 #endif
 #endif
 // ```
-
+// Note that use of the `bsl::add_lvalue_reference_t` alias avoids the need for
+// the `::type` suffix and `typename` prefix when using the result of the
+// `bsl::add_lvalue_reference` metafunction in templates.
       } break;
       case 1: {
         // --------------------------------------------------------------------
