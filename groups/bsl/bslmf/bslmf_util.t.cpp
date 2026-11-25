@@ -25,11 +25,24 @@ using namespace BloombergLP;
 // any function whose test case relies upon it.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ ] template <class T> forward(T&& value)
-// [2] template <class T, class U> forward_like(U&& value)
+// [ ] add_rvalue_reference<T>::type declval();                // C++11
+// [ ] add_lvalue_reference<T>::type declval();                // C++03
+// [ ] T&& forward(remove_reference<T>::type& t);              // C++11
+// [ ] T&& forward(remove_reference<T>::type&& t);             // C++11
+// [ ] const T& forward(const T& t);                           // C++03
+// [ ] MovableRef<T> forward(MovableRef<T> t);                 // C++03
+// [2] forward_like<MODEL>(T&& t);                             // C++11
+// [2] forward_like<MODEL>(T& t);                              // C++03
+// [2] forward_like<MODEL>(MovableRef<T> t);                   // C++03
+// [ ] T&& forwardAsReference(remove_reference<T>::type& t);   // C++11
+// [ ] T&& forwardAsReference(remove_reference<T>::type&& t);  // C++11
+// [ ] const T& forwardAsReference(const T& t);                // C++03
+// [ ] const T& forwardAsReference(MovableRef<T> t);           // C++03
+// [ ] remove_reference<T>::type&& moveIfSupported(T&& t);     // C++11
+// [ ] remove_reference<T>::type& moveIfSupported(T& t);       // C++03
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
-// [ ] USAGE EXAMPLE
+// [3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -175,7 +188,7 @@ class Obj {
 //                            TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
 
-/// This struct provide a namespace for testing the `bslmf::Util` functions
+/// This `struct` provides a namespace for testing the `bslmf::Util` functions
 /// parameterized with the (template parameter) unqualified non-reference
 /// `t_TYPE`.
 template <class t_TYPE>
@@ -183,6 +196,16 @@ struct TestDriver {
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Verify the correctness of the `forward_like` for a single case when
+    /// it is parameterized by the (template parameter) `t_MODEL` type and an
+    /// object of the (template parameter) `t_ARG` type is passed.  Verify
+    /// that the address of the specified `result` (the value returned by the
+    /// `forward_like`) is equal to the specified `expectedAddress`.  Note
+    /// that the `t_MODEL` is the first template argument of the invoked
+    /// `forward_like`, the `t_ARG` is the second one that deduced from the
+    /// type of the passed argument and the (template parameter) `t_RESULT`
+    /// is the type deduced from the returned value.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class t_MODEL, class t_ARG, class t_RESULT>
     static void testSingleCase(const volatile void *expectedAddress,
@@ -196,16 +219,6 @@ struct TestDriver {
     static void testSingleCase(const volatile void         *expectedAddress,
                                bslmf::MovableRef<t_RESULT>  result);
 #endif
-        // Verify the correctness of the `forward_like` for a single case when
-        // it is parameterized by the (template parameter) `t_MODEL` type and
-        // an object of the (template parameter) `t_ARG` type is passed.
-        // Verify that the address of the specified `result` (the value
-        // returned by the `forward_like`) is equal to the specified
-        // `expectedAddress`.  Note that the `t_MODEL` is the first template
-        // argument of the invoked `forward_like`, the `t_ARG` is the second
-        // one that deduced from the type of the passed argument and the
-        // (template parameter) `t_RESULT` is the type deduced from the
-        // returned value.
 
     /// Verify the correctness of the `forward_like` for a single (template
     /// parameter) `t_MODEL` type.  Note that the `t_MODEL` is the first
@@ -393,7 +406,10 @@ void TestDriver<t_TYPE>::testSingleModelType()
     typedef bslmf::MovableRef<const t_TYPE> MovableRefConst;
 #endif
 
-    t_TYPE obj = t_TYPE();  // Force value-initialization for `const` trivial types.
+    // Force value-initialization so that trivial types are not read while
+    // uninitialized.
+
+    t_TYPE obj = t_TYPE();
 
     testSingleCase<t_MODEL, t_TYPE>(&obj, U::forward_like<t_MODEL>(obj));
 
@@ -446,31 +462,6 @@ void TestDriver<t_TYPE>::testSingleModelType()
 // TEST CASES
 template <class TYPE>
 void TestDriver<TYPE>::testCase2()
-    // ------------------------------------------------------------------------
-    // TESTING `forward_like`
-    //
-    // Concerns:
-    // 1. The `forward_like` function template accepts arguments of any type.
-    //
-    // 2. The return value of the `forward_like` has expected type and its
-    //    address is the same as the address of function argument.
-    //
-    // 3. `volatile` qualifier is ignored during result type deducing.
-    //
-    // Plan:
-    // 1. Exercise function parameterized with different `model` types passing
-    //    arguments of various types and verify the results.  The results are
-    //    verified by
-    //    - comparing the stripped (with removed reference-ness and
-    //      constant-ness) types of passed object and result object
-    //    - checking if the resulting type is const if the `model` type is
-    //      const or if the function argument type was const
-    //    - check if the resulting type is lvalue reference if the `model` type
-    //      is lvalue reference  (C-1..3)
-    //
-    // Testing:
-    //   template <class T, class U> forward_like(U&& value)
-    // ------------------------------------------------------------------------
 {
     testSingleModelType<                        TYPE  >();
     testSingleModelType<                        TYPE& >();
@@ -501,9 +492,9 @@ void TestDriver<TYPE>::testCase2()
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bslmf::Util::forward
+///Example 1: Using `bslmf::Util::forward`
 ///---------------------------------------
-// Clients should generally not use `bsls::Util::forward` directly, instead it
+// Clients should generally not use `bslmf::Util::forward` directly, instead it
 // should be used via `BSLS_COMPILERFEATURES_FORWARD` in conjunction with
 // `BSLS_COMPILERFEATURES_FORWARD_REF`.  Here we show a simple function using
 // `BSLS_COMPILERFEATURES_FORWARD`:
@@ -517,9 +508,9 @@ void TestDriver<TYPE>::testCase2()
        }
     };
 // ```
-// Notice that `bsls::Util::forward` is only used in conjunction with
+// Notice that `bslmf::Util::forward` is only used in conjunction with
 // `BSLS_COMPILERFEATURES_FORWARD_REF` because, in the example above, if the
-// `create` function's parameter type was `ARG_TYPE&& ` then it is a
+// `create` function's parameter type was `ARG_TYPE&&` then it is a
 // C++11-only(!) forwarding reference, and we would simply use the standard
 // `std::forward`.  Alternatively, if the parameter type was
 // `MovableRef<ARG_TYPE>` then `arg` is *not* a forwarding-reference to be
@@ -527,10 +518,10 @@ void TestDriver<TYPE>::testCase2()
 //
 ///Example 2: Using `bslmf::Util::forwardAsReference`
 ///--------------------------------------------------
-// Suppose we have a class `S1` that has a regular copy constructor, and only
-// if the compiler supports rvalue references has to move constructor.  We want
-// to construct it with the move constructor if moves are supported and as a
-// copy otherwise.  Then we use `bslmf::Util::forwardAsReference`:
+// Suppose we have a class `S` that has a regular copy constructor, and only if
+// the compiler supports rvalue references has a move constructor.  We want to
+// construct it with the move constructor if moves are supported and as a copy
+// otherwise.  Then we use `bslmf::Util::forwardAsReference`:
 // ```
     struct S {
         S();
@@ -611,10 +602,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
-        // Concern:
+        // Concerns:
         // 1. Demonstrate the usage of this component, and ensure that usage
         //    examples in the header file are syntactically correct and work
-        //    properly, giving the output they are represent as giving.
+        //    properly, giving the output they are represented as giving.
         //
         // Plan:
         // 1. Reproduce the code in the usage examples.
@@ -656,6 +647,7 @@ int main(int argc, char *argv[])
 //    doSomething lvalue-ref
 // ```
 // output in C++11:
+// ```
 //    S copy c'tor
 //    doSomething rvalue-ref
 // ```
@@ -663,29 +655,42 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING `forward_like`
+        //   `forward_like<MODEL>(t)` returns a reference to `t` whose value
+        //   category is taken from the explicitly specified `MODEL` type.
+        //   The result is an lvalue if `MODEL` is an lvalue reference, and an
+        //   rvalue (a `bslmf::MovableRef` in C++03) otherwise.  The result is
+        //   `const`-qualified if either `t` or `MODEL` is.
         //
         // Concerns:
-        // 1. The `forward_like` function template accepts arguments of any
-        //    type.
+        // 1. `forward_like` accepts arguments of any object type, of any
+        //    cv-qualification, and of either value category.
         //
-        // 2. The return value of the `forward_like` has expected type and its
-        //    address is the same as the address of function argument.
+        // 2. The result of `forward_like` has the expected type, and its
+        //    address is the address of the argument.
         //
-        // 3. `volatile` qualifier is ignored during result type deducing.
+        // 3. A `volatile` qualifier on `MODEL` is ignored, while one on the
+        //    argument is retained in the result.
         //
         // Plan:
-        // 1. Exercise function parameterized with different `model` types
-        //    passing arguments of various types and verify the results.  The
-        //    results are verified by
-        //    - comparing the stripped (with removed reference-ness and
-        //      constant-ness) types of passed object and result object
-        //    - checking if the resulting type is const if the `model` type is
-        //      const or if the function argument type was const
-        //    - check if the resulting type is lvalue reference if the `model`
-        //      type is lvalue reference  (C-1..3)
+        // 1. For several object types, invoke `forward_like` with `MODEL`
+        //    types that are plain, lvalue-reference, rvalue-reference (or
+        //    `MovableRef` in C++03), `const`, `volatile`, and pointer types,
+        //    passing cv-qualified lvalue and rvalue arguments, and verify
+        //    that:
+        //    - the result refers to the argument (by comparing addresses)
+        //    - the result type, stripped of references and cv-qualifiers, is
+        //      the similarly stripped argument type
+        //    - the result is `const` if and only if `MODEL` or the argument is
+        //      `const`
+        //    - the result is `volatile` if and only if the argument is
+        //      `volatile`
+        //    - the result is an lvalue reference if and only if `MODEL` is an
+        //      lvalue reference  (C-1..3)
         //
         // Testing:
-        //   template <class T, class U> forward_like(U&& value)
+        //   forward_like<MODEL>(T&& t);                             // C++11
+        //   forward_like<MODEL>(T& t);                              // C++03
+        //   forward_like<MODEL>(MovableRef<T> t);                   // C++03
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING `forward_like`"

@@ -15,34 +15,57 @@ BSLS_IDENT("$Id: $")
 // functionality for implementing portable generic facilities such as might be
 // found in the C++ standard library.
 //
+///`bslmf::Util::declval`
+///----------------------
+// The function `declval` emulates the C++ standard utility function
+// `std::declval`.  It is declared but not defined, so may be named only in an
+// unevaluated operand (such as with `sizeof` or, in C++11, with `decltype` or
+// `noexcept`) where it produces an expression of the specified type without
+// requiring that type to be constructible.  In C++11 and later, `declval<T>()`
+// returns an rvalue reference to `T`, exactly as `std::declval<T>()` does; in
+// C++03 and earlier it instead returns an lvalue reference to `T`, so
+// `declval<T>()` is an lvalue.  In either case, the result is `T` itself for
+// cv-`void`.
+//
 ///`bslmf::Util::forward`
 ///----------------------
 // The function `forward` emulates the C++ standard utility function
-// `std::forward` with the addition that on compilers that don't support
-// r-value references (i.e., C++03) a `bslmf::MovableRef<t_T>` is forwarded as
-// a `bslmf::MovableRef<t_T>`.  This operation is typically used via
+// `std::forward` with the addition that on compilers that don't support rvalue
+// references (i.e., C++03) a `bslmf::MovableRef<T>` is forwarded as a
+// `bslmf::MovableRef<T>`.  This operation is typically used via
 // `BSLS_COMPILERFEATURES_FORWARD` (along with
 // `BSLS_COMPILERFEATURES_FORWARD_REF`) when forwarding arguments in a generic
 // context.  See {Usage}.
+//
+///`bslmf::Util::forward_like`
+///---------------------------
+// The function `forward_like` emulates the C++23 standard utility function
+// `std::forward_like`, which is typically used to forward a member (or other
+// part) of an object with the value category and `const`-ness of that
+// object.  `forward_like<M>(t)` returns a reference to `t` that is an lvalue
+// if `M` is an lvalue reference and an rvalue otherwise, and that is
+// `const`-qualified if either `t` or `M` is `const`-qualified; any `volatile`
+// qualifier on `M` is ignored, while one on `t` is retained.  In C++03 and
+// earlier, an rvalue result is returned as a `bslmf::MovableRef`.
 //
 ///`bslmf::Util::forwardAsReference`
 ///---------------------------------
 // The function `forwardAsReference`, like `forward`, emulates the C++ standard
 // utility function `std::forward` with the difference that on compilers that
-// don't support r-value references (C++03) a `bslmf::MovableRef<t_T>` is
-// forwarded as `const t_T&` (instead of `bslmf::MovableRef<t_T>`).  This
-// operation is intended to be used when forwarding a `MovableRef<t_T>` where
-// that `MovableRef` is being supplied to a function that does not support
-// `move` emulation, but will support true C++11 r-value references (e.g.,
+// don't support rvalue references (C++03) a `bslmf::MovableRef<T>` is
+// forwarded as `const T&` (instead of `bslmf::MovableRef<T>`).  This operation
+// is intended to be used when forwarding a `MovableRef<T>` where that
+// `MovableRef` is being supplied to a function that does not support `move`
+// emulation, but will support true C++11 rvalue references (e.g.,
 // `bdlf::BindUtil::bind`).
 //
 ///`bslmf::Util::moveIfSupported`
 ///------------------------------
 // The function `moveIfSupported` emulates the C++ standard utility function
-// `std::move` with the addition that on compilers that don't support r-value
-// references (i.e., C++03) an l-value reference is returned instead.  This
+// `std::move` with the addition that on compilers that don't support rvalue
+// references (i.e., C++03) an lvalue reference is returned instead.  This
 // operation is intended to be used when moving an object to a function that
-// does not support `move` emulation, but will support true C++11 r-value
+// does not support `move` emulation, but will support true C++11 rvalue
 // references (e.g., `bdlf::BindUtil::bind`).
 //
 ///Usage
@@ -67,7 +90,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Notice that `bslmf::Util::forward` is only used in conjunction with
 // `BSLS_COMPILERFEATURES_FORWARD_REF` because, in the example above, if the
-// `create` function's parameter type was `ARG_TYPE&& ` then it is a
+// `create` function's parameter type was `ARG_TYPE&&` then it is a
 // C++11-only(!) forwarding reference, and we would simply use the standard
 // `std::forward`.  Alternatively, if the parameter type was
 // `MovableRef<ARG_TYPE>` then `arg` is *not* a forwarding-reference to be
@@ -75,10 +98,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: Using `bslmf::Util::forwardAsReference`
 ///--------------------------------------------------
-// Suppose we have a class `S1` that has a regular copy constructor, and only
-// if the compiler supports rvalue references has to move constructor.  We want
-// to construct it with the move constructor if moves are supported and as a
-// copy otherwise.  Then we use `bslmf::Util::forwardAsReference`:
+// Suppose we have a class `S` that has a regular copy constructor, and only if
+// the compiler supports rvalue references has a move constructor.  We want to
+// construct it with the move constructor if moves are supported and as a copy
+// otherwise.  Then we use `bslmf::Util::forwardAsReference`:
 // ```
 // struct S {
 //     S();
@@ -158,14 +181,17 @@ namespace bslmf {
                       // struct Util
                       // ===========
 
-/// This struct provides several functions that are specified in the
-/// <utility> header of the C++ Standard, in order to support the `bsl`
+/// This `struct` provides several functions that are specified in the
+/// `<utility>` header of the C++ Standard, in order to support the `bsl`
 /// library implementation without cycles into the native standard library,
 /// and on platforms with only C++03 compilers available, where library
 /// features may be emulated.
 struct Util {
 
     // CLASS METHODS
+
+    /// Correctly forward the specified `t` argument based on the current
+    /// compilation environment.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class t_TYPE>
     BSLS_KEYWORD_CONSTEXPR static t_TYPE&& forward(
@@ -181,9 +207,13 @@ struct Util {
     BSLS_KEYWORD_CONSTEXPR static MovableRef<t_TYPE> forward(
                                    MovableRef<t_TYPE> t) BSLS_KEYWORD_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Correctly forward the specified 't' argument based on the current
-        // compilation environment.
 
+    /// Return an lvalue reference to the specified `t` if the (template
+    /// parameter) `t_MODEL` is an lvalue reference; otherwise, return
+    /// either an rvalue reference or a `bslmf::MovableRef` referring to
+    /// `t`, depending on the current compilation environment.  The `const`
+    /// type qualifier is added to the result referenced type if `t_MODEL`
+    /// is a `const`-qualified type or reference thereof.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class t_MODEL, class t_TYPE>
     BSLA_NODISCARD
@@ -319,13 +349,12 @@ struct Util {
                                            t_MODEL>::type>::value>::type * = 0)
                                                          BSLS_KEYWORD_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Return an lvalue reference to the specified 't' if the (template
-        // parameter) 't_MODEL' is an lvalue reference; otherwise, return
-        // either an rvalue reference or a 'bslmf::MovableRef' referring to
-        // 't', depending on the current compilation environment.  The const
-        // type qualifier is added to the result referenced type if 't_MODEL'
-        // is a const-qualified type or reference thereof.
 
+    /// This function has no implementation.  It exists to allow for the
+    /// appearance of a temporary object of the specified (template parameter)
+    /// `t_TYPE` that can be used in unevaluated contexts.  Note that when
+    /// using a C++03 compiler an lvalue reference (rather than an rvalue
+    /// reference) to `t_TYPE` is returned.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class t_TYPE>
     BSLS_KEYWORD_CONSTEXPR static
@@ -337,10 +366,14 @@ struct Util {
         typename bsl::add_lvalue_reference<t_TYPE>::type
         declval() BSLS_KEYWORD_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // This function has no implementation.  It exists to allow for the
-        // appearance of a temporary object of the specified type that can be
-        // used in unevaluated contexts.
 
+    /// Correctly forward the specified `t` argument as a reference type based
+    /// on the current compilation environment.  Note that this function
+    /// differs from `forward` in that when using a C++03 compiler,
+    /// `MovableRef<T>` is forwarded as `const T&` (rather than
+    /// `MovableRef<T>`), which is important when forwarding to a facility
+    /// (e.g., `bdlf::BindUtil::bind`) which does not support
+    /// `bslmf::MovableRef`.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class t_TYPE>
     BSLS_KEYWORD_CONSTEXPR static t_TYPE&& forwardAsReference(
@@ -356,14 +389,9 @@ struct Util {
     BSLS_KEYWORD_CONSTEXPR static const t_TYPE& forwardAsReference(
                                    MovableRef<t_TYPE> t) BSLS_KEYWORD_NOEXCEPT;
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Correctly forward the specified 't' argument as a reference type
-        // based on the current compilation environment.  Note that this
-        // function differs from 'forward' in that when using a C++03 compiler,
-        // 'MovableRef<t_T>' is forwarded as 'const t_T&' (rather than
-        // 'MovableRef<t_T>'), which is important when forwarding to a facility
-        // (e.g., 'bdlf::BindUtil::bind') which does not support
-        // 'bslmf::MovableRef'.
 
+    /// Return an rvalue reference to the specified `t` argument.  If rvalue
+    /// references are not supported, return an lvalue reference.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class t_TYPE>
     BSLS_KEYWORD_CONSTEXPR static
@@ -374,8 +402,6 @@ struct Util {
     BSLS_KEYWORD_CONSTEXPR static typename bsl::remove_reference<t_TYPE>::type&
     moveIfSupported(t_TYPE& t) BSLS_KEYWORD_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Return an r-value reference to the specified 't' argument.  If
-        // r-value references are not supported, return an l-value reference.
 };
 
 // ============================================================================
