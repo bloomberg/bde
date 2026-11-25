@@ -1452,8 +1452,11 @@ int main(int argc, char *argv[])
         //   CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (3)
         // --------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM_OS_DARWIN
-        // This test takes too long to run on Darwin, so it is disabled there.
+#if !defined(BSLS_PLATFORM_OS_DARWIN) && !defined(BSLS_PLATFORM_OS_WINDOWS)
+        // This test takes too long to run on Darwin and Windows, so it is
+        // disabled there.  Note that the "Exhaustive" framework simulates the
+        // synchronization primitives, so the outcome of this test does not
+        // depend upon the platform.
 
         {
             char s[1024];
@@ -1475,7 +1478,8 @@ int main(int argc, char *argv[])
                              Exhaustive_disable, 0);
 #else
         if (verbose) {
-            cout << "Test skipped on Darwin (excessive run time)." << endl;
+            cout << "Test skipped on Darwin and Windows (excessive run time)."
+                 << endl;
         }
 #endif
       } break;
@@ -1498,8 +1502,11 @@ int main(int argc, char *argv[])
         //   CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (2)
         // --------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM_OS_DARWIN
-        // This test takes too long to run on Darwin, so it is disabled there.
+#if !defined(BSLS_PLATFORM_OS_DARWIN) && !defined(BSLS_PLATFORM_OS_WINDOWS)
+        // This test takes too long to run on Darwin and Windows, so it is
+        // disabled there.  Note that the "Exhaustive" framework simulates the
+        // synchronization primitives, so the outcome of this test does not
+        // depend upon the platform.
 
         {
             char s[1024];
@@ -1521,7 +1528,8 @@ int main(int argc, char *argv[])
                              Exhaustive_wait,  0);
 #else
         if (verbose) {
-            cout << "Test skipped on Darwin (excessive run time)." << endl;
+            cout << "Test skipped on Darwin and Windows (excessive run time)."
+                 << endl;
         }
 #endif
       } break;
@@ -2745,7 +2753,11 @@ cout << endl
         // Plan:
         // 1. Use the untested `tryWait` and `post` to verify the count.  (C-1)
         //
-        // 2. Use the untested `timedWait` to verify the clock.  (C-2)
+        // 2. Use the untested `timedWait` to verify the clock.  Note that the
+        //    upper bound on the duration of the `timedWait` is generous since
+        //    the timeout may be delayed significantly on a heavily loaded
+        //    host, and an incorrect clock would result in a timeout delayed by
+        //    years or not delayed at all.  (C-2)
         //
         // Testing:
         //   FastPostSemaphoreImpl(clockType = e_REALTIME);
@@ -2778,7 +2790,7 @@ cout << endl
                                         - start;
 
             ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
-            ASSERTV(duration, bsls::TimeInterval(0.50) >= duration);
+            ASSERTV(duration, bsls::TimeInterval(10.0) >= duration);
         }
         {
             // verify initial count can be set
@@ -2806,7 +2818,7 @@ cout << endl
                                         - start;
 
             ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
-            ASSERTV(duration, bsls::TimeInterval(0.50) >= duration);
+            ASSERTV(duration, bsls::TimeInterval(10.0) >= duration);
         }
         {
             // verify clock can be set
@@ -2823,7 +2835,7 @@ cout << endl
                                         - start;
 
             ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
-            ASSERTV(duration, bsls::TimeInterval(0.50) >= duration);
+            ASSERTV(duration, bsls::TimeInterval(10.0) >= duration);
         }
         {
             // verify initial count and clock can be set
@@ -2844,7 +2856,7 @@ cout << endl
                                         - start;
 
             ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
-            ASSERTV(duration, bsls::TimeInterval(0.50) >= duration);
+            ASSERTV(duration, bsls::TimeInterval(10.0) >= duration);
         }
       } break;
       case 1: {

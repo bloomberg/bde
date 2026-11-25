@@ -837,10 +837,10 @@ class CheckAllocatorMatchFunctor {
                 bslmf::MovableRef<CheckAllocatorMatchFunctor>  original,
                 bslma::Allocator                              *basicAllocator);
 
-    /// Create a `CheckAllocatorMatchFunctor` object having the same value as the
-    /// specified `original` object.  Optionally specify a `basicAllocator`
-    /// used to supply memory.  If `basicAllocator` is 0, the currently
-    /// installed default allocator is used.
+    /// Create a `CheckAllocatorMatchFunctor` object having the same value as
+    /// the specified `original` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     CheckAllocatorMatchFunctor(
                         const CheckAllocatorMatchFunctor&  original,
                         bslma::Allocator                  *basicAllocator = 0);
@@ -2516,6 +2516,12 @@ int main(int argc, char *argv[])
         //   void shutdown();
         //   int enabled() const;
         // --------------------------------------------------------------------
+
+        // Thread creation can be very slow on heavily loaded hosts, so allow
+        // this case more time than the default.
+
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
 
         static const struct {
             int d_lineNum;         // line number

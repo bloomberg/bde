@@ -130,6 +130,9 @@ struct ThreadData {
 
 static bsls::AtomicInt s_continue;
 
+static bsls::AtomicBool s_writerStarted;  // set by `writeLockCount` once it
+                                          // is running
+
 const static int k_COMPLETION_COUNT = 50000;
 
 extern "C" void *watchdog(void *arg)
@@ -190,6 +193,8 @@ extern "C" void *writeLockCount(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
 
+    s_writerStarted = true;
+
     while (s_continue == 2) {
         data->d_mutex_p->lockWrite();
         data->d_mutex_p->unlock();
@@ -209,6 +214,14 @@ extern "C" void *writeLockCount(void *arg)
 extern "C" void *starvationReadLockCount(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
+
+    // Do not start counting until the writer is running, otherwise (e.g., on
+    // a heavily loaded host where thread creation is slow) a reader may
+    // complete before the writer has a chance to obtain the lock.
+
+    while (!s_writerStarted) {
+        bslmt::ThreadUtil::yield();
+    }
 
     while (s_continue == 2) {
         data->d_mutex_p->lockRead();
@@ -589,7 +602,8 @@ int main(int argc, char *argv[])
 
         Obj obj;
 
-        s_continue = 2;
+        s_continue      = 2;
+        s_writerStarted = false;
 
         for (int nr = 0; nr < numReaders; ++nr) {
             reader[nr].d_mutex_p = &obj;

@@ -276,6 +276,18 @@ double checkedSleep(double    timeInSeconds,
     return 0;
 }
 
+/// Sleep until at least the specified `timeInSeconds` has elapsed according
+/// to the monotonic clock.  Note that `bslmt::ThreadUtil::microSleep` may
+/// return early (e.g., when interrupted by a signal).
+void sleepAtLeast(double timeInSeconds)
+{
+    const double end = doubleClock() + timeInSeconds;
+
+    for (double now = doubleClock(); now < end; now = doubleClock()) {
+        sleep(end - now);
+    }
+}
+
 bsls::TimeInterval toTime(const char *timeStr)
 {
     char buf[128 + 1];
@@ -2113,36 +2125,73 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING `requestPermission` USING SYSTEM TIME\n"
                              "=============================================\n";
 
+        // Note that the results of a sequence of requests are verified only
+        // if the sequence completes within the time needed to leak one
+        // action, since otherwise (e.g., on a heavily loaded host) additional
+        // permission may correctly be granted.
+
+        const double k_SECONDS_PER_ACTION = 0.2;  // both throttles below leak
+                                                  // one action per 0.2s
+
         {
             Obj mX;
 
             mX.initialize(1, 200000000ULL);
 
-            ASSERT(true  == mX.requestPermission());
-            ASSERT(false == mX.requestPermission());
-            ASSERT(false == mX.requestPermission());
+            double     start = u::doubleClock();
+            const bool r1    = mX.requestPermission();
+            const bool r2    = mX.requestPermission();
+            const bool r3    = mX.requestPermission();
 
-            bslmt::ThreadUtil::microSleep(200000);
+            if (u::doubleClock() - start < k_SECONDS_PER_ACTION) {
+                ASSERT(true  == r1);
+                ASSERT(false == r2);
+                ASSERT(false == r3);
+            }
 
-            ASSERT(true  == mX.requestPermission());
-            ASSERT(false == mX.requestPermission());
+            u::sleepAtLeast(0.2);
+
+            start            = u::doubleClock();
+            const bool r4    = mX.requestPermission();
+            const bool r5    = mX.requestPermission();
+
+            if (u::doubleClock() - start < k_SECONDS_PER_ACTION) {
+                ASSERT(true  == r4);
+                ASSERT(false == r5);
+            }
         }
         {
             Obj mX;
 
             mX.initialize(5, 200000000ULL);
 
-            ASSERT(true  == mX.requestPermission(1));
-            ASSERT(true  == mX.requestPermission(3));
-            ASSERT(true  == mX.requestPermission(1));
-            ASSERT(false == mX.requestPermission(1));
-            ASSERT(false == mX.requestPermission(1));
+            double     start = u::doubleClock();
+            const bool r1    = mX.requestPermission(1);
+            const bool r2    = mX.requestPermission(3);
+            const bool r3    = mX.requestPermission(1);
+            const bool r4    = mX.requestPermission(1);
+            const bool r5    = mX.requestPermission(1);
 
-            bslmt::ThreadUtil::microSleep(0, 1);
+            if (u::doubleClock() - start < k_SECONDS_PER_ACTION) {
+                ASSERT(true  == r1);
+                ASSERT(true  == r2);
+                ASSERT(true  == r3);
+                ASSERT(false == r4);
+                ASSERT(false == r5);
+            }
 
-            ASSERT(true  == mX.requestPermission(4));
-            ASSERT(true  == mX.requestPermission(1));
-            ASSERT(false == mX.requestPermission());
+            u::sleepAtLeast(1.0);
+
+            start            = u::doubleClock();
+            const bool r6    = mX.requestPermission(4);
+            const bool r7    = mX.requestPermission(1);
+            const bool r8    = mX.requestPermission();
+
+            if (u::doubleClock() - start < k_SECONDS_PER_ACTION) {
+                ASSERT(true  == r6);
+                ASSERT(true  == r7);
+                ASSERT(false == r8);
+            }
         }
       } break;
       case 4: {

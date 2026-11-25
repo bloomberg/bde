@@ -358,6 +358,17 @@ void microSleep(int microSeconds, int seconds)
     bslmt::ThreadUtil::yield();
 }
 
+/// Wait until the callback of the specified `testObject` has been started,
+/// or the specified `deadline` (according to `u::now()`) has passed.
+template <class TESTCLASS>
+void makeSureTestObjectIsStarted(TESTCLASS&                testObject,
+                                 const bsls::TimeInterval& deadline)
+{
+    while (0 == testObject.numStarted() && u::now() < deadline) {
+        bslmt::ThreadUtil::microSleep(10000);
+    }
+}
+
 /// Check that the specified `testObject` has been executed one more time in
 /// addition to the optionally specified `numExecuted` times, for the
 /// specified `numAttempts` separated by the specified `microSeconds`, and
@@ -2306,7 +2317,6 @@ void Test6_1::operator()()
     bsls::TimeInterval  T3(3 * DECI_SEC);
     bsls::TimeInterval  T20(20 * DECI_SEC);
 
-    const int TM4 = 4 * DECI_SEC_IN_MICRO_SEC;
     const int TM20 = 20 * DECI_SEC_IN_MICRO_SEC;
 
     Obj x(pta);
@@ -2332,7 +2342,13 @@ void Test6_1::operator()()
                       now - T);
 
     x.start();
-    microSleep(TM4, 0);  // let the callback of `testObj1` be started
+
+    // Wait for the callback of `testObj1` to be started (a fixed sleep is not
+    // sufficient on a heavily loaded host), but not beyond the time when the
+    // results are no longer verified.
+
+    makeSureTestObjectIsStarted(testObj1, now + T20);
+
     x.cancelAllEvents();
     if ((u::now() - now) < T20) {
         ASSERT( 0 == testObj2.numExecuted() );
@@ -2370,12 +2386,11 @@ void Test6_2::operator()()
     bsls::TimeInterval  T3(3 * DECI_SEC);
     bsls::TimeInterval  T20(20 * DECI_SEC);
 
-    const int TM4 = 4 * DECI_SEC_IN_MICRO_SEC;
     const int TM20 = 20 * DECI_SEC_IN_MICRO_SEC;
     const int TM40 = 40 * DECI_SEC_IN_MICRO_SEC;
 
     if (veryVerbose) {
-        P_(TM4); P_(TM20); P(TM40);
+        P_(TM20); P(TM40);
     }
     Obj x(pta);
 
@@ -2402,7 +2417,13 @@ void Test6_2::operator()()
     bslmt::ThreadAttributes attr;
     attr.setThreadName("OtherName");
     x.start(attr);
-    microSleep(TM4, 0); // let the callback of `testObj1` be started
+
+    // Wait for the callback of `testObj1` to be started (a fixed sleep is not
+    // sufficient on a heavily loaded host), but not beyond the time when the
+    // results are no longer verified.
+
+    makeSureTestObjectIsStarted(testObj1, now + bsls::TimeInterval(1.0));
+
     double elapsed = (u::now() - now).totalSecondsAsDouble();
     x.cancelAllEventsAndWait();
     if (elapsed < 1.0) {

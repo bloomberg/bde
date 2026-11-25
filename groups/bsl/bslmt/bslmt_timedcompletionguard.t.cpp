@@ -319,7 +319,11 @@ int main(int argc, char *argv[])
 
             ASSERT(0 != mX.updateText(""));
 
-            ASSERT(0 == mX.guard(bsls::TimeInterval(0, 400000000), "a"));
+            // Note that the durations supplied to `guard` are generous since
+            // the invoking thread may be delayed significantly on a heavily
+            // loaded host.
+
+            ASSERT(0 == mX.guard(bsls::TimeInterval(2, 0), "a"));
 
             ASSERT(0 == mX.updateText("b"));
 
@@ -333,7 +337,7 @@ int main(int argc, char *argv[])
                                          + k_TEN_SECONDS));
             ASSERT(compareCopiedText("c"));
 
-            ASSERT(0 == mX.guard(bsls::TimeInterval(0, 200000000), "a"));
+            ASSERT(0 == mX.guard(bsls::TimeInterval(1, 0), "a"));
 
             ASSERT(0 == mX.updateText("b"));
 

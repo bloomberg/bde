@@ -1696,7 +1696,10 @@ int main(int argc, char *argv[])
                     "===========================================\n";
         }
 
-        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(150, 0),
+        // Thread creation can be very slow on heavily loaded hosts, so allow
+        // this case more time than the default.
+
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
                                           bsl::format("case {}", test)));
 
         using namespace MULTIPRIORITYTHREADPOOL_CASE_5;

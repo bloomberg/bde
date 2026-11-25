@@ -402,11 +402,19 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(elapsed,
                    DURATION - EPSILON <= elapsed && elapsed <= DURATION + 1.0);
 
-        // The number of executed events should not be off by more than one.
+        // The turnstile does not permit more than `RATE * DURATION` turns in
+        // the elapsed time.  Typically, all of these turns are taken, but on a
+        // heavily loaded host a turn may be delayed past the end of the
+        // duration, and hence not taken, so only verify at least half of the
+        // messages were written.
 
-        LOOP_ASSERT(oss.str().length(),
-                    RATE * DURATION * static_cast<double>(MSGLEN) ==
-                                      static_cast<double>(oss.str().length()));
+        const bsl::size_t LENGTH = oss.str().length();
+
+        LOOP_ASSERT(LENGTH, 0 == LENGTH % MSGLEN);
+        LOOP_ASSERT(LENGTH, static_cast<double>(LENGTH) >=
+                          RATE * DURATION * static_cast<double>(MSGLEN) / 2.0);
+        LOOP_ASSERT(LENGTH, static_cast<double>(LENGTH) <=
+                                RATE * DURATION * static_cast<double>(MSGLEN));
 
         if (veryVerbose) {
             P_(RATE);    P(RATE * DURATION * (double) MESSAGE.length());

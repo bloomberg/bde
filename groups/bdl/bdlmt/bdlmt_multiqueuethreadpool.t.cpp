@@ -4901,6 +4901,12 @@ int main(int argc, char *argv[]) {
                  << endl;
         }
 
+        // Thread creation can be very slow on heavily loaded hosts, so allow
+        // this case more time than the default.
+
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         for (int k=0; k<100; ++k) {
         bslma::TestAllocator ta(veryVeryVerbose);
         {
