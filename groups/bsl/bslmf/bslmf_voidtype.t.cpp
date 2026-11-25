@@ -97,11 +97,10 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
-// Some tests rely on "reference collapsing" of a reference to a reference.
-// This behavior would be illegal in C++03, but several compilers provide it as
-// an extension, but only Sun CC issues the extension warning.  Note that those
-// tests are designed to work correctly on a strictly conforming C++03 compiler
-// as well, such as GCC.
+// Test case 5 forms a reference to a reference type, which is ill-formed in
+// C++03.  Several compilers collapse such a reference as an extension, but
+// only Sun CC warns.  The tests give the same result either way, as forming a
+// pointer to a reference type always fails.
 # pragma error_messages(off, reftoref)
 #endif
 
@@ -153,11 +152,11 @@ void aSsErT(bool condition, const char *message, int line)
 // template, thus yielding a `k_VALUE` of `true`.
 //
 // Finally, we try to instantiate `HasIteratorType<int>`.  Any use of
-// `BSLMF_VOIDTYPE(TYPE::iterator)` will result in a substitution failure.
-// Fortunately, the Substitution Failure Is Not An Error (SFINAE) rule applies
-// and the partial specialization is eliminated from consideration, resulting
-// in the primary template being instantiated and yielding a `k_VALUE` of
-// `false`:
+// `BSLMF_VOIDTYPE(typename TYPE::iterator)` will result in a substitution
+// failure.  Fortunately, the Substitution Failure Is Not An Error (SFINAE)
+// rule applies and the partial specialization is eliminated from
+// consideration, resulting in the primary template being instantiated and
+// yielding a `k_VALUE` of `false`:
 // ```
         ASSERT(false == HasIteratorType<int>::k_VALUE);
     }
@@ -193,8 +192,8 @@ void aSsErT(bool condition, const char *message, int line)
         typedef int *iterator;
     };
 // ```
-// Finally, the `IsTraversable` metafunction yields `true` for `Traversable`
-// but not for either `WithIterator`, which lacks a `value_type` member, nor
+// Finally, the `IsTraversable` metafunction yields `true` for `MyTraversable`
+// but neither for `WithIterator`, which lacks a `value_type` member, nor for
 // `int`, which lacks both `iterator` and `value_type` members:
 // ```
     void usageExample2()
@@ -211,9 +210,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL CLASS TEMPLATES FOR TESTING
 //-----------------------------------------------------------------------------
 
-                        // ====================================
-                        // struct IsMediumClass<bool CONDITION>
-                        // ====================================
+                        // ===================
+                        // struct TestEnableIf
+                        // ===================
 
 /// Replicate the definition of `bsl::enable_if` to avoid a dependency
 /// on `bslmf_enableif` as doing so would introduce a cyclic dependency into
@@ -234,6 +233,8 @@ struct TestEnableIf<false, TYPE>
                         // struct IsMediumClass<class TYPE>
                         // ================================
 
+/// A "medium" class is a type that is a class type, that has a size larger
+/// than a single byte, but is no larger than an `int`.
 template <class TYPE, class = void>
 struct IsMediumClass {
 
@@ -257,6 +258,11 @@ BSLMF_VOIDTYPES(
                         // struct IsMediumClassOracle<class TYPE>
                         // ======================================
 
+/// A "medium" class is a type that is a class type, that has a size larger
+/// than a single byte, but is no larger than an `int`.  This Oracle class
+/// provides an implementation using the standard type traits when they are
+/// available, to confirm that the component test above is giving a standard
+/// conforming result.
 template <class TYPE, class = void>
 struct IsMediumClassOracle : std::false_type {
 };
@@ -358,8 +364,8 @@ struct IsClassType<TYPE, BSLMF_VOIDTYPE(int TYPE::*)> {
 /// Similarly, reference types are not reasonable as we cannot form pointers
 /// to references.  Regular function types are reasonable, while abominable
 /// function types are not.  Most other types are reasonable.  For testing
-/// purposes, this trait uses the `BSLMF_VOIDTYPES` macro with more than one
-/// argument.
+/// purposes, this trait uses the `BSLMF_VOIDTYPE2` macro with exactly two
+/// arguments.
 template <class TYPE, class = void>
 struct IsReasonable {
 
@@ -378,14 +384,17 @@ struct IsReasonable<TYPE, BSLMF_VOIDTYPE2(TYPE&, TYPE *)> {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-/// Destroy this object.  Note that this destructor is pure virtual
-/// only to make this class abstract.
+/// This `struct` is an abstract class type used for testing.
 struct Abstract {
+    /// Destroy this object.  Note that this destructor is pure virtual only
+    /// to make this class abstract.
     virtual ~Abstract() = 0;
 };
 
-/// Return a `void *` null pointer.
+/// This `struct` is implicitly convertible to `void *`, and is used to verify
+/// that `isVoidPointer` does not consider such a conversion.
 struct ConvertibleToVoidStar {
+    /// Return a `void *` null pointer.
     operator void*() const { return 0; }
 };
 
@@ -407,7 +416,7 @@ union MyUnion {
 
 /// Return `false`.  Note that the (non-template) function below will be
 /// selected in overload resolution if (the template parameter) `TYPE` is a
-/// pointer to cv-unqalified `void`.
+/// pointer to cv-unqualified `void`.
 template <class TYPE>
 inline bool isVoidPointer(const TYPE&)
 {
@@ -462,7 +471,7 @@ int main(int argc, char *argv[])
         //   Due to the C++98 requirements that `typename` be used only where
         //   the compiler absolutely requires it (rather than allowing for
         //   redundant use) the `BSLMF_VOIDTYPES` macro is to be used only in
-        //   type-dependant contexts.  That means testing must be in terms of
+        //   type-dependent contexts.  That means testing must be in terms of
         //   instantiating templates declared outside `main`.  Note that the
         //   macro arguments supplied to `BSLMF_VOIDTYPES` cannot contain any
         //   mix of non-type expressions:
@@ -478,12 +487,12 @@ int main(int argc, char *argv[])
         //
         // 2. `BSLMF_VOIDTYPES(T1, T2... TN)` fails to instantiate in a SFINAE
         //    compatible manner, for all dialects of C++, when any of the types
-        //    `T1, T2, ... TN` forms an invalid (dependant) type expression.
+        //    `T1, T2, ... TN` forms an invalid (dependent) type expression.
         //
         // Plan:
         // 1. Create a metafunction, `IsMediumClass`, using the macro
         //    `BSLMF_VOIDTYPES` to filter types on some set of properties.
-        //    At least three properies are tested to distinguish this test
+        //    At least three properties are tested to distinguish this test
         //    from that of `BSLMF_VOIDTYPE2` (test case 5).
         //
         // 2. Instantiate that metafunction for a wide variety of types that
@@ -496,7 +505,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING `BSLMF_VOIDTYPES`"
                             "\n=========================\n");
 
-       typedef Incomplete T;   // abbreviation for table below
+        typedef Incomplete T;   // abbreviation for table below
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
@@ -563,7 +572,6 @@ int main(int argc, char *argv[])
         IS_MEDIUM_CLASS(int(T::*)()const noexcept, false);
 #endif
 
-
 #undef IS_MEDIUM_CLASS
       } break;
       case 5: {
@@ -572,7 +580,7 @@ int main(int argc, char *argv[])
         //   Due to the C++98 requirements that `typename` be used only where
         //   the compiler absolutely requires it (rather than allowing for
         //   redundant use) the `BSLMF_VOIDTYPE2` macro is to be used only in
-        //   type-dependant contexts.  That means testing must be in terms of
+        //   type-dependent contexts.  That means testing must be in terms of
         //   instantiating templates declared outside `main`.  Note that the
         //   macro arguments supplied to `BSLMF_VOIDTYPE2` cannot contain any
         //   mix of non-type expressions:
@@ -588,7 +596,7 @@ int main(int argc, char *argv[])
         //
         // 2. `BSLMF_VOIDTYPE2(T1, T2)` fails to instantiate in a SFINAE
         //    compatible manner, for all dialects of C++, when either of the
-        //    macro arguments, T1 or T2, forms an invalid (dependant) type
+        //    macro arguments, T1 or T2, forms an invalid (dependent) type
         //    expression.
         //
         // Plan:
@@ -655,7 +663,7 @@ int main(int argc, char *argv[])
         //   Due to the C++98 requirements that `typename` be used only where
         //   the compiler absolutely requires it (rather than allowing for
         //   redundant use) the `BSLMF_VOIDTYPE` macro is to be used only in
-        //   type-dependant contexts.  That means testing must be in terms of
+        //   type-dependent contexts.  That means testing must be in terms of
         //   instantiating templates declared outside `main`.  Note that the
         //   macro arguments supplied to `BSLMF_VOIDTYPE` cannot contain any
         //   mix of non-type expressions:
@@ -670,7 +678,7 @@ int main(int argc, char *argv[])
         //
         // 2. `BSLMF_VOIDTYPE(T)` fails to instantiate in a SFINAE compatible
         //    manner, for all dialects of C++, when the macro argument `T`
-        //    forms an invalid (dependant) type expression.
+        //    forms an invalid (dependent) type expression.
         //
         // Plan:
         // 1. Create a metafunction, `IsClassType`, using the macro
@@ -736,7 +744,7 @@ int main(int argc, char *argv[])
         // 1. `bsl::void_t<T1, T2... TN>` is an alias for `void` (for any N).
         //
         // 2. The types used to instantiate `bsl::void_t` can be any mix of
-        //    valid types, including (potentiallly cv-qualified):
+        //    valid types, including (potentially cv-qualified):
         //    - fundamental types (including `void`)
         //    - enumerations
         //    - classes
@@ -758,12 +766,14 @@ int main(int argc, char *argv[])
         // 3. Duplicate types are allowed.
         //
         // Plan:
-        // 1. For concern 1, instantiate `bsl::void_t<T1, T2... TN>::type`
-        //    with 0 to 14 parameters and verify that the result is type
-        //    `void`.  (C-1)
+        // 1. For concern 1, instantiate `bsl::void_t<T1, T2... TN>` with 0 to
+        //    14 parameters and verify that the result is type `void`.  (C-1)
         //
         // 2. For concern 2, ensure that P-1 has a healthy mix of parameter
         //    types.  (C-2)
+        //
+        // 3. For concern 3, ensure that P-1 includes a list of parameters in
+        //    which a type is repeated.  (C-3)
         //
         // Testing:
         //   bsl::void_t
@@ -845,7 +855,7 @@ int main(int argc, char *argv[])
         //    14.
         //
         // 2. The types used to instantiate `bslmf::VoidType` can be any mix of
-        //    valid types, including (potentiallly cv-qualified):
+        //    valid types, including (potentially cv-qualified):
         //    - fundamental types (including `void`)
         //    - enumerations
         //    - classes
@@ -867,12 +877,15 @@ int main(int argc, char *argv[])
         // 3. Duplicate types are allowed.
         //
         // Plan:
-        // 1. For concern 1, instantiate `bslmf::VoidType<T1, T2... TN>::type`
-        //    with 0 to 14 parameters and verify that the result is type
-        //    `void`.  (C-1)
+        // 1. For concern 1, instantiate `bslmf::VoidType<T1, T2... TN>` with 0
+        //    to 14 parameters and verify that the result `type` is `void`.
+        //    (C-1)
         //
         // 2. For concern 2, ensure that P-1 has a healthy mix of parameter
         //    types.  (C-2)
+        //
+        // 3. For concern 3, ensure that P-1 includes a list of parameters in
+        //    which a type is repeated.  (C-3)
         //
         // Testing:
         //   VoidType::type
@@ -968,32 +981,37 @@ int main(int argc, char *argv[])
         // 1. `isVoidPointer(arg)` returns `true` if (and only if) `arg` has
         //    the type `void *`.
         //
-        // 2. `isVoidPointer(arg)` returns `false` is `arg` has the type of a
+        // 2. `isVoidPointer(arg)` returns `false` if `arg` has the type of a
         //    pointer to cv-qualified `void`.
         //
-        // 3. `isVoidPointer(arg)` returns `false` is `arg` has the type of a
-        //    to any object type other than `void`.
+        // 3. `isVoidPointer(arg)` returns `false` if `arg` has the type of a
+        //    pointer to any object type other than `void`.
         //
-        // 4. `isVoidPointer(arg)` returns `false` is `arg` has the type of a
-        //    to any function type.
+        // 4. `isVoidPointer(arg)` returns `false` if `arg` has the type of a
+        //    pointer to any function type.
         //
-        // 5. `isVoidPointer(arg)` returns `false` is `arg` has the type of a
+        // 5. `isVoidPointer(arg)` returns `false` if `arg` has the type of a
         //    class with a conversion operator to `void *`.
+        //
+        // 6. `isVoidPointer(arg)` returns `false` if `arg` is a null pointer
+        //    constant such as `0` or `nullptr`, which are not actually
+        //    pointers.
         //
         // Plan:
         // 1. Call `isVoidPointer` with a variety of null pointers, cast to
         //    pointers to cv-qualified `void`, asserting that only the pointer
-        //    to unqualified `void` returns `true`.
+        //    to unqualified `void` returns `true`.  (C-1,2)
         //
         // 2. Call `isVoidPointer` with a variety of null pointers, cast to
-        //    types types that may fool a careless human into thinking they are
-        //    related to `void *`, and verify that all return `false`.
+        //    types that may fool a careless human into thinking they are
+        //    related to `void *`, and verify that all return `false`.  (C-3,4)
         //
-        // 3. Call `isVoidPointer` with 0 and a null pointer literal, ensuring
-        //    that the result is `false` in each case.
+        // 3. Call `isVoidPointer` with 0 and, where supported, `nullptr`, and
+        //    verify that the result is `false` in each case.  (C-6)
         //
-        // 4. Call `isVoidPointer` with an object of a call type implicitly
-        //    convertible to `void *`.
+        // 4. Call `isVoidPointer` with an object of a class type implicitly
+        //    convertible to `void *`, and verify that it returns `false`.
+        //    (C-5)
         //
         // Testing:
         //   CONCERN: Test machinery works as expected

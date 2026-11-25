@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_resulttype
 //
 //@DESCRIPTION: This component provides the alias template `bsl::void_t`, as
-// specified by the C++14 standard, and a metafunction, `bslmf::VoidType`, to
+// specified by the C++17 standard, and a metafunction, `bslmf::VoidType`, to
 // emulate the same functionality for older compilers that do not support alias
 // templates, which are first specified by the C++11 standard.  It further
 // provides 3 macros, `BSLMF_VOIDTYPE/2/S`, that provide a consistent way to
@@ -28,15 +28,15 @@ BSLS_IDENT("$Id: $")
 // All forms of the metafunction, however it is written, produce the result
 // type `void`.  The usefulness of this do-nothing metafunction is that, when
 // it is instantiated, all of its template arguments must be valid.  By putting
-// the template instantiation in a SFINAE context, any use of template
-// parameters that name invalid dependent types are discarded by the compiler
+// the template instantiation in a SFINAE context, any use of a template
+// parameter that names an invalid dependent type is discarded by the compiler
 // as non-viable.  Thus, `VoidType` is most commonly used to build
 // metafunctions that test for the existence of a specific nested data type
 // (see {Usage}).
 //
 // The `bslmf::VoidType` class template is intended to provide functionality
-// identical to the C++14 metafunction `std::void_t`, but without using C++11
-// alias templates.  A use, in C++14-compliant code, of:
+// identical to the C++17 metafunction `std::void_t`, but without using C++11
+// alias templates.  A use, in C++17-compliant code, of:
 // ```
 // std::void_t<T1, T2, ...>
 // ```
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 ///---------------
 // This section documents the preprocessor macros defined in this component.
 //
-///Macros for type-dependant SFINAE checks in any C++ dialect
+///Macros for type-dependent SFINAE checks in any C++ dialect
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following macros are for use only in a type-dependent context.  They all
 // expand to a type expression that uses either `bsl::void_t<ARGS>` if alias
@@ -70,20 +70,20 @@ BSLS_IDENT("$Id: $")
 // compilers that do not support variadic templates, we can use a simpler class
 // template that has fewer type parameters.
 //
-//: `BSLMF_VOIDTYPE( TYPE_EXPRESSION )`:
-//:     This macro will expand into a type expression that aliases `void` if
-//:     the "TYPE EXPRESSION" is valid, and will fail to expand in a SFINAE
-//:     friendly manner if the type expressions is not valid.
+// * `BSLMF_VOIDTYPE(TYPE_EXPRESSION)`: This macro will expand into a type
+//   expression that aliases `void` if `TYPE_EXPRESSION` is valid, and will
+//   fail to expand in a SFINAE friendly manner if the type expression is not
+//   valid.
 //
-//: `BSLMF_VOIDTYPE2( TYPE_EXPRESSION_1, TYPE_EXPRESSION_2 )`:
-//:     This macro will expand into a type expression that aliases `void` if
-//:     each "TYPE EXPRESSION" is valid, and will fail to expand in a SFINAE
-//:     friendly manner if either of the type expressions is not valid.
+// * `BSLMF_VOIDTYPE2(TYPE_EXPRESSION_1, TYPE_EXPRESSION_2)`: This macro will
+//   expand into a type expression that aliases `void` if each type expression
+//   is valid, and will fail to expand in a SFINAE friendly manner if either of
+//   the type expressions is not valid.
 //
-//: `BSLMF_VOIDTYPES( TYPE_EXPRESSIONS... )`:
-//:     This macro will expand into a type expression that aliases `void` if
-//:     each "TYPE EXPRESSION" is valid, and will fail to expand in a SFINAE
-//:     friendly manner if any of the type expressions is not valid.
+// * `BSLMF_VOIDTYPES(TYPE_EXPRESSIONS...)`: This macro will expand into a
+//   type expression that aliases `void` if each type expression is valid, and
+//   will fail to expand in a SFINAE friendly manner if any of the type
+//   expressions is not valid.
 //
 ///Additional concerns when using old compilers
 ///--------------------------------------------
@@ -104,7 +104,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended use of this component.
+// This section illustrates intended use of this component.
 //
 ///Usage Example 1
 ///- - - - - - - -
@@ -147,11 +147,11 @@ BSLS_IDENT("$Id: $")
 // template, thus yielding a `k_VALUE` of `true`.
 //
 // Finally, we try to instantiate `HasIteratorType<int>`.  Any use of
-// `BSLMF_VOIDTYPE(TYPE::iterator)` will result in a substitution failure.
-// Fortunately, the Substitution Failure Is Not An Error (SFINAE) rule applies
-// and the partial specialization is eliminated from consideration, resulting
-// in the primary template being instantiated and yielding a `k_VALUE` of
-// `false`:
+// `BSLMF_VOIDTYPE(typename TYPE::iterator)` will result in a substitution
+// failure.  Fortunately, the Substitution Failure Is Not An Error (SFINAE)
+// rule applies and the partial specialization is eliminated from
+// consideration, resulting in the primary template being instantiated and
+// yielding a `k_VALUE` of `false`:
 // ```
 //     assert(false == HasIteratorType<int>::k_VALUE);
 // }
@@ -187,11 +187,11 @@ BSLS_IDENT("$Id: $")
 //     typedef int *iterator;
 // };
 // ```
-// Finally, the `IsTraversable` metafunction yields `true` for `Traversable`
-// but not for either `WithIterator`, which lacks a `value_type` member, nor
+// Finally, the `IsTraversable` metafunction yields `true` for `MyTraversable`
+// but neither for `WithIterator`, which lacks a `value_type` member, nor for
 // `int`, which lacks both `iterator` and `value_type` members:
 // ```
-// int usageExample2()
+// void usageExample2()
 // {
 //     assert(true  == IsTraversable<MyTraversable>::k_VALUE);
 //     assert(false == IsTraversable<WithIterator>::k_VALUE);
@@ -210,10 +210,10 @@ namespace bslmf {
                         // class template VoidType
                         // =======================
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 /// Metafunction that always yields `type` `void` for any well-formed list
 /// of type parameters.  This metafunction is useful when using SFINAE to
 /// probe for well-formed types.
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template <class ...>
 #else
 template <class T1  = void, class T2  = void, class T3  = void,
@@ -248,7 +248,7 @@ using void_t = void;
 // Define a couple of implementation-private classes with smaller template
 // parameter lists, for efficient use on C++03 compilers.  Note that the
 // preferred interface for portable C++03/11 code is to use the three
-// 'VOIDTYPE' macros, rather than the class templates directly.
+// `VOIDTYPE` macros, rather than the class templates directly.
 
 namespace BloombergLP {
 namespace bslmf {
