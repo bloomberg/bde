@@ -249,7 +249,8 @@ int main(int argc, char *argv[])
             }
 
             if (redirector.outputSize() < 12 ) {
-                ASSERT(0 == "Redirected output buffer is shorted than expected.");
+                ASSERT(0 ==
+                       "Redirected output buffer is shorter than expected.");
                 break;
             }
 

@@ -70,7 +70,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
 # include <rw/rwstderr_macros.h>
 # ifndef _RWSTD_ERROR_MSG_FILE
-#   error <rw/rwstderr_macros.h> does not seem to #define _RWSTD_ERROR_MSG_FILE.
+#   error <rw/rwstderr_macros.h> seems not to define _RWSTD_ERROR_MSG_FILE.
 # endif
 
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)

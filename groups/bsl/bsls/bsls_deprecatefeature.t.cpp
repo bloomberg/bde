@@ -555,9 +555,9 @@ int main(int argc, char *argv[])
         // code is excluded by a `#if` directive.  The preprocessor must parse
         // the excluded code to find the matching `#endif`.
 
-        // The text is deliberately a long line.
         const char * JSON =
-            R"([[deprecated("{\"library\": \"" "bsl" "\", \"feature\": \"" "test" "\", \"message\": \"" "text" "\"}")]])";
+            R"([[deprecated("{\"library\": \"" "bsl" "\", \"feature\": \"" )"
+            R"("test" "\", \"message\": \"" "text" "\"}")]])";
 
         // Bit Mask Description
         // --------------------

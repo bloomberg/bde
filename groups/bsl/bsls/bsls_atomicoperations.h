@@ -1371,10 +1371,10 @@ struct AtomicOperations {
     /// `value` and return the resulting value, without providing any memory
     /// ordering guarantees.
     static Types::Uint64 subtractUint64NvRelaxed(
-                                                AtomicTypes::Uint64 *atomicUint,
-                                                Types::Uint64        value);
+                                               AtomicTypes::Uint64 *atomicUint,
+                                               Types::Uint64        value);
 
-        // *** atomic functions for pointer ***
+    // *** atomic functions for pointer ***
 
     /// Atomically retrieve the value of the specified `atomicPtr`,
     /// providing the sequential consistency memory ordering guarantee.

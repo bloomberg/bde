@@ -1623,8 +1623,8 @@ int main(int argc, char *argv[])
                statsWithPrefetch.push_back(   withPrefetch);
         }
 
-        std::sort(   statsWithoutPrefetch.begin(),    statsWithoutPrefetch.end());
-        std::sort(statsWithPrefetch.begin(), statsWithPrefetch.end());
+        std::sort(statsWithoutPrefetch.begin(), statsWithoutPrefetch.end());
+        std::sort(   statsWithPrefetch.begin(),    statsWithPrefetch.end());
 
         assert(0                        <  statsWithoutPrefetch.size());
         assert(1                        == statsWithoutPrefetch.size() % 2);

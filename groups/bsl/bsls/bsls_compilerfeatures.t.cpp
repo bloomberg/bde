@@ -3103,11 +3103,13 @@ int main(int argc, char *argv[])
             int *pX = new (tag) int(12);
             delete pX;
 
-            // Cache values in case `ASSERTV` performs unexpected memory management.
+            // Cache values in case `ASSERTV` performs unexpected memory
+            // management.
             std::size_t sizeOfLastDeletedObject = g_sizeOfLastDeletedObject;
             std::size_t sizeOfLastDeletedArray  = g_sizeOfLastDeletedArray;
 
-            ASSERTV(sizeOfLastDeletedObject, sizeof(int) == sizeOfLastDeletedObject);
+            ASSERTV(sizeOfLastDeletedObject,
+                    sizeof(int) == sizeOfLastDeletedObject);
             ASSERTV(sizeOfLastDeletedArray, 0 == sizeOfLastDeletedArray);
         }
 
@@ -3118,11 +3120,13 @@ int main(int argc, char *argv[])
             NonTrivial *pA = new (tag) NonTrivial[5];
             delete[] pA;
 
-            // Cache values in case `ASSERTV` performs unexpected memory management.
+            // Cache values in case `ASSERTV` performs unexpected memory
+            // management.
             std::size_t sizeOfLastDeletedObject = g_sizeOfLastDeletedObject;
             std::size_t sizeOfLastDeletedArray  = g_sizeOfLastDeletedArray;
             ASSERTV(sizeOfLastDeletedObject, 0 == sizeOfLastDeletedObject);
-            ASSERTV(sizeOfLastDeletedArray, 5 * sizeof(NonTrivial) <= sizeOfLastDeletedArray);
+            ASSERTV(sizeOfLastDeletedArray,
+                    5 * sizeof(NonTrivial) <= sizeOfLastDeletedArray);
         }
 #endif
       } break;
@@ -5110,7 +5114,8 @@ will not improve the flavor.
         }
 
         if (sizeof(ConstexprConst::test<Feature14>(0)) == sizeof(FalseType)) {
-            ASSERT(0 == "C++14 constexpr erroneously makes member function const");
+            ASSERT(0 ==
+                   "C++14 constexpr erroneously makes member function const");
         }
 #endif
       } break;

@@ -214,6 +214,7 @@ void testMacroHandling()
         ASSERT(0 == "INCLUDED_BSLS_ASSERTTEST_MACRORESET is NOT defined!");
     #endif
 
+// clang-format off
 //--------------------------------------------------------------------GENERATED
     #ifdef BDE_BUILD_TARGET_DBG
         ASSERT(0 == "BDE_BUILD_TARGET_DBG is defined!");
@@ -879,6 +880,7 @@ void testMacroHandling()
         ASSERT(0 == "INCLUDED_BSLS_REVIEW is still defined!");
     #endif
 //----------------------------------------------------------------END GENERATED
+// clang-format on
 }
 
 // ----------------------------------------------------------------------------

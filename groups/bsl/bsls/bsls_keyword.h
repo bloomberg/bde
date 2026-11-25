@@ -92,11 +92,11 @@ BSLS_IDENT("$Id: $")
 //:     later mode and inserts nothing when compiling with C++03 mode.
 //:
 //: `BSLS_KEYWORD_INLINE_CONSTEXPR`
-//:     **DEPRECATED** THIS MACRO CANNOT BE USED SAFELY ACROSS MULTIPLE LANGUAGE
-//:     VERSIONS.  This macro inserted the keywords `inline constexpr` when
-//:     compiled with C++17 or later mode and inserted the best approximation
-//:     in earlier dialects, ultimately degrading down to `static const` in
-//:     C++03.
+//:     **DEPRECATED** THIS MACRO CANNOT BE USED SAFELY ACROSS MULTIPLE
+//:     LANGUAGE VERSIONS.  This macro inserted the keywords `inline constexpr`
+//:     when compiled with C++17 or later mode and inserted the best
+//:     approximation in earlier dialects, ultimately degrading down to
+//:     `static const` in C++03.
 //:
 //: `BSLS_KEYWORD_INLINE_VARIABLE`
 //:     This macro inserts the keyword `inline` when compiling with C++17 or

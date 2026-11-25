@@ -462,9 +462,10 @@ void verifyDurationRangeCheck(int                       line,
 /// `expectedResults` array.  The specified `line` points to the specific
 /// row in the test table to facilitate debugging in case of error.
 template <class PERIOD>
-void verifyDurationRangeCheckUnsigned(int                       line,
-                                      const bsls::TimeInterval& interval,
-                                      const RangeCheckResults&  expectedResults)
+void verifyDurationRangeCheckUnsigned(
+                                     int                       line,
+                                     const bsls::TimeInterval& interval,
+                                     const RangeCheckResults&  expectedResults)
 {
     verifyIsInDurationRange<std::uint8_t,  PERIOD>(line,
                                                    interval,
@@ -5562,17 +5563,17 @@ int main(int argc, char *argv[])
         //    is equivalent to using the value constructor.  (C-1, 3)
         //
         // 10. Using the table-driven technique, call `addNanoseconds` on a
-        //    `TimeInterval` assigned some initial value and verify the result
-        //    is equivalent to using the value constructor.  (C-1, 3)
+        //     `TimeInterval` assigned some initial value and verify the result
+        //     is equivalent to using the value constructor.  (C-1, 3)
         //
-        // 11. On each invokation of a method under test, compare the address of
-        //    the objected referenced by the return value to the address of the
-        //    object under test.  (C-4)
+        // 11. On each invocation of a method under test, compare the address
+        //     of the object referenced by the return value to the address of
+        //     the object under test.  (C-4)
         //
         // 12. Verify that, in appropriate build modes, defensive checks are
-        //    triggered for invalid time interval values, but not
-        //    triggered for adjacent valid ones (using the
-        //    `BSLS_ASSERTTEST_*` macros). (C-5)
+        //     triggered for invalid time interval values, but not
+        //     triggered for adjacent valid ones (using the
+        //     `BSLS_ASSERTTEST_*` macros). (C-5)
         //
         // Testing:
         //   TimeInterval& addDays(bsls::Types::Int64);

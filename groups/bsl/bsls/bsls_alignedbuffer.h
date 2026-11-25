@@ -182,7 +182,8 @@ union AlignedBuffer_Data {
 #endif
 };
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
+#if defined(BSLS_PLATFORM_CMP_MSVC) &&                                        \
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
 // We provide template specializations for MSVC using __declspec(align).
 // Note that MSVC does not enforce the alignment of (at least) 'double'
 // variables on the stack.  (internal issue 64140445).
@@ -199,7 +200,8 @@ union AlignedBuffer_Data<SIZE, 8> {BSLS_ALIGNAS(8) char d_buffer[SIZE]; };
 template <int SIZE>
 union AlignedBuffer_Data<SIZE, 16> {BSLS_ALIGNAS(16) char d_buffer[SIZE]; };
 #undef BSLS_ALIGNAS
-#endif  // defined(BSLS_PLATFORM_CMP_MSVC)
+#endif  // defined(BSLS_PLATFORM_CMP_MSVC) &&
+        // !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
 
                         // ===================
                         // class AlignedBuffer

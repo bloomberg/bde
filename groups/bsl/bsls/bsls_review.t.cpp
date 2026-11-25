@@ -1992,7 +1992,8 @@ class StringResetter {
 
 void testCase11Handler(const bsls::ReviewViolation& violation)
 {
-    ASSERTV(violation.comment(), 0 == strcmp(violation.comment(), "InitValue"));
+    ASSERTV(violation.comment(),
+            0 == strcmp(violation.comment(), "InitValue"));
 
 #ifdef BDE_BUILD_TARGET_EXC
     // Test that throwing will produce an exception that still has the same

@@ -2594,7 +2594,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting `AtomicBool` SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `AtomicBool` SWAP Manipulators"
+                          << endl;
         {
             static const struct {
                 int  d_lineNum;    // source line number
@@ -3973,8 +3974,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting `bsls::AtomicBool` Primary Manipulators"
-                          << endl;
+        if (verbose) cout << "\nTesting `bsls::AtomicBool` Primary "
+                          << "Manipulators" << endl;
         {
             static const struct {
                 int d_lineNum;  // source line number

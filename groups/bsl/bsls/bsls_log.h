@@ -33,7 +33,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-// This section provides documentation for the macros defined in this component.
+// This section provides documentation for the macros defined in this
+// component.
 // ```
 // BSLS_LOG(severity, ...)
 //    If the specified `severity` is at least as severe as

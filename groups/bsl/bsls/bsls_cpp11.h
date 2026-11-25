@@ -35,9 +35,9 @@ BSLS_IDENT("$Id: $")
 // The following are the macros provided by this component.
 //
 //: `BSLS_CPP11_CONSTEXPR`:
-//:     **DEPRECATED**: Use `BSLS_KEYWORD_CONSTEXPR` instead.  This macro inserts
-//:     the keyword `constexpr` when compiling with C++11 mode and inserts
-//:     nothing when compiling with C++03 mode.
+//:     **DEPRECATED**: Use `BSLS_KEYWORD_CONSTEXPR` instead.  This macro
+//:     inserts the keyword `constexpr` when compiling with C++11 mode and
+//:     inserts nothing when compiling with C++03 mode.
 //:
 //: `BSLS_CPP11_DELETED`:
 //:     **DEPRECATED**: Use `BSLS_KEYWORD_DELETED` instead.  This macro inserts
@@ -45,19 +45,19 @@ BSLS_IDENT("$Id: $")
 //:     when compiling with C++03 mode.
 //:
 //: `BSLS_CPP11_EXPLICIT`:
-//:     **DEPRECATED**: Use `BSLS_KEYWORD_EXPLICIT` instead.  This macro inserts
-//:     the keyword `explicit` when compiling with C++11 mode and inserts
-//:     nothing when compiling with C++03 mode.
+//:     **DEPRECATED**: Use `BSLS_KEYWORD_EXPLICIT` instead.  This macro
+//:     inserts the keyword `explicit` when compiling with C++11 mode and
+//:     inserts nothing when compiling with C++03 mode.
 //:
 //: `BSLS_CPP11_FINAL`:
-//:     **DEPRECATED**: Use `BSLS_KEYWORD_FINAL` instead.  This macro inserts the
-//:     keyword `final` when compiling with C++11 mode and inserts nothing when
-//:     compiling with C++03 mode.
+//:     **DEPRECATED**: Use `BSLS_KEYWORD_FINAL` instead.  This macro
+//:     inserts the keyword `final` when compiling with C++11 mode and inserts
+//:     nothing when compiling with C++03 mode.
 //:
 //: `BSLS_CPP11_NOEXCEPT`:
-//:     **DEPRECATED**: Use `BSLS_KEYWORD_NOEXCEPT` instead.  This macro inserts
-//:     the keyword `noexcept` when compiling with C++11 mode and inserts
-//:     nothing when compiling with C++03 mode.
+//:     **DEPRECATED**: Use `BSLS_KEYWORD_NOEXCEPT` instead.  This macro
+//:     inserts the keyword `noexcept` when compiling with C++11 mode and
+//:     inserts nothing when compiling with C++03 mode.
 //:
 //: `BSLS_CPP11_NOEXCEPT_AVAILABLE`:
 //:     **DEPRECATED**: Use `BSLS_KEYWORD_NOEXCEPT_AVAILABLE` instead.  This
@@ -65,21 +65,22 @@ BSLS_IDENT("$Id: $")
 //:     `false` otherwise.
 //:
 //: `BSLS_CPP11_NOEXCEPT_SPECIFICATION(BOOL_EXPRESSION)`:
-//:     **DEPRECATED**: Use `BSLS_KEYWORD_NOEXCEPT_SPECIFICATION` instead.  This
-//:     macro inserts the exception specification `noexcept(BOOL_EXPRESSION)`
-//:     when compiling with C++11 mode and inserts nothing when compiling with
-//:     C++03 mode.  This macro is used to specify which version of `noexcept`
-//:     is intended when multiple `noexcept`s are used in a single statement.
+//:     **DEPRECATED**: Use `BSLS_KEYWORD_NOEXCEPT_SPECIFICATION` instead.
+//:     This macro inserts the exception specification
+//:     `noexcept(BOOL_EXPRESSION)` when compiling with C++11 mode and inserts
+//:     nothing when compiling with C++03 mode.  This macro is used to specify
+//:     which version of `noexcept` is intended when multiple `noexcept`s are
+//:     used in a single statement.
 //:
 //: `BSLS_CPP11_NOEXCEPT_OPERATOR(expr)`:
-//:     **DEPRECATED**: Use `BSLS_KEYWORD_NOEXCEPT_OPERATOR` instead.  This macro
-//:     inserts the operation `noexcept(expr)` when compiling with C++11 mode
-//:     and inserts the literal `false` when compiling with C++03 mode.
+//:     **DEPRECATED**: Use `BSLS_KEYWORD_NOEXCEPT_OPERATOR` instead.  This
+//:     macro inserts the operation `noexcept(expr)` when compiling with C++11
+//:     mode and inserts the literal `false` when compiling with C++03 mode.
 //:
 //: `BSLS_CPP11_OVERRIDE`
-//:     **DEPRECATED**: Use `BSLS_KEYWORD_OVERRIDE` instead.  This macro inserts
-//:     the keyword `override` when compiling with C++11 mode and inserts
-//:     nothing when compiling with C++03 mode.
+//:     **DEPRECATED**: Use `BSLS_KEYWORD_OVERRIDE` instead.  This macro
+//:     inserts the keyword `override` when compiling with C++11 mode and
+//:     inserts nothing when compiling with C++03 mode.
 //:
 //: `BSLS_CPP11_PROVISIONALLY_FALSE`:
 //:     **DEPRECATED**: Use `false` instead.  This macro inserts the keyword

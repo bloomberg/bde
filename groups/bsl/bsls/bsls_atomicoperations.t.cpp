@@ -3140,7 +3140,8 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\nTesting `Uint` Arithmetic Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint` Arithmetic Manipulators"
+                          << endl;
         {
             static const struct {
                 int          d_lineNum;     // Source line number
@@ -5480,8 +5481,9 @@ int main(int argc, char *argv[]) {
             args.d_barrier.reset();
             for (int i=0; i < NTHREADS; ++i) {
                 args.d_startSig.reset();
-                myCreateThread( &threadHandles[i],incrementUintAcqRelTestThread,
-                                &args);
+                myCreateThread(&threadHandles[i],
+                               incrementUintAcqRelTestThread,
+                               &args);
                 args.d_startSig.wait();
             }
 
@@ -8075,8 +8077,8 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose)
-            cout << "\nTesting `Uint` Arithmetic Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint` Arithmetic Manipulators"
+                          << endl;
         {
             static const struct {
                 int          d_lineNum;     // Source line number
