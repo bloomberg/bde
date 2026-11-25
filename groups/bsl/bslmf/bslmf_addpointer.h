@@ -53,12 +53,11 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_platform.h>
 
 #include <stddef.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslmf_removereference.h>
+# include <bslmf_removereference.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -97,16 +96,6 @@ struct AddPointer_Impl<t_TYPE, 1u> {
 
     typedef t_TYPE type;  // Do not modify the type if a pointer is not valid.
 };
-
-#if defined(BSLS_PLATFORM_CMP_IBM)
-template <class t_TYPE>
-struct AddPointer_Impl<t_TYPE[], 1u> {
-    // IBM miscomputes the SFINAE condition for arrays of unknown bound, so we
-    // provide an additional partial specialization for this platform.
-
-    typedef t_TYPE (*type)[];     // A pointer to the original 't_TYPE[]'.
-};
-#endif
 
 }  // close package namespace
 }  // close enterprise namespace

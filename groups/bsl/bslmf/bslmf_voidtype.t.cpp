@@ -1,8 +1,6 @@
 // bslmf_voidtype.t.cpp                                               -*-C++-*-
 #include <bslmf_voidtype.h>
 
-#include <bslmf_enableif.h>
-
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
@@ -82,6 +80,30 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+//=============================================================================
+//                        DEFECT DETECTION MACROS
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN)
+// The Sun CC compiler forms both pointers and references to "abominable"
+// function types, such as `void() const`, which the language forbids, so a
+// SFINAE test that requires forming either one does not reject such a type.
+# define BUG_FORMS_POINTERS_AND_REFERENCES_TO_ABOMINABLE_FUNCTIONS 1
+#endif
+
+//=============================================================================
+//                      WARNING SUPPRESSION
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN)
+// Some tests rely on "reference collapsing" of a reference to a reference.
+// This behavior would be illegal in C++03, but several compilers provide it as
+// an extension, but only Sun CC issues the extension warning.  Note that those
+// tests are designed to work correctly on a strictly conforming C++03 compiler
+// as well, such as GCC.
+# pragma error_messages(off, reftoref)
+#endif
 
 //=============================================================================
 //                             USAGE EXAMPLES
@@ -512,9 +534,7 @@ int main(int argc, char *argv[])
         IS_MEDIUM_CLASS(const int *   , false);
         IS_MEDIUM_CLASS(const int&    , false);
 
-#ifndef BSLS_PLATFORM_CMP_IBM
         IS_MEDIUM_CLASS(Incomplete    , false);
-#endif
         IS_MEDIUM_CLASS(      MyEnum  , false);
         IS_MEDIUM_CLASS(      MyStruct, true );
         IS_MEDIUM_CLASS(const MyStruct, true );
@@ -585,14 +605,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING `BSLMF_VOIDTYPE2`"
                             "\n=========================\n");
 
-#if defined(BSLS_PLATFORM_CMP_SUN) || BSLS_PLATFORM_CMP_VERSION < 0x5130
-        // Prior to CC 12.4, the Solaris compiler accepts all types as
-        // reasonable due to a template parser that accepts almost anything in
-        // any context.  `BSLMF_VOIDTYPE2` still has test coverage on this
-        // compiler in the usage example.
-
-        if (verbose) printf("This test is skipped on old Solaris compilers\n");
-#else
         typedef Incomplete T;   // abbreviation for table below
 
         ASSERT(!IsReasonable<      void    >::k_VALUE);
@@ -623,16 +635,19 @@ int main(int argc, char *argv[])
         ASSERT( IsReasonable<void   ()     >::k_VALUE);
         ASSERT( IsReasonable<void(*)()     >::k_VALUE);
         ASSERT(!IsReasonable<void(&)()     >::k_VALUE);
+#ifndef BUG_FORMS_POINTERS_AND_REFERENCES_TO_ABOMINABLE_FUNCTIONS
         ASSERT(!IsReasonable<void   ()const>::k_VALUE);
+#endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
         ASSERT( IsReasonable<void   ()        noexcept>::k_VALUE);
         ASSERT( IsReasonable<void(*)()        noexcept>::k_VALUE);
         ASSERT(!IsReasonable<void(&)()        noexcept>::k_VALUE);
+#  ifndef BUG_FORMS_POINTERS_AND_REFERENCES_TO_ABOMINABLE_FUNCTIONS
         ASSERT(!IsReasonable<void   ()  const noexcept>::k_VALUE);
+#  endif
         ASSERT( IsReasonable<int(T::*)()const noexcept>::k_VALUE);
 # endif
-#endif  // Solaris workaround
       } break;
       case 4: {
         // --------------------------------------------------------------------

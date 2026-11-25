@@ -1,9 +1,10 @@
 // bslmf_removevolatile.t.cpp                                         -*-C++-*-
 #include <bslmf_removevolatile.h>
 
-#include <bslmf_issame.h>  // for testing only
+#include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>   // `printf`
@@ -89,15 +90,12 @@ void aSsErT(bool condition, const char *message, int line)
 //# define BSLMF_REMOVEVOLATILE_SHOW_COMPILER_ERRORS 1
 #if !defined(BSLMF_REMOVEVOLATILE_SHOW_COMPILER_ERRORS)
 
-# if defined(BSLS_PLATFORM_CMP_IBM)                                           \
-  ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION <= 40400)   \
-  ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
-// The xlC compiler matches function types with trailing cv-qualifiers as being
-// cv-qualified themselves.  However, in such cases the cv-qualifier applies to
-// the (hidden) `this` pointer, as these function types exist only to be the
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION <= 40400
+// gcc 4.4 and earlier do not give the expected result for function types with
+// trailing cv-qualifiers.  In such cases the cv-qualifier applies to the
+// (hidden) `this` pointer, as these function types exist only to be the
 // result-type of a pointer-to-member type.  By definition no function type can
-// ever be cv-qualified.  The Microsoft compiler cannot parse such types at
-// all.
+// ever be cv-qualified.
 //
 // Note that we could obtain the correct answer by testing `is_function`, and
 // simply returning the original type in such cases.  However, that simply
@@ -105,14 +103,6 @@ void aSsErT(bool condition, const char *message, int line)
 // such types either.
 # define BSLMF_REMOVEVOLATILE_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES 1
 #endif
-
-# if defined(BSLS_PLATFORM_CMP_IBM)
-#   define BSLMF_REMOVEVOLATILE_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES 1
-// The IBM compiler cannot handle references to cv-qualified types, where such
-// referenced types are typedefs to regular (non-abominable) functions.  A
-// conforming compiler should silently drop the cv-qualifier, although some may
-// be noisy and issue a warning.  Last tested with xlC 12.2
-# endif
 
 #endif // BSLMF_REMOVEVOLATILE_SHOW_COMPILER_ERRORS
 
@@ -385,12 +375,10 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_volatile<int volatile(&)()>::type,
                                         int volatile(&)()>::value));
 
-# if!defined(BSLMF_REMOVEVOLATILE_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES)
         typedef int const FnType();
 
         ASSERT((is_same<remove_volatile<volatile FnType&>::type,
                                         volatile FnType&>::value));
-#endif
 
         ASSERT((is_same<remove_volatile<int volatile(* volatile  )()>::type,
                                         int volatile(*           )()>::value));

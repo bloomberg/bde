@@ -97,12 +97,10 @@ BSLS_IDENT("$Id: $")
 //
 // The templates and macros in this component aid in creating SFINAE conditions
 // in a conforming C++03 manner.  However, several of the compilers still in
-// production have significant issues in their handling of SFINAE.  For
-// example, the Solaris CC compiler (prior to the 12.4 release) is very
-// forgiving and will accept most invalid code without creating a SFINAE
-// failure.  Idiomatic use of this component for compile-time reflection to
-// detect named members of a class is known to work.  Other uses should be
-// carefully tested before deployment.
+// production have significant issues in their handling of SFINAE.  Idiomatic
+// use of this component for compile-time reflection to detect named members of
+// a class is known to work.  Other uses should be carefully tested before
+// deployment.
 //
 ///Usage
 ///-----

@@ -4,6 +4,8 @@
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>   // `printf`
 #include <stdlib.h>  // `atoi`
@@ -72,37 +74,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
-
-//=============================================================================
-//              PLATFORM DETECTION MACROS TO SUPPORT TESTING
-//-----------------------------------------------------------------------------
-
-//# define BSLMF_REMOVECONST_SHOW_COMPILER_ERRORS 1
-#if !defined(BSLMF_REMOVECONST_SHOW_COMPILER_ERRORS)
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
-// The xlC compiler matches function types with trailing cv-qualifiers as being
-// cv-qualified themselves.  However, in such cases the cv-qualifier applies to
-// the (hidden) `this` pointer, as these function types exist only to be the
-// result-type of a pointer-to-member type.  By definition no function type can
-// ever be cv-qualified.  The Microsoft compiler cannot parse such types at
-// all.
-//
-// Note that we could obtain the correct answer by testing `is_function`, and
-// simply returning the original type in such cases.  However, that simply
-// exposes that our current implementation of `is_function` does not detect
-// such types either.
-#   define BSLMF_REMOVECONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES 1
-# endif
-
-# if defined(BSLS_PLATFORM_CMP_IBM)
-#   define BSLMF_REMOVECONST_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES 1
-// The IBM compiler cannot handle references to cv-qualified types, where such
-// referenced types are typedefs to regular (non-abominable) functions.  A
-// conforming compiler should silently drop the cv-qualifier, although some may
-// be noisy and issue a warning.  Last tested with xlC 12.2
-# endif
-#endif // BSLMF_REMOVECONST_SHOW_COMPILER_ERRORS
 
 //=============================================================================
 //                      WARNING SUPPRESSION
@@ -273,13 +244,11 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_const<const int (TestType::*)() const>::type,
                                      const int (TestType::*)() const>::value));
 
-#if !defined(BSLMF_REMOVECONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
         ASSERT((is_same<remove_const<int const() const>::type,
                                      int const() const>::value));
 
         ASSERT((is_same<remove_const<int const() const volatile>::type,
                                      int const() const volatile>::value));
-#endif
 
         // C-2
         ASSERT((is_same<remove_const<int const>::type, int>::value));
@@ -358,12 +327,10 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_const<int const(&)()>::type,
                                      int const(&)()>::value));
 
-# if!defined(BSLMF_REMOVECONST_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES)
         typedef int const FnType();
 
         ASSERT((is_same<remove_const<const FnType&>::type,
                                      const FnType&>::value));
-#endif
 
         ASSERT((is_same<remove_const<int const(* const  )()>::type,
                                      int const(*        )()>::value));

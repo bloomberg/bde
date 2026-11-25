@@ -65,27 +65,14 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmf_integralconstant.h>
-#include <bslmf_issame.h>
 
-#include <bsls_platform.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 
-#include <stddef.h>
-
-
-#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1910)     \
- ||  defined(BSLS_PLATFORM_CMP_IBM)
-// The Microsoft compiler does not recognize array-types as cv-qualified (when
-// the element type is cv-qualified) when performing matching for partial
-// template specialization, but does get the correct result when performing
-// overload resolution for functions (taking arrays by reference).  Given the
-// function dispatch behavior being correct, we choose to work around this
-// compiler bug, rather than try to report compiler behavior, as the compiler
-// itself is inconsistent depending on how the trait might be used.  This also
-// corresponds to how Microsft itself implements the trait in VC2010 and later.
-# define BSLMF_ISVOLATILE_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT 1
-#endif
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+# include <bslmf_issame.h>
+# include <stddef.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
@@ -108,53 +95,12 @@ struct is_volatile : false_type {
                     // struct is_volatile<t_TYPE volatile>
                     // ===================================
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-template <class t_TYPE>
-struct is_volatile<volatile t_TYPE>
-: integral_constant<bool, !is_same<t_TYPE, volatile t_TYPE>::value> {
-    // This partial specialization of 'is_volatile', for when the (template
-    // parameter) 't_TYPE' is 'volatile'-qualified, derives from
-    // 'bsl::true_type'.  Note that the Solaris CC compiler misdiagnoses
-    // cv-qualified "abominable" function types as being cv-qualified
-    // themselves.  The correct result is obtained by delegating the result to
-    // a call through 'is_same'.
-};
-#else
 /// This partial specialization of `is_volatile`, for when the (template
 /// parameter) `t_TYPE` is `volatile`-qualified, derives from
 /// `bsl::true_type`.
 template <class t_TYPE>
 struct is_volatile<volatile t_TYPE> : true_type {
 };
-#endif
-
-
-#ifdef BSLMF_ISVOLATILE_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT
-// The Microsoft compiler does not recognize array-types as cv-qualified when
-// the element type is cv-qualified when performing matching for partial
-// template specialization, but does get the correct result when performing
-// overload resolution for functions (taking arrays by reference).  Given the
-// function dispatch behavior being correct, we choose to work around this
-// compiler bug, rather than try to report compiler behavior, as the compiler
-// itself is inconsistent depeoning on how the trait might be used.  This also
-// corresponds to how Microsft itself implements the trait in VC2010 and later.
-
-template <class t_TYPE>
-struct is_volatile<volatile t_TYPE[]> : true_type {
-    // This partial specialization of 'is_volatile', for when the (template
-    // parameter) 't_TYPE' is 'volatile'-qualified, derives from
-    // 'bsl::true_type'.  Note that this single specialization is sufficient to
-    // work around the MSVC issue, even for multidimensional arrays.
-};
-
-template <class t_TYPE, size_t t_LENGTH>
-struct is_volatile<volatile t_TYPE[t_LENGTH]> : true_type {
-    // This partial specialization of 'is_volatile', for when the (template
-    // parameter) 't_TYPE' is 'volatile'-qualified, derives from
-    // 'bsl::true_type'.  Note that this single specialization is sufficient to
-    // work around the MSVC issue, even for multidimensional arrays.
-};
-#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 /// This template variable represents the result value of the

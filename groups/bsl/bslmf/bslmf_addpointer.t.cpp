@@ -1,7 +1,7 @@
 // bslmf_addpointer.t.cpp                                             -*-C++-*-
 #include <bslmf_addpointer.h>
 
-#include <bslmf_issame.h>  // for testing only
+#include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
@@ -79,8 +79,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPILER DEFECT MACROS TO GUIDE TESTING
 //-----------------------------------------------------------------------------
 
-#if (defined(BSLS_PLATFORM_CMP_SUN ) && BSLS_PLATFORM_CMP_VERSION <= 0x5150 ) \
- || (defined(BSLS_PLATFORM_CMP_IBM ) && BSLS_PLATFORM_CMP_VERSION == 0x1001 )
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION <= 0x5150
 # define BSLMF_ADDPOINTER_CREATES_ABOMINABLE_POINTERS 1
 // Some compilers erroneously support pointers to "abominable" function types.
 // This macro indicates that they are expected to produce the wrong result.

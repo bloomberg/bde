@@ -1,9 +1,11 @@
 // bslmf_isvolatile.t.cpp                                             -*-C++-*-
 #include <bslmf_isvolatile.h>
 
+#include <bslmf_integralconstant.h>
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>
@@ -82,59 +84,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
-
-//=============================================================================
-//              PLATFORM DETECTION MACROS TO SUPPORT TESTING
-//-----------------------------------------------------------------------------
-
-//# define BSLMF_ISVOLATILE_SHOW_COMPILER_ERRORS 1
-#if !defined(BSLMF_ISVOLATILE_SHOW_COMPILER_ERRORS)
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
-// The xlC and Sun CC compilers mistakenly detect function types with trailing
-// cv-qualifiers as being cv-qualified themselves.  However, in such cases the
-// cv-qualifier applies to the (hidden) `this` pointer, as these function types
-// exist only to be the result-type of a pointer-to-member type.  By definition
-// no function type can ever be cv-qualified.  The Microsoft compiler cannot
-// parse such types at all.
-//
-// Note that we could obtain the correct answer by deriving `is_volatile` from
-// (the negation of) `is_function`, but that simply exposes that our current
-// implementation of `is_function` does not detect such types either.
-#   define BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES
-# endif
-
-#if defined(BSLS_PLATFORM_CMP_IBM)
-// The xlC and Sun CC compilers mistakenly detect function types with trailing
-// cv-qualifiers as being cv-qualified themselves.  However, in such cases the
-// cv-qualifier applies to the (hidden) `this` pointer, as these function types
-// exist only to be the result-type of a pointer-to-member type.  By definition
-// no function type can ever be cv-qualified.  The Microsoft compiler cannot
-// parse such types at all.
-//
-// Note that we could obtain the correct answer by deriving `is_volatile` from
-// (the negation of) `is_function`, but that simply exposes that our current
-// implementation of `is_function` does not detect such types either.
-#   define BSLMF_ISVOLATILE_COMPILER_CANNOT_QUALIFY_ABOMINABLE_FUNCTION_TYPES
-#   if BSLS_PLATFORM_CMP_VERSION == 0x1001 // 0x1001 is xlc version 16.01
-//    The xlC 12 compiler can correctly parse abominable function types, but
-//    the xlC 16.01 compiler has regressed and cannot do so.
-//    This has been reported to IBM who have stated that this will be fixed in
-//    the next compiler release (16.02).
-#       define BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES
-#   endif
-#endif
-
-# if defined(BSLS_PLATFORM_CMP_IBM)
-// The IBM xlC compiler correctly matches an array of `const volatile` elements
-// to a function template taking `volatile T&`, but incorrectly deduces `T` to
-// be `const volatile X[N]` rather than simply `const X[N]`.  The trait is
-// manually tested to confirm that it gives the correct result, so we define
-// a macro allowing us to disable the affected tests on this platform.
-#   define BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY
-# endif
-
-#endif // BSLMF_ISVOLATILE_SHOW_COMPILER_ERRORS
 
 //=============================================================================
 //                      WARNING SUPPRESSION
@@ -375,22 +324,16 @@ int main(int argc, char *argv[])
         ASSERT(!testIsvolatile<volatile int &>());
         ASSERT(!testIsvolatile<int()>());
         ASSERT(!testIsvolatile<volatile int()>());
-#if !defined(BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
         ASSERT(!testIsvolatile<volatile int() volatile>());
-#endif
 
         // Test again through a function that will try to volatile-qualify the
         // supplied template parameter
 
         ASSERT(testIsNotvolatileable<int &>());
         ASSERT(testIsNotvolatileable<volatile int &>());
-#if !defined(BSLMF_ISVOLATILE_COMPILER_CANNOT_QUALIFY_ABOMINABLE_FUNCTION_TYPES)
         ASSERT(testIsNotvolatileable<int()>());
         ASSERT(testIsNotvolatileable<volatile int()>());
-# if !defined(BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
         ASSERT(testIsNotvolatileable<volatile int() volatile>());
-# endif
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
         ASSERT(testIsNotvolatileable<int &&>());
@@ -417,23 +360,20 @@ int main(int argc, char *argv[])
             testIsNotvolatileable<volatile int() const volatile & noexcept>());
 #endif
 
-#if !defined(BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
         testNovolatileOnMemberFunction(
                                      &ClassWithCvFunctions::volatileQualified);
         testNovolatileOnMemberFunction(&ClassWithCvFunctions::cvQualified);
-#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING CONSISTENCY OF TRAIT AND FUNCTION OVERLOADS
         //   Test that the value of the trait corresponds with the value that
         //   is expected for a type deduced inside a function template.  The
-        //   main concern here is that compilers with buggy behavior, such as
-        //   the implementation works around for arrays, may deduce types in a
-        //   similar manner, and forcing the correct result on the trait would
-        //   produce an inconsistent program.  The tests below should expose
-        //   any inconsistency from our forced-correct trait value, with the
-        //   types deduced by the compiler in generic code.
+        //   main concern here is that a compiler may match cv-qualified
+        //   arrays differently in partial specialization and in function
+        //   template deduction, which would produce an inconsistent program.
+        //   The tests below should expose any inconsistency between the trait
+        //   value and the types deduced by the compiler in generic code.
         //
         // Concerns:
         // 1. `is_volatile<TYPE>::value` has the value expected for the type
@@ -533,7 +473,6 @@ int main(int argc, char *argv[])
 
         ASSERT(false == testCVOverload(volatileArray));
         ASSERT(false == testCVOverload(volatileArrayUB));
-#if !defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
         ASSERT(false == testCVOverload(volatileArray2D));
         ASSERT(false == testCVOverload(volatileArrayUB2D));
 
@@ -541,7 +480,6 @@ int main(int argc, char *argv[])
         ASSERT(false == testCVOverload(constVolatileArrayUB));
         ASSERT(false == testCVOverload(constVolatileArray2D));
         ASSERT(false == testCVOverload(constVolatileArrayUB2D));
-#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -609,11 +547,9 @@ int main(int argc, char *argv[])
         ASSERT(false == eval<volatile int(&)()>());
         ASSERT(false == eval<volatile int(*)()>());
 
-#if !defined(BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
         // Additional tests for abominable function types
         ASSERT(false == eval<volatile int(...) volatile>());
         ASSERT(false == eval<volatile int() const volatile>());
-#endif
 
         ASSERT(false == eval<      int[4]>());
         ASSERT(false == eval<const int[4]>());

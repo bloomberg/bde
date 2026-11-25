@@ -66,113 +66,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslmf_addpointer.h>
-#include <bslmf_functionpointertraits.h>
+# include <bslmf_addpointer.h>
+# include <bslmf_functionpointertraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
-// The IBM xlC compiler produces a "hard" error (not eligible for SFINAE) when
-// trying to apply cv-qualifiers to a template parameter (or typedef) that is a
-// function type.  Hence, a more oblique approach is needed to detect all
-// function types on this platform.  This implementation relies on the fact
-// that you cannot form an array of function types.
-
-namespace BloombergLP {
-namespace bslmf {
-
-struct IsFunction_Imp {
-    struct FalseType {
-        // This 'struct' provides a type larger than 'char' to be used in
-        // unevaluated contexts, allowing 'sizeof(selected overload)' to
-        // distinguish which overload was called when all other overloads
-        // return a 'char'.
-
-        char d_dummy[17];  // Member to guarantee 'sizeof(FalseType) > 1'
-    };
-
-    template <class t_TYPE>
-    static FalseType test(int t_TYPE::*, void *);
-        // This function will match any class type, including abstract types.
-
-    template <class t_TYPE>
-    static FalseType test(t_TYPE (*)[2], ...);
-        // This function will match all types other than those that cannot be
-        // used to form an array.  This includes function types, reference
-        // types, void types, and abstract types.  Further overloads and
-        // specializations will filter the reference, array, and abstract
-        // types.
-
-    template <class t_TYPE>
-    static char test(...);
-        // This function, when called with '0' in a non-evaluated context, will
-        // match anything that the previous overloads fail to match, which will
-        // include all function types, reference types, void types, and arrays
-        // of unknown bound.
-};
-
-} // close package namespace
-} // close enterprise namespace
-
-namespace bsl {
-
-template <class t_TYPE>
-struct is_function
-: integral_constant<
-      bool,
-      sizeof(BloombergLP::bslmf::IsFunction_Imp::test<t_TYPE>(0, 0)) == 1> {
-    // This 'struct' template implements the 'is_function' meta-function
-    // defined in the C++11 standard [meta.unary.cat] to determine if the
-    // (template parameter) 't_TYPE' is a function type.  This 'struct' derives
-    // from 'bsl::true_type' if the 't_TYPE' is a function type, and from
-    // 'bsl::false_type' otherwise.
-};
-
-template <class t_TYPE>
-struct is_function<t_TYPE[]> : false_type {
-    // Array types are, self-evidently, never function types.  Arrays of
-    // unknown bound will be misdiagnosed by the 'IsFunction_Imp' detector, so
-    // this template is partially specialized to resolve such cases.
-};
-
-template <class t_TYPE>
-struct is_function<t_TYPE&> : false_type {
-    // Reference types are, self-evidently, never function types.  This
-    // template is partially specialized to resolve such cases, as the
-    // detection idiom embodied in 'IsFunction_Imp' would yield the wrong
-    // result otherwise.
-};
-
-template <>
-struct is_function<void> : false_type {
-    // 'void' types are not functions.  It is easier to provide 4 cv-qualified
-    // explicit specializations than introduce a further dependency and chain
-    // template instantiations through 'remove_cv'.
-};
-
-template <>
-struct is_function<const void> : false_type {
-    // 'void' types are not functions.  It is easier to provide 4 cv-qualified
-    // explicit specializations than introduce a further dependency and chain
-    // template instantiations through 'remove_cv'.
-};
-
-template <>
-struct is_function<volatile void> : false_type {
-    // 'void' types are not functions.  It is easier to provide 4 cv-qualified
-    // explicit specializations than introduce a further dependency and chain
-    // template instantiations through 'remove_cv'.
-};
-
-template <>
-struct is_function<const volatile void> : false_type {
-    // 'void' types are not functions.  It is easier to provide 4 cv-qualified
-    // explicit specializations than introduce a further dependency and chain
-    // template instantiations through 'remove_cv'.
-};
-
-} // close namespace bsl
-
-#else  // This is the simplest implementation, for conforming compilers.
 namespace bsl {
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
@@ -225,7 +122,6 @@ BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_function_v =
 #endif
 
 }  // close namespace bsl
-#endif
 
 #endif
 
