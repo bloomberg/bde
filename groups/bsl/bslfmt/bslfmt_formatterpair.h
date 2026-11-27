@@ -58,10 +58,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
 
+#include <bslfmt_bslformattable.h>
 #include <bslfmt_bufferformatcontext.h>
 #include <bslfmt_debugformatutil.h>
 #include <bslfmt_formaterror.h>
@@ -83,6 +85,25 @@ BSLS_IDENT("$Id: $")
 #include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+namespace BloombergLP {
+namespace bslfmt {
+
+                     // =================================
+                     // concept FormatterPair_Formattable
+                     // =================================
+
+/// [**PRIVATE**] This concept is satisfied if `bsl::formatter` is enabled
+/// for each of the specified `t_TYPE1` and `t_TYPE2` with the specified
+/// `t_CHAR` character type.
+template <class t_TYPE1, class t_TYPE2, class t_CHAR>
+concept FormatterPair_Formattable = BslFormattable<t_TYPE1, t_CHAR> &&
+                                    BslFormattable<t_TYPE2, t_CHAR>;
+
+}  // close package namespace
+}  // close enterprise namespace
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+
 namespace bsl {
 
                             // ==========================
@@ -91,6 +112,10 @@ namespace bsl {
 
 /// Partial specialization of the `bsl::formatter` template for `bsl::pair`.
 template <class t_TYPE1, class t_TYPE2, class t_CHAR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+    requires BloombergLP::bslfmt::
+                            FormatterPair_Formattable<t_TYPE1, t_TYPE2, t_CHAR>
+#endif
 class formatter<bsl::pair<t_TYPE1, t_TYPE2>, t_CHAR> {
     // PRIVATE TYPES
     typedef BloombergLP::bslfmt::TupleFormatSpecification<t_CHAR>
@@ -170,6 +195,10 @@ class formatter<bsl::pair<t_TYPE1, t_TYPE2>, t_CHAR> {
 
 // PRIVATE ACCESSORS
 template <class t_TYPE1, class t_TYPE2, class t_CHAR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+    requires BloombergLP::bslfmt::
+                            FormatterPair_Formattable<t_TYPE1, t_TYPE2, t_CHAR>
+#endif
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 formatter<bsl::pair<t_TYPE1, t_TYPE2>, t_CHAR>::formatBody(
@@ -188,6 +217,10 @@ formatter<bsl::pair<t_TYPE1, t_TYPE2>, t_CHAR>::formatBody(
 
 // CREATORS
 template <class t_TYPE1, class t_TYPE2, class t_CHAR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+    requires BloombergLP::bslfmt::
+                            FormatterPair_Formattable<t_TYPE1, t_TYPE2, t_CHAR>
+#endif
 BSLS_KEYWORD_CONSTEXPR_CPP20
 formatter<bsl::pair<t_TYPE1, t_TYPE2>, t_CHAR>::formatter()
 : d_separator(BloombergLP::bslfmt::Separators<t_CHAR>::commaSeparator())
@@ -198,6 +231,10 @@ formatter<bsl::pair<t_TYPE1, t_TYPE2>, t_CHAR>::formatter()
 
 // MANIPULATORS
 template <class t_TYPE1, class t_TYPE2, class t_CHAR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+    requires BloombergLP::bslfmt::
+                            FormatterPair_Formattable<t_TYPE1, t_TYPE2, t_CHAR>
+#endif
 inline BSLS_KEYWORD_CONSTEXPR_CPP20
 void formatter<bsl::pair<t_TYPE1, t_TYPE2>, t_CHAR>::
 set_separator(basic_string_view<t_CHAR> separator) BSLS_KEYWORD_NOEXCEPT
@@ -206,6 +243,10 @@ set_separator(basic_string_view<t_CHAR> separator) BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class t_TYPE1, class t_TYPE2, class t_CHAR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+    requires BloombergLP::bslfmt::
+                            FormatterPair_Formattable<t_TYPE1, t_TYPE2, t_CHAR>
+#endif
 inline BSLS_KEYWORD_CONSTEXPR_CPP20
 void formatter<bsl::pair<t_TYPE1, t_TYPE2>, t_CHAR>::
 set_brackets(basic_string_view<t_CHAR> openingBracket,
@@ -216,6 +257,10 @@ set_brackets(basic_string_view<t_CHAR> openingBracket,
 }
 
 template <class t_TYPE1, class t_TYPE2, class t_CHAR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+    requires BloombergLP::bslfmt::
+                            FormatterPair_Formattable<t_TYPE1, t_TYPE2, t_CHAR>
+#endif
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 typename t_PARSE_CONTEXT::iterator
@@ -252,6 +297,10 @@ formatter<bsl::pair<t_TYPE1, t_TYPE2>, t_CHAR>::parse(t_PARSE_CONTEXT& ctx)
 
 // ACCESSORS
 template <class t_TYPE1, class t_TYPE2, class t_CHAR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+    requires BloombergLP::bslfmt::
+                            FormatterPair_Formattable<t_TYPE1, t_TYPE2, t_CHAR>
+#endif
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 formatter<bsl::pair<t_TYPE1, t_TYPE2>, t_CHAR>::format(

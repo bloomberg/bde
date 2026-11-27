@@ -9,57 +9,69 @@ bslfmt.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslfmt' package currently has 40 components having 14 levels of physical
+ The 'bslfmt' package currently has 51 components having 15 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  14. bslfmt_enablestreamedformatter
+  15. bslfmt_enablestreamedformatter
       bslfmt_print
       bslfmt_print_ostream                                            !PRIVATE!
       bslfmt_streamed
 
-  13. bslfmt_formattable
+  14. bslfmt_formattable
       bslfmt_print_imp                                                !PRIVATE!
       bslfmt_print_ostream_imp                                        !PRIVATE!
       bslfmt_streamedformatter
 
-  12. bslfmt_format
+  13. bslfmt_format
 
-  11. bslfmt_format_imp                                               !PRIVATE!
+  12. bslfmt_format_imp                                               !PRIVATE!
+
+  11. bslfmt_formatterrange
 
   10. bslfmt_formatterbool
       bslfmt_formattercharacter
       bslfmt_formatterintegral
       bslfmt_formatterpointer
+      bslfmt_rangeformatter
 
    9. bslfmt_formatterfloating
       bslfmt_formatterintegralbase
+      bslfmt_formatterpair
       bslfmt_formatterstring
 
    8. bslfmt_padutil
+      bslfmt_rangeformatspecification
       bslfmt_standardformatspecification
+      bslfmt_tupleformatspecification
 
    7. bslfmt_formatspecificationparser
       bslfmt_formattertestutil
 
-   6. bslfmt_mockformatcontext
+   6. bslfmt_bslformattable
+      bslfmt_bufferformatcontext
+      bslfmt_mockformatcontext
       bslfmt_mockparsecontext
 
    5. bslfmt_format_context                                           !PRIVATE!
       bslfmt_formatterspecificationnumericvalue
 
-   4. bslfmt_format_args                                              !PRIVATE!
+   4. bslfmt_displaywidthutil
+      bslfmt_escapeutil
+      bslfmt_format_args                                              !PRIVATE!
 
    3. bslfmt_format_arg                                               !PRIVATE!
       bslfmt_formatparsecontext
       bslfmt_unicodecodepoint
 
-   2. bslfmt_format_string                                            !PRIVATE!
+   2. bslfmt_debugformatutil
+      bslfmt_format_string                                            !PRIVATE!
       bslfmt_formaterror
       bslfmt_formatterbase
       bslfmt_formattercharutil
       bslfmt_formatterunicodedata
+      bslfmt_separators
       bslfmt_testspecificationgenerator
 
    1. bslfmt_format_arg_cpp03                                         !PRIVATE!
@@ -71,8 +83,23 @@ bslfmt.txt
 
 /Component Synopsis
 /------------------
+: 'bslfmt_bslformattable':
+:      Provide a concept checking that `bsl::formatter` supports a type.
+:
+: 'bslfmt_bufferformatcontext':
+:      Provide a format context that writes to a string buffer.
+:
+: 'bslfmt_debugformatutil':
+:      Provide a way to request debug formatting where it is supported.
+:
+: 'bslfmt_displaywidthutil':
+:      Provide utilities to compute the display width of text.
+:
 : 'bslfmt_enablestreamedformatter':
 :      Provide a trait to enable stream based formatting of a type.
+:
+: 'bslfmt_escapeutil':
+:      Provide escaped ("debug") rendering of characters and strings.
 :
 : 'bslfmt_format':
 :      Provide a standard compliant `format` implementation.
@@ -134,8 +161,14 @@ bslfmt.txt
 : 'bslfmt_formatterintegralbase':
 :      Provide a formatter customization for integer types
 :
+: 'bslfmt_formatterpair':
+:      Provide a formatter customization for `bsl::pair`.
+:
 : 'bslfmt_formatterpointer':
 :      Provide a formatter customization for pointer types
+:
+: 'bslfmt_formatterrange':
+:      Provide a formatter customization for ranges.
 :
 : 'bslfmt_formatterspecificationnumericvalue':
 :      Integer value for use within `bsl::format` specification parsers
@@ -176,6 +209,15 @@ bslfmt.txt
 : 'bslfmt_print_ostream_imp_cpp03':                                   !PRIVATE!
 :      Provide C++03 implementation for bslfmt_print_ostream_imp.h
 :
+: 'bslfmt_rangeformatspecification':
+:      Utility to parse a format spec for ranges.
+:
+: 'bslfmt_rangeformatter':
+:      Provide helper templates for implementing range formatters.
+:
+: 'bslfmt_separators':
+:      Provide a set of `char`/`wchar_t` separator constants.
+:
 : 'bslfmt_standardformatspecification':
 :      Private utility for use within BSL `format` standard spec parsers
 :
@@ -187,6 +229,9 @@ bslfmt.txt
 :
 : 'bslfmt_testspecificationgenerator':
 :      Provide a generator for test format specifications
+:
+: 'bslfmt_tupleformatspecification':
+:      Utility to parse a format spec for `tuple` and `pair`.
 :
 : 'bslfmt_unicodecodepoint':
 :      Provide a Unicode code point representation

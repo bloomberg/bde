@@ -1,6 +1,7 @@
 // bslfmt_formatterrange.t.cpp                                        -*-C++-*-
 #include <bslfmt_formatterrange.h>
 
+#include <bslfmt_bslformattable.h>
 #include <bslfmt_formattercharacter.h>
 #include <bslfmt_formatterintegral.h>
 #include <bslfmt_formatterpair.h>
@@ -14,7 +15,17 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+#include <concepts>
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+#include <chrono>
+#include <format>
+#endif
 
 #include <bslstl_array.h>
 #include <bslstl_deque.h>
@@ -83,7 +94,8 @@ using namespace BloombergLP;
 // [ 4] formatter<bsl::unordered_map<...>, t_CHAR>
 // [ 4] formatter<bsl::unordered_multimap<...>, t_CHAR>
 // ----------------------------------------------------------------------------
-// [ 6] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
+// [ 6] CONCERN: SPECIALIZATIONS REQUIRE FORMATTABLE ELEMENTS
 // [ 5] ELEMENT SPECIFICATION WITH A NESTED ARGUMENT
 // [ 1] BREATHING TEST
 
@@ -243,6 +255,32 @@ bool checkFormatW(const wchar_t  *spec,
     return bsl::wstring(expected) == formatToWString(formatter, value);
 }
 
+                            // ===============
+                            // struct NotFmtbl
+                            // ===============
+
+/// An empty type for which no `bsl::formatter` specialization is enabled.
+struct NotFmtbl {
+    // ACCESSORS
+
+    /// Return `true`.
+    bool operator<(const NotFmtbl&) const { return true; }
+};
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+/// This concept is satisfied if a `bsl::formatter` specialization for the
+/// specified `t_TYPE` and `char` can be default-constructed and its `format`
+/// member called with a format context.  Note that this mirrors a check
+/// performed by client code to choose between `bsl::format` and a
+/// stream-based fallback.
+template <class t_TYPE>
+concept HasUsableFormatter =
+    std::default_initializable<bsl::formatter<t_TYPE, char> > &&
+    requires(const t_TYPE& value, bslfmt::MockFormatContext<char>& context) {
+        bsl::formatter<t_TYPE, char>().format(value, context);
+    };
+#endif
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -318,7 +356,7 @@ int main(int argc, char *argv[])
                         "provides C++23 `std::format` range/pair support.\n");
 #else
     switch (test) { case 0:  // Zero is always the leading case.
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -339,6 +377,112 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         usage_example_1::run();
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // CONCERN: SPECIALIZATIONS REQUIRE FORMATTABLE ELEMENTS
+        //
+        // Concerns:
+        // 1. When concepts are supported, a `bsl::formatter` specialization
+        //    for a range or `bsl::pair` is enabled only if every constituent
+        //    type is formattable, so that a type whose elements are not
+        //    formattable is itself reported as not formattable by a concept,
+        //    instead of producing a hard error on instantiation.
+        //
+        // 2. The constraint is applied recursively to nested ranges and to
+        //    both the key and value types of maps.
+        //
+        // 3. Ranges and pairs of formattable types remain formattable, and
+        //    character arrays still use the string formatter.
+        //
+        // 4. An element type that is formattable only by a `std::formatter`
+        //    (and so satisfies `bsl::formattable` when `bsl::format` is
+        //    implemented by `std::format`) does not enable the range
+        //    formatter, which formats its elements with `bsl::formatter`.
+        //
+        // Plan:
+        // 1. Using `bslfmt::BslFormattable` and a concept that probes the
+        //    `bsl::formatter` directly (as client code may), verify for a
+        //    representative set of ranges and pairs of `NotFmtbl` that they
+        //    are not formattable, and that the same types with `int` in place
+        //    of `NotFmtbl` are formattable.  (C-1..3)
+        //
+        // 2. If `<format>` is available, verify that
+        //    `std::chrono::seconds` has a `std::formatter` but does not
+        //    satisfy `bslfmt::BslFormattable`, and that a `bsl::vector` of it
+        //    is not formattable by either check.  (C-4)
+        //
+        // Testing:
+        //   CONCERN: SPECIALIZATIONS REQUIRE FORMATTABLE ELEMENTS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                    "\nCONCERN: SPECIALIZATIONS REQUIRE FORMATTABLE ELEMENTS"
+                    "\n====================================================="
+                    "\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+#define U_CHECK(EXPECTED, ...)                                                \
+        ASSERTV(#__VA_ARGS__, EXPECTED == (HasUsableFormatter<__VA_ARGS__>)); \
+        ASSERTV(#__VA_ARGS__,                                                 \
+                EXPECTED == (bslfmt::BslFormattable<__VA_ARGS__, char>));
+
+        typedef NotFmtbl N;
+
+        U_CHECK(false, N);
+        U_CHECK(false, N[3]);
+        U_CHECK(false, bsl::array<N, 3>);
+        U_CHECK(false, bsl::deque<N>);
+        U_CHECK(false, bsl::list<N>);
+        U_CHECK(false, bsl::span<N>);
+        U_CHECK(false, bsl::vector<N>);
+        U_CHECK(false, bsl::vector<bsl::vector<N> >);
+        U_CHECK(false, bsl::vector<bsl::pair<int, N> >);
+        U_CHECK(false, bsl::set<N>);
+        U_CHECK(false, bsl::multiset<N>);
+        U_CHECK(false, bsl::unordered_set<N>);
+        U_CHECK(false, bsl::unordered_multiset<N>);
+        U_CHECK(false, bsl::map<int, N>);
+        U_CHECK(false, bsl::map<N, int>);
+        U_CHECK(false, bsl::multimap<int, N>);
+        U_CHECK(false, bsl::unordered_map<int, N>);
+        U_CHECK(false, bsl::unordered_multimap<int, N>);
+        U_CHECK(false, bsl::pair<int, N>);
+        U_CHECK(false, bsl::pair<N, int>);
+
+        U_CHECK(true,  int[3]);
+        U_CHECK(true,  char[3]);
+        U_CHECK(true,  bsl::array<int, 3>);
+        U_CHECK(true,  bsl::deque<int>);
+        U_CHECK(true,  bsl::list<int>);
+        U_CHECK(true,  bsl::span<int>);
+        U_CHECK(true,  bsl::vector<int>);
+        U_CHECK(true,  bsl::vector<bsl::vector<int> >);
+        U_CHECK(true,  bsl::vector<bsl::pair<int, char> >);
+        U_CHECK(true,  bsl::set<int>);
+        U_CHECK(true,  bsl::multiset<int>);
+        U_CHECK(true,  bsl::unordered_set<int>);
+        U_CHECK(true,  bsl::unordered_multiset<int>);
+        U_CHECK(true,  bsl::map<int, char>);
+        U_CHECK(true,  bsl::multimap<int, char>);
+        U_CHECK(true,  bsl::unordered_map<int, char>);
+        U_CHECK(true,  bsl::unordered_multimap<int, char>);
+        U_CHECK(true,  bsl::pair<int, char>);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        typedef std::chrono::seconds S;
+
+        ASSERT( (std::default_initializable<std::formatter<S, char> >));
+        U_CHECK(false, S);
+        U_CHECK(false, bsl::vector<S>);
+        U_CHECK(false, bsl::map<int, S>);
+        U_CHECK(false, bsl::pair<int, S>);
+#endif
+
+#undef U_CHECK
+#else
+        if (verbose) printf("\tConcepts are not supported; skipping.\n");
+#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------
