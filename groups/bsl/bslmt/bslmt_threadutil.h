@@ -286,6 +286,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <bslmt_chronoutil.h>
@@ -349,6 +350,12 @@ struct ThreadUtil {
 
     /// Prototype for thread-specific key destructors.
     typedef bslmt_KeyDestructorFunction            Destructor;
+
+    enum {
+        k_MAX_THREAD_NAME_LENGTH = Imp::k_MAX_THREAD_NAME_LENGTH
+            // maximum length, in bytes, of a thread name on platforms
+            // supporting thread names
+    };
 
     /// Counts down the limit counter set by `ThreadUtil::setThreadLimit`.
     /// Returns `true` if current thread creation attempt should be failed.
@@ -549,6 +556,15 @@ struct ThreadUtil {
     /// call to `create`.
     static int join(Handle& threadHandle, void **status = 0);
 
+    /// Load into the specified `result` a thread name consisting of the
+    /// specified `prefix`, a `':'`, and the specified `index` in decimal.  If
+    /// that name would be longer than `k_MAX_THREAD_NAME_LENGTH`, `prefix` is
+    /// shortened so that the result fits and the index is preserved.  The
+    /// behavior is undefined unless `0 <= index`.
+    static void makeIndexedThreadName(bsl::string             *result,
+                                      const bsl::string_view&  prefix,
+                                      int                      index);
+
     /// Suspend execution of the current thread for a period of at least the
     /// specified `microseconds` and the optionally specified `seconds`
     /// (relative time), or an interrupting signal is received.  Note that
@@ -557,11 +573,10 @@ struct ThreadUtil {
     /// longer than the time requested.
     static void microSleep(int microseconds, int seconds = 0);
 
-    /// Set the name of the current thread to the specified `threadName`.
-    /// On platforms other than Linux, Solaris, Darwin and Windows this
-    /// method has no effect.  Note that on those two platforms `threadName`
-    /// will be truncated to a length of 15 bytes, not including the
-    /// terminating '\0'.
+    /// Set the name of the current thread to the specified `threadName`.  On
+    /// platforms other than Linux, Solaris, Darwin and Windows this method has
+    /// no effect.  Note that `threadName` is truncated to
+    /// `k_MAX_THREAD_NAME_LENGTH` bytes.
     static void setThreadName(const bslstl::StringRef& threadName);
 
     /// Suspend execution of the current thread for a period of at least the

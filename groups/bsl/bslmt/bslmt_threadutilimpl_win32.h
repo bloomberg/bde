@@ -147,6 +147,12 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
     typedef DWORD  Key;
         // Win32 thread specific key(TLS index)
 
+    enum {
+        k_MAX_THREAD_NAME_LENGTH = 32766
+            // largest thread name length observed to be accepted by
+            // `SetThreadDescription` (not documented by Microsoft)
+    };
+
     // CLASS METHODS
     static const Handle INVALID_HANDLE;
 

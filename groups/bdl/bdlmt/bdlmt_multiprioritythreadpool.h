@@ -88,8 +88,12 @@ BSLS_IDENT("$Id: $")
 // should not be used programmatically, but will appear in debugging tools on
 // platforms that support naming threads to help users identify the source and
 // purpose of a thread.  If no `ThreadAttributes` object is passed, or if the
-// `threadName` attribute is not set, the default value "bdl.MultiPriPl" will
-// be used.
+// `threadName` attribute is not set, the default value "bdl.PriPool" will
+// be used.  Each sub-thread is named using that name and the index of the
+// thread in the pool, as returned by
+// `bslmt::ThreadUtil::makeIndexedThreadName` (e.g., "bdl.PriPool:0",
+// "bdl.PriPool:1", ...).  Note that the name may be shortened to fit the
+// platform limit, but the index is always preserved.
 //
 ///Usage
 ///-----

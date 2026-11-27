@@ -102,8 +102,11 @@ BSLS_IDENT("$Id: $")
 // should not be used programmatically, but will appear in debugging tools on
 // platforms that support naming threads to help users identify the source and
 // purpose of a thread.  If no `ThreadAttributes` object is passed, or if the
-// `threadName` attribute is not set, the default value "bdl.FixedPool" will be
-// used.
+// `threadName` attribute is not set, the default value "bdl.FixPool" will be
+// used.  Each sub-thread is named using that name and the index of the thread
+// in the pool, as returned by `bslmt::ThreadUtil::makeIndexedThreadName`
+// (e.g., "bdl.FixPool:0", "bdl.FixPool:1", ...).  Note that the name may
+// be shortened to fit the platform limit, but the index is always preserved.
 //
 ///Usage
 ///-----
@@ -448,10 +451,11 @@ class FixedThreadPool {
     /// The main function executed by each worker thread.
     void workerThread();
 
-    /// Internal method to spawn a new processing thread and increment the
-    /// current count.  Note that this method must be called with
+    /// Internal method to spawn a new processing thread, named using the
+    /// specified `index` (see {Thread Names for Sub-Threads}), and increment
+    /// the current count.  Note that this method must be called with
     /// `d_metaMutex` locked.
-    int startNewThread();
+    int startNewThread(int index);
 
   private:
     // NOT IMPLEMENTED
@@ -465,8 +469,8 @@ class FixedThreadPool {
     /// threads and a job queue of capacity sufficient to enqueue the
     /// specified `maxNumPendingJobs` without blocking.  Optionally specify
     /// a `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The name used for
-    /// created threads is "bdl.FixedPool".  The behavior is undefined unless
+    /// the currently installed default allocator is used.  The base name of
+    /// created threads is "bdl.FixPool".  The behavior is undefined unless
     /// `1 <= numThreads`.  Note that the actual job queue capacity can be
     /// obtained using `queueCapacity`, and may be more than
     /// `maxNumPendingJobs`.
@@ -482,8 +486,8 @@ class FixedThreadPool {
     /// `metricsRegistry` is 0, `bdlm::MetricsRegistry::singleton()` is
     /// used.  Optionally specify a'basicAllocator' used to supply memory.
     /// If `basicAllocator` is 0, the currently installed default allocator
-    /// is used.  The name used for created threads is `threadPoolName` if not
-    /// empty, otherwise "bdl.FixedPool".  The behavior is undefined unless
+    /// is used.  The base name of created threads is `threadPoolName` if not
+    /// empty, otherwise "bdl.FixPool".  The behavior is undefined unless
     /// `1 <= numThreads`.  Note that the actual job queue capacity can be
     /// obtained using `queueCapacity`, and may be more than
     /// `maxNumPendingJobs`.
@@ -498,9 +502,9 @@ class FixedThreadPool {
     /// sufficient to enqueue the specified `maxNumPendingJobs` without
     /// blocking.  Optionally specify a `basicAllocator` used to supply
     /// memory.  If `basicAllocator` is 0, the currently installed default
-    /// allocator is used.  The name used for created threads is
+    /// allocator is used.  The base name of created threads is
     /// `threadAttributes.threadName()` if not empty, otherwise
-    /// "bdl.FixedPool".  The detached state of `threadAttributes` is ignored,
+    /// "bdl.FixPool".  The detached state of `threadAttributes` is ignored,
     /// and `e_CREATE_JOINABLE` is used in all cases.  The behavior is
     /// undefined unless `1 <= numThreads`.  Note that the actual job queue
     /// capacity can be obtained using `queueCapacity`, and may be more than
@@ -518,9 +522,9 @@ class FixedThreadPool {
     /// metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The name used for
+    /// the currently installed default allocator is used.  The base name of
     /// created threads is `threadAttributes.threadName()` if not empty,
-    /// otherwise `threadPoolName` if not empty, otherwise "bdl.FixedPool".
+    /// otherwise `threadPoolName` if not empty, otherwise "bdl.FixPool".
     /// The detached state of `threadAttributes` is ignored, and
     /// `e_CREATE_JOINABLE` is used in all cases.  The behavior is undefined
     /// unless `1 <= numThreads`.  Note that the actual job queue capacity can

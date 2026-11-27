@@ -18,6 +18,8 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bsls_bslonce.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstring.h>  // 'memcpy'
 
 #include <process.h>      // '_begintthreadex', '_endthreadex'
@@ -224,12 +226,15 @@ void ThreadNameAPI::setThreadName(const bslstl::StringRef& threadName) const
     if (d_stdFuncPtr) {
         bsl::wstring utf16String;
 
-        const int threadNameLen = static_cast<int>(threadName.length());
+        const int threadNameLen = static_cast<int>(bsl::min<bsl::size_t>(
+                threadName.length(),
+                bslmt::ThreadUtilImpl<
+                    bslmt::Platform::Win32Threads>::k_MAX_THREAD_NAME_LENGTH));
         int len = 0;
         for (int pass = 0; pass < 2; ++pass) {
             // The 0th pass through this loop will just set 'rc' to the number
             // of bytes needed to store the result without outputting any bytes
-            // of UTF-8.  The 1th pass will actually output to the buffer.
+            // of UTF-8.  The 1st pass will actually output to the buffer.
 
             int rc = ::MultiByteToWideChar(CP_UTF8,
                                            0,
@@ -772,7 +777,8 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
                           absoluteTime - bsls::SystemTime::nowMonotonicClock();
         while (relativeTime > bsls::TimeInterval(0, 0)) {
             sleep(relativeTime);
-            relativeTime = absoluteTime - bsls::SystemTime::nowMonotonicClock();
+            relativeTime = absoluteTime -
+                           bsls::SystemTime::nowMonotonicClock();
         }
     }
 

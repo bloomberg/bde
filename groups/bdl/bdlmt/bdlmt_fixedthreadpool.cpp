@@ -11,6 +11,9 @@ BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 #include <bdlm_metric.h>
 #include <bdlm_metricdescriptor.h>
 
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
+
 #include <bsls_nullptr.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
@@ -77,7 +80,7 @@ namespace bdlmt {
                           // ---------------------
 
 // PRIVATE CLASS DATA
-const char FixedThreadPool::s_defaultThreadName[16] = { "bdl.FixedPool" };
+const char FixedThreadPool::s_defaultThreadName[16] = { "bdl.FixPool" };
 
 // PRIVATE MANIPULATORS
 void FixedThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
@@ -152,8 +155,16 @@ void FixedThreadPool::workerThread()
     } while (d_drainFlag);
 }
 
-int FixedThreadPool::startNewThread()
+int FixedThreadPool::startNewThread(int index)
 {
+    bsl::string threadName;
+    bslmt::ThreadUtil::makeIndexedThreadName(&threadName,
+                                             d_threadAttributes.threadName(),
+                                             index);
+
+    bslmt::ThreadAttributes attributes(d_threadAttributes);
+    attributes.setThreadName(threadName);
+
 #if defined(BSLS_PLATFORM_OS_UNIX)
     // Block all asynchronous signals.
 
@@ -164,7 +175,7 @@ int FixedThreadPool::startNewThread()
     bsl::function<void()> workerThreadFunc =
                   bdlf::MemFnUtil::memFn(&FixedThreadPool::workerThread, this);
 
-    int rc = d_threadGroup.addThread(workerThreadFunc, d_threadAttributes);
+    int rc = d_threadGroup.addThread(workerThreadFunc, attributes);
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     // Restore the mask.
@@ -275,7 +286,7 @@ int FixedThreadPool::start()
     }
 
     for (int i = 0; i < d_numThreads; ++i)  {
-        if (0 != startNewThread()) {
+        if (0 != startNewThread(i)) {
             // Submit a sufficient number of arrivals to the barrier to release
             // all threads ('d_numThreads + 1');
 

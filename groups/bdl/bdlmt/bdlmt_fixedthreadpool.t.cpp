@@ -43,6 +43,7 @@
 #include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
 #include <bsl_c_signal.h>
@@ -338,11 +339,29 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Return `true` if the specified `name` is the specified `base` followed by
+/// `':'` and a decimal index, and `false` otherwise.
+bool isIndexedName(bsl::string_view name, const bsl::string_view& base)
+{
+    if (!name.starts_with(base)) {
+        return false;                                                 // RETURN
+    }
+    name.remove_prefix(base.length());
+
+    if (!name.starts_with(':')) {
+        return false;                                                 // RETURN
+    }
+    name.remove_prefix(1);
+
+    return !name.empty() && bsl::string_view::npos ==
+                                name.find_first_not_of("0123456789");
+}
+
 namespace THREAD_NAMES_TEST {
 
+/// Check that the name of the current thread is `expectedThreadName` followed
+/// by an index, where `expectedThreadName` is the specified `arg`.
 void threadNameCheckJob(void *arg)
-    // Check that the name of the current thread matches `expectedThreadName`,
-    // where `expectedThreadName` is the specified `arg`.
 {
     const char *expectedThreadName = static_cast<const char *>(arg);
 
@@ -350,13 +369,14 @@ void threadNameCheckJob(void *arg)
     bslmt::ThreadUtil::getThreadName(&name);
 #if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN) ||   \
     defined(BSLS_PLATFORM_OS_SOLARIS)
-    ASSERTV(expectedThreadName, name, expectedThreadName == name);
+    ASSERTV(expectedThreadName, name, isIndexedName(name, expectedThreadName));
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
     // The threadname will only be visible if we're running on Windows 10,
     // version 1607 or later, otherwise it will be empty.
 
-    ASSERTV(expectedThreadName, name, expectedThreadName == name ||
-                                                                 name.empty());
+    ASSERTV(expectedThreadName,
+            name,
+            isIndexedName(name, expectedThreadName) || name.empty());
 #else
     // Platform doesn't support thread names.
 
@@ -443,7 +463,8 @@ void testJobFunction1(void *ptr)
 
     ASSERTV(threadName,
             (k_threadNameCanBeEmpty && threadName.empty()) ||
-                threadName == "bdl.FixedPool" || threadName == "OtherName");
+                isIndexedName(threadName, "bdl.FixPool") ||
+                isIndexedName(threadName, "OtherName"));
 
     ++args->d_count;
     ++args->d_startSig;
@@ -1144,7 +1165,7 @@ int main(int argc, char *argv[])
         const int k_NUM_THREADS =  5;
         const int k_MAX_PENDING = 10;
 
-        char defaultThreadName[]     = { "bdl.FixedPool" };
+        char defaultThreadName[]     = { "bdl.FixPool" };
         char constructorThreadName[] = { "name" };
         char nonDefaultThreadName[]  = { "bow wow" };
 
@@ -2670,7 +2691,7 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::Handle threadHandles[NITERATIONS];
             bslmt::ThreadAttributes attributes;
-            attributes.setThreadName("bdl.FixedPool");
+            attributes.setThreadName("bdl.FixPool:0");
 
             mutex.lock();
             for (int i=0; i<NITERATIONS; ++i) {

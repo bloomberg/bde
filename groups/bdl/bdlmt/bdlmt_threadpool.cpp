@@ -26,7 +26,9 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_climits.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_string.h>
 
@@ -110,7 +112,7 @@ ThreadPoolWaitNode::ThreadPoolWaitNode()
                                 // ----------
 
 // CLASS DATA
-const char ThreadPool::s_defaultThreadName[16] = { "bdl.ThreadPool" };
+const char ThreadPool::s_defaultThreadName[16] = {"bdl.ThrPool"};
 
 // PRIVATE MANIPULATORS
 void ThreadPool::doEnqueueJob(const Job& job)
@@ -182,39 +184,35 @@ void ThreadPool::wakeThreadIfNeeded()
     }
 }
 
-int ThreadPool::startThreadIfNeeded()
+int ThreadPool::prepareToEnqueueJob()
 {
-    if (static_cast<int>(d_queue.size()) + d_numActiveThreads > d_threadCount
-       && d_threadCount < d_maxThreads) {
-        int rc = startNewThread();
-        (void)rc;  // Suppress unused variable warning.
+    const int rc = startThreadsUpTo(static_cast<int>(d_queue.size()) +
+                                    d_numActiveThreads + 1);
+    if (0 == rc) {
+        return 0;                                                     // RETURN
+    }
 
-        if (0 == d_threadCount) {
-            // We are unable to spawn the first thread.  The enqueued job will
-            // never be processed.  Return error.
+    if (0 == d_threadCount) {
+        // We are unable to spawn the first thread.  The job would never be
+        // processed.  Return error.
 
-            return -1;                                                // RETURN
-        }
+        return -1;                                                    // RETURN
+    }
 
-        // In our existing code base, many Linux users unknowingly configure
-        // thread stack size to be 64 megabytes by default.  If they ask for a
-        // lot of threads, they run out of RAM and thread creation eventually
-        // fails.  But by then they have many threads and their jobs get
-        // processed and things work.  To avoid disturbing such jobs in
-        // production, work if 'startNewThread' failed as long as
-        // '0 != d_threadCount'.   Use exponential back-off to prevent log
-        // spamming.
+    // In our existing code base, many Linux users unknowingly configure thread
+    // stack size to be 64 megabytes by default.  If they ask for a lot of
+    // threads, they run out of RAM and thread creation eventually fails.  But
+    // by then they have many threads and their jobs get processed and things
+    // work.  To avoid disturbing such jobs in production, work if
+    // `startThreadsUpTo` failed as long as `0 != d_threadCount`.   Use
+    // exponential back-off to prevent log spamming.
 
-        if (0 != rc) {
-            ++d_numThreadCreateFailures;
-            if (0 == (d_numThreadCreateFailures
-                                          & (d_numThreadCreateFailures - 1))) {
-                BSLS_LOG_INFO("Client is not getting as many threads as"
-                              " requested, check thread stack size."
-                              "  (creation rc = %i)",
-                              rc);
-            }
-        }
+    ++d_numThreadCreateFailures;
+    if (0 == (d_numThreadCreateFailures & (d_numThreadCreateFailures - 1))) {
+        BSLS_LOG_INFO("Client is not getting as many threads as"
+                      " requested, check thread stack size."
+                      "  (creation rc = %i)",
+                      rc);
     }
     return 0;
 }
@@ -255,6 +253,15 @@ namespace bdlmt {
 
 int ThreadPool::startNewThread()
 {
+    // Reserve here so that exiting workers can release their index without
+    // allocating; grow geometrically to avoid reallocating per thread.
+
+    const bsl::size_t needed = d_threadCount + 1;
+    if (d_freeThreadIndices.capacity() < needed) {
+        d_freeThreadIndices.reserve(
+                 bsl::min(2 * needed, static_cast<bsl::size_t>(d_maxThreads)));
+    }
+
     bslmt::ThreadUtil::Handle handle;
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
@@ -287,8 +294,38 @@ int ThreadPool::startNewThread()
     return rc;
 }
 
+int ThreadPool::startThreadsUpTo(int numThreads)
+{
+    const int target = bsl::min(numThreads, d_maxThreads);
+    while (d_threadCount < target) {
+        const int rc = startNewThread();
+        if (0 != rc) {
+            return rc;                                                // RETURN
+        }
+    }
+    return 0;
+}
+
 void ThreadPool::workerThread()
 {
+    int threadIndex;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        if (d_freeThreadIndices.empty()) {
+            threadIndex = d_nextThreadIndex++;
+        }
+        else {
+            threadIndex = d_freeThreadIndices.back();
+            d_freeThreadIndices.pop_back();
+        }
+    }
+
+    bsl::string threadName;
+    bslmt::ThreadUtil::makeIndexedThreadName(&threadName,
+                                             d_threadAttributes.threadName(),
+                                             threadIndex);
+    bslmt::ThreadUtil::setThreadName(threadName);
+
     ThreadPoolWaitNode waitNode;
     Job functor(bsl::allocator_arg,
                 bsl::allocator<char>(d_queue.get_allocator()));
@@ -376,6 +413,7 @@ void ThreadPool::workerThread()
 
                     if (d_threadCount > d_minThreads) {
                         --d_threadCount;
+                        d_freeThreadIndices.push_back(threadIndex);
                         return;                                       // RETURN
                     }
                 }
@@ -390,6 +428,7 @@ void ThreadPool::workerThread()
 
             if (!functor) {
                 --d_threadCount;
+                d_freeThreadIndices.push_back(threadIndex);
                 if (0 == d_threadCount) {
                     d_drainCond.broadcast();
                 }
@@ -424,6 +463,8 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_maxThreads(maxThreads)
 , d_minThreads(minThreads)
 , d_threadCount(0)
+, d_freeThreadIndices(basicAllocator)
+, d_nextThreadIndex(0)
 , d_createFailures(0)
 , d_numActiveThreads(0)
 , d_enabled(0)
@@ -456,6 +497,8 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_maxThreads(maxThreads)
 , d_minThreads(minThreads)
 , d_threadCount(0)
+, d_freeThreadIndices(basicAllocator)
+, d_nextThreadIndex(0)
 , d_createFailures(0)
 , d_numActiveThreads(0)
 , d_enabled(0)
@@ -486,6 +529,8 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_maxThreads(maxThreads)
 , d_minThreads(minThreads)
 , d_threadCount(0)
+, d_freeThreadIndices(basicAllocator)
+, d_nextThreadIndex(0)
 , d_createFailures(0)
 , d_maxIdleTime(maxIdleTime)
 , d_numActiveThreads(0)
@@ -518,6 +563,8 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_maxThreads(maxThreads)
 , d_minThreads(minThreads)
 , d_threadCount(0)
+, d_freeThreadIndices(basicAllocator)
+, d_nextThreadIndex(0)
 , d_createFailures(0)
 , d_maxIdleTime(maxIdleTime)
 , d_numActiveThreads(0)
@@ -566,13 +613,13 @@ int ThreadPool::enqueueJob(const Job& functor)
     }
 
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    if (!d_enabled) {
+    if (!d_enabled || 0 != prepareToEnqueueJob()) {
         return -1;                                                    // RETURN
     }
 
     doEnqueueJob(functor);
 
-    return startThreadIfNeeded();
+    return 0;
 }
 
 int ThreadPool::enqueueJob(bslmf::MovableRef<Job> functor)
@@ -587,13 +634,13 @@ int ThreadPool::enqueueJob(bslmf::MovableRef<Job> functor)
     }
 
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    if (!d_enabled) {
+    if (!d_enabled || 0 != prepareToEnqueueJob()) {
         return -1;                                                    // RETURN
     }
 
     doEnqueueJob(bslmf::MovableRefUtil::move(functor));
 
-    return startThreadIfNeeded();
+    return 0;
 }
 
 void ThreadPool::shutdown()
@@ -638,12 +685,10 @@ int ThreadPool::start()
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     d_enabled = 1;
 
-    while (d_threadCount < d_minThreads) {
-        if (0 != startNewThread()) {
-            lock.release()->unlock();
-            shutdown(); // terminate running threads.
-            return -1;                                                // RETURN
-        }
+    if (0 != startThreadsUpTo(d_minThreads)) {
+        lock.release()->unlock();
+        shutdown(); // terminate running threads.
+        return -1;                                                    // RETURN
     }
     return 0;
 }

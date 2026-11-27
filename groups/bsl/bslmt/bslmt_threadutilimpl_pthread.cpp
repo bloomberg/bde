@@ -53,16 +53,14 @@ using namespace BloombergLP;
 // can't handle a string longer than 16 bytes, including the terminating '\0').
 
 // 'man pthread_setname_np' on Solaris says the max thread name length is 31
-// characters.  It diescussed no limit for 'pthread_getname_np', but the buffer
+// characters.  It discussed no limit for 'pthread_getname_np', but the buffer
 // length is passed to that call.
 
 enum {
     k_THREAD_NAME_BUF_SIZE =
-# if defined(BSLS_PLATFORM_OS_SOLARIS)
-                              32
-# else
-                              16
-# endif
+                 bslmt::ThreadUtilImpl<
+                     bslmt::Platform::PosixThreads>::k_MAX_THREAD_NAME_LENGTH +
+                 1
 };
 
 /// Return the native pthreads scheduling policy corresponding to the

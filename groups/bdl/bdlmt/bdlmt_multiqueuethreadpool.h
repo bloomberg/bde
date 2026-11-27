@@ -78,8 +78,10 @@ BSLS_IDENT("$Id: $")
 // should not be used programmatically, but will appear in debugging tools on
 // platforms that support naming threads to help users identify the source and
 // purpose of a thread.  If no `ThreadAttributes` object is passed, or if the
-// `threadName` attribute is not set, the default value "bdl.MultiQuePl" will
-// be used.  Note that this only applies to a `bdlmt::ThreadPool` automatically
+// `threadName` attribute is not set, the default value "bdl.MQPool" will
+// be used.  Each sub-thread is named using that name and an index, as
+// described in {`bdlmt_threadpool`|Thread Names for Sub-Threads}.  Note that
+// this only applies to a `bdlmt::ThreadPool` automatically
 // created by a `bdlmt::MultiQueueThreadPool`.  If a thread pool already exists
 // and is passed to the multi queue thread pool at construction, the subthreads
 // will be named however was specified when that thread pool was created.

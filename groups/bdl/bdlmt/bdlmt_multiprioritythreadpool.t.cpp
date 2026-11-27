@@ -32,6 +32,7 @@
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -168,6 +169,24 @@ static const bool k_threadNameCanBeEmpty = true;
 #else
 static const bool k_threadNameCanBeEmpty = false;
 #endif
+
+/// Return `true` if the specified `name` is the specified `base` followed by
+/// `':'` and a decimal index, and `false` otherwise.
+bool isIndexedName(bsl::string_view name, const bsl::string_view& base)
+{
+    if (!name.starts_with(base)) {
+        return false;                                                 // RETURN
+    }
+    name.remove_prefix(base.length());
+
+    if (!name.starts_with(':')) {
+        return false;                                                 // RETURN
+    }
+    name.remove_prefix(1);
+
+    return !name.empty() && bsl::string_view::npos ==
+                                name.find_first_not_of("0123456789");
+}
 
 }  // close unnamed namespace
 
@@ -414,7 +433,7 @@ struct Functor {
         bslmt::ThreadUtil::getThreadName(&threadName);
         ASSERTV(threadName,
                 (k_threadNameCanBeEmpty && threadName.empty()) ||
-                    threadName == "OtherName");
+                    isIndexedName(threadName, "OtherName"));
 
         bslmt::ThreadUtil::microSleep(50 * 1000);       // 0.05 sec
         bslmt::ThreadUtil::yield();
@@ -692,7 +711,7 @@ extern "C" void *incCounter(void *)
         bslmt::ThreadUtil::getThreadName(&threadName);
         ASSERTV(threadName,
                 (k_threadNameCanBeEmpty && threadName.empty()) ||
-                    threadName == "bdl.MultiPriPl");
+                    isIndexedName(threadName, "bdl.PriPool"));
     }
 
     return 0;

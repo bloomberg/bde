@@ -4,14 +4,22 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_threadutil_cpp,"$Id$ $CSID$")
 
+#include <bslalg_numericformatterutil.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_managedptr.h>
 
+#include <bslmf_assert.h>
+
+#include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
 
 #include <bsl_cmath.h>
+#include <bsl_cstddef.h>
+#include <bsl_iterator.h>
+#include <bsl_string_view.h>
 
 #include <bsl_c_limits.h>
 
@@ -205,6 +213,30 @@ int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
     // Unnamed thread.
 
     return Imp::create(handle, attributes, function, userData);
+}
+
+void bslmt::ThreadUtil::makeIndexedThreadName(
+                                              bsl::string             *result,
+                                              const bsl::string_view&  prefix,
+                                              int                      index)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(0 <= index);
+
+    typedef bslalg::NumericFormatterUtil NFU;
+
+    char buffer[1 + NFU::ToCharsMaxLength<int>::k_VALUE];
+    BSLMF_ASSERT(sizeof buffer < k_MAX_THREAD_NAME_LENGTH);
+
+    buffer[0] = ':';
+    char *end = NFU::toChars(buffer + 1, bsl::end(buffer), index);
+    BSLS_ASSERT(end);
+
+    const bsl::string_view suffix(buffer, end);
+
+    result->assign(prefix.substr(0,
+                                 k_MAX_THREAD_NAME_LENGTH - suffix.length()));
+    result->append(suffix);
 }
 
 void bslmt::ThreadUtil::setThreadLimit(unsigned int n) {

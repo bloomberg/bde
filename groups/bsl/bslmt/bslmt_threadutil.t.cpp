@@ -158,6 +158,27 @@ IntPtr intPtrAbs(IntPtr a)
     return a >= 0 ? a : -a;
 }
 
+namespace {
+namespace u {
+
+/// Load the name of the calling thread into a string.
+struct GetThreadNameFunctor {
+    bsl::string *d_name_p;
+
+    explicit GetThreadNameFunctor(bsl::string *name)
+    : d_name_p(name)
+    {
+    }
+
+    void operator()() const
+    {
+        bslmt::ThreadUtil::getThreadName(d_name_p);
+    }
+};
+
+}  // close namespace u
+}  // close unnamed namespace
+
 bsl::ostream& operator<<(bsl::ostream&                             stream,
                          bslmt::ThreadAttributes::SchedulingPolicy policy)
 {
@@ -1647,6 +1668,130 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 22: {
+        // --------------------------------------------------------------------
+        // MAKE INDEXED THREAD NAME
+        //
+        // Concerns:
+        // 1. The result is `prefix`, `':'`, and `index` in decimal.
+        //
+        // 2. If that would exceed `k_MAX_THREAD_NAME_LENGTH`, only `prefix` is
+        //    shortened, and the result has exactly that maximum length.
+        //
+        // 3. Prior content of `result` is replaced, including when `prefix`
+        //    refers to `result` itself.
+        //
+        // 4. A name of `k_MAX_THREAD_NAME_LENGTH` is applied to a thread
+        //    unchanged on platforms supporting thread names.
+        //
+        // 5. QoI: Asserted precondition violations are detected.
+        //
+        // Plan:
+        // 1. Using the table-driven technique, verify the result for prefixes
+        //    shorter than, equal to, and longer than the available space, and
+        //    for indices of various widths.  (C-1..2)
+        //
+        // 2. Call with non-empty `result` and with `prefix` aliasing
+        //    `result`.  (C-3)
+        //
+        // 3. Create a thread named with a maximal-length result and compare
+        //    `getThreadName` from within it.  (C-4)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for a null `result` and a negative `index`.  (C-5)
+        //
+        // Testing:
+        //   void makeIndexedThreadName(string *, const string_view&, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "MAKE INDEXED THREAD NAME\n"
+                             "========================\n";
+
+        const bsl::size_t MAX = Obj::k_MAX_THREAD_NAME_LENGTH;
+
+        const bsl::string LONG(MAX + 5, 'x');
+
+        static const struct {
+            int         d_line;
+            bsl::size_t d_prefixLength;  // prefix is this many chars of `LONG`
+            int         d_index;
+            const char *d_suffix;
+        } DATA[] = {
+            //LINE  PREFIX LENGTH  INDEX    SUFFIX
+            //----  -------------  -------  ------------
+            { L_,   0,             0,       ":0"          },
+            { L_,   3,             7,       ":7"          },
+            { L_,   3,             42,      ":42"         },
+            { L_,   0,             INT_MAX, ":2147483647" },
+            { L_,   MAX - 3,       12,      ":12"         },
+            { L_,   MAX - 2,       12,      ":12"         },
+            { L_,   MAX - 1,       12,      ":12"         },
+            { L_,   MAX,           12,      ":12"         },
+            { L_,   MAX + 5,       12,      ":12"         },
+            { L_,   MAX + 5,       INT_MAX, ":2147483647" },
+        };
+        const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE   = DATA[ti].d_line;
+            const bsl::string PREFIX = LONG.substr(0, DATA[ti].d_prefixLength);
+            const int         INDEX  = DATA[ti].d_index;
+            const bsl::string SUFFIX = DATA[ti].d_suffix;
+
+            const bsl::size_t EXP_PREFIX_LENGTH =
+                              bsl::min(PREFIX.length(), MAX - SUFFIX.length());
+            const bsl::string EXP = PREFIX.substr(0, EXP_PREFIX_LENGTH) +
+                                    SUFFIX;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(PREFIX) P_(INDEX) P(EXP)
+            }
+
+            bsl::string result("prior content");
+            Obj::makeIndexedThreadName(&result, PREFIX, INDEX);
+            ASSERTV(LINE, EXP, result, EXP == result);
+            ASSERTV(LINE, result.length(), result.length() <= MAX);
+            if (PREFIX.length() + SUFFIX.length() >= MAX) {
+                ASSERTV(LINE, result.length(), MAX == result.length());
+            }
+
+            bsl::string aliased(PREFIX);
+            Obj::makeIndexedThreadName(&aliased, aliased, INDEX);
+            ASSERTV(LINE, EXP, aliased, EXP == aliased);
+        }
+
+        if (verbose) cout << "Platform accepts a max-length thread name.\n";
+        {
+            bsl::string name;
+            Obj::makeIndexedThreadName(&name, LONG, 1);
+            ASSERTV(name.length(), MAX == name.length());
+
+            Attr attr;
+            attr.setThreadName(name);
+
+            bsl::string observed;
+            Obj::Handle handle;
+            ASSERT(0 == Obj::create(&handle,
+                                    attr,
+                                    u::GetThreadNameFunctor(&observed)));
+            ASSERT(0 == Obj::join(handle));
+
+            ASSERTV(name,
+                    observed,
+                    name == observed ||
+                        (k_threadNameCanBeEmpty && observed.empty()));
+        }
+
+        if (verbose) cout << "Negative testing.\n";
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            bsl::string result;
+            ASSERT_PASS(Obj::makeIndexedThreadName(&result, "a",  0));
+            ASSERT_FAIL(Obj::makeIndexedThreadName(0,       "a",  0));
+            ASSERT_FAIL(Obj::makeIndexedThreadName(&result, "a", -1));
+        }
+      } break;
       case 21: {
         // --------------------------------------------------------------------
         // THREAD LIBRARY CONSISTENCY

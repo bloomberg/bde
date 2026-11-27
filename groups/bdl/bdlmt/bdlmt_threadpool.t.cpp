@@ -43,6 +43,7 @@
 #include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
 #include <bsl_c_signal.h>
@@ -761,8 +762,26 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 
 namespace THREAD_NAMES_TEST {
 
-/// Check that the name of the current thread matches `expectedThreadName`,
-/// where `expectedThreadName` is the specified `arg`.
+/// Return `true` if the specified `name` is the specified `base` followed by
+/// `':'` and a decimal index, and `false` otherwise.
+bool isIndexedName(bsl::string_view name, const bsl::string_view& base)
+{
+    if (!name.starts_with(base)) {
+        return false;                                                 // RETURN
+    }
+    name.remove_prefix(base.length());
+
+    if (!name.starts_with(':')) {
+        return false;                                                 // RETURN
+    }
+    name.remove_prefix(1);
+
+    return !name.empty()
+        && bsl::string_view::npos == name.find_first_not_of("0123456789");
+}
+
+/// Check that the name of the current thread is `expectedThreadName`
+/// followed by an index, where `expectedThreadName` is the specified `arg`.
 void threadNameCheckJob(void *arg)
 {
     const char *expectedThreadName = static_cast<const char *>(arg);
@@ -771,19 +790,41 @@ void threadNameCheckJob(void *arg)
     bslmt::ThreadUtil::getThreadName(&name);
 #if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN) ||   \
     defined(BSLS_PLATFORM_OS_SOLARIS)
-    ASSERTV(expectedThreadName, name, expectedThreadName == name);
+    ASSERTV(expectedThreadName, name, isIndexedName(name, expectedThreadName));
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
     // The threadname will only be visible if we're running on Windows 10,
     // version 1607 or later, otherwise it will be empty.
 
-    ASSERTV(expectedThreadName, name, expectedThreadName == name ||
-                                                                 name.empty());
+    ASSERTV(expectedThreadName, name, isIndexedName(name, expectedThreadName)
+                                                             || name.empty());
 #else
     // Platform doesn't support thread names.
 
     ASSERTV(name, name.empty());
 #endif
 }
+
+/// Insert the name of the calling thread into `*d_names_p`, arrive on
+/// `*d_arrived_p`, then wait on `*d_release_p`, so that all jobs arriving
+/// before the release run in distinct threads.
+struct CollectNameJob {
+    bslmt::Mutex          *d_mutex_p;
+    bsl::set<bsl::string> *d_names_p;
+    bslmt::Latch          *d_arrived_p;
+    bslmt::Latch          *d_release_p;
+
+    void operator()() const
+    {
+        bsl::string name;
+        bslmt::ThreadUtil::getThreadName(&name);
+        {
+            bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
+            d_names_p->insert(name);
+        }
+        d_arrived_p->arrive();
+        d_release_p->wait();
+    }
+};
 
 }  // close namespace THREAD_NAMES_TEST
 
@@ -838,9 +879,9 @@ class CheckAllocatorMatchFunctor {
                 bslma::Allocator                              *basicAllocator);
 
     /// Create a `CheckAllocatorMatchFunctor` object having the same value as
-    /// the specified `original` object.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
-    /// currently installed default allocator is used.
+    /// the specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     CheckAllocatorMatchFunctor(
                         const CheckAllocatorMatchFunctor&  original,
                         bslma::Allocator                  *basicAllocator = 0);
@@ -1349,6 +1390,11 @@ int main(int argc, char *argv[])
         // 3. Verify when `threadAttributes.threadName()` is specified, it is
         //    used.
         //
+        // 4. Occupy all `maxThreads` threads at once, collect their names,
+        //    and verify they are the base name indexed `[0 .. maxThreads)`.
+        //    Then `stop`, `start`, and repeat to verify that indices of exited
+        //    threads are reused.
+        //
         // Testing:
         //   THREAD NAMES
         // --------------------------------------------------------------------
@@ -1362,9 +1408,62 @@ int main(int argc, char *argv[])
         const int k_MAX_THREADS = 10;
         const int k_IDLE_TIME   = 0;
 
-        char defaultThreadName[]     = { "bdl.ThreadPool" };
+        char defaultThreadName[]     = { "bdl.ThrPool" };
         char constructorThreadName[] = { "name" };
         char nonDefaultThreadName[]  = { "bow wow" };
+
+        if (verbose) cout << "Check thread indices are distinct and reused\n";
+        {
+            bsl::set<bsl::string> expected;
+            for (int i = 0; i < k_MAX_THREADS; ++i) {
+                expected.insert(bsl::string(defaultThreadName) + ':'
+                                                         + bsl::to_string(i));
+            }
+
+            Obj mX(bslmt::ThreadAttributes(),
+                   0,
+                   k_MAX_THREADS,
+                   k_IDLE_TIME,
+                   &testAllocator);
+
+            for (int round = 0; round < 2; ++round) {
+                bslmt::Mutex          mutex;
+                bsl::set<bsl::string> names;
+                bslmt::Latch          arrived(k_MAX_THREADS);
+                bslmt::Latch          release(1);
+
+                const TC::CollectNameJob job = { &mutex,
+                                                 &names,
+                                                 &arrived,
+                                                 &release };
+
+                ASSERT(0 == mX.start());
+                for (int i = 0; i < k_MAX_THREADS; ++i) {
+                    const int rc = mX.enqueueJob(job);
+                    ASSERTV(round, i, rc, 0 == rc);
+                    if (0 != rc) {
+                        arrived.arrive();
+                    }
+                }
+                arrived.wait();
+                release.arrive();
+                mX.stop();
+
+                const bool noNames = 1 == names.size()
+                                  && names.begin()->empty();
+                (void)noNames;
+#if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN) ||   \
+    defined(BSLS_PLATFORM_OS_SOLARIS)
+                ASSERTV(round, names.size(), expected == names);
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+                // Names are visible only on Windows 10, version 1607 or later.
+
+                ASSERTV(round, names.size(), expected == names || noNames);
+#else
+                ASSERTV(round, names.size(), noNames);
+#endif
+            }
+        }
 
         if (verbose) cout << "Check default thread name\n";
         {

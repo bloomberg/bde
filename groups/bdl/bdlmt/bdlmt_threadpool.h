@@ -77,6 +77,20 @@ BSLS_IDENT("$Id: $")
 // non-multi-threading environment).  See `bsldoc_glossary` for complete
 // definitions of **fully thread-safe** and **thread-enabled**.
 //
+///Thread Names for Sub-Threads
+///----------------------------
+// To facilitate debugging, users can provide a thread name as the `threadName`
+// attribute of the `bslmt::ThreadAttributes` argument passed to the
+// constructor.  If the `threadName` attribute is not set, the `threadPoolName`
+// argument (if supplied and not empty), or otherwise the default value
+// "bdl.ThrPool", is used.  Each sub-thread is named using that name and an
+// index not used by another running thread of the pool, as returned by
+// `bslmt::ThreadUtil::makeIndexedThreadName` (e.g., "bdl.ThrPool:0").  Note
+// that the name may be shortened to fit the platform limit, but the index is
+// always preserved.  Indices are reused as threads exit, so they remain below
+// `maxThreads()`.  Note that an exiting thread may briefly keep its name after
+// its index has been reused by a new thread.
+//
 ///Synchronous Signals on Unix
 ///---------------------------
 // A thread pool ensures that, on unix platforms, all the threads in the pool
@@ -374,6 +388,7 @@ BSLS_IDENT("$Id: $")
 #endif
 #include <bsl_functional.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
@@ -442,6 +457,15 @@ class ThreadPool {
                                            // threads started by this thread
                                            // pool
 
+    bsl::vector<int>     d_freeThreadIndices;
+                                           // thread name indices released by
+                                           // exited threads, available for
+                                           // reuse
+
+    int                  d_nextThreadIndex;
+                                           // next never-used thread name
+                                           // index
+
     bsls::AtomicInt      d_createFailures; // number of thread create failures
 
 
@@ -494,8 +518,8 @@ class ThreadPool {
     // PRIVATE MANIPULATORS
 
     /// Internal method used to push the specified `job` onto `d_queue` and
-    /// signal the next waiting thread if any.  Note that this method must
-    /// be called with `d_mutex` locked.
+    /// signal the next waiting thread if any.  The behavior is undefined
+    /// unless `d_mutex` is locked by the calling thread.
     void doEnqueueJob(const Job& job);
     void doEnqueueJob(bslmf::MovableRef<Job> job);
 
@@ -509,11 +533,11 @@ class ThreadPool {
     /// Signal this thread and pop the current thread from the wait list.
     void wakeThreadIfNeeded();
 
-    /// Start a new thread if needed and the maximum number of threads are
-    /// not yet running.  This method must be called with `d_mutex` locked.
-    /// Return 0 if at least one thread is running, and a non-zero value
-    /// otherwise.
-    int startThreadIfNeeded();
+    /// Start threads as needed so that the job about to be enqueued need not
+    /// wait for a thread to become available.  Return 0 if at least one
+    /// thread is running, and a non-zero value otherwise.  The behavior is
+    /// undefined unless `d_mutex` is locked by the calling thread.
+    int prepareToEnqueueJob();
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     /// Initialize the set of signals to be blocked in the managed threads.
@@ -521,8 +545,15 @@ class ThreadPool {
 #endif
 
     /// Internal method to spawn a new processing thread and increment the
-    /// current count.  This method must be called with `d_mutex` locked.
+    /// current count.  The behavior is undefined unless `d_mutex` is locked
+    /// by the calling thread.
     int startNewThread();
+
+    /// Start threads until at least the lesser of the specified `numThreads`
+    /// and `d_maxThreads` are running.  Return 0 on success, and a non-zero
+    /// value otherwise.  The behavior is undefined unless `d_mutex` is
+    /// locked by the calling thread.
+    int startThreadsUpTo(int numThreads);
 
     /// Processing thread function.
     void workerThread();
@@ -544,9 +575,9 @@ class ThreadPool {
     /// `maxIdleTime` idle time (in milliseconds) after which a thread may
     /// be considered for destruction.  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The name used for
+    /// the currently installed default allocator is used.  The base name of
     /// created threads is `threadAttributes.threadName()` if not empty,
-    /// otherwise "bdl.ThreadPool".  The behavior is undefined unless
+    /// otherwise "bdl.ThrPool".  The behavior is undefined unless
     /// `0 <= minThreads`, `minThreads <= maxThreads`, and `0 <= maxIdleTime`.
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
@@ -563,9 +594,9 @@ class ThreadPool {
     /// be used for reporting metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The name used for
+    /// the currently installed default allocator is used.  The base name of
     /// created threads is `threadAttributes.threadName()` if not empty,
-    /// otherwise `threadPoolName` if not empty, otherwise "bdl.ThreadPool".
+    /// otherwise `threadPoolName` if not empty, otherwise "bdl.ThrPool".
     /// The behavior is undefined unless `0 <= minThreads`,
     /// `minThreads <= maxThreads`, and `0 <= maxIdleTime`.
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -582,9 +613,9 @@ class ThreadPool {
     /// `maxIdleTime` idle time after which a thread may be considered for
     /// destruction.  Optionally specify a `basicAllocator` used to supply
     /// memory.  If `basicAllocator` is 0, the currently installed default
-    /// allocator is used.  The name used for created threads is
+    /// allocator is used.  The base name of created threads is
     /// `threadAttributes.threadName()` if not empty, otherwise
-    /// "bdl.ThreadPool".  The behavior is undefined unless `0 <= minThreads`,
+    /// "bdl.ThrPool".  The behavior is undefined unless `0 <= minThreads`,
     /// `minThreads <= maxThreads`, `0 <= maxIdleTime`, and the `maxIdleTime`
     /// has a value less than or equal to `INT_MAX` milliseconds.
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -602,9 +633,9 @@ class ThreadPool {
     /// metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The name used for
+    /// the currently installed default allocator is used.  The base name of
     /// created threads is `threadAttributes.threadName()` if not empty,
-    /// otherwise `threadPoolName` if not empty, otherwise "bdl.ThreadPool".
+    /// otherwise `threadPoolName` if not empty, otherwise "bdl.ThrPool".
     /// The behavior is undefined unless `0 <= minThreads`,
     /// `minThreads <= maxThreads`, `0 <= maxIdleTime`, and the `maxIdleTime`
     /// has a value less than or equal to `INT_MAX` milliseconds.
@@ -626,17 +657,20 @@ class ThreadPool {
     void drain();
 
     /// Enqueue the specified `functor` to be executed by the next available
-    /// thread.  Return 0 if enqueued successfully, and a non-zero value if
-    /// queuing is currently disabled.  The behavior is undefined unless
-    /// `functor` is not "unset".  See `bsl::function` for more information
-    /// on functors.
+    /// thread.  Return 0 if enqueued successfully, and a non-zero value
+    /// otherwise.  Enqueuing fails if queuing is currently disabled or no
+    /// thread could be started to execute `functor`.  The behavior is
+    /// undefined unless `functor` is not "unset".  See `bsl::function` for
+    /// more information on functors.
     int enqueueJob(const Job& functor);
     int enqueueJob(bslmf::MovableRef<Job> functor);
 
     /// Enqueue the specified `function` to be executed by the next
     /// available thread.  The specified `userData` pointer will be passed
     /// to the function by the processing thread.  Return 0 if enqueued
-    /// successfully, and a non-zero value if queuing is currently disabled.
+    /// successfully, and a non-zero value otherwise.  Enqueuing fails if
+    /// queuing is currently disabled or no thread could be started to
+    /// execute `function`.
     int enqueueJob(ThreadPoolJobFunc function, void *userData);
 
     /// Atomically report the percentage of wall time spent by each thread of

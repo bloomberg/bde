@@ -107,6 +107,14 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
     typedef pthread_t Id;            // thread Id type
     typedef pthread_key_t Key;       // thread-specific storage key type
 
+    enum {
+#ifdef BSLS_PLATFORM_OS_SOLARIS
+        k_MAX_THREAD_NAME_LENGTH = 31  // maximum thread name length in bytes
+#else
+        k_MAX_THREAD_NAME_LENGTH = 15  // maximum thread name length in bytes
+#endif
+    };
+
     // CLASS DATA
     static const pthread_t INVALID_HANDLE;
 

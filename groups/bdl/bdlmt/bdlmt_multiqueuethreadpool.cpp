@@ -526,8 +526,7 @@ void MultiQueueThreadPool_Queue::waitWhilePausing()
                     // ---------------------------------
 
 // PRIVATE CLASS DATA
-const char MultiQueueThreadPool::s_defaultThreadName[16] = {
-                                                            "bdl.MultiQuePl" };
+const char MultiQueueThreadPool::s_defaultThreadName[16] = {"bdl.MQPool"};
 
 // PRIVATE MANIPULATORS
 void MultiQueueThreadPool::deleteQueueCb(

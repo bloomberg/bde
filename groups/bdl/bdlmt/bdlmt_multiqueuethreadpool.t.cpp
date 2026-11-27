@@ -53,6 +53,7 @@
 
 #include <bsl_set.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
 
@@ -274,14 +275,33 @@ void makeFunc(Func  *f,
 void noop() {
 }
 
+/// Return `true` if the specified `name` is the specified `base` followed by
+/// `':'` and a decimal index, and `false` otherwise.
+bool isIndexedName(bsl::string_view name, const bsl::string_view& base)
+{
+    if (!name.starts_with(base)) {
+        return false;                                                 // RETURN
+    }
+    name.remove_prefix(base.length());
+
+    if (!name.starts_with(':')) {
+        return false;                                                 // RETURN
+    }
+    name.remove_prefix(1);
+
+    return !name.empty() && bsl::string_view::npos ==
+                                name.find_first_not_of("0123456789");
+}
+
 /// Check that the name of the thread is one of the acceptable values.
 void checkThreadName()
 {
     bsl::string threadName;
     bslmt::ThreadUtil::getThreadName(&threadName);
     ASSERTV(threadName,
-            (k_threadNameCanBeEmpty && threadName.empty()) ||
-                threadName == "bdl.MultiQuePl" || threadName == "OtherName");
+            (k_threadNameCanBeEmpty && threadName.empty())
+                || isIndexedName(threadName, "bdl.MQPool")
+                || isIndexedName(threadName, "OtherName"));
 }
 
 /// Increment the value at the address specified by `counter`.

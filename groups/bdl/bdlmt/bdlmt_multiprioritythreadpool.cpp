@@ -38,10 +38,13 @@ BSLS_IDENT_RCSID(bdlmt_multiprioritythreadpool_cpp,"$Id$ $CSID$")
 
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
 
 #include <bsl_csignal.h>
+#include <bsl_string.h>
 
 namespace BloombergLP {
 
@@ -69,8 +72,7 @@ namespace bdlmt {
                        // -----------------------------
 
 // PRIVATE CLASS DATA
-const char MultipriorityThreadPool::s_defaultThreadName[16] = {
-                                                            "bdl.MultiPriPl" };
+const char MultipriorityThreadPool::s_defaultThreadName[16] = {"bdl.PriPool"};
 
 // PRIVATE MANIPULATORS
 void MultipriorityThreadPool::worker()
@@ -278,9 +280,22 @@ int MultipriorityThreadPool::startThreads()
             d_threadSuspendState = e_SUSPENDING;
         }
 
-        int startedThreads = d_threadGroup.addThreads(workerFunctor,
-                                                      d_numThreads,
-                                                      d_threadAttributes);
+        bslmt::ThreadAttributes attributes(d_threadAttributes);
+        bsl::string             threadName;
+
+        int startedThreads;
+        for (startedThreads = 0; startedThreads < d_numThreads;
+             ++startedThreads) {
+            bslmt::ThreadUtil::makeIndexedThreadName(
+                                               &threadName,
+                                               d_threadAttributes.threadName(),
+                                               startedThreads);
+            attributes.setThreadName(threadName);
+
+            if (0 != d_threadGroup.addThread(workerFunctor, attributes)) {
+                break;
+            }
+        }
         if (d_numThreads == startedThreads) {
             if (e_SUSPENDING == d_threadSuspendState) {
                 do {
