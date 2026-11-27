@@ -1957,8 +1957,9 @@ BSLS_IDENT("$Id: $")
     #endif
   #endif  // at least Microsoft Visual Studio 2019, toolset version 14.21
 
-  // MS Visual Studio 2019 version 16.10, toolset version 14.29
-  #if BSLS_PLATFORM_CMP_VERSION >= 1929 && !defined(__clang__)
+  // MS Visual Studio 2019 version 16.10, toolset version 14.29, C++-only
+  #if BSLS_PLATFORM_CMP_VERSION >= 1929 && !defined(__clang__) &&             \
+                                                           defined(__cplusplus)
     // `cl.exe` ignores `[[no_unique_address]]`; `[[msvc::no_unique_address]]`
     #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS         1
   #endif

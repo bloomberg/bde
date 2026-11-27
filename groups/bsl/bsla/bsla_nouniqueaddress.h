@@ -68,8 +68,11 @@ BSLS_IDENT("$Id: $")
 // ```
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_linkcoercion.h>
 #include <bsls_platform.h>
+
+#ifdef __cplusplus
+#include <bsls_linkcoercion.h>
+#endif
 
                        // =============================
                        // Checks for Pre-Defined macros
@@ -99,6 +102,7 @@ BSLS_IDENT("$Id: $")
     #define BSLA_NO_UNIQUE_ADDRESS
 #endif
 
+#ifdef __cplusplus
                        // ==================
                        // Link-time Coercion
                        // ==================
@@ -132,6 +136,8 @@ BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
                                          bsla::NoUniqueAddress_Coerce::s_value)
 
 }  // close enterprise namespace
+
+#endif   // __cplusplus
 
 #endif
 
