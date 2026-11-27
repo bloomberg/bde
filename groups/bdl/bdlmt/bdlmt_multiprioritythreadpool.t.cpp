@@ -1733,6 +1733,17 @@ int main(int argc, char *argv[])
                         const int numThreads = numArray[i];
                         const int numPri     = numArray[j];
 
+                        // Identify the iteration in the time-out report, to
+                        // tell a slow host from a hang.
+
+                        ASSERT(0 == completionGuard.updateText(bsl::format(
+                                         "case 4: allocS={} aS={} "
+                                         "numThreads={} numPri={}",
+                                         allocS,
+                                         aS,
+                                         numThreads,
+                                         numPri)));
+
                         if (DEBUG_ALLOC == allocS) {
                             if (ATTRIBS_NONE == aS) {
                                 pool = new (ta)

@@ -1113,7 +1113,10 @@ int main(int argc, char *argv[])
             bsls::Types::Int64 s2 = ti2.totalSeconds();
             bsls::Types::Int64 s3 = bsls::Types::Int64(bsl::time(0));
             ASSERT(s1 <= s2 && s2 <= s1 + 2);
-            ASSERT(s1 <= s3 && s2 <= s3 + 2);
+            // `time(0)` may use a coarse clock (e.g., glibc on Linux uses
+            // `CLOCK_REALTIME_COARSE`) that can lag the precise clock by up to
+            // a clock tick, so `s3` may be one second behind `s1`.
+            ASSERT(s1 <= s3 + 1 && s2 <= s3 + 2);
         }
       } break;
       case -1: {

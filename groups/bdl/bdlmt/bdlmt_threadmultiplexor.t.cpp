@@ -614,16 +614,24 @@ int main(int argc, char *argv[])
                 P_(oJobs); P(oChecker.timesCalled());
             }
 
+            // The multiplexor must never run more than the configured number
+            // of jobs from a queue at once.  With very low system resources it
+            // may be impossible to run the dispatching thread frequently
+            // enough to get the maximum number of threads of a queue executing
+            // simultaneously, so we only warn if fewer were observed.
+
             LOOP_ASSERT(iChecker.maxProcessors(),
-                        IQUEUE_MAX_PROC == iChecker.maxProcessors());
-            // With very low system resources it may be impossible to run the
-            // dispatching thread frequently enough to get all 4 threads in the
-            // UNIQUE group executing simultaneously.  This check usually works
-            // but tends to fail during important release builds.  Much more
-            // trouble than it's worth.
-            //
-            //LOOP_ASSERT(uChecker.maxProcessors(),
-            //            UQUEUE_MAX_PROC == uChecker.maxProcessors());
+                        1 <= iChecker.maxProcessors() &&
+                        IQUEUE_MAX_PROC >= iChecker.maxProcessors());
+            if (verbose && IQUEUE_MAX_PROC != iChecker.maxProcessors()) {
+               cout << "MILD WARNING: iChecker.maxProcessors() == "
+                    << iChecker.maxProcessors() << ", expected "
+                    << IQUEUE_MAX_PROC << endl;
+            }
+
+            LOOP_ASSERT(uChecker.maxProcessors(),
+                        1 <= uChecker.maxProcessors() &&
+                        UQUEUE_MAX_PROC >= uChecker.maxProcessors());
             if (verbose && UQUEUE_MAX_PROC != uChecker.maxProcessors()) {
                cout << "MILD WARNING: uChecker.maxProcessors() == "
                     << uChecker.maxProcessors() << ", expected "

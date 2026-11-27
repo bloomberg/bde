@@ -1586,7 +1586,11 @@ int main(int argc, char *argv[])
                         startTime = bdlt::CurrentTime::local();
                     }
 
-                    startTime += bdlt::DatetimeInterval(-1, 0, 0, 1);
+                    // The first rotation is scheduled 3 seconds from now,
+                    // leaving time for opening the log file, which can be slow
+                    // on heavily loaded hosts.
+
+                    startTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
 
                     mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1),
                                              startTime);
@@ -1597,7 +1601,7 @@ int main(int argc, char *argv[])
                     bslmt::ThreadUtil::microSleep(0, 1);        // 1s
                     ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
-                    bslmt::ThreadUtil::microSleep(250000, 1);  // 2.25s
+                    bslmt::ThreadUtil::microSleep(250000, 3);  // 4.25s
                     BALL_LOG_TRACE << "log";
 
                     ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());

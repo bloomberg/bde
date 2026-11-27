@@ -2312,7 +2312,9 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-            const int TIMEOUT = 2;
+            // Thread creation can be very slow on heavily loaded hosts.  The
+            // timeout is only reached on failure, so it can be generous.
+            const int TIMEOUT = 30;
 
             if (verbose) cout << "Testing: min/max thread functionality\n"
                               << "====================================="

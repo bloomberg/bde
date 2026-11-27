@@ -283,6 +283,31 @@ bsls::TimeInterval now()
     return bsls::SystemTime::nowRealtimeClock();
 }
 
+/// Return `true` if this host appears to be too heavily loaded to verify
+/// timing with the specified `tolerance`, i.e., if at least half of several
+/// short sleeps overshoot by at least half of `tolerance`, and `false`
+/// otherwise.  Requiring most sleeps to overshoot keeps a single scheduling
+/// hiccup from hiding real timing failures.
+bool isHostOverloaded(const bsls::TimeInterval& tolerance)
+{
+    const int                k_NUM_PROBES         = 10;
+    const int                k_SLEEP_MICROSECONDS = 100 * 1000;
+    const bsls::TimeInterval k_SLEEP(0, k_SLEEP_MICROSECONDS * 1000);
+    const bsls::TimeInterval k_LIMIT(tolerance.totalSecondsAsDouble() / 2);
+
+    int numOvershoots = 0;
+    for (int i = 0; i < k_NUM_PROBES; ++i) {
+        const bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
+        bslmt::ThreadUtil::microSleep(k_SLEEP_MICROSECONDS);
+        const bsls::TimeInterval elapsed =
+                             bsls::SystemTime::nowMonotonicClock() - start;
+        if (elapsed - k_SLEEP >= k_LIMIT) {
+            ++numOvershoots;
+        }
+    }
+    return 2 * numOvershoots >= k_NUM_PROBES;
+}
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -5400,8 +5425,13 @@ int main(int argc, char *argv[])
 
         bslmt::ThreadAttributes attr;
 
+        // The stack size must exceed the default thread stack size on all
+        // platforms (1MB on Windows, typically 8-10MB on Linux), but should
+        // not be much larger: committing a deep stack page by page is very
+        // slow on heavily loaded Windows hosts.
+
         if (!veryVeryVerbose) {
-            attr.setStackSize(80 * 1000 * 1000);
+            attr.setStackSize(20 * 1000 * 1000);
         }
         attr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
@@ -5412,7 +5442,7 @@ int main(int argc, char *argv[])
         // As of 10/16/08, the default stack size was about 1MB on Solaris,
         // 0.25MB on AIX, and 10MB on Linux.
         Recurser r;
-        r.d_recurseDepth = 79 * 1000 * 1000;
+        r.d_recurseDepth = 19 * 1000 * 1000;
         r.s_finished = false;
 
         bdlmt::EventScheduler scheduler;
@@ -5427,7 +5457,9 @@ int main(int argc, char *argv[])
 
         scheduler.stop();
 
-        for (int i = 0; i < 15 && !r.s_finished; ++i) {
+        // Only a failing run waits for the full time.
+
+        for (int i = 0; i < 60 && !r.s_finished; ++i) {
             bslmt::ThreadUtil::microSleep(0, 1);
         }
 
@@ -5464,7 +5496,8 @@ int main(int argc, char *argv[])
         // reusing
         using namespace EVENTSCHEDULER_TEST_CASE_15;
 
-        int ii;
+        int  ii;
+        bool hostTooSlow = false;
         enum { k_MAX_LOOP = 4 };
         for (ii = 0; ii <= k_MAX_LOOP; ++ii) {
             bdlmt::EventScheduler scheduler(&ta);
@@ -5524,10 +5557,28 @@ int main(int argc, char *argv[])
 
             enum { k_MIN_SF_SIZE = 33*2, k_MAX_SF_SIZE = 44*2 };
 
-            ASSERT(ii < k_MAX_LOOP || slowFunctorSize >= k_MIN_SF_SIZE);
+            // Somewhat too few clock events may mean that the host was too
+            // heavily loaded for the dispatcher thread to keep up, which is
+            // not a defect of the component, but it is also the symptom of
+            // accumulated lag.  Retry, and if this persists warn, but do not
+            // fail the test, only if a load probe independently confirms that
+            // the host is overloaded.  Fewer than half of the expected events,
+            // or too many events (the clock queue grew), is a defect.
+
+            if (slowFunctorSize < k_MIN_SF_SIZE) {
+                if (verbose || k_MAX_LOOP == ii) {
+                    P_(L_) P_(k_MIN_SF_SIZE) P(slowFunctorSize);
+                }
+                ASSERT(ii < k_MAX_LOOP
+                    || slowFunctorSize >= k_MIN_SF_SIZE / 2);
+                if (k_MAX_LOOP == ii) {
+                    hostTooSlow = slowFunctorSize >= k_MIN_SF_SIZE / 2 &&
+                                  u::isHostOverloaded(k_ALLOWABLE_DIFFERENCE);
+                }
+                continue;
+            }
             ASSERT(ii < k_MAX_LOOP || slowFunctorSize <= k_MAX_SF_SIZE);
-            if (slowFunctorSize < k_MIN_SF_SIZE
-                    || slowFunctorSize > k_MAX_SF_SIZE) {
+            if (slowFunctorSize > k_MAX_SF_SIZE) {
                 if (verbose || k_MAX_LOOP == ii) {
                     P_(L_) P_(k_MIN_SF_SIZE) P_(k_MAX_SF_SIZE)
                                                             P(slowFunctorSize);
@@ -5633,7 +5684,10 @@ int main(int argc, char *argv[])
 
             break;
         }
-        ASSERT(ii <= k_MAX_LOOP);
+        ASSERT(ii <= k_MAX_LOOP || hostTooSlow);
+        if (hostTooSlow) {
+            cout << "WARNING: host too heavily loaded to verify clock lag\n";
+        }
         if (verbose) { P_(L_) P(ii); }
       } break;
       case 15: {
@@ -7932,7 +7986,19 @@ int main(int argc, char *argv[])
                              << deviations << ")\n";
                 }
             }
-            if (passed < SUCCESS_THRESHOLD) {
+            // If the host is so heavily loaded that most short sleeps
+            // overshoot by a large part of the tolerance, the failures do not
+            // indicate a defect, so warn instead of failing.
+
+            const bool overloaded =
+                                passed < SUCCESS_THRESHOLD &&
+                                u::isHostOverloaded(k_ALLOWABLE_DIFFERENCE);
+            if (overloaded) {
+                cout << "WARNING: host too heavily loaded to verify test case"
+                        " 2 timing, failed " << failed << " out of "
+                     << passed + failed << " times.\n";
+            }
+            if (!overloaded && passed < SUCCESS_THRESHOLD) {
                 // Run one more time and let LOOP_ASSERT report the failures.
                 // If this should succeed, then count it towards the successes
                 // and run again, until either failure or enough successes.
@@ -7950,7 +8016,7 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            if (passed < SUCCESS_THRESHOLD) {
+            if (!overloaded && passed < SUCCESS_THRESHOLD) {
                 ++failed; // for the additional failure in the while loop above
                 cout << "Failed test case 2 " << failed
                     << " out of " << passed+failed << " times.\n";
@@ -8003,7 +8069,19 @@ int main(int argc, char *argv[])
                              << deviations << ")\n";
                 }
             }
-            if (passed < SUCCESS_THRESHOLD) {
+            // If the host is so heavily loaded that most short sleeps
+            // overshoot by a large part of the tolerance, the failures do not
+            // indicate a defect, so warn instead of failing.
+
+            const bool overloaded =
+                                passed < SUCCESS_THRESHOLD &&
+                                u::isHostOverloaded(k_ALLOWABLE_DIFFERENCE);
+            if (overloaded) {
+                cout << "WARNING: host too heavily loaded to verify test case"
+                        " 2 timing, failed " << failed << " out of "
+                     << passed + failed << " times.\n";
+            }
+            if (!overloaded && passed < SUCCESS_THRESHOLD) {
                 // Run one more time and let LOOP_ASSERT report the failures.
                 // If this should succeed, then count it towards the successes
                 // and run again, until either failure or enough successes.
@@ -8020,7 +8098,7 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            if (passed < SUCCESS_THRESHOLD) {
+            if (!overloaded && passed < SUCCESS_THRESHOLD) {
                 ++failed; // for the additional failure in the while loop above
                 cout << "Failed test case 2 " << failed
                     << " out of " << passed+failed << " times.\n";

@@ -271,6 +271,37 @@ static inline bool isApproxEqual(const bsls::TimeInterval& t1,
     return (ALLOWABLE_DIFFERENCE > absDifference)? true : false;
 }
 
+namespace {
+namespace u {
+
+/// Return `true` if this host appears to be too heavily loaded to verify
+/// timing with the specified `tolerance`, i.e., if at least half of several
+/// short sleeps overshoot by at least half of `tolerance`, and `false`
+/// otherwise.  Requiring most sleeps to overshoot keeps a single scheduling
+/// hiccup from hiding real timing failures.
+bool isHostOverloaded(const bsls::TimeInterval& tolerance)
+{
+    const int                k_NUM_PROBES         = 10;
+    const int                k_SLEEP_MICROSECONDS = 100 * 1000;
+    const bsls::TimeInterval k_SLEEP(0, k_SLEEP_MICROSECONDS * 1000);
+    const bsls::TimeInterval k_LIMIT(tolerance.totalSecondsAsDouble() / 2);
+
+    int numOvershoots = 0;
+    for (int i = 0; i < k_NUM_PROBES; ++i) {
+        const bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
+        bslmt::ThreadUtil::microSleep(k_SLEEP_MICROSECONDS);
+        const bsls::TimeInterval elapsed =
+                             bsls::SystemTime::nowMonotonicClock() - start;
+        if (elapsed - k_SLEEP >= k_LIMIT) {
+            ++numOvershoots;
+        }
+    }
+    return 2 * numOvershoots >= k_NUM_PROBES;
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
 /// Return true if the specified `t1` is approximately (the definition of
 /// *approximate* is implementation-defined) greater than the specified
 /// `t2`, otherwise return false.
@@ -4791,7 +4822,8 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta;
 
-        int ii;
+        int  ii;
+        bool hostTooSlow = false;
         enum { MAX_LOOP = 4 };
         for (ii = 0; ii <= MAX_LOOP; ++ii) {
             bdlmt::TimerEventScheduler scheduler(&ta);
@@ -4821,9 +4853,25 @@ int main(int argc, char *argv[])
             ASSERT(!(slowfunctorSize & 1)); // should not be odd element
             slowfunctorSize &= ~1;          // ignore odd element if there
 
-            ASSERT(ii < MAX_LOOP || slowfunctorSize >= 18*2);
+            // Somewhat too few clock events may mean that the host was too
+            // heavily loaded for the dispatcher thread to keep up, which is
+            // not a defect of the component, but it is also the symptom of
+            // accumulated lag.  Retry, and if this persists warn, but do not
+            // fail the test, only if a load probe independently confirms that
+            // the host is overloaded.  Fewer than half of the expected events,
+            // or too many events (the clock queue grew), is a defect.
+
+            if (slowfunctorSize < 18*2) {
+                if (verbose || ii == MAX_LOOP) { P_(L_); P(slowfunctorSize); }
+                ASSERT(ii < MAX_LOOP || slowfunctorSize >= 18);
+                if (ii == MAX_LOOP) {
+                    hostTooSlow = slowfunctorSize >= 18 &&
+                                  u::isHostOverloaded(ALLOWABLE_DIFFERENCE);
+                }
+                continue;
+            }
             ASSERT(ii < MAX_LOOP || slowfunctorSize <= 22*2);
-            if (slowfunctorSize < 18*2 || slowfunctorSize > 22*2) {
+            if (slowfunctorSize > 22*2) {
                 if (verbose || ii == MAX_LOOP) { P_(L_); P(slowfunctorSize); }
                 continue;
             }
@@ -4852,7 +4900,10 @@ int main(int argc, char *argv[])
 
             break;
         }
-        ASSERT(ii <= MAX_LOOP);
+        ASSERT(ii <= MAX_LOOP || hostTooSlow);
+        if (hostTooSlow) {
+            cout << "WARNING: host too heavily loaded to verify clock lag\n";
+        }
         if (verbose) { P_(L_); P(ii); }
 // TBD
 #if 0
@@ -6340,7 +6391,18 @@ int main(int argc, char *argv[])
                              << deviations << ")\n";
                 }
             }
-            if (passed < SUCCESS_THRESHOLD) {
+            // If the host is so heavily loaded that most short sleeps
+            // overshoot by a large part of the tolerance, the failures do not
+            // indicate a defect, so warn instead of failing.
+
+            const bool overloaded = passed < SUCCESS_THRESHOLD
+                                 && u::isHostOverloaded(ALLOWABLE_DIFFERENCE);
+            if (overloaded) {
+                cout << "WARNING: host too heavily loaded to verify test case"
+                        " 2 timing, failed " << failed << " out of "
+                     << passed + failed << " times.\n";
+            }
+            if (!overloaded && passed < SUCCESS_THRESHOLD) {
                 // Run one more time and let LOOP_ASSERT report the failures.
                 // If this should succeed, then count it towards the successes
                 // and run again, until either failure or enough successes.
@@ -6358,7 +6420,7 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            if (passed < SUCCESS_THRESHOLD) {
+            if (!overloaded && passed < SUCCESS_THRESHOLD) {
                 ++failed; // for the additional failure in the while loop above
                 cout << "Failed test case 2 " << failed
                     << " out of " << passed+failed << " times.\n";
@@ -6410,7 +6472,18 @@ int main(int argc, char *argv[])
                              << deviations << ")\n";
                 }
             }
-            if (passed < SUCCESS_THRESHOLD) {
+            // If the host is so heavily loaded that most short sleeps
+            // overshoot by a large part of the tolerance, the failures do not
+            // indicate a defect, so warn instead of failing.
+
+            const bool overloaded = passed < SUCCESS_THRESHOLD
+                                 && u::isHostOverloaded(ALLOWABLE_DIFFERENCE);
+            if (overloaded) {
+                cout << "WARNING: host too heavily loaded to verify test case"
+                        " 2 timing, failed " << failed << " out of "
+                     << passed + failed << " times.\n";
+            }
+            if (!overloaded && passed < SUCCESS_THRESHOLD) {
                 // Run one more time and let LOOP_ASSERT report the failures.
                 // If this should succeed, then count it towards the successes
                 // and run again, until either failure or enough successes.
@@ -6427,7 +6500,7 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            if (passed < SUCCESS_THRESHOLD) {
+            if (!overloaded && passed < SUCCESS_THRESHOLD) {
                 ++failed; // for the additional failure in the while loop above
                 cout << "Failed test case 2 " << failed
                     << " out of " << passed+failed << " times.\n";

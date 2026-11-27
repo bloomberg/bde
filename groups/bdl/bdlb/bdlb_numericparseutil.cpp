@@ -38,6 +38,7 @@ BSLS_IDENT_RCSID(bdlb_numericparseutil_cpp, "$Id$ $CSID$")
   #include <bsl_cstddef.h>       // size_t
   #ifdef BDLB_NUMERICPARSEUTIL_VALUE_NOT_SET_ON_RANGE_ERROR
     #include <bsl_cstdlib.h>     // strtod - needed to parse 0/Inf on ERANGE
+    #include <bsl_limits.h>      // numeric_limits
   #endif
 #else   // end - has float 'from_chars'
   #include <bsl_cctype.h>        // isspace
@@ -288,10 +289,19 @@ int NumericParseUtil::parseDouble(double                  *result,
         value = u::reparseOutOfRange(&restPtr, stdlibInput);
 
         *remainder = stdlibInput.substr(restPtr - stdlibInput.data());
+        *result    = isNegative ? -value : value;
+
+        // Some 'from_chars' implementations report a range error for
+        // subnormal values.  Like the 'strtod' based implementation below, do
+        // not report a range error unless the value under- or overflowed (to
+        // zero or Infinity).  Note that 'value' is never negative here.
+        if (0 != value && value <= bsl::numeric_limits<double>::max()) {
+            return 0;                                                 // RETURN
+        }
 #else  // BDLB_NUMERICPARSEUTIL_VALUE_NOT_SET_ON_RANGE_ERROR
         *remainder = stdlibInput.substr(restOffset);
+        *result    = isNegative ? -value : value;
 #endif  // 'double' value is set to 0 or Inf on range error
-        *result = isNegative ? -value : value;
         return ERANGE;                                                // RETURN
     }
 

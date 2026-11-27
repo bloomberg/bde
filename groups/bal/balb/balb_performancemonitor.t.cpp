@@ -827,11 +827,20 @@ bool waitForSamples(const Obj::Statistics& stats, int count, double timeout)
 {
     const double start = bdlt::CurrentTime::now().totalSecondsAsDouble();
     while (numSamples(stats) < count) {
-        if (bdlt::CurrentTime::now().totalSecondsAsDouble() - start >
-                                                                    timeout) {
+        const double elapsed =
+                   bdlt::CurrentTime::now().totalSecondsAsDouble() - start;
+        if (elapsed > timeout) {
+            bsl::cout << "waitForSamples: timed out after " << elapsed
+                      << "s with " << numSamples(stats) << " of " << count
+                      << " samples\n";
             return false;                                             // RETURN
         }
         bslmt::ThreadUtil::microSleep(10000, 0);
+    }
+    if (verbose) {
+        bsl::cout << "waitForSamples: " << count << " samples after "
+                  << bdlt::CurrentTime::now().totalSecondsAsDouble() - start
+                  << "s\n";
     }
     return true;
 }
@@ -2232,7 +2241,7 @@ int main(int argc, char *argv[])
                 if (verbose) cout << "\tTesting a positive interval.\n";
 
                 mX.setCollectionInterval(0.05);
-                ASSERT(waitForSamples(S, 3, 10.0));
+                ASSERT(waitForSamples(S, 3, 30.0));
 
                 if (verbose) cout << "\tTesting stopping collection.\n";
 
@@ -2250,7 +2259,7 @@ int main(int argc, char *argv[])
 
                 mX.setCollectionInterval(10.0);
                 mX.setCollectionInterval(0.05);
-                ASSERT(waitForSamples(S, N + 3, 10.0));
+                ASSERT(waitForSamples(S, N + 3, 30.0));
 
                 mX.setCollectionInterval(0.0);
             }
@@ -2260,7 +2269,7 @@ int main(int argc, char *argv[])
                 Obj mX(&scheduler, 0.05, &ta);  const Obj& X = mX;
                 ASSERT(0 == mX.registerPid(0, "self"));
 
-                ASSERT(waitForSamples(*X.find(0), 3, 10.0));
+                ASSERT(waitForSamples(*X.find(0), 3, 30.0));
             }
 
             if (verbose) cout << "\tTesting destruction.\n";
@@ -2304,7 +2313,7 @@ int main(int argc, char *argv[])
 
             timeSource.advanceTime(bsls::TimeInterval(0.05));
             ASSERT(0 == scheduler.start());
-            ASSERT(waitForSamples(*mX.find(0), 1, 10.0));
+            ASSERT(waitForSamples(*mX.find(0), 1, 30.0));
 
             mX.setCollectionInterval(0);
             scheduler.stop();

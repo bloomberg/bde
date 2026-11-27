@@ -20,6 +20,7 @@
 #include <bslmt_lockguard.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
 #include <bslmt_timedcompletionguard.h>
 
 #include <bsls_alignmentfromtype.h>
@@ -472,6 +473,11 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self,
                 }
                 obj->reset();
                 mX->releaseObject(obj);
+
+                // Let the processor threads drain the queue; busy spinning
+                // can starve them on heavily loaded hosts.
+
+                bslmt::ThreadUtil::yield();
             }
          }
       }
@@ -481,14 +487,24 @@ void case13Processor(bdlcc::ObjectPool<Case13Type>  *mX,
                      bdlcc::FixedQueue<Case13Type*> *queue,
                      bsls::AtomicInt                *done)
 {
+   int numIdle = 0;
    while (1) {
       Case13Type* obj;
       if (0 == queue->tryPopFront(&obj)) {
+         numIdle = 0;
          obj->increment();
          mX->releaseObject(obj);
       }
       else if (*done) {
           break;
+      }
+      else if (++numIdle < 100) {
+          // Note that `microSleep(500)` sleeps for up to a timer tick (about
+          // 15.6ms) on Windows, which can make this test exceed its time
+          // limit on heavily loaded hosts, so yield first while producers
+          // are likely to be active.
+
+          bslmt::ThreadUtil::yield();
       }
       else {
           bslmt::ThreadUtil::microSleep(500); //0.5 ms
