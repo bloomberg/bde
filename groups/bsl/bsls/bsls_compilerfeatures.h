@@ -24,6 +24,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: `[[maybe_unused]]`
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: `[[nodiscard]]`
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: `[[noreturn]]` attribute
+//  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS: attribute
 //  BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS: C++20 core language concepts
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20: `consteval` specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: `constexpr` specifier
@@ -320,6 +321,11 @@ BSLS_IDENT("$Id: $")
 // * `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN`
 //   > This macro is defined if the `[[noreturn]]` attribute is supported by
 //   > the current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS`
+//   > This macro is defined if the `[[no_unique_address]]` attribute (or, on
+//   > MSVC, `[[msvc::no_unique_address]]`) is supported by the current
+//   > compiler settings for this platform.
 //
 // * `BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS`
 //   > This macro is defined if the concepts core language feature is
@@ -744,6 +750,19 @@ BSLS_IDENT("$Id: $")
 //   - GCC 4.8
 //   - Clang 3.3
 //   - Visual Studio 2017 version 15.3 (<u>MSC</u>VER 1911)
+//
+///`BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS`
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the `[[no_unique_address]]`
+// C++20 attribute.  Note that MSVC (including `clang-cl`) ignores
+// `[[no_unique_address]]`, so on MSVC this macro indicates support for the
+// equivalent `[[msvc::no_unique_address]]` attribute instead.
+//
+// * Compiler support:
+//   - GCC 9.1
+//   - Clang 9.0
+//   - Visual Studio 2019 version 16.10 (<u>MSC</u>VER 1929)
+//   - Clang 18 (`clang-cl`)
 //
 ///`BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS`
 ///- - - - - - - - - - - - - - - - - - - -
@@ -1446,6 +1465,16 @@ BSLS_IDENT("$Id: $")
     #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED              1
   #endif
 
+  #if defined(BSLS_PLATFORM_CMP_MSVC)  // `clang-cl`; `cl.exe` is handled below
+    #if defined(__clang__)
+      #if __has_cpp_attribute(msvc::no_unique_address)  // MSVC ABI spelling
+        #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS     1
+      #endif
+    #endif
+  #elif __has_cpp_attribute(no_unique_address)
+    #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS         1
+  #endif
+
 #endif
 
 // ============================================================================
@@ -1927,6 +1956,12 @@ BSLS_IDENT("$Id: $")
       #define BSLS_COMPILERFEATURES_FULL_CPP17                                1
     #endif
   #endif  // at least Microsoft Visual Studio 2019, toolset version 14.21
+
+  // MS Visual Studio 2019 version 16.10, toolset version 14.29
+  #if BSLS_PLATFORM_CMP_VERSION >= 1929 && !defined(__clang__)
+    // `cl.exe` ignores `[[no_unique_address]]`; `[[msvc::no_unique_address]]`
+    #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS         1
+  #endif
 
   // Microsoft Visual Studio doesn't follow WG14 N2322 Recommended practice yet
   // #define BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST

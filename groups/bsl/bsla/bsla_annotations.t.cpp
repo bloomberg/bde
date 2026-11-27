@@ -304,6 +304,14 @@ struct BSLA_DEPRECATED Test_DEPRECATED_type {
     int d_d;
 };
 
+struct Test_NO_UNIQUE_ADDRESS_type {
+    struct Empty {
+    };
+
+    BSLA_NO_UNIQUE_ADDRESS Empty d_empty;
+    int                          d_d;
+};
+
 namespace {
 
 struct BSLA_MAYBE_UNUSED Test_MAYBE_UNUSED_type_no_warning {
@@ -682,6 +690,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\nBSLA_NO_UNIQUE_ADDRESS: ");
+#ifdef BSLA_NO_UNIQUE_ADDRESS
+    printf("%s\n", STRINGIFY(BSLA_NO_UNIQUE_ADDRESS) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\nBSLA_NULLTERMINATED: ");
 #ifdef BSLA_NULLTERMINATED
     printf("%s\n", STRINGIFY(BSLA_NULLTERMINATED) );
@@ -787,6 +802,12 @@ static void printFlags()
        PMV(BSLA_NORETURN_IS_ACTIVE);
     #else
        PMU(BSLA_NORETURN_IS_ACTIVE);
+    #endif
+
+    #ifdef BSLA_NO_UNIQUE_ADDRESS_IS_ACTIVE
+       PMV(BSLA_NO_UNIQUE_ADDRESS_IS_ACTIVE);
+    #else
+       PMU(BSLA_NO_UNIQUE_ADDRESS_IS_ACTIVE);
     #endif
 
     #ifdef BSLA_NULLTERMINATEDAT_IS_ACTIVE

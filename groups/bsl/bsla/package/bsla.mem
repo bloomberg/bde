@@ -7,6 +7,7 @@ bsla_maybeunused
 bsla_nodiscard
 bsla_nonnullarg
 bsla_noreturn
+bsla_nouniqueaddress
 bsla_nullterminated
 bsla_printf
 bsla_scanf

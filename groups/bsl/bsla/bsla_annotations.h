@@ -17,6 +17,7 @@ BSLS_IDENT("$Id: $")
 //  BSLA_NONNULLARG(...): warn if indexed arguments are NULL
 //  BSLA_NONNULLARGS: warn if any arguments are NULL
 //  BSLA_NORETURN: issue a compiler warning if function returns normally
+//  BSLA_NO_UNIQUE_ADDRESS: data member need not have a unique address
 //  BSLA_NULLTERMINATED:            warn if last argument is non-NULL
 //  BSLA_NULLTERMINATEDAT(ARG_IDX): warn if argument at `ARG_IDX` is non-NULL
 //  BSLA_PRINTF(FMTIDX, STARTIDX): validate `printf` format and arguments
@@ -33,6 +34,7 @@ BSLS_IDENT("$Id: $")
 //  BSLA_NONNULLARG_IS_ACTIVE:       defined if `BSLA_NONNULLARG`     is active
 //  BSLA_NONNULLARGS_IS_ACTIVE:      defined if `BSLA_NONNULLARGS`    is active
 //  BSLA_NORETURN_IS_ACTIVE:         defined if `BSLA_NORETURN`       is active
+//  BSLA_NO_UNIQUE_ADDRESS_IS_ACTIVE: defined if the annotation is active
 //  BSLA_NULLTERMINATED_IS_ACTIVE:   defined if `BSLA_NULLTERMINATED` is active
 //  BSLA_NULLTERMINATEDAT_IS_ACTIVE: defined if `BSLA_NULLTERMINATEDAT`  active
 //  BSLA_PRINTF_IS_ACTIVE:           defined if `BSLA_PRINTF`         is active
@@ -118,6 +120,12 @@ BSLS_IDENT("$Id: $")
 //:     will not return in a normal fashion.  The function can still exit via
 //:     other means such as throwing an exception or aborting the process.
 //:
+//: `BSLA_NO_UNIQUE_ADDRESS`:
+//:     This annotation, placed at the start of the declaration of a
+//:     non-static data member, indicates that the member need not have an
+//:     address distinct from all other non-static data members of its class.
+//:     A so-annotated member of an empty type may occupy no storage.
+//:
 //: `BSLA_NULLTERMINATED`:
 //:     This annotation on a variadic macro indicates that a warning should be
 //:     issued unless the last argument to the function is explicitly `NULL`.
@@ -190,6 +198,7 @@ BSLS_IDENT("$Id: $")
 //: `BSLA_NONNULLARG_IS_ACTIVE`
 //: `BSLS_NONNULLARGS_IS_ACTIVE`
 //: `BSLA_NORETURN_IS_ACTIVE`
+//: `BSLA_NO_UNIQUE_ADDRESS_IS_ACTIVE`
 //: `BSLA_NULLTERMINATED_IS_ACTIVE`
 //: `BSLA_NULLTERMINATEDAT_IS_ACTIVE`
 //: `BSLA_PRINTF_IS_ACTIVE`
@@ -215,6 +224,7 @@ BSLS_IDENT("$Id: $")
 #include <bsla_nodiscard.h>
 #include <bsla_nonnullarg.h>
 #include <bsla_noreturn.h>
+#include <bsla_nouniqueaddress.h>
 #include <bsla_nullterminated.h>
 #include <bsla_printf.h>
 #include <bsla_scanf.h>
@@ -231,6 +241,7 @@ BSLS_IDENT("$Id: $")
 // BDE_VERIFY pragma: re-export <bsla_nodiscard.h>
 // BDE_VERIFY pragma: re-export <bsla_nonnullarg.h>
 // BDE_VERIFY pragma: re-export <bsla_noreturn.h>
+// BDE_VERIFY pragma: re-export <bsla_nouniqueaddress.h>
 // BDE_VERIFY pragma: re-export <bsla_nullterminated.h>
 // BDE_VERIFY pragma: re-export <bsla_printf.h>
 // BDE_VERIFY pragma: re-export <bsla_scanf.h>

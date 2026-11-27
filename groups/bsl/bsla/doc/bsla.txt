@@ -24,7 +24,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsla' package currently has 16 components having 3 levels of physical
+ The 'bsla' package currently has 17 components having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -41,6 +41,7 @@
      bsla_nodiscard
      bsla_nonnullarg
      bsla_noreturn
+     bsla_nouniqueaddress
      bsla_nullterminated
      bsla_printf
      bsla_scanf
@@ -77,6 +78,9 @@
 :
 : 'bsla_noreturn':
 :      Provide a macro to issue a compiler warning if a function returns.
+:
+: 'bsla_nouniqueaddress':
+:      Provide a macro to allow non-static data members to overlap.
 :
 : 'bsla_nullterminated':
 :      Provide macros for use with `NULL`-terminated variadic functions.
@@ -160,6 +164,13 @@
  This component provides a preprocessor macro that annotates a function as
  never returning, resulting in a compiler warning if a path of control exists
  such that the function does return.
+
+/bsla_nouniqueaddress
+/ - - - - - - - - - -
+ This component provides a preprocessor macro that annotates a non-static data
+ member to indicate that the member need not have an address distinct from all
+ other non-static data members of its class, allowing a member of an empty type
+ to occupy no storage.
 
 /bsla_nullterminated
 /- - - - - - - - - -

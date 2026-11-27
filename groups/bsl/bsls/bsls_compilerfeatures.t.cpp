@@ -60,6 +60,7 @@
 // [26] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
 // [27] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
 // [28] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
+// [45] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS
 // [38] BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
 // [40] BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20
 // [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
@@ -103,7 +104,7 @@
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 // ----------------------------------------------------------------------------
-// [45] USAGE EXAMPLE
+// [46] USAGE EXAMPLE
 // [43] __cpp_sized_deallocation
 // [44] __cpp_template_template_args
 
@@ -1150,6 +1151,29 @@ void runTest([[maybe_unused]] int i) {}
 #endif  // supported attribute not indicated
 }  // close namespace test_case_28
 
+namespace test_case_45 {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS
+
+struct Empty {
+};
+
+struct Annotated {
+  #if defined(BSLS_PLATFORM_CMP_MSVC)
+    [[msvc::no_unique_address]] Empty d_empty;
+  #else
+    [[no_unique_address]] Empty d_empty;
+  #endif
+    int d_value;
+};
+
+#elif u_HAS_CPP_ATTRIBUTE(no_unique_address) &&                              \
+                                              !defined(BSLS_PLATFORM_CMP_MSVC)
+    // MSVC (including `clang-cl`) ignores `[[no_unique_address]]`.
+    #error '[[no_unique_address]]' is available but                           \
+  'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS' is not defined.
+#endif  // supported attribute not indicated
+}  // close namespace test_case_45
+
 namespace test_case_31 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 
@@ -1743,6 +1767,14 @@ static void printFlags()
     fputs("\tBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS: ",
+          stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS));
 #else
     puts("UNDEFINED");
 #endif
@@ -2941,7 +2973,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 45: {
+      case 46: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3022,6 +3054,32 @@ int main(int argc, char *argv[])
 // compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
 #undef THATS_MY_LINE
+      } break;
+      case 45: {
+        // --------------------------------------------------------------------
+        // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS
+        //
+        // Concerns:
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS` is
+        //    defined then the attribute can be applied to a data member, and
+        //    an annotated member of empty type occupies no storage.
+        //
+        // Plan:
+        // 1. If the macro is defined, verify that a class having an annotated
+        //    member of empty type and an `int` member has the size of `int`.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS
+        // --------------------------------------------------------------------
+
+        MACRO_TEST_TITLE("_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS",
+                         "====================================");
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NO_UNIQUE_ADDRESS
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+#else
+        ASSERT(sizeof(test_case_45::Annotated) == sizeof(int));
+#endif
       } break;
       case 44: {
         // --------------------------------------------------------------------
