@@ -40,6 +40,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
+#include <atomic>
 #include <bsl_cstddef.h>        // 'bsl::size_t'
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -106,6 +107,16 @@ namespace BloombergLP {
 namespace ball {
 
 namespace {
+
+// Cache only negative thread-specific logger lookups, never logger pointers.
+// The construction epoch guards manager reuse at the same address.
+std::atomic<unsigned long long> s_loggerManagerConstructionEpoch(1);
+struct NegativeLoggerCache {
+    const void *d_manager;
+    unsigned long long d_epoch;
+    bool d_isNegative;
+};
+thread_local NegativeLoggerCache s_negativeLoggerCache = {0, 0, false};
 
                     // ==========================
                     // struct RecordSharedPtrUtil
@@ -763,6 +774,8 @@ LoggerManager::LoggerManager(
 , d_triggerMarkers(configuration.triggerMarkers())
 , d_allocator_p(bslma::Default::globalAllocator(globalAllocator))
 {
+    // Any new manager invalidates all TLS negative entries.
+    s_loggerManagerConstructionEpoch.fetch_add(1, std::memory_order_acq_rel);
     BSLS_ASSERT(d_observer);
 
     BSLS_ASSERT(observer);
@@ -1170,6 +1183,8 @@ LoggerManager::LoggerManager(
 , d_triggerMarkers(configuration.triggerMarkers())
 , d_allocator_p(bslma::Default::globalAllocator(globalAllocator))
 {
+    // Any new manager invalidates all TLS negative entries.
+    s_loggerManagerConstructionEpoch.fetch_add(1, std::memory_order_acq_rel);
     BSLS_ASSERT(d_observer);
 
     constructObject(configuration);
@@ -1360,13 +1375,28 @@ void LoggerManager::deallocateLogger(Logger *logger)
 
 Logger& LoggerManager::getLoggerSlow()
 {
-    // TBD: optimize it using thread local storage
+    // Use the slow path when this thread has no valid negative cache entry.
+    const unsigned long long epoch =
+        s_loggerManagerConstructionEpoch.load(std::memory_order_acquire);
+    const bool canReturnDefault =
+        s_negativeLoggerCache.d_manager == this &&
+        s_negativeLoggerCache.d_epoch == epoch &&
+        s_negativeLoggerCache.d_isNegative;
+    if (canReturnDefault) {
+        return *d_logger_p;  // Skip the lock and thread-id lookup.
+    }
 
     d_defaultLoggersLock.lockRead();
     bsl::map<void *, Logger *>::iterator itr =
             d_defaultLoggers.find((void *)bslmt::ThreadUtil::selfIdAsUint64());
+    Logger *logger = itr != d_defaultLoggers.end() ? itr->second : d_logger_p;
+    const bool isNegative = itr == d_defaultLoggers.end();
     d_defaultLoggersLock.unlock();
-    return itr != d_defaultLoggers.end() ? *(itr->second) : *d_logger_p;
+    // Do not retain iterator or custom Logger pointer beyond unlock.
+    s_negativeLoggerCache.d_manager = this;
+    s_negativeLoggerCache.d_epoch = epoch;
+    s_negativeLoggerCache.d_isNegative = isNegative;
+    return *logger;
 }
 
 void LoggerManager::setLogger(Logger *logger)
@@ -1381,6 +1411,11 @@ void LoggerManager::setLogger(Logger *logger)
     else {
         d_defaultLoggers[id] = logger;
     }
+    // Local transitions always invalidate the negative cache, including
+    // custom->custom and custom->default; no custom Logger is ever cached.
+    s_negativeLoggerCache.d_manager = 0;
+    s_negativeLoggerCache.d_epoch = 0;
+    s_negativeLoggerCache.d_isNegative = false;
     d_defaultLoggerCount.storeRelease(
                                static_cast<unsigned>(d_defaultLoggers.size()));
 }
